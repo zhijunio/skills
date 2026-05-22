@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-拉取今日诗词 v1 接口
-"""
+"""Fetch one line from Jinrishici v1 API."""
 
 import argparse
 import json
@@ -39,29 +37,29 @@ def format_poem_line(data: Dict[str, Any]) -> str:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description="今日诗词：从 jinrishici 拉取一句并格式化输出")
+    p = argparse.ArgumentParser(description="Fetch and format one line from jinrishici.com")
     p.add_argument(
         "--json",
         action="store_true",
-        help="输出完整 JSON（美化），不换行格式化诗句",
+        help="Print full JSON (pretty); skip formatted line",
     )
     p.add_argument(
         "--url",
         default=SENTENCE_API,
-        help="接口地址（默认官方 v1 all.json）",
+        help="API URL (default official v1 all.json)",
     )
     p.add_argument(
         "--timeout",
         type=float,
         default=10.0,
         metavar="SEC",
-        help="请求超时秒数",
+        help="Request timeout in seconds",
     )
     args = p.parse_args()
 
     raw = _fetch_json(args.url, timeout=args.timeout)
     if not raw:
-        print("请求失败或响应无法解析。", file=sys.stderr)
+        print("Request failed or response could not be parsed.", file=sys.stderr)
         return 1
 
     if args.json:
@@ -70,7 +68,7 @@ def main() -> int:
 
     line = format_poem_line(raw)
     if not line:
-        print("响应中无有效诗句（content 为空）。", file=sys.stderr)
+        print("No valid poem line in response (empty content).", file=sys.stderr)
         return 1
     print(line)
     return 0

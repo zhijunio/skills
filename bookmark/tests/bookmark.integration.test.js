@@ -1,7 +1,5 @@
 /**
- * 书签技能集成测试
- *
- * 测试实际的书签添加和查询功能
+ * Bookmark skill integration tests
  */
 
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
@@ -10,7 +8,6 @@ import { cleanup, initTestFile, getTestFilePath } from './test-utils.js';
 
 const TEST_BOOKMARK_FILE = getTestFilePath('bookmarks.integration.test.md');
 
-// 模拟添加书签的函数
 function addBookmark(file, url, title, tags, description) {
   const today = new Date().toISOString().split('T')[0];
   const dateHeader = `### ${today}`;
@@ -19,7 +16,6 @@ function addBookmark(file, url, title, tags, description) {
 
   const content = readFileSync(file, 'utf-8');
 
-  // 检查是否已存在该日期头
   if (!content.includes(dateHeader)) {
     appendFileSync(file, `\n${dateHeader}\n`, 'utf-8');
   }
@@ -27,7 +23,6 @@ function addBookmark(file, url, title, tags, description) {
   appendFileSync(file, entry, 'utf-8');
 }
 
-// 模拟查询书签的函数
 function queryBookmarks(file, range) {
   const content = readFileSync(file, 'utf-8');
   const today = new Date().toISOString().split('T')[0];
@@ -59,9 +54,9 @@ describe('Bookmark Integration Tests', () => {
     cleanup(TEST_BOOKMARK_FILE);
   });
 
-  describe('添加书签', () => {
-    it('应该添加书签到今天的日期头下', () => {
-      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example', ['#test'], '测试描述');
+  describe('add bookmark', () => {
+    it('appends under today date header', () => {
+      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example', ['#test'], 'Test description');
 
       const content = readFileSync(TEST_BOOKMARK_FILE, 'utf-8');
       const today = new Date().toISOString().split('T')[0];
@@ -69,17 +64,16 @@ describe('Bookmark Integration Tests', () => {
       expect(content).toContain(`### ${today}`);
       expect(content).toContain('[Example](https://example.com)');
       expect(content).toContain('#test');
-      expect(content).toContain('测试描述');
+      expect(content).toContain('Test description');
     });
 
-    it('应该在同一日期头下添加多个书签', () => {
-      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example 1', ['#test'], '第一个描述');
-      addBookmark(TEST_BOOKMARK_FILE, 'https://another.com', 'Example 2', ['#test'], '第二个描述');
+    it('adds multiple bookmarks under one date header', () => {
+      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example 1', ['#test'], 'First description');
+      addBookmark(TEST_BOOKMARK_FILE, 'https://another.com', 'Example 2', ['#test'], 'Second description');
 
       const content = readFileSync(TEST_BOOKMARK_FILE, 'utf-8');
       const today = new Date().toISOString().split('T')[0];
 
-      // 只应该有一个日期头
       const dateHeaderCount = (content.match(new RegExp(`### ${today}`, 'g')) || []).length;
       expect(dateHeaderCount).toBe(1);
 
@@ -87,40 +81,40 @@ describe('Bookmark Integration Tests', () => {
       expect(content).toContain('[Example 2](https://another.com)');
     });
 
-    it('应该最多添加 2 个标签', () => {
-      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example', ['#tag1', '#tag2'], '描述');
+    it('allows at most two tags', () => {
+      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example', ['#tag1', '#tag2'], 'Description');
 
       const content = readFileSync(TEST_BOOKMARK_FILE, 'utf-8');
       expect(content).toMatch(/#tag1 #tag2/);
     });
   });
 
-  describe('查询书签', () => {
-    it('应该查询今天的书签', () => {
-      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example', ['#test'], '描述');
+  describe('query bookmarks', () => {
+    it('queries today', () => {
+      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example', ['#test'], 'Description');
 
       const results = queryBookmarks(TEST_BOOKMARK_FILE, 'today');
       expect(results.length).toBe(1);
       expect(results[0]).toBe('[Example](https://example.com)');
     });
 
-    it('应该查询所有书签', () => {
-      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example 1', ['#test'], '描述 1');
-      addBookmark(TEST_BOOKMARK_FILE, 'https://another.com', 'Example 2', ['#test'], '描述 2');
+    it('queries all', () => {
+      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example 1', ['#test'], 'Description 1');
+      addBookmark(TEST_BOOKMARK_FILE, 'https://another.com', 'Example 2', ['#test'], 'Description 2');
 
       const results = queryBookmarks(TEST_BOOKMARK_FILE, 'all');
       expect(results.length).toBe(2);
     });
 
-    it('空查询应该返回空数组', () => {
+    it('returns empty when none', () => {
       const results = queryBookmarks(TEST_BOOKMARK_FILE, 'today');
       expect(results.length).toBe(0);
     });
   });
 
-  describe('重复检测', () => {
-    it('应该检测到重复 URL', () => {
-      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example', ['#test'], '描述');
+  describe('duplicate detection', () => {
+    it('detects duplicate URL in file', () => {
+      addBookmark(TEST_BOOKMARK_FILE, 'https://example.com', 'Example', ['#test'], 'Description');
 
       const content = readFileSync(TEST_BOOKMARK_FILE, 'utf-8');
 

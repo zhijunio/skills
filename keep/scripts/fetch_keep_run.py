@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-从 Keep 读取跑步数据并生成 running.json。
-通过 Keep API 拉取数据，包含 VDOT 跑力、训练负荷与周期统计。
+Fetch Keep running data and write running.json.
+Uses Keep API: VDOT, training load, period stats.
 """
 
 import argparse
@@ -32,14 +32,14 @@ USER_AGENT = (
 )
 
 DATATYPE_NAME = {
-    "outdoorRunning": "户外跑步",
-    "indoorRunning": "跑步机",
-    "outdoorWalking": "步行",
-    "outdoorCycling": "户外骑行",
-    "mountaineering": "越野",
+    "outdoorRunning": "Outdoor run",
+    "indoorRunning": "Treadmill",
+    "outdoorWalking": "Walking",
+    "outdoorCycling": "Outdoor cycling",
+    "mountaineering": "Trail",
 }
 
-# 心率区间 (最大心率%阈值 -> zone)
+# Heart-rate zones (max HR % thresholds -> zone)
 HR_ZONE_THRESHOLDS: List[Tuple[int, int]] = [
     (84, 1), (89, 2), (94, 3), (99, 4),
     (102, 5), (105, 6), (106, 7),
@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 
 
 def _n(val: Any) -> int:
-    """安全转 int，无效返回 0。"""
+    """Safe int; 0 on invalid."""
     try:
         return int(val)
     except (TypeError, ValueError):
@@ -63,7 +63,7 @@ def _n(val: Any) -> int:
 
 
 def _f(val: Any) -> float:
-    """安全转 float，无效返回 0.0。"""
+    """Safe float; 0.0 on invalid."""
     try:
         return float(val)
     except (TypeError, ValueError):
@@ -71,34 +71,34 @@ def _f(val: Any) -> float:
 
 
 def _round_distance(val: float) -> float:
-    """公里数按常规四舍五入保留两位。"""
+    """Round km to two decimals."""
     return float(Decimal(str(val)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
 def _truncate_distance(val: float) -> float:
-    """Keep 汇总距离展示为两位小数截断。"""
+    """Truncate displayed km to two decimals."""
     return float(Decimal(str(val)).quantize(Decimal("0.01"), rounding=ROUND_DOWN))
 
 
 def _time_label(hour: int) -> str:
-    """根据小时数返回时段名称。"""
+    """Time-of-day label from hour."""
     if hour <= 5:
-        return "凌晨"
+        return "Late night"
     if hour <= 8:
-        return "清晨"
+        return "Early morning"
     if hour <= 11:
-        return "上午"
+        return "Morning"
     if hour <= 13:
-        return "中午"
+        return "Noon"
     if hour <= 17:
-        return "下午"
+        return "Afternoon"
     if hour <= 19:
-        return "傍晚"
-    return "夜晚"
+        return "Evening"
+    return "Night"
 
 
 def _extract_weather(info: Any) -> str:
-    """从 weatherInfo 中提取温度和湿度字符串。"""
+    """Extract temperature/humidity from weatherInfo."""
     if isinstance(info, str):
         return info.strip()
     if isinstance(info, dict):
@@ -109,7 +109,7 @@ def _extract_weather(info: Any) -> str:
 
 
 def _pick(obj: Dict, *keys: str, default: Any = None) -> Any:
-    """从字典中按顺序取第一个存在的 key。"""
+    """First present key from dict."""
     for k in keys:
         v = obj.get(k)
         if v is not None:
@@ -118,8 +118,8 @@ def _pick(obj: Dict, *keys: str, default: Any = None) -> Any:
 
 
 def _login(session: requests.Session, mobile: str, password: str):
-    """Keep 登录，返回 (session, headers) 或退出。"""
-    logger.info("正在登录 Keep API...")
+    """Keep login; returns (session, headers) or exits."""
+    logger.info("Logging in to Keep API...")
     headers = {
         "User-Agent": USER_AGENT,
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
@@ -128,24 +128,24 @@ def _login(session: requests.Session, mobile: str, password: str):
         "mobile": mobile, "password": password,
     }, timeout=10)
     if not r.ok:
-        logger.error("登录失败: HTTP %s, 响应: %s", r.status_code, r.text[:500])
+        logger.error("Login failed: HTTP %s, body: %s", r.status_code, r.text[:500])
         sys.exit(1)
     token = r.json().get("data", {}).get("token")
     if not token:
-        logger.error("未获取到 token")
+        logger.error("No token in response")
         sys.exit(1)
     headers["Authorization"] = f"Bearer {token}"
-    logger.info("登录成功")
+    logger.info("Login OK")
     return session, headers
 
 
 def _fetch_with_retry(session, url: str, headers: Dict, max_retries: int = 3) -> requests.Response:
-    """发送 GET 请求，遇到 429 时指数退避重试。"""
+    """GET with exponential backoff on 429."""
     for attempt in range(max_retries):
         r = session.get(url, headers=headers, timeout=10)
         if r.status_code == 429:
             wait = 2 ** attempt
-            logger.warning("请求被限流 (429), %d 秒后重试 (%d/%d)", wait, attempt + 1, max_retries)
+            logger.warning("Rate limited (429), retry in %ds (%d/%d)", wait, attempt + 1, max_retries)
             time.sleep(wait)
             continue
         if not r.ok:
@@ -155,7 +155,7 @@ def _fetch_with_retry(session, url: str, headers: Dict, max_retries: int = 3) ->
 
 
 def _stats_key(stats: Dict) -> str:
-    """将 stats 的 startTime (ms timestamp) 转为本地时间字符串。"""
+    """Convert stats startTime (ms) to local time string."""
     start_ms = stats.get("startTime")
     if isinstance(start_ms, (int, float)):
         return datetime.fromtimestamp(
@@ -172,12 +172,12 @@ def _fetch_run_stats(
     limit: Optional[int] = None,
     existing_keys: Optional[set] = None,
 ) -> List[Dict]:
-    """分页获取跑步 stats 列表。
+    """Paginate running stats list.
 
     Args:
-        last_date: 分页起始时间戳 (毫秒)。0 = 从最新记录开始。
-        limit: 客户端安全上限，超过后停止翻页。
-        existing_keys: 已有记录的 startTime 集合。遇到已存在记录时停止翻页。
+        last_date: page cursor (ms). 0 = newest first.
+        limit: client safety cap.
+        existing_keys: known startTimes; stop when hit.
     """
     result: List[Dict] = []
     page = 0
@@ -189,36 +189,36 @@ def _fetch_run_stats(
             headers,
         )
         if not r.ok:
-            logger.warning("分页请求失败 (第 %d 页), HTTP %d", page, r.status_code)
+            logger.warning("Page %d failed, HTTP %d", page, r.status_code)
             break
         data = r.json().get("data") or {}
         for group in data.get("records") or []:
             for entry in (e for e in (group.get("logs") or []) if isinstance(e, dict)):
                 stats = entry.get("stats")
                 if isinstance(stats, dict) and not stats.get("isDoubtful") and stats.get("id"):
-                    # 增量检查：命中已有记录 → 停止翻页
+                    # Incremental: existing startTime -> stop paging
                     if existing_keys and _stats_key(stats) in existing_keys:
-                        logger.info("增量数据已全部覆盖，停止翻页")
+                        logger.info("Incremental sync complete; stop paging")
                         return result
                     result.append(stats)
                     if limit and len(result) >= limit:
                         logger.info(
-                            "第 %d 页后触发 limit(%d)，提前返回 %d 条",
+                            "Hit limit(%d) after page %d; returning %d rows",
                             page, limit, len(result),
                         )
                         return result
         page_count = len(result)
         last_date = data.get("lastTimestamp") or 0
-        time.sleep(1)  # 页间暂停
+        time.sleep(1)  # pause between pages
         if not last_date:
-            logger.info("第 %d 页获取 %d 条，共 %d 条 (末页)", page, len(data.get("records", [])), page_count)
+            logger.info("Page %d: %d rows (%d total, last page)", page, len(data.get("records", [])), page_count)
             break
-        logger.info("第 %d 页获取 %d 条，共 %d 条", page, len(data.get("records", [])), len(result))
+        logger.info("Page %d: %d rows (%d total)", page, len(data.get("records", [])), len(result))
     return result
 
 
 def _fetch_detail(session, headers, sport_type: str, run_id: str) -> Optional[Dict]:
-    """获取单条跑步详情（含 429 重试）。"""
+    """Fetch one run detail (429 retry)."""
     r = _fetch_with_retry(
         session,
         RUN_LOG_API.format(sport_type=sport_type, run_id=run_id),
@@ -228,13 +228,13 @@ def _fetch_detail(session, headers, sport_type: str, run_id: str) -> Optional[Di
 
 
 class VDCCalculator:
-    """VDOT 跑力计算器 (Jack Daniels' Running Formula)。"""
+    """VDOT calculator (Jack Daniels Running Formula)."""
 
     def __init__(self, max_hr: int = MAX_HR):
         self.max_hr = max_hr
 
     def hr_zone(self, avg_hr: float) -> int:
-        """根据最大心率百分比获取心率区间 (1-7)。"""
+        """Heart-rate zone from % of max HR (1-7)."""
         if avg_hr <= 0:
             return 0
         pct = (avg_hr / self.max_hr) * 100
@@ -244,7 +244,7 @@ class VDCCalculator:
         return 7
 
     def calc_vdot(self, dist_m: float, dur_s: float) -> Optional[float]:
-        """计算 VDOT。"""
+        """Compute VDOT."""
         if dur_s <= 0 or dist_m <= 0:
             return None
         dur_min = dur_s / 60
@@ -265,7 +265,7 @@ class VDCCalculator:
 
 
 def _build_segments_from_cross_km(data: Dict, vc: VDCCalculator) -> List[Dict]:
-    """从 crossKmPoints 构建每公里分段。"""
+    """Build per-km segments from crossKmPoints."""
     points = data.get("crossKmPoints")
     if not isinstance(points, list):
         return []
@@ -291,7 +291,7 @@ def _build_segments_from_cross_km(data: Dict, vc: VDCCalculator) -> List[Dict]:
 def _estimate_power(
     dist_m: float, dur_s: float, elev_m: float = 0, cross_km: Optional[List] = None
 ) -> Tuple[Optional[int], Optional[int]]:
-    """本地估算跑步功率（瓦特）。"""
+    """Estimate run power (watts) locally."""
     if dur_s <= 0 or dist_m <= 0:
         return None, None
     v = dist_m / dur_s
@@ -309,7 +309,7 @@ def _estimate_power(
 
 
 def _distance_km_for_stats(run: Dict) -> float:
-    """统计时优先使用米级原始距离，旧数据回退到展示距离。"""
+    """Prefer raw meters for stats; fallback to display distance."""
     distance_m = _f(run.get("distanceMeters"))
     if distance_m > 0:
         return distance_m / 1000.0
@@ -317,8 +317,8 @@ def _distance_km_for_stats(run: Dict) -> float:
 
 
 def _build_record(stats: Dict, vc: VDCCalculator, detail: Optional[Dict] = None) -> Optional[Dict]:
-    """将 stats + detail API 数据转为 running.json 记录。"""
-    # 距离: 优先使用米级原始值; kmDistance 为展示值, 逐条四舍五入后求和会产生累计误差.
+    """Map stats + detail API to running.json row."""
+    # Distance: prefer raw meters; summed rounded kmDistance drifts.
     raw_dist_m = _f(stats.get("accurateDistance")) or _f(stats.get("distance"))
     if raw_dist_m > 0:
         dist_km = raw_dist_m / 1000.0
@@ -326,7 +326,7 @@ def _build_record(stats: Dict, vc: VDCCalculator, detail: Optional[Dict] = None)
         dist_km = _f(stats.get("kmDistance"))
         raw_dist_m = dist_km * 1000.0
 
-    # 时长: movingDuration (detail, 不含暂停) > duration (含暂停)
+    # Duration: movingDuration (no pauses) > duration
     dur_s = _n(stats.get("duration"))
     if detail:
         md = _n(detail.get("movingDuration"))
@@ -337,62 +337,62 @@ def _build_record(stats: Dict, vc: VDCCalculator, detail: Optional[Dict] = None)
         return None
     display_dist_km = _f(stats.get("kmDistance")) or _round_distance(dist_km)
 
-    # 配速 (秒/km)
+    # Pace (sec/km)
     pace = _n(stats.get("averagePace"))
     if pace <= 0:
         pace = round(dur_s / (raw_dist_m / 1000))
 
-    # 速度 (km/h)
+    # Speed (km/h)
     speed = _f(stats.get("averageSpeed"))
     if speed <= 0:
         speed = round(dist_km / (dur_s / 3600), 2)
 
-    # 心率
+    # Heart rate
     hr_data = stats.get("heartRate") or {}
     avg_hr = _n(hr_data.get("averageHeartRate"))
     max_hr_val = _n(hr_data.get("maxHeartRate"))
 
-    # 时间
+    # Timestamps
     start_ms = _n(stats.get("startTime"))
     start_local = datetime.fromtimestamp(start_ms / 1000, tz=timezone.utc).astimezone(TZ_SH).strftime("%Y-%m-%d %H:%M:%S")
     end_local = datetime.fromtimestamp((start_ms + dur_s * 1000) / 1000, tz=timezone.utc).astimezone(TZ_SH).strftime("%Y-%m-%d %H:%M:%S")
 
-    # 数据类型
-    dataType = DATATYPE_NAME.get(stats.get("dataType", ""), "户外跑步")
+    # Activity type
+    dataType = DATATYPE_NAME.get(stats.get("dataType", ""), "Outdoor run")
 
-    # 名称
+    # Name
     name = f"{_time_label(datetime.fromtimestamp(start_ms / 1000, tz=timezone.utc).hour)}{dataType}"
 
-    # 天气 & 路线
+    # Weather & route
     weather = ""
-    route = "未知路线"
+    route = "Unknown route"
     if detail:
         region = detail.get("region") or {}
         route = f"{region.get('province','')}{region.get('city','')}{region.get('district','')}" or route
         weather = _extract_weather(detail.get("weatherInfo"))
 
-    # 分段
+    # Segments
     segs = []
     if detail:
         segs = _build_segments_from_cross_km(detail, vc) or _build_segments_from_cross_km(stats, vc)
 
-    # 步频
+    # Cadence
     step_freq = _n(_pick(detail, "averageStepFrequency", "stepFrequency")) if detail else 0
     if step_freq == 0:
         step_freq = _n(_pick(stats, "averageStepFrequency"))
 
-    # 总步数
+    # Step count
     total_steps = _n(detail.get("totalSteps")) if detail else 0
 
-    # 步幅
+    # Stride
     stride = _f(_pick(detail, "strideLength", "avgStrideLength", "averageStrideLength")) if detail else 0
     if stride == 0:
         stride = _f(_pick(stats, "strideLength", "avgStrideLength", "averageStrideLength"))
 
-    # 爬升
+    # Elevation
     elev = _f(stats.get("accumulativeUpliftedHeight"))
 
-    # 功率
+    # Power
     avg_pwr = _n(_pick(stats, "avgPower", "averagePower"))
     max_pwr = _n(_pick(stats, "maxPower", "peakPower"))
     if avg_pwr == 0 and max_pwr == 0:
@@ -401,11 +401,11 @@ def _build_record(stats: Dict, vc: VDCCalculator, detail: Optional[Dict] = None)
         avg_pwr = est_avg or 0
         max_pwr = est_max or 0
 
-    # VDOT / 心率区间
+    # VDOT / HR zones
     vdot = vc.calc_vdot(raw_dist_m, dur_s)
     hr_zone = vc.hr_zone(avg_hr) if avg_hr > 0 else 0
 
-    # 训练负荷
+    # Training load
     tl = _n(stats.get("trainingLoadScore"))
     if tl == 0:
         tl = round(dur_s / 3600 * 100)
@@ -454,7 +454,7 @@ _EMPTY_PERIOD = {
 
 
 def _period_stats(runs: List[Dict], start: datetime, end: datetime) -> Dict:
-    """计算单个周期统计。"""
+    """Compute one period bucket."""
     period = []
     for r in runs:
         try:
@@ -508,7 +508,7 @@ def _period_stats(runs: List[Dict], start: datetime, end: datetime) -> Dict:
 
 
 def _calculate_stats(runs: List[Dict]) -> Dict:
-    """计算各周期统计（昨日/今日/周/月/年/总）。"""
+    """Compute period stats (yesterday/today/week/month/year/all)."""
     now = datetime.now(TZ_SH).replace(tzinfo=None)
     yesterday = (now - timedelta(days=1)).date()
     y_start = datetime.combine(yesterday, datetime.min.time())
@@ -536,7 +536,7 @@ def fetch_runs(
     limit: Optional[int] = None,
     debug: bool = False,
 ) -> List[Dict]:
-    """从 Keep API 拉取跑步数据（登录入口）。"""
+    """Fetch runs from Keep API (login entry)."""
     session, headers = _login(requests.Session(), mobile, password)
     return _fetch_runs_with_session(
         session, headers, sport_type=sport_type,
@@ -553,10 +553,10 @@ def _fetch_runs_with_session(
     debug: bool = False,
     existing_keys: Optional[set] = None,
 ) -> List[Dict]:
-    """从 Keep API 拉取跑步数据（使用已有 session）。
+    """Fetch runs from Keep API (existing session).
 
-    阶段 1: 分页获取 stats（列表 API 已包含大部分字段）
-    阶段 2: 逐条获取详情（仅补充 region/weatherInfo/totalSteps/movingDuration）
+    Phase 1: paginate stats (list API has most fields)
+    Phase 2: per-run detail (region/weather/steps/movingDuration)
     """
     run_stats = _fetch_run_stats(
         session, headers, sport_type,
@@ -564,11 +564,11 @@ def _fetch_runs_with_session(
         existing_keys=existing_keys,
     )
     if not run_stats:
-        logger.warning("Keep API 未返回任何记录，跳过本次同步")
+        logger.warning("Keep API returned no rows; skip sync")
         sys.exit(0)
-    logger.info("获取 %d 条记录", len(run_stats))
+    logger.info("Fetched %d stats rows", len(run_stats))
 
-    logger.info("开始获取 %d 条跑步详情 (间隔 1s/条)", len(run_stats))
+    logger.info("Fetching %d run details (1s apart)", len(run_stats))
 
     vc = VDCCalculator()
     records = []
@@ -590,37 +590,37 @@ def _fetch_runs_with_session(
         if rec:
             records.append(rec)
         if (i + 1) % 20 == 0:
-            logger.info("已解析 %d/%d (有效 %d 条)", i + 1, len(run_stats), len(records))
+            logger.info("Parsed %d/%d (%d valid)", i + 1, len(run_stats), len(records))
 
-    logger.info("解析完成: %d/%d 条有效 (%d 条被丢弃)", len(records), len(run_stats), len(run_stats) - len(records))
+    logger.info("Done: %d/%d valid (%d dropped)", len(records), len(run_stats), len(run_stats) - len(records))
     return records
 
 
 def main():
-    p = argparse.ArgumentParser(description="从 Keep API 拉取跑步数据并生成 running.json")
+    p = argparse.ArgumentParser(description="Fetch Keep runs and write running.json")
     p.add_argument("--output", default="../public/data/running.json")
     p.add_argument("--mobile", default=os.environ.get("KEEP_MOBILE", ""))
     p.add_argument("--password", default=os.environ.get("KEEP_PASSWORD", ""))
     p.add_argument("--limit", type=int, default=None, metavar="N",
-                   help="客户端限制: 最多获取 N 条记录 (可选, 仅作为安全上限)")
+                   help="Client cap: max N records (safety limit)")
     p.add_argument("--debug", action="store_true")
     p.add_argument("--full", action="store_true",
-                   help="全量模式: 获取所有记录，忽略已有数据")
+                   help="Full sync: fetch all pages, ignore incremental stop")
     args = p.parse_args()
 
     mobile = (args.mobile or "").strip()
     if not mobile:
-        logger.error("未提供手机号：设置 KEEP_MOBILE 环境变量或使用 --mobile")
+        logger.error("Missing mobile: set KEEP_MOBILE or --mobile")
         sys.exit(1)
     password = (args.password or "").strip()
     if not password:
-        logger.error("未提供密码：设置 KEEP_PASSWORD 环境变量或使用 --password")
+        logger.error("Missing password: set KEEP_PASSWORD or --password")
         sys.exit(1)
 
-    # 先登录
+    # Login first
     session, headers = _login(requests.Session(), mobile, password)
 
-    # 登录后再加载已有数据
+    # Load existing file after login
     existing_records: List[Dict] = []
     out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.output)
     if os.path.exists(out_path):
@@ -628,13 +628,13 @@ def main():
             with open(out_path, "r", encoding="utf-8") as f:
                 old_data = json.load(f)
             existing_records = old_data.get("runs", [])
-            logger.info("加载已有 %d 条记录", len(existing_records))
+            logger.info("Loaded %d existing runs", len(existing_records))
         except json.JSONDecodeError as e:
-            logger.warning("已有 running.json 解析失败 (%s)，从空记录开始", e)
+            logger.warning("Could not parse existing running.json (%s); start empty", e)
     else:
-        logger.info("running.json 不存在，仅使用新数据")
+        logger.info("No running.json; new data only")
 
-    # 构建已有记录的 startTime 集合（用于增量检测）
+    # Existing startTimes for incremental stop
     existing_keys = {r["startTime"] for r in existing_records}
     force_full_refresh = (
         existing_records
@@ -642,11 +642,11 @@ def main():
         and not args.full
     )
     if force_full_refresh:
-        logger.info("已有记录缺少 distanceMeters，将执行一次全量刷新以修正累计距离统计")
+        logger.info("Missing distanceMeters on old rows; forcing full refresh for stats")
 
-    # 增量: 从最新开始，遇到已有记录停止
-    # 全量: 从最新开始，翻遍所有页
-    # 无记录: 全量
+    # Incremental: newest first, stop on known startTime
+    # Full: paginate all
+    # Empty file: full fetch
     is_incremental = not args.full and not force_full_refresh and existing_keys
     new_records = _fetch_runs_with_session(
         session, headers,
@@ -655,22 +655,22 @@ def main():
         debug=args.debug,
         existing_keys=existing_keys if is_incremental else None,
     )
-    logger.info("获取 %d 条新记录", len(new_records))
+    logger.info("Fetched %d new runs", len(new_records))
 
     if not new_records and not existing_records:
-        logger.warning("没有读取到任何记录，跳过本次同步")
+        logger.warning("No records read; skip sync")
         sys.exit(0)
 
-    # 合并并去重（按 startTime 去重，新数据优先）
+    # Merge dedupe by startTime; newer wins
     merged: Dict[str, Dict] = {r["startTime"]: r for r in existing_records}
     before = len(merged)
     merged.update({r["startTime"]: r for r in new_records})
     added = len(merged) - before
-    logger.info("合并完成: %d (新增 %d 条)", len(merged), added)
+    logger.info("Merged total %d (+%d new)", len(merged), added)
 
     records = sorted(merged.values(), key=lambda x: x["startTime"], reverse=True)
 
-    logger.info("写入 %s", out_path)
+    logger.info("Writing %s", out_path)
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
 
     output = {
@@ -682,7 +682,7 @@ def main():
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
         f.write("\n")
-    logger.info("已保存到文件")
+    logger.info("Saved")
 
 if __name__ == "__main__":
     main()

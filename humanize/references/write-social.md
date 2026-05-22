@@ -1,24 +1,24 @@
-# 社媒 / 推文（短内容）
+# Social / short posts (X, threads)
 
-## 结构建议（可套非 Tang 项目，语气换成本品牌）
+## Structure (adapt tone to brand)
 
-1. **先社区/用户**：感谢、数据（如 star）、谁反馈了问题；**再**列改动。
-2. **亮点 2–4 条**：宁可少而有趣，不要功能清单式刷屏。
-3. **用户视角**：「用起来……」「有一种……的感觉」；少「我们新增了某某模块」。
-4. **一句态度**：为什么这样设计或砍掉了什么，点到为止。
-5. **结尾轻松**：邀请试试即可；避免「立即升级」「不容错过」鸡血 CTA。
+1. **Community / users first**: thanks, metrics (e.g. stars), who reported issues; **then** changes.
+2. **2–4 highlights**: fewer, sharper beats — not a feature dump.
+3. **User lens**: «feels like…», «when you…»; less «we shipped module X».
+4. **One stance**: why you designed or cut something — brief.
+5. **Light close**: invite a try; avoid «upgrade now / don't miss out» hype CTA.
 
-## 中文节奏
+## Chinese posts
 
-- 口语、成语自然出现即可，**避免翻译腔**（「让我们一同探索」类）。
-- 适度断句；长推可用空行分段，不要一条里塞五个从句。
+- Colloquial and idioms OK; avoid translationese («let us explore together»).
+- Break lines; long posts use blank lines — not five clauses in one block.
 
-## 英文帖
+## English posts
 
-- Same structure: community first, highlights, UX framing, one stance, casual close.
-- Match the brand voice if the user gave examples.
+- Same structure: community, highlights, UX framing, stance, casual close.
+- Match examples if the user supplied brand voice.
 
-## 不要做的
+## Do not
 
-- 为了「专业」把短帖写成新闻通稿。
-- 替用户 **捏造** star 数、下载量；数字须用户或可核来源提供。
+- Turn a short post into a press release for «professionalism».
+- **Invent** star counts or download numbers; figures need user or verifiable source.

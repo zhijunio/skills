@@ -1,34 +1,34 @@
-# 中文正文：去 AI 味
+# Chinese body copy: de-AI polish
 
-## 快速条（改前先扫一遍）
+## Quick pass (before editing)
 
-1. **能删尽删**：去掉不增加信息的评价性副词、套话从句后，事实是否完整？不完整则只删「腔调」、保留事实。
-2. **人话主谓宾**：少用「在……背景下 / 围绕……展开 / 以……为抓手」空框架；能一句说清不要三句。
-3. **不表演深刻**：「本质上 / 底层逻辑 / 范式 / 赋能」除非用户在讲学术且语义需要，否则优先换成具体动词或删掉。
-4. **标点与语体**：口语稿保留「吧、呢」可接受；公文仍要稳，但不要假大空排比。
+1. **Cut filler**: remove evaluative adverbs and boilerplate clauses; if facts break, keep facts and drop tone only.
+2. **Plain SVO**: avoid empty frames like «under the background of… / centered on… / as the grip»; one clear sentence beats three vague ones.
+3. **No faux depth**: «essentially / underlying logic / paradigm / empower» — use concrete verbs or delete unless the user is writing academic prose that needs them.
+4. **Punctuation and register**: colloquial «吧、呢» OK in casual posts; formal docs stay steady without hollow parallelisms.
 
-## 高频 AI 套话（可整段替换或删除）
+## High-frequency AI tells (delete or rewrite)
 
-- 起势：综上所述、值得注意的是、不难发现、让我们、不妨、在此前提下
-- 过渡：与此同时、基于此、在这一过程中、从某种程度上说、不可否认的是
-- 收束：总而言之、一言以蔽之、以期、以期实现、具有十分重要的意义
-- 商业腔：深度赋能、一站式、显著提升、全面助力、打造闭环、矩阵式、颗粒度、对齐、拉通、落地
-- 评价腔：极具、颇为、相当程度、一定程度上、令人瞩目、可圈可点
+- Openers: 综上所述、值得注意的是、不难发现、让我们、不妨、在此前提下
+- Transitions: 与此同时、基于此、在这一过程中、从某种程度上说、不可否认的是
+- Closers: 总而言之、一言以蔽之、以期、以期实现、具有十分重要的意义
+- Business-speak: 深度赋能、一站式、显著提升、全面助力、打造闭环、矩阵式、颗粒度、对齐、拉通、落地
+- Praise-speak: 极具、颇为、相当程度、一定程度上、令人瞩目、可圈可点
 
-## 句式机械感
+## Mechanical patterns
 
-- **三件套排比**：「不仅……而且……更……」连续出现且无具体信息 → 拆成两句或删掉最空的一层。
-- **「既 A 又 B，既 C 又 D」** 无实质对照 → 合并为一句条件或结果。
-- **每段都以「在……中」开头** → 至少半数段改掉开头，用具体主语起句。
+- **Triple parallel** «不仅…而且…更…» with no concrete info → split or drop the emptiest layer.
+- **「既 A 又 B，既 C 又 D」** with no real contrast → one conditional or result sentence.
+- **Every paragraph starts with 「在…中」** → vary at least half the openings; use concrete subjects.
 
-## 语体与受众
+## Register by audience
 
-| 受众 | 建议 |
-|------|------|
-| 博客 / 自述 | 允许口语、短句；避免「笔者」「本文旨在」 |
-| 邮件 / IM | 短、可直接问句；少「烦请查阅如下信息」 |
-| 对外的 RFC / 设计说明 | 准、短定义 + 列表可保留；仍删空话 |
+| Audience | Guidance |
+|----------|----------|
+| Blog / personal | Colloquial OK; avoid 「笔者」「本文旨在」 |
+| Email / IM | Short, direct questions; less 「烦请查阅如下信息」 |
+| External RFC / design | Precise definitions + lists OK; still cut empty phrases |
 
-## 自检句（改完自问一句）
+## Self-check (one question after edit)
 
-「如果作者是资深从业者，他还会这样写吗？」若不像，继续削腔调或加具体细节（仅当用户已提供细节时可整理进句，**不编造**）。
+「Would a senior practitioner still write it this way?» If not, trim tone or add detail **only from what the user already provided** — do not invent facts.

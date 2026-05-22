@@ -21,7 +21,7 @@ nonempty_ok() {
   ! paywall_hint "$head"
 }
 
-# 微信公众号正文里常出现「登录」广告文案，易误判付费墙；只做长度检查。
+# WeChat articles: in-body "login" ads are not paywalls; length check only.
 weixin_nonempty_ok() {
   local body="$1"
   [[ ${#body} -ge 120 ]] || return 1
@@ -103,7 +103,7 @@ if $is_pdf_url; then
   fi
 fi
 
-# --- Feishu / Lark：已配置应用凭证时走 Open API（docx / wiki→docx）---
+# --- Feishu / Lark: Open API when app credentials are set (docx / wiki→docx) ---
 if [[ "$URL" == *"feishu.cn"* || "$URL" == *"larksuite.com"* ]]; then
   if [[ -n "${FEISHU_APP_ID:-}" && -n "${FEISHU_APP_SECRET:-}" && -f "$SCRIPT_DIR/fetch_feishu.py" ]]; then
     body=$(FEISHU_APP_ID="$FEISHU_APP_ID" FEISHU_APP_SECRET="$FEISHU_APP_SECRET" python3 "$SCRIPT_DIR/fetch_feishu.py" "$URL" 2>/dev/null || true)
@@ -114,7 +114,7 @@ if [[ "$URL" == *"feishu.cn"* || "$URL" == *"larksuite.com"* ]]; then
   fi
 fi
 
-# --- 微信公众号：优先 jina 再 defuddle（不套用公众号里的「登录」广告做付费墙判定）---
+# --- WeChat: jina then defuddle (skip generic paywall on in-article login ads) ---
 if [[ "$URL" == *"mp.weixin.qq.com"* ]]; then
   body=$(try_jina "$URL")
   if weixin_nonempty_ok "$body"; then

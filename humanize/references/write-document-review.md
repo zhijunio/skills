@@ -1,31 +1,31 @@
-# 文档审稿（长文 / 白皮书）与隐私
+# Document review (long-form / whitepaper) and privacy
 
-## 审稿维度（按需选用）
+## Review dimensions (pick as needed)
 
-1. **隐私与合规**
-   - 个人身份、联系方式、**精确住址**、未公开薪资、内部代号与未发布产品名。
-   - 暗示 **求职中**、**竞对机密**、客户未授权案例 → 标出，建议删或匿名化。
-2. **语气一致**：同一段内正式/口语跳变、AI 套话回潮（对照 `write-zh.md` / `write-en.md`）。
-3. **双语稿**：对照 `write-bilingual.md` 做语义与术语对齐。
-4. **成稿度**：`TODO`、`[TBD]`、`Lorem`、占位图、断链、错误锚点。
+1. **Privacy and compliance**
+   - Identity, contact, **precise address**, undisclosed salary, internal codenames, unreleased products.
+   - Signals of **job hunting**, **competitor secrets**, unauthorized customer stories → flag; suggest delete or anonymize.
+2. **Tone consistency**: formal/colloquial jumps, AI tells returning (see `write-zh.md` / `write-en.md`).
+3. **Bilingual**: semantic and term alignment per `write-bilingual.md`.
+4. **Readiness**: `TODO`, `[TBD]`, `Lorem`, placeholders, broken links/anchors.
 
-## 输出约定（与上级 SKILL 一致）
+## Output (matches parent SKILL)
 
-- 若用户要的是 **全文润色**：默认只交付 **改后正文**。
-- 若用户要的是 **审稿意见**：可交付 **批注列表**；若同时改了文，优先给正文，批注附后或用户另要再给。
-- 文末可加一行：`privacy: clear` 或 `privacy: N issues found`（用户未要求可省略）。
+- **Full polish requested**: default **revised body only**.
+- **Review comments requested**: annotation list OK; if body also changed, body first unless user wants notes separately.
+- Optional footer: `privacy: clear` or `privacy: N issues found` (omit if not asked).
 
-## 段落连贯（仅诊断、不重写全文时）
+## Paragraph coherence (diagnose only, no full rewrite)
 
-按段落顺序输出：
+In document order:
 
-1. **转折**：话题是否无信号硬跳。
-2. **承接**：段首是否接上段段尾。
-3. **节奏**：整段是否全是短句或全是长句导致单调。
+1. **Turns**: topic jumps without signal.
+2. **Carry-over**: section opening ties to previous closing.
+3. **Pace**: all short or all long sentences in one block.
 
-每条：**位置（段序号或引用原句前几个字） + 一行最小修改建议**（换一词、调序、补一句过渡）。最后问用户是否要你 **代改全文**。
+Each item: **location (§ or quote first few chars) + minimal fix** (word swap, reorder, one bridge sentence). End by asking if the user wants a **full rewrite**.
 
-## 不要做的
+## Do not
 
-- 为「显得专业」把用户刻意保留的口语全部书面化（除非受众要求）。
-- 在审稿输出里 **复述** 敏感隐私原文（用「第 N 段疑似含 PII」类描述即可）。
+- Over-formalize deliberate colloquial voice unless audience requires it.
+- **Repeat** sensitive PII in the report (say «paragraph N may contain PII»).

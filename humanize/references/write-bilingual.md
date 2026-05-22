@@ -1,26 +1,26 @@
-# 中英混排与双语对照
+# Mixed Chinese–English and bilingual pairs
 
-## 混排排版（中文主文档里夹英文）
+## Mixed layout (English inside Chinese docs)
 
-执行细节以 [中文文案排版指北](https://github.com/mzlogin/chinese-copywriting-guidelines) 为准，摘要如下：
+Follow [中文文案排版指北](https://github.com/mzlogin/chinese-copywriting-guidelines); summary:
 
-- **中英文之间**加半角空格：`使用 Cursor 写代码` 而非 `使用Cursor写代码`（纯英文段落不要强行加空格规则）。
-- **中文标点**：中文语境下优先 `，。！？；：` ，不要中英标点混用同一句。
-- **数字与单位**：按指北处理半角数字与中文语境空格。
-- **专名**：首次出现可「中文（English）」或保留官方英文产品名，全文术语表一致。
+- **Space between Chinese and English**: `使用 Cursor 写代码` not `使用Cursor写代码` (do not force spacing inside pure English paragraphs).
+- **Chinese punctuation** in Chinese sentences: prefer `，。！？；：`, avoid mixing EN/CN punctuation in one sentence.
+- **Numbers and units**: per the guide for half-width digits in Chinese context.
+- **Terms**: first mention may be 「中文（English）」; keep product names consistent.
 
-## 中文稿里突兀的英文
+## Orphan English in Chinese drafts
 
-- 无上下文的英文词：建议 **译成中文** 或 **加半句说明**（不擅自改产品官方名）。
-- 明显可从上下文推断的 API / 命令名：可保留，前后用中文解释一句。
+- English with no context: **translate** or **add half a sentence of gloss** (do not rename official product English).
+- Obvious API/command names: keep with one Chinese gloss sentence.
 
-## 双语两段对照（审校）
+## Bilingual two-column / paired paragraphs (review)
 
-- **语义对齐**：英中是否同一事实、同一范围、同一否定/条件；**不默默删掉**其中一段多出来的限定语。
-- **语气对齐**：若英文极 casual、中文极正式，标出不一致，让用户选一侧为主或折中。
-- **列表与编号**：条目数与顺序一致；中英各一条时不要错位合并。
+- **Semantic alignment**: same facts, scope, negation, conditions in both languages; **do not silently drop** extra qualifiers in one side.
+- **Tone alignment**: flag casual EN vs stiff ZH; user picks a lead language or compromise.
+- **Lists**: same count and order; do not merge misaligned bullets.
 
-## 不要做的事
+## Do not
 
-- 为「整齐」把用户故意保留的英文 slogen 全译成中文（除非用户要求本地化）。
-- 对 **纯英文** 稿套用中英空格规则。
+- Localize user-intentional English slogans without asking.
+- Apply CJK–Latin spacing rules to **English-only** drafts.

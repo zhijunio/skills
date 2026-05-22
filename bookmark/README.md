@@ -1,75 +1,68 @@
 # Bookmark Skill
 
-为 Claude Code 设计的书签管理技能，支持保存和查询网页链接。
+Bookmark management for Claude Code: save and query web links.
 
-## 功能
+## Features
 
-- **保存书签** - `/bookmark <url> [#tag1] [#tag2]`
-- **查询书签** - `/bookmark-query <range>`
+- **Save** — `/bookmark <url> [#tag1] [#tag2]`
+- **Query** — `/bookmark-query <range>`
 
-## 安装
+## Install
 
-依赖已自动安装在 `~/.claude/skills/bookmark/` 目录下。
+Dependencies live under `~/.claude/skills/bookmark/` when installed there.
 
-## 使用方法
+## Usage
 
-### 保存书签
+### Save
 
 ```bash
-# 基本用法
 /bookmark https://example.com
-
-# 带自定义标签
 /bookmark https://react.dev #react #docs
-
-# 保存到自定义文件
 /bookmark https://example.com file:~/my-bookmarks.md
 ```
 
-### 查询书签
+### Query
 
 ```bash
-/bookmark-query today      # 今天的书签
-/bookmark-query yesterday  # 昨天的书签
-/bookmark-query week       # 本周的书签
-/bookmark-query month      # 本月的书签
-/bookmark-query all        # 所有书签
-/bookmark-query 2026-04-21 # 指定日期
+/bookmark-query today
+/bookmark-query yesterday
+/bookmark-query week
+/bookmark-query month
+/bookmark-query all
+/bookmark-query 2026-04-21
 ```
 
-## 开发
-
-### 运行测试
+## Development
 
 ```bash
 cd ~/.claude/skills/bookmark
 npx vitest run
 ```
 
-### 文件结构
+### Layout
 
 ```
 bookmark/
-├── SKILL.md              # 技能定义
-├── package.json          # 依赖配置
-├── vitest.config.js      # 测试配置
-├── bookmarks.md          # 书签数据文件
-├── README.md             # 本文档
+├── SKILL.md
+├── package.json
+├── vitest.config.js
+├── bookmarks.md
+├── README.md
 └── tests/
-    ├── test-utils.js                    # 测试工具
-    ├── bookmark.test.js                 # 单元测试
-    └── bookmark.integration.test.js     # 集成测试
+    ├── test-utils.js
+    ├── bookmark.test.js
+    └── bookmark.integration.test.js
 ```
 
-## 书签格式
+## Bookmark format
 
 ```markdown
 ### 2026-04-21
 
 - [ZhiJun Blog](https://blog.zhijun.io/) #blog #java
-  > 记录 Java、Spring、MicroServices、Architecture、Kubernetes、DevOps、AI 编码工具、架构与个人周报的博客
+  > Blog on Java, Spring, microservices, architecture, Kubernetes, DevOps, AI tooling, and weekly notes
 ```
 
-## 许可证
+## License
 
 MIT

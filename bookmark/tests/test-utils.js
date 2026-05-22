@@ -1,5 +1,5 @@
 /**
- * 书签技能测试工具
+ * Bookmark skill test utilities
  */
 
 import { writeFileSync, existsSync, rmSync } from 'fs';

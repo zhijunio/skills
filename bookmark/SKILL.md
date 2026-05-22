@@ -24,7 +24,7 @@ This skill saves web links to a local Markdown bookmark file. The agent fetches 
 ## When to Use
 
 - User provides a URL to save
-- User says "bookmark this", "save link", "收藏这个"
+- User says "bookmark this", "save link", "收藏这个" (save this link)
 - User is doing research and collecting references
 - User wants to organize links for later retrieval
 
@@ -111,11 +111,11 @@ Show the saved entry to user for confirmation.
 ### Save Bookmark
 
 **Natural language:**
-- "保存这个链接：https://..."
+- "Save this link: https://..."
 - "bookmark this: https://..."
-- "添加到书签 https://..."
-- "保存 https://... #react #docs"
-- "保存到 ~/my-bookmarks.md https://..."
+- "Add to bookmarks https://..."
+- "Save https://... #react #docs"
+- "Save to ~/my-bookmarks.md https://..."
 
 **Slash command:**
 ```
@@ -145,9 +145,9 @@ Show the saved entry to user for confirmation.
 4. Return matching entries in Markdown format
 
 **Examples:**
-- "查看今天的书签" → `/bookmark-query today`
-- "查看上周的书签" → `/bookmark-query lastweek`
-- "查询 2026-04-20 的书签" → `/bookmark-query 2026-04-20`
+- "Show today's bookmarks" → `/bookmark-query today`
+- "Last week's bookmarks" → `/bookmark-query lastweek`
+- "Bookmarks on 2026-04-20" → `/bookmark-query 2026-04-20`
 
 ## File Locations
 

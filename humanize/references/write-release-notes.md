@@ -1,32 +1,32 @@
-# Release notes / Changelog
+# Release notes / changelog
 
-## 准备
+## Prep
 
-1. 读项目已有 **`CHANGELOG.md`**、**`README`** 或 **`AGENTS.md` / `CLAUDE.md`** 里关于发版的约定。
-2. 若有 GitHub：`gh release view --json body -R owner/repo` 取 **最近一条** 作篇幅、语气、条目密度参考。
-3. **Breaking** 必须显眼；内部重构若无用户可见行为，可放进 Fixes 或不写。
+1. Read existing **`CHANGELOG.md`**, **`README`**, or **`AGENTS.md` / `CLAUDE.md`** release conventions.
+2. If on GitHub: `gh release view --json body -R owner/repo` for **latest** tone, length, density.
+3. **Breaking** must stand out; internal refactors with no user-visible change → Fixes or omit.
 
-## 结构（按项目习惯裁剪）
+## Structure (trim to project habit)
 
-建议块（中英可并列一句时，先用户影响再技术细节）：
+Suggested blocks (bilingual one-liners OK: user impact before tech detail):
 
-- **Breaking changes** / **破坏性变更**
-- **New features** / **新功能**
-- **Fixes & improvements** / **修复与改进**
-- **Deprecations** / **弃用说明**
+- **Breaking changes**
+- **New features**
+- **Fixes & improvements**
+- **Deprecations**
 
-## 每条怎么写
+## Per bullet
 
-- **一句用户视角**：「修了什么现象 / 多了什么用法」，避免纯 PR 标题堆砌。
-- **编号或列表**与历史 release **对齐**（不要突然从段落体改成小论文体）。
-- **不编造版本号与日期**；用户未给 tag 时写「待发布」或留空位。
+- **One user-facing line**: what symptom fixed or what you can do now — not raw PR title stacks.
+- **Numbering / bullets** consistent with past releases (don't switch from list to essay mid-stream).
+- **No invented version or date**; if tag unknown use «unreleased» or leave blank.
 
-## 双语发版（常见需求）
+## Bilingual releases
 
-- 每条 **先中文后英文一句**，或 **英文一句 + 中文一句**，全篇统一一种结构。
-- 术语表（产品名、CLI 子命令）两边一致。
+- Per item: **ZH then EN one-liner**, or **EN then ZH** — pick one pattern for the whole note.
+- Product names and CLI subcommands identical both sides.
 
-## 不要写进 release 的
+## Omit from release notes
 
-- 长篇架构愿景、与版本无关的 roadmap（除非用户明确要）。
-- 无 ticket/无 PR 佐证的「性能大幅提升」（除非有可引用 benchmark）。
+- Long architecture vision unrelated to the version (unless user asked).
+- «Major performance boost» without ticket/PR or benchmark reference.

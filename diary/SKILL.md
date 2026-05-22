@@ -1,98 +1,90 @@
 ---
 name: diary
-description: 日记落盘规则（路径、格式、时间戳、图片、git）。在用户发当天记事/感受/计划、或晚间日记问答时使用。English：diary capture to vault Markdown with timestamps.
+description: Diary capture rules (paths, format, timestamps, images, git). Use when the user shares today's events, feelings, plans, or evening diary Q&A.
 ---
 
-## 触发条件
+## When to trigger
 
-满足以下任一条件即触发日记记录：
+| Scenario | Example | Action |
+|----------|---------|--------|
+| User shares what happened today | "Had a meeting this morning" | Record |
+| Feelings / thoughts | "Feeling low today" | Record |
+| Plans | "Hospital visit tomorrow" | Record |
+| Evening 22:00 cron Q&A | Auto | Record answers |
 
-| 触发场景                 | 示例 | 操作 |
-|----------------------|------|------|
-| 用户发送今天发生的事           | "上午开会了" | 直接记录 |
-| 用户发送感受/想法            | "今天心情不好" | 直接记录 |
-| 用户发送计划               | "明天要去医院" | 直接记录 |
-| 晚间 22:00  cronjob 问答 | 自动触发 | 记录回答 |
-
-**不触发的情况：**
-- 明显闲聊："你好"、"在吗"、"谢谢"
-- 不确定时先问："这是要记日记吗？"
+**Do not trigger:**
+- Obvious small talk: "hi", "you there?", "thanks"
+- If unsure, ask: "Should I add this to your diary?"
 
 ## Storage
 
-- **Vault 根路径**: 环境变量 **`DIARY_VAULT_ROOT`**；未设置时默认为 **`~/github/notes`**（勿写死他人机器上的绝对路径）。
-- **日记目录**: `{VAULT}/journal/`
-- **当日文件**: `{VAULT}/journal/YYYY-MM-DD.md`
-- **图片存储**: `{VAULT}/journal/assets/YYYY-MM-DD/`
+- **Vault root**: env **`DIARY_VAULT_ROOT`**; default **`~/github/notes`** (do not hardcode other machines' paths).
+- **Diary dir**: `{VAULT}/journal/`
+- **Daily file**: `{VAULT}/journal/YYYY-MM-DD.md`
+- **Images**: `{VAULT}/journal/assets/YYYY-MM-DD/`
 
 ## Format
 
-- **文件名**: `YYYY-MM-DD.md` 体现日期
-- **正文**: 不重复写年月日
-- **时间戳**: 每条记录前加粗时间戳 `**HH:mm:ss**`
-- **排序**: 按时间升序（早上在前，晚上在后）
-- **列表**: 不使用列表格式（避免内容过于紧凑）
-- **标签**: `#日记`
+- **Filename**: `YYYY-MM-DD.md` (date in name)
+- **Body**: do not repeat the calendar date in prose
+- **Timestamp**: bold `**HH:mm:ss**` before each entry
+- **Order**: ascending time (morning first)
+- **Lists**: no list markup (keeps entries airy)
+- **Tag**: `#diary`
 
-## Recording Rules
+## Recording rules
 
-- **直接记录**: 用户发送的内容可以直接记录，不需要用户说"记下来"
-- **措辞修改**: 仅修正错别字和病句，不改变原意和语气
-- **修改确认**: 修改可能影响原意时，先确认
-- **不拆分合并**: 不拆分、不合并用户的记录条目
-- **时间戳**: 使用记录时的实际时间（用 `date +%H:%M:%S` 获取），或按用户指定
-- **追问规则**: 仅在图片/内容缺少上下文时追问 1 次，例："这张图想记录什么？"
-- **不添加内容**: 不添加用户未提及的内容
-- **图片处理**:
-    - 保存到 `journal/assets/YYYY-MM-DD/`
-    - 正文中为图片添加带时间的记录和链接
-    - 图片缺少上下文时，追问 1 次确认想记录什么
-- **意图判断**:
-    - 日记性质（今天的事、感受）→ 直接记录
-    - 明显闲聊（"你好"、"在吗"）→ 不记录
-    - 不确定 → 先问："这是要记日记吗？"
-- **过渡语**: 尽量不加，保持简洁
+- **Direct capture**: record without requiring "save this"
+- **Wording**: fix typos and grammar only; keep tone and meaning
+- **Confirm** when a fix might change meaning
+- **No split/merge** of user entries
+- **Timestamp**: actual time (`date +%H:%M:%S`) or user-specified
+- **One follow-up** only when image/context is missing: e.g. "What should this photo note say?"
+- **No invented content**
+- **Images**: save under `journal/assets/YYYY-MM-DD/`; link in diary with timestamp
+- **Intent**: diary-like → record; small talk → skip; unsure → ask
+- **Transitions**: avoid filler phrases; stay terse
 
-## Git Workflow
+## Git workflow
 
-1. 记录前：`git pull`
-2. 保存后：`git add` → `git commit` → `git push`
+1. Before record: `git pull`
+2. After save: `git add` → `git commit` → `git push`
 
-## Evening Questions (22:00)
+Skip git only when the user explicitly says not to commit.
 
-每天 22:00 检查当天是否有记录日记，并提醒用户记录日记。
+## Evening questions (22:00)
 
-用户回复后，直接记录到当日日记，不额外确认。
+At 22:00, check whether today has diary entries; remind if empty.
+
+After the user replies, append to today's file without extra confirmation.
 
 ## Template
 
 ```markdown
-**09:00:00** 早上示例记录。
+**09:00:00** Morning example entry.
 
-**16:56:00** 下午示例记录。
+**16:56:00** Afternoon example entry.
 
-#日记
+#diary
 ```
 
 ## Pitfalls
 
-1. 不要对明显的日记内容要求明确说「记下来」
-2. 时间戳用实际记录时间或用户指定，不捏造
-3. 不加过渡语如「晚间提问回答：」
-4. 不把一条消息拆成多个带时间戳的条目
-5. 不使用列表格式
-6. **易漏步骤**：与上文 Git Workflow 一致——记录前应在 vault 仓库内 **`git pull`**，保存后应 **`git add` / `git commit` / `git push`**（用户明确不要提交时除外）
+1. Do not require "remember this" for obvious diary content
+2. Use real or user-given timestamps; never fabricate
+3. No prefixes like "Evening Q&A answer:"
+4. Do not split one message into multiple timestamped lines
+5. No list formatting
+6. **Easy miss**: `git pull` before write; `add/commit/push` after (unless user opts out)
 
 ## Verification
 
-记录后检查：
-- [ ] 内容符合用户意图
-- [ ] 时间戳格式正确（**HH:mm:ss**）
-- [ ] 没有添加用户未提及的内容
-- [ ] Git 已提交：`git status` 显示 clean
-- [ ] 图片已保存到正确路径（如有）
+- [ ] Matches user intent
+- [ ] Timestamps `**HH:mm:ss**`
+- [ ] No extra content
+- [ ] Git clean if expected: `git status`
+- [ ] Images under correct path (if any)
 
-**快速验证命令（在 vault 仓库根执行，`V` 为 `DIARY_VAULT_ROOT` 展开后的路径）：**
 ```bash
 V="${DIARY_VAULT_ROOT:-$HOME/github/notes}"
 ls -la "$V/journal/$(date +%Y-%m-%d).md"
