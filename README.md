@@ -45,10 +45,6 @@ handoff (new session) ──→ points at fetch-content / research-write / human
   scripts/           # optional shell / Python
 ```
 
-## Maintenance
-
-- Root **`renovate.json`** for dependency update proposals when Renovate is enabled.
-
 ## Acknowledgements
 
 Early **fetch-content / humanize / research-write** layering drew on **[Waza](https://github.com/tw93/Waza)** (MIT). **handoff**, **grill-me**, and **rewrite-article** flows reference **[mattpocock/skills](https://github.com/mattpocock/skills)** (MIT). This repo’s `SKILL.md`, `references/`, and `scripts/` are maintained independently; **credits do not imply 1:1 parity** with upstream installs.
