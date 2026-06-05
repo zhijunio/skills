@@ -6,8 +6,6 @@
 
 | Directory | Summary |
 |-----------|---------|
-| [**bookmark**](bookmark/SKILL.md) | Save links as local Markdown bookmarks (title, tags, dedup). |
-| [**diary**](diary/SKILL.md) | Diary files: paths, timestamps, images, `DIARY_VAULT_ROOT`, Git flow. |
 | [**jinrishici**](jinrishici/SKILL.md) | Today’s poem API; fixed Chinese display format. |
 | [**keep**](keep/SKILL.md) | Sync Keep runs to Garmin-style `running.json` (`keep/scripts/`). |
 | [**research-write**](research-write/SKILL.md) | Multi-source → long-form; `research-write/references/` + `drafts/<slug>/` layout. |
