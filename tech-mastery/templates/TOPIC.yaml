@@ -1,0 +1,9 @@
+# tech-mastery topic state — copy to <topic-dir>/TOPIC.yaml
+slug: example-topic
+mode: new          # new | refresh
+phase: scope       # scope | source | model | verify | write | interview | record | humanize | shipped
+language: zh       # zh | en
+runtime: null      # narrative baseline: "jdk 21", "go 1.22", spec revision — what prose explains
+verified_on: null  # demo machine: "OpenJDK 8 (Zulu 8.0.482) — 2026-06-05"; null if walkthrough-only
+code_repo: null    # optional: external runnable code URL or path (e.g. Maven module); null → use examples/
+gaps: []           # e.g. [interview, examples] — for refresh / gap-fill

@@ -1,6 +1,6 @@
 # Research-oriented fetch — sources and failures
 
-Use in **research-write Phase 1** with **`fetch-content`**. General fetch flow → [`fetch-methods.md`](fetch-methods.md).
+Use in **tech-mastery Source** step with **`fetch-content`**. General fetch flow → [`fetch-methods.md`](fetch-methods.md).
 
 ## 1. Preferred primary sources (technical)
 
@@ -11,16 +11,20 @@ Use in **research-write Phase 1** with **`fetch-content`**. General fetch flow �
 | Code | GitHub **tag** matching release, not only default branch |
 | Papers | PDF via `fetch-url.sh` or author-hosted |
 
-**OpenJDK source URLs:** prefer paths under a **release tag** (`jdk-21.0.2`) when explaining production; use **main** only for “upcoming / in development” with that caveat.
+**OpenJDK source URLs:** prefer paths under a **release tag** (`jdk-21+35`) when explaining production; use **main** only for “upcoming / in development” with that caveat.
 
 ## 2. GitHub raw paths
 
+**OpenJDK source paths (JDK 9+ layout):** raw files live under  
+`src/java.base/share/classes/…` (not legacy `src/java.base/java/…`).  
+Example:
+
 ```bash
 bash fetch-content/scripts/fetch-url.sh \
-  "https://raw.githubusercontent.com/openjdk/jdk/jdk-21/src/java.base/java/lang/String.java"
+  "https://raw.githubusercontent.com/openjdk/jdk/master/src/java.base/share/classes/java/lang/ClassLoader.java"
 ```
 
-Replace repo, tag, and path with the **release tag and file** relevant to the topic.
+Prefer a **release tag** matching the narrative `runtime` when explaining production; if only `master` works, note that in `sources/` frontmatter.
 
 ## 3. When fetch fails
 
@@ -29,13 +33,13 @@ Replace repo, tag, and path with the **release tag and file** relevant to the to
 | 404 on blog | Try alternate URL, archive, or official mirror |
 | Empty body | Next hop in `fetch-chain.md`; then `mcp-first.md` |
 | Paywall | Do not save wall as content; ask user for paste or creds |
-| Firecrawl unavailable | `fetch-url.sh` only; note method in `source-index.md` |
+| Firecrawl unavailable | `fetch-url.sh` only; note method in topic notes |
 
 **Never** fabricate article or source text.
 
-## 4. Record for research-write
+## 4. Record for tech-mastery
 
-Each fetch → file under `research-write/drafts/<slug>/sources/` + row in `source-index.md` (see **`research-write/references/collect-phase.md`**).
+Each fetch → file under `<topic-dir>/sources/` + line in `sources/INDEX.md` (not a separate plan file).
 
 ## 5. Anti-patterns
 
@@ -43,4 +47,4 @@ Each fetch → file under `research-write/drafts/<slug>/sources/` + row in `sour
 |--------|------------|
 | Cite SEO roundup as primary | JEP / spec / source file |
 | Say “current master proves…” | JDK version + tagged path |
-| Re-fetch same URL every session | Move saved file into `sources/` |
+| Re-fetch same URL every session | Keep saved file in `sources/` |

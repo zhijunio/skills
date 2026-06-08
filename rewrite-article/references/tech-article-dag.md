@@ -1,6 +1,6 @@
 # Technical article — DAG order (optional)
 
-Use when **research-write Phase 3** or **rewrite-article** needs a default reader journey for **explainer / deep-dive** posts (not news, not release notes).
+Use when **tech-mastery Plan** or **rewrite-article** needs a default reader journey for **explainer / deep-dive** posts (not news, not release notes).
 
 ## 1. Default dependency order
 

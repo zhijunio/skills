@@ -12,7 +12,7 @@ Run after in-place polish unless the user only wants a scan without edits.
 |-------------|--------|--------|
 | Default humanize / 润色 | L1 + L2 (fix in place) | **Revised body only** |
 | 去 AI 味 + 质检 / QA report | L1–L4 | Body + report below, or report-only if asked |
-| Technical long-form pre-publish | L1–L3 + `research-write/references/review-checklist.md` | Body or review notes per user |
+| Technical long-form pre-publish | L1–L3 + `tech-mastery/SKILL.md` checklist | Body or review notes per user |
 
 **Default:** apply L1–L2 silently; do **not** ship a report unless the user asks.
 
@@ -45,7 +45,7 @@ See [`write-zh.md`](write-zh.md) **High-frequency AI tells** and **Replacement t
 
 ### L1-4 Technical long-form add-on (Chinese)
 
-Also [`research-write/references/review-checklist.md`](../../research-write/references/review-checklist.md):
+Also [`tech-mastery/SKILL.md`](../../tech-mastery/SKILL.md) completion checklist and [`article-structure.md`](../../tech-mastery/references/article-structure.md):
 
 | Avoid | Prefer |
 |-------|--------|
@@ -121,7 +121,7 @@ Each strong claim (performance, default flag, «always/never») has **source, ve
 
 ### L3-4 Technical publish gate
 
-Run **`research-write/references/review-checklist.md`** for technical deep-dives (structure, versions, code safety, links).
+Run **`tech-mastery/SKILL.md`** completion checklist for technical deep-dives (structure, versions, code safety).
 
 **Pass:** L3-1 and L3-2 pass; L3-4 required for technical long-form claiming «publishable».
 
@@ -183,6 +183,6 @@ Do not paste long revised body inside the report unless the user asked for repor
 ```text
 L1  search & replace bans + no invented facts
 L2  audience, rhythm, encouraged tech patterns
-L3  claims, coherence, research-write checklist (tech)
+L3  claims, coherence, tech-mastery checklist (tech)
 L4  one full read — fix template paragraphs
 ```

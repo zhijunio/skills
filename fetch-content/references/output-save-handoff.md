@@ -1,4 +1,4 @@
-# Output, save, images, research-write handoff
+# Output, save, images, tech-mastery handoff
 
 ## 1. Agent output wrapper
 
@@ -14,7 +14,7 @@ Content
 {body}
 ```
 
-**Default:** deliver wrapper + content in chat — **no new file** unless user asks save or **`research-write`** Phase 1 needs files.
+**Default:** deliver wrapper + content in chat — **no new file** unless user asks save or **tech-mastery** Source needs files.
 
 ## 2. Save to disk
 
@@ -25,18 +25,18 @@ bash "${FETCH_ROOT}/scripts/fetch-url.sh" "https://example.com/page" \
 
 - **`save-md.sh`**: slug alphanumerics `._-` only; writes `~/Downloads/{slug}.md`
 - Collision → `-1`, `-2`, …; never overwrite
-- Prints **final absolute path** (one line) — capture for research-write filing
+- Prints **final absolute path** (one line) — capture for topic filing
 
-### research-write Phase 1 filing
+### tech-mastery Source filing
 
-When **`research-write`** is active:
+When **tech-mastery** is active:
 
-1. Fetch each URL via **`fetch-url.sh`** (or MCP — note in index).
-2. Save under `research-write/drafts/<slug>/sources/` (see **`research-write/references/collect-phase.md`**).
-3. **Move** downloads into the research tree to avoid re-fetch.
-4. Slug naming: short, source-derived (`author-topic`, domain-date), stable for citations in Phase 3 outline.
+1. Fetch each URL via **`fetch-url.sh`** (or MCP — note in plan / source index).
+2. Save under `<topic-dir>/sources/` (e.g. `23-work/research/<slug>/sources/`).
+3. **Move** downloads into the topic tree to avoid re-fetch.
+4. Slug naming: short, source-derived (`jep-403`, `method-api`), stable for citations.
 
-See **`research-write/references/collect-phase.md`** and **`research-write/SKILL.md`**: Discover → Fetch → File.
+See **`tech-mastery/SKILL.md`**: Source step.
 
 ## 3. Content length
 
@@ -63,11 +63,11 @@ See **`research-write/references/collect-phase.md`** and **`research-write/SKILL
 
 | Next goal | Skill |
 |-----------|-------|
-| Multi-source report / canonical article | **`research-write`** (Phase 1 already used fetch-content) |
+| Multi-source **technical** mastery article | **`tech-mastery`** (Source uses fetch-content) |
 | De-AI / polish existing draft | **`humanize`** (not fetch-content) |
 | Reorder long Markdown | **`rewrite-article`** then **humanize** |
 
-**Chain:** `fetch-content → research-write → rewrite-article → humanize`
+**Chain:** `fetch-content → tech-mastery → rewrite-article? → humanize`
 
 ## 7. Troubleshooting
 

@@ -1,6 +1,6 @@
 ---
 name: fetch-content
-description: Turn URLs or PDFs into clean Markdown for citation, archive, or downstream research-write/humanize. Use when the user gives a link, wants a page read, article fetch, or PDF text. Load references/fetch-methods.md before fetching. Prefer scripts in this skill directory; not for plain text files already in the repo (use the Read tool).
+description: Turn URLs or PDFs into clean Markdown for citation, archive, or downstream tech-mastery/humanize. Use when the user gives a link, wants a page read, article fetch, or PDF text. Load references/fetch-methods.md before fetching. Prefer scripts in this skill directory; not for plain text files already in the repo (use the Read tool).
 ---
 
 # Fetch content — URL / PDF → Markdown
@@ -9,7 +9,7 @@ Self-contained under **`fetch-content/scripts/`** + **`fetch-content/references/
 
 You may inline `🥷` at the start of the first reply.
 
-**Routing, platform notes, MCP pairing, and research-write handoff** live in [`references/`](references/); this page keeps boundaries and quick routing.
+**Routing, platform notes, MCP pairing, and tech-mastery handoff** live in [`references/`](references/); this page keeps boundaries and quick routing.
 
 ## Before running
 
@@ -36,8 +36,8 @@ bash fetch-content/scripts/fetch-url.sh "https://…"
 | WeChat / Feishu / X | [`platforms-cn.md`](references/platforms-cn.md) |
 | GitHub / PDF | [`platforms-github-pdf.md`](references/platforms-github-pdf.md) |
 | Heavy JS / anti-bot | [`mcp-first.md`](references/mcp-first.md) before or after script failure |
-| Save, output shape, **research-write** | [`output-save-handoff.md`](references/output-save-handoff.md) |
-| **research-write** Phase 1 (JEP, OpenJDK raw) | [`research-sources.md`](references/research-sources.md) |
+| Save, output shape, **tech-mastery** | [`output-save-handoff.md`](references/output-save-handoff.md) |
+| **tech-mastery** Source (JEP, OpenJDK raw) | [`tech-mastery-sources.md`](references/tech-mastery-sources.md) |
 
 | Scenario | Script |
 |----------|--------|
@@ -52,7 +52,7 @@ bash fetch-content/scripts/fetch-url.sh "https://…"
 Follow [`references/output-save-handoff.md`](references/output-save-handoff.md):
 
 - **Default**: Markdown in chat only; **no new file**.
-- **Save / research-write Phase 1**: pipe to `save-md.sh`.
+- **Save / tech-mastery Source**: pipe to `save-md.sh`.
 - **Images**: only when user asks.
 
 ## Gotchas
@@ -64,9 +64,9 @@ Follow [`references/output-save-handoff.md`](references/output-save-handoff.md):
 | Content too long | Truncate with note, or save full file |
 | Fetch failed | Report honestly; MCP or paste — never invent body |
 
-## Pairing with `research-write`
+## Pairing with `tech-mastery`
 
-Multi-source research: one fetch per URL via this skill; filing and chain → [`output-save-handoff.md`](references/output-save-handoff.md) §2–§6.
+Multi-source technical topics: one fetch per URL via this skill; filing and chain → [`output-save-handoff.md`](references/output-save-handoff.md) §2–§6.
 
 ## References
 
@@ -77,5 +77,5 @@ Multi-source research: one fetch per URL via this skill; filing and chain → [`
 | [`platforms-cn.md`](references/platforms-cn.md) | WeChat, Feishu, fetch-content vs lark-doc |
 | [`platforms-github-pdf.md`](references/platforms-github-pdf.md) | GitHub, PDF deps |
 | [`mcp-first.md`](references/mcp-first.md) | Firecrawl / MCP before scripts |
-| [`output-save-handoff.md`](references/output-save-handoff.md) | Wrapper, save, research-write, troubleshooting |
-| [`research-sources.md`](references/research-sources.md) | JEP, OpenJDK raw, research-write Phase 1 |
+| [`output-save-handoff.md`](references/output-save-handoff.md) | Wrapper, save, tech-mastery, troubleshooting |
+| [`tech-mastery-sources.md`](references/tech-mastery-sources.md) | JEP, OpenJDK raw, tech-mastery Source |

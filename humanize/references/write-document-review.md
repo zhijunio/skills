@@ -30,6 +30,6 @@ Each item: **location (§ or quote first few chars) + minimal fix** (word swap, 
 - Over-formalize deliberate colloquial voice unless audience requires it.
 - **Repeat** sensitive PII in the report (say «paragraph N may contain PII»).
 
-## Technical accuracy (research-write drafts)
+## Technical accuracy (tech-mastery drafts)
 
-For JVM/API deep-dives after **research-write**, use **`research-write/references/review-checklist.md`** (version wording, sources, code safety). For de-AI + layered scan, use **`write-qa-layers.md`** (L1–L4). This file stays **privacy + coherence**; those references stay **tells + technical publish gate**.
+For technical deep-dives after **tech-mastery**, use **`tech-mastery/SKILL.md`** completion checklist + [`article-structure.md`](../../tech-mastery/references/article-structure.md). For de-AI + layered scan, use **`write-qa-layers.md`** (L1–L4).

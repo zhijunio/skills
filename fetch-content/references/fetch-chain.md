@@ -55,6 +55,6 @@ Dependencies (either):
 
 | Do not | Do instead |
 |--------|------------|
-| Bare `curl` for research-write Phase 1 when `fetch-content` exists | `fetch-url.sh` (paywall + CN platforms) |
+| Bare `curl` for tech-mastery Source when `fetch-content` exists | `fetch-url.sh` (paywall + CN platforms) |
 | Invent article text when fetch failed | Report failure; offer MCP or paste |
 | Summarize before fetch when user said "read this URL" | Fetch first; summarize only if asked after |

@@ -32,10 +32,10 @@ Tell the user (one sentence, only if natural): structure is fixed; next step is 
 ## 4. Chains from README
 
 ```
-fetch-content → research-write (research) → rewrite-article (reorder + rewrite) → humanize (de-AI)
+fetch-content → tech-mastery (research) → rewrite-article (reorder + rewrite) → humanize (de-AI)
 ```
 
-- **research-write** Phase 5: if structure is messy → **rewrite-article** first, then **humanize**.
+- **tech-mastery** Write: if structure is messy → **rewrite-article** first, then **humanize**.
 - If the user only needs light touch-up with **no** reorder → skip rewrite-article; use **humanize** alone.
 
 ## 5. Anti-patterns

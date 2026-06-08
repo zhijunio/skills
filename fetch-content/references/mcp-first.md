@@ -41,4 +41,4 @@ For **ordinary blogs/docs** with no JS issues: **scripts first** keeps logs repr
 
 ## 5. Pairing note
 
-`research-write` Phase 1: document which method fetched each source (script vs MCP) in the research folder index — helps re-fetch later.
+`tech-mastery` Source: document which method fetched each source (script vs MCP) in `plan.md` or topic notes — helps re-fetch later.

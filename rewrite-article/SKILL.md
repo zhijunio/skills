@@ -19,7 +19,7 @@ Completes [mattpocock/skills `edit-article`](https://github.com/mattpocock/skill
 
 - **Targets**: blogs, newsletters, long technical **Markdown/articles** — not code, not commit messages.
 - **Does not replace humanize**: after structure is settled, follow [`references/handoff-humanize.md`](references/handoff-humanize.md) and **`Read` `humanize`** for de-AI polish.
-- **Does not replace research-write**: research-from-scratch long-form → **`research-write`**.
+- **Does not replace tech-mastery**: research-from-scratch long-form → **`tech-mastery`**.
 
 ## Flow
 

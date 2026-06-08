@@ -25,7 +25,7 @@ Order (opposite of generic web):
 
 | User need | Use |
 |-----------|-----|
-| **Fetch Markdown for cite/archive/research-write**; batch URL in research | **`fetch-content`** (`fetch_feishu.py` or script fallback) |
+| **Fetch Markdown for cite/archive/tech-mastery**; batch URL in research | **`fetch-content`** (`fetch_feishu.py` or script fallback) |
 | **Edit, update, wiki v2, user OAuth**, comments, permissions | **`lark-doc`** skill + `lark-cli` (not this skill) |
 | Link only, no creds, quick one-off | Try `fetch-url.sh`; if login wall → ask user for creds or switch to **`lark-doc`** |
 

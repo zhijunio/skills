@@ -24,5 +24,5 @@ If the user asks for structure **and** de-AI in one pass: finish **rewrite-artic
 | Skill | When |
 |-------|------|
 | **`humanize`** | In-place de-AI / register polish after structure is settled |
-| **`research-write`** | Research-from-scratch long-form; messy draft → rewrite-article then humanize |
+| **`tech-mastery`** | Research-from-scratch long-form; messy draft → rewrite-article then humanize |
 | **`fetch-content`** | Fetch URL/PDF before editing if the user only has a link |

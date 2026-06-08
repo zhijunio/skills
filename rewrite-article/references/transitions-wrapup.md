@@ -37,4 +37,4 @@ Read start to finish once:
 |-------------|-----------|
 | “Good”, “ship it”, no polish ask | Stop; deliver text |
 | “De-AI”, “润色”, “sound less AI”, “humanize” | **`Read` `handoff-humanize.md`** then invoke **`humanize`** |
-| “Research more on §X” | **`research-write`** or fetch via **`fetch-content`** — not another full reorder unless structure broke |
+| “Research more on §X” | **`tech-mastery`** or fetch via **`fetch-content`** — not another full reorder unless structure broke |

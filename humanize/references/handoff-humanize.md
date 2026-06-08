@@ -6,14 +6,18 @@ humanize owns **word-level polish, tells, register, and optional layered QA**. I
 
 | From | humanize receives | humanize must not |
 |------|-------------------|-------------------|
-| **research-write** | Draft with sources; fixed facts | Add JEP/API facts not in draft; reorder § without user ask |
+| **tech-mastery** | Main article or interview draft; fixed facts | Add JEP/API facts not in draft; reorder § without user ask |
 | **rewrite-article** | Confirmed section order + rewritten body | Re-run DAG merge/split unless user asks |
 | **fetch-content** | Raw or lightly cleaned material | Publish without user; invent narrative |
+
+**tech-mastery:** run **humanize** after Write and Interviewize (see **`tech-mastery/SKILL.md`** § Humanize).
 
 Chain (typical):
 
 ```text
-fetch-content → research-write → rewrite-article? → humanize
+fetch-content → tech-mastery (Scope → Source → … → Write → Interviewize) → humanize
+                                    rewrite-article? ─────────────────────────────┘
+                         save to second-brain/23-work/research/ (user asks)
 ```
 
 ## 2. AI / human boundary (de-AI)
@@ -33,7 +37,7 @@ Inspired by persona-writing workflows: **polish ≠ author.**
 1. **`humanize/SKILL.md`** — output contract, in-place rule.
 2. **`write-methods.md`** — router (ZH / EN / tech blog / …).
 3. Technical Chinese long-form: **`write-zh.md`** + **`write-qa-layers.md`** (L1–L4 when 质检).
-4. Pre-publish technical review: **`research-write/references/review-checklist.md`** (L3 gate).
+4. Pre-publish technical review: **`tech-mastery/SKILL.md`** completion checklist + [`write-qa-layers.md`](write-qa-layers.md) L3.
 
 ## 4. Output
 

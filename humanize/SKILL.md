@@ -35,7 +35,7 @@ You may inline `🥷` at the start of the first reply (not as its own paragraph)
 - **Default zero meta**: output **revised body only**; no default change log unless the user wants changelog-style notes or a **QA report** (see below).
 - **No prestige vocabulary**: goal is natural and clear, not “sounding smart.”
 - **No invented facts**: do not add experiences, stats, or API/runtime behavior not in the draft or cited sources ([`references/handoff-humanize.md`](references/handoff-humanize.md)).
-- **No draft-as-skill-sample**: skill `references/` use placeholders only; do not treat files under `research-write/drafts/` as golden examples when polishing.
+- **No draft-as-skill-sample**: skill `references/` use placeholders only; do not treat vault topic drafts as golden examples when polishing.
 
 ## QA report mode (optional)
 

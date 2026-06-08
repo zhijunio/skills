@@ -12,8 +12,8 @@ Read this before fetching. Script root:
 | WeChat, Feishu/Lark, X; **fetch-content vs lark-doc** | [`platforms-cn.md`](platforms-cn.md) |
 | GitHub raw/blob, local/remote PDF | [`platforms-github-pdf.md`](platforms-github-pdf.md) |
 | Heavy JS, anti-bot, Firecrawl | [`mcp-first.md`](mcp-first.md) |
-| **research-write** Phase 1 — JEP, OpenJDK raw, 404 handling | [`research-sources.md`](research-sources.md) |
-| Output wrapper, save, images, **research-write** handoff, troubleshooting | [`output-save-handoff.md`](output-save-handoff.md) |
+| **tech-mastery** Source — JEP, OpenJDK raw, 404 handling | [`tech-mastery-sources.md`](tech-mastery-sources.md) |
+| Output wrapper, save, images, **tech-mastery** handoff, troubleshooting | [`output-save-handoff.md`](output-save-handoff.md) |
 
 **Quick default** (http(s) or local `.pdf`):
 
@@ -39,13 +39,13 @@ URL or local .pdf?
 ## 3. Relationship to parent `SKILL.md`
 
 - **Boundaries, default output contract** → **`fetch-content/SKILL.md`**.
-- This directory adds **routing, platform notes, MCP pairing, research-write Phase 1** so `SKILL.md` stays short.
+- This directory adds **routing, platform notes, MCP pairing, tech-mastery Source** so `SKILL.md` stays short.
 
 ## 4. Sibling skills
 
 | Skill | When |
 |-------|------|
-| **`research-write`** | Multi-source research; Phase 1 fetch per URL via this skill |
+| **`tech-mastery`** | Multi-source technical mastery; Source fetch per URL via this skill |
 | **`humanize`** | After user has text; not part of fetch |
 | **`lark-doc`** | Feishu doc **edit/fetch v2** when user identity + lark-cli already configured (see `platforms-cn.md`) |
 | **Firecrawl skill** | MCP fetch when scripts fail or page is JS-heavy |
