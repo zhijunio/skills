@@ -1,4 +1,4 @@
-# zhijunio-skills
+# skills
 
 **Agent Skills** for **Cursor** and similar AI coding assistants: one directory per skill, with **`SKILL.md`** as the entry (`name` / `description` in YAML for discovery). Some skills add **`references/`** playbooks and **`scripts/`** for reproducible runs.
 
@@ -38,7 +38,7 @@ handoff (new session) ──→ points at fetch-content / tech-mastery / humaniz
 Cursor indexes **`~/.cursor/skills/<name>/`**. Symlink from this repo — **do not** also link into `~/.agents/skills/`, or the same skill loads twice.
 
 ```bash
-REPO=~/github/zhijunio-skills
+REPO=~/github/skills
 mkdir -p ~/.cursor/skills
 for skill in fetch-content grill-me handoff humanize jinrishici keep tech-mastery rewrite-article; do
   ln -sfn "$REPO/$skill" ~/.cursor/skills/$skill

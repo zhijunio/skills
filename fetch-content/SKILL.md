@@ -20,7 +20,7 @@ You may inline `🥷` at the start of the first reply.
 bash fetch-content/scripts/fetch-url.sh "https://…"
 ```
 
-`FETCH_ROOT` = `fetch-content/` (relative) or absolute `.../zhijunio-skills/fetch-content`.
+`FETCH_ROOT` = `fetch-content/` (relative) or absolute `.../skills/fetch-content`.
 
 ## Boundaries
 
