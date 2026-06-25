@@ -100,17 +100,18 @@ auto-invoke another skill's end-to-end workflow without explicit user intent.
 
 ## Install And Discovery
 
-**Recommended:** [skills CLI](https://github.com/vercel-labs/skills) (`npx skills`).
+**Recommended:** [skills CLI](https://github.com/vercel-labs/skills) (`npx skills`).  
+GitHub repo: [zhijunio/skills](https://github.com/zhijunio/skills) (`zhijunio-skills` redirects).
 
 ```bash
 # List skills in this repo
-npx skills add zhijunio/zhijunio-skills --list
+npx skills add zhijunio/skills --list
 
 # Install all skills for Cursor (global)
-npx skills add zhijunio/zhijunio-skills -g -a cursor -y --all
+npx skills add zhijunio/skills -g -a cursor -y --all
 
 # Core quartet only
-npx skills add zhijunio/zhijunio-skills -g -a cursor -y \
+npx skills add zhijunio/skills -g -a cursor -y \
   --skill article-read --skill article-write \
   --skill topic-learn --skill codebase-audit
 

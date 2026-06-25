@@ -63,19 +63,20 @@
 
 ## 安装
 
-使用 [skills CLI](https://github.com/vercel-labs/skills)（`npx skills`）。需 **Node.js 18+**。
+使用 [skills CLI](https://github.com/vercel-labs/skills)（`npx skills`）。需 **Node.js 18+**。  
+GitHub 仓库：[zhijunio/skills](https://github.com/zhijunio/skills)（旧名 `zhijunio-skills` 会重定向）。
 
 ### 推荐：`npx skills`（Cursor 全局）
 
 ```bash
 # 查看本库可安装的 skill
-npx skills add zhijunio/zhijunio-skills --list
+npx skills add zhijunio/skills --list
 
 # 安装全部 10 个 skill 到 Cursor（全局）
-npx skills add zhijunio/zhijunio-skills -g -a cursor -y --all
+npx skills add zhijunio/skills -g -a cursor -y --all
 
 # 只装四件套
-npx skills add zhijunio/zhijunio-skills -g -a cursor -y \
+npx skills add zhijunio/skills -g -a cursor -y \
   --skill article-read --skill article-write \
   --skill topic-learn --skill codebase-audit
 ```
