@@ -1,0 +1,64 @@
+{
+  "skill_name": "topic-learn",
+  "evals": [
+    {
+      "id": "learn-scope-gate",
+      "prompt": "帮我学透 Raft，还没想好 success 长什么样",
+      "expected_behaviors": [
+        "Asks clarifying questions for Success and boundary",
+        "Does not start Source or Write without Mission"
+      ]
+    },
+    {
+      "id": "learn-new-full",
+      "prompt": "new 主题学习 HTTP caching，success：能解释协商缓存并跑一个 demo",
+      "expected_behaviors": [
+        "Loads workflow.md and formats.md via references README",
+        "Plans sources/INDEX with L1/L2",
+        "Does not treat parametric knowledge as verified before INDEX"
+      ]
+    },
+    {
+      "id": "learn-refresh-gap",
+      "prompt": "refresh，只补 interview 层，主文已有",
+      "expected_behaviors": [
+        "Gap-fill scope only",
+        "Does not full rewrite main article",
+        "Touches at most six heavily rewritten files"
+      ]
+    },
+    {
+      "id": "learn-not-article-write",
+      "prompt": "从零写一篇公众号爆款讲 TCP",
+      "expected_behaviors": [
+        "Clarifies topic-learning vs blank-page marketing draft",
+        "Does not skip sources and verification gates"
+      ]
+    },
+    {
+      "id": "learn-depth-brief",
+      "prompt": "brief 学 Postgres MVCC，只要能讲清楚和 demo",
+      "expected_behaviors": [
+        "Sets depth brief in TOPIC.yaml or preflight",
+        "Still requires L1/L2 and verification",
+        "Does not skip interview entirely — one-liner and follow-ups"
+      ]
+    },
+    {
+      "id": "learn-scaffold-new-dir",
+      "prompt": "new，目录 ~/vault/topics/raft，还没建文件",
+      "expected_behaviors": [
+        "Offers or runs topic_scaffold.sh when workspace empty",
+        "Does not invent sources/INDEX without Source step"
+      ]
+    },
+    {
+      "id": "learn-check-before-ship",
+      "prompt": "HTTP caching 主题做完了，标记 shipped",
+      "expected_behaviors": [
+        "Runs or recommends topic_check.sh before phase shipped",
+        "Does not mark shipped if verification or L1/L2 gates fail"
+      ]
+    }
+  ]
+}

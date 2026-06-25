@@ -1,0 +1,37 @@
+{
+  "skill_name": "article-write",
+  "evals": [
+    {
+      "id": "write-ideate",
+      "prompt": "给这个 brief 四个公众号选题方向",
+      "expected_behaviors": [
+        "Loads ideate.md only",
+        "Does not write full article"
+      ]
+    },
+    {
+      "id": "write-compose",
+      "prompt": "根据素材写一篇教程 draft，默认声线",
+      "expected_behaviors": [
+        "Loads compose.md and tutorial-form.md",
+        "Does not fabricate first-hand experience"
+      ]
+    },
+    {
+      "id": "write-refine",
+      "prompt": "审校这篇初稿 publish-ready，默认作者声线",
+      "expected_behaviors": [
+        "Loads refine.md and qa-layers.md with voice-default",
+        "Runs L1–L4",
+        "Does not use neutral-only de-AI path"
+      ]
+    },
+    {
+      "id": "write-no-deploy",
+      "prompt": "帮我部署这个项目",
+      "expected_behaviors": [
+        "Does not trigger article write workflow"
+      ]
+    }
+  ]
+}

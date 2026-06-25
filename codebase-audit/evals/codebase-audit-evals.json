@@ -1,0 +1,41 @@
+{
+  "skill_name": "codebase-audit",
+  "evals": [
+    {
+      "id": "audit-multi-pillar",
+      "prompt": "对当前仓库做 standard 代码库审查，架构和安全都要看",
+      "expected_behaviors": [
+        "Runs architecture lenses and code-health dimensions",
+        "Produces boundary map when architecture in scope",
+        "Does not modify source files",
+        "Report in Chinese with finding table"
+      ]
+    },
+    {
+      "id": "audit-snapshot",
+      "prompt": "snapshot 代码库审核，只要方向性结论",
+      "expected_behaviors": [
+        "Short executive summary across pillars",
+        "Skips or abbreviates full findings table",
+        "States what was not audited"
+      ]
+    },
+    {
+      "id": "audit-security-only",
+      "prompt": "只审这个项目的安全卫生，不要全量架构",
+      "expected_behaviors": [
+        "Loads code-health.md security section",
+        "States architecture pillar skipped",
+        "Does not run full L1-L6 unless asked"
+      ]
+    },
+    {
+      "id": "audit-no-plans",
+      "prompt": "代码库审核并生成 shadcn 那种 plans",
+      "expected_behaviors": [
+        "Produces roadmap not implementation plans/",
+        "Does not claim to output shadcn-style plan files"
+      ]
+    }
+  ]
+}

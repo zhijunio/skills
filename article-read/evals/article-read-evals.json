@@ -1,0 +1,36 @@
+{
+  "skill_name": "article-read",
+  "evals": [
+    {
+      "id": "read-convert",
+      "prompt": "读一下 https://example.com/article",
+      "expected_behaviors": [
+        "Runs scripts/read.sh",
+        "Uses convert mode",
+        "Does not summarize by default"
+      ]
+    },
+    {
+      "id": "read-summarize",
+      "prompt": "抓取这篇并给摘要 https://example.com/article",
+      "expected_behaviors": [
+        "Fetches with read.sh first",
+        "Follows summarize.md"
+      ]
+    },
+    {
+      "id": "read-save",
+      "prompt": "保存这个链接到文件 https://example.com/article",
+      "expected_behaviors": [
+        "Pipes read.sh to save.sh"
+      ]
+    },
+    {
+      "id": "read-repo-file",
+      "prompt": "read README.md in repo",
+      "expected_behaviors": [
+        "Uses Read tool not read.sh"
+      ]
+    }
+  ]
+}
