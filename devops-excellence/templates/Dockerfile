@@ -5,7 +5,7 @@
 # ============================================
 # Stage 1: Base Dependencies
 # ============================================
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # Install security updates
 RUN apk update && apk upgrade --no-cache
@@ -49,7 +49,7 @@ RUN npm run build
 # ============================================
 # Stage 4: Production Runtime (Final Image)
 # ============================================
-FROM node:20-alpine AS runtime
+FROM node:24-alpine AS runtime
 
 # Install security updates and dumb-init (proper signal handling)
 RUN apk update && \
