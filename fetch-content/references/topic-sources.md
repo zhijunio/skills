@@ -1,6 +1,6 @@
 # Research-oriented fetch — sources and failures
 
-Use in **tech-mastery Source** step with **`fetch-content`**. General fetch flow → [`fetch-methods.md`](fetch-methods.md).
+Use in **topic Source** step with **URL/PDF 抓取**. General fetch flow → [`fetch-methods.md`](fetch-methods.md).
 
 ## 1. Preferred primary sources (technical)
 
@@ -37,7 +37,7 @@ Prefer a **release tag** matching the narrative `runtime` when explaining produc
 
 **Never** fabricate article or source text.
 
-## 4. Record for tech-mastery
+## 4. Record for topic Source
 
 Each fetch → file under `<topic-dir>/sources/` + line in `sources/INDEX.md` (not a separate plan file).
 

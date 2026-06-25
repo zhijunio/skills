@@ -12,8 +12,8 @@ Read this before fetching. Script root:
 | WeChat, Feishu/Lark, X; **fetch-content vs lark-doc** | [`platforms-cn.md`](platforms-cn.md) |
 | GitHub raw/blob, local/remote PDF | [`platforms-github-pdf.md`](platforms-github-pdf.md) |
 | Heavy JS, anti-bot, Firecrawl | [`mcp-first.md`](mcp-first.md) |
-| **tech-mastery** Source — JEP, OpenJDK raw, 404 handling | [`tech-mastery-sources.md`](tech-mastery-sources.md) |
-| Output wrapper, save, images, **tech-mastery** handoff, troubleshooting | [`output-save-handoff.md`](output-save-handoff.md) |
+| **主题 mastery 研究** Source — JEP, OpenJDK raw, 404 handling | [`topic-sources.md`](topic-sources.md) |
+| Output wrapper, save, images, **主题 mastery 研究** handoff, troubleshooting | [`output-save-handoff.md`](output-save-handoff.md) |
 
 **Quick default** (http(s) or local `.pdf`):
 
@@ -38,14 +38,14 @@ URL or local .pdf?
 
 ## 3. Relationship to parent `SKILL.md`
 
-- **Boundaries, default output contract** → **`fetch-content/SKILL.md`**.
-- This directory adds **routing, platform notes, MCP pairing, tech-mastery Source** so `SKILL.md` stays short.
+- **Boundaries, default output contract** → [`SKILL.md`](../SKILL.md).
+- This directory adds **routing, platform notes, MCP pairing, topic Source** so `SKILL.md` stays short.
 
-## 4. Sibling skills
+## 4. Out of scope (do not auto-start)
 
-| Skill | When |
-|-------|------|
-| **`tech-mastery`** | Multi-source technical mastery; Source fetch per URL via this skill |
-| **`humanize`** | After user has text; not part of fetch |
-| **`lark-doc`** | Feishu doc **edit/fetch v2** when user identity + lark-cli already configured (see `platforms-cn.md`) |
-| **Firecrawl skill** | MCP fetch when scripts fail or page is JS-heavy |
+| Need | Action |
+|------|--------|
+| Multi-source technical topic writing | User runs a separate research workflow; save fetches under `<topic-dir>/sources/` when they provide a topic dir |
+| De-AI / polish existing draft | Not part of fetch — user requests separately |
+| Feishu doc edit/fetch v2 with user OAuth | **`lark-doc`** tool flow when configured — see [`platforms-cn.md`](platforms-cn.md) |
+| MCP fetch when scripts fail | Firecrawl MCP when installed — see [`mcp-first.md`](mcp-first.md) |

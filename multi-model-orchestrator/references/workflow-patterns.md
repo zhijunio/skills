@@ -1,6 +1,6 @@
 # Workflow Patterns
 
-Part of the `multi-model-orchestrator` skill. Common subtask dependency
+Part of this skill's reference bundle. Common subtask dependency
 layouts. Load this when you are designing the `depends_on` graph for a handoff.
 
 ## Pattern 1: Parallel Execution

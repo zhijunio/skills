@@ -1,4 +1,4 @@
-# Output, save, images, tech-mastery handoff
+# Output, save, images, topic Source filing
 
 ## 1. Agent output wrapper
 
@@ -14,7 +14,7 @@ Content
 {body}
 ```
 
-**Default:** deliver wrapper + content in chat — **no new file** unless user asks save or **tech-mastery** Source needs files.
+**Default:** deliver wrapper + content in chat — **no new file** unless user asks save or **主题 mastery 研究** Source needs files.
 
 ## 2. Save to disk
 
@@ -27,16 +27,15 @@ bash "${FETCH_ROOT}/scripts/fetch-url.sh" "https://example.com/page" \
 - Collision → `-1`, `-2`, …; never overwrite
 - Prints **final absolute path** (one line) — capture for topic filing
 
-### tech-mastery Source filing
+### topic Source filing
 
-When **tech-mastery** is active:
+When **主题 mastery 研究** is active:
 
 1. Fetch each URL via **`fetch-url.sh`** (or MCP — note in plan / source index).
 2. Save under `<topic-dir>/sources/` (e.g. `23-work/research/<slug>/sources/`).
 3. **Move** downloads into the topic tree to avoid re-fetch.
 4. Slug naming: short, source-derived (`jep-403`, `method-api`), stable for citations.
 
-See **`tech-mastery/SKILL.md`**: Source step.
 
 ## 3. Content length
 
@@ -59,15 +58,6 @@ See **`tech-mastery/SKILL.md`**: Source step.
 | "Summarize this article" (no URL) | Clarify: paste, path, or URL |
 | Fetch succeeded | Do not stress "I didn't write a file" when save wasn't requested |
 
-## 6. Handoff to downstream skills
-
-| Next goal | Skill |
-|-----------|-------|
-| Multi-source **technical** mastery article | **`tech-mastery`** (Source uses fetch-content) |
-| De-AI / polish existing draft | **`humanize`** (not fetch-content) |
-| Reorder long Markdown | **`rewrite-article`** then **humanize** |
-
-**Chain:** `fetch-content → tech-mastery → rewrite-article? → humanize`
 
 ## 7. Troubleshooting
 

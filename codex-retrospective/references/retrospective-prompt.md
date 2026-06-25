@@ -1,6 +1,6 @@
 # Codex Retrospective Prompt Template
 
-This is the core prompt used by the `codex-retrospective` skill. It is deliberately strict.
+This is the core prompt used by the Codex 回顾 skill. It is deliberately strict.
 
 ---
 

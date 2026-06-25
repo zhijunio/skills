@@ -32,7 +32,7 @@ Rewrite **one section at a time** in the **confirmed order**. On very long piece
 
 ## 3. What this pass is not
 
-- **Not de-AI polish** — do not run humanize tell lists or register scrubbing here; see [`handoff-humanize.md`](handoff-humanize.md).
+- **Not de-AI polish** — do not run de-AI tell lists or register scrubbing here; see [`handoff-humanize.md`](handoff-humanize.md).
 - **Not fact-checking research** — flag “needs source” inline only if the original already looks wrong; do not invent citations.
 - **Not tone makeover** — clarity and pace only; voice stays the author’s unless the user asked otherwise.
 

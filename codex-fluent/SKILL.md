@@ -21,7 +21,7 @@ This skill is about **operational fluency** — the subjective experience of Cod
 - Codex feels laggy on startup or when switching sessions.
 - You have many long-running or old chats you rarely touch but don't want to lose.
 - Before big maintenance or after noticing session directory growth.
-- After a `codex-retrospective` session where Codex itself flagged repeated context bloat or "I keep having to re-explain the current state".
+- After a Codex 回顾 session where Codex itself flagged repeated context bloat or "I keep having to re-explain the current state".
 
 ## Safety Rules (Hard)
 
@@ -62,7 +62,7 @@ Before any archiving of chats you care about, create excellent handoffs.
 
 Use the template in `references/handoff-template.md`.
 
-The reactivation prompt must allow a completely fresh Codex thread (or even Claude via the codex skill) to pick up without the old giant context.
+The reactivation prompt must allow a completely fresh Codex thread (or even Claude via the Codex CLI) to pick up without the old giant context.
 
 ### 3. Apply Maintenance
 
@@ -90,9 +90,9 @@ Generate a safe, report-only weekly reminder prompt that never applies changes a
 
 ## Integration with Other Spellbook Skills
 
-- After running `codex-retrospective`, if Codex complains about "having to re-read huge context every time" or repeated state loss, this skill is the natural follow-up.
-- Use `strategic-compact` thinking when designing handoff documents — they should be the ultimate compact representation of a thread.
-- Handoff documents created here are excellent material to feed into future `codex-retrospective` runs.
+- After running Codex 回顾, if Codex complains about "having to re-read huge context every time" or repeated state loss, this skill is the natural follow-up.
+- Use 阶段边界压缩 thinking when designing handoff documents — they should be the ultimate compact representation of a thread.
+- Handoff documents created here are excellent material to feed into future Codex 回顾 runs.
 
 ## What This Skill Will Not Do
 

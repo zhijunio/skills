@@ -17,19 +17,17 @@
 
 ## Optional chains
 
-```text
-fetch-content → tech-mastery (Source → … → Humanize)
-                    ↘                      ↗
-                 rewrite-article (reorder) ──┘
+Skills in this repo are **independent**. Do not assume automatic handoffs between them.
 
-grill-me (stress-test plan) ──→ tech-mastery / sdd-plan (user switches to persist)
-handoff (new session) ──→ points at fetch-content / tech-mastery / humanize / rewrite-article, etc.
+Typical **user-driven** sequences (start each step only when the user asks):
+
+```text
+URL/PDF fetch → topic research write-up → optional structure reorder → optional de-AI polish
+Plan stress-test (grill-me) → persist approved plan elsewhere
+Session handoff → next chat continues from OS-temp doc + artifact paths
 ```
 
-- **tech-mastery** Source: **fetch-content** + `tech-mastery-sources.md`; files under topic `sources/`.
-- **tech-mastery** Write → **Interviewize** → **humanize**; messy structure → **rewrite-article** first.
-- **tech-mastery** output: `second-brain/23-work/research/<slug>/` (or user-given topic dir).
-- **grill-me** / **handoff** are outside SDD increment contracts; app repos use installed `sdd-plan`, etc.
+Install only the skills you need; see `AGENTS.md` for the tracked list and symlink loop.
 
 ## Usage
 

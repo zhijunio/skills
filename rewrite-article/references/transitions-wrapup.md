@@ -1,6 +1,6 @@
 # Transitions and wrap-up read
 
-Run after all sections are rewritten in confirmed order — **before** delivery or humanize handoff.
+Run after all sections are rewritten in confirmed order — **before** final delivery or optional polish.
 
 ## 1. Inter-section transitions
 
@@ -36,5 +36,5 @@ Read start to finish once:
 | User signal | Next step |
 |-------------|-----------|
 | “Good”, “ship it”, no polish ask | Stop; deliver text |
-| “De-AI”, “润色”, “sound less AI”, “humanize” | **`Read` `handoff-humanize.md`** then invoke **`humanize`** |
-| “Research more on §X” | **`tech-mastery`** or fetch via **`fetch-content`** — not another full reorder unless structure broke |
+| “De-AI”, “润色”, “sound less AI” | Follow [`handoff-humanize.md`](handoff-humanize.md) — only if user explicitly asks |
+| “Research more on §X” | User starts a separate research or fetch task — not another full reorder unless structure broke |

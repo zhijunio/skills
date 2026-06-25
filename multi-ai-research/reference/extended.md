@@ -191,7 +191,7 @@ opencli perplexity ask "{{PROMPT}}" --format plain
 
 ## 和其他 skill 的关系
 
-- **ask-opencli**：单次 grok/gemini 调用，日常 second opinion。本 skill 包含 ask-opencli 的能力但扩展为多 AI 编排。
+- **单次 opencli 查询**：日常 grok/gemini second opinion。本 workflow 在 opencli 之上增加并行编排与交叉验证。
 - **x-learn-reply v2**：domain-specific 版本，专门做 X reply 策略优化。内部 Phase 4/5（交叉验证 + 改动清单）复用了本 skill 的方法论。
 - **cognitive-portrait**：参考了本 skill 的"主 agent 派发 sub-agent 并行"模式，但场景是单人认知画像分析。
 

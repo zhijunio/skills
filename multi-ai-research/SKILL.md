@@ -11,11 +11,11 @@ description: Parallel multi-AI cross-validation research workflow (大版本). D
 
 **关键洞察**（2026-04-08 实战验证）：两个独立外部 AI 的共识信号 **强于** 任何单个 AI 的深度。"更深度" < "更少错"。
 
-**和 ask-opencli 的关系**：
-- `ask-opencli` = 单次 grok 或 gemini 调用（日常 second opinion）
-- `multi-ai-research` = **完整调研工作流**，并行多 AI + 内部数据 + 交叉验证 + 自动仲裁
+**与单次 opencli 查询的区别**：
+- opencli 浏览器会话查询 = 单次 grok 或 gemini 调用（日常 second opinion）
+- 多源并行调研与交叉验证 = **完整调研工作流**，并行多 AI + 内部数据 + 交叉验证 + 自动仲裁
 
-如果用户只是想"问 grok 一个问题"，用 `ask-opencli`。如果用户要做"深度调研"或"交叉验证多个维度"，用这个 skill。
+如果用户只是想"问 grok 一个问题"，用 opencli 浏览器会话查询。如果用户要做"深度调研"或"交叉验证多个维度"，用这个 skill。
 
 ---
 
@@ -212,7 +212,7 @@ Background agent / Bash 任务完成会**自动通知**。在等的时候，Clau
 
 ### Phase 7：Artifact 保存
 
-保存到 `.omx/artifacts/multi-ai-research-<slug>-<YYYYMMDD-HHMMSS>.md`
+保存到 `.omx/artifacts多源调研-<slug>-<YYYYMMDD-HHMMSS>.md`
 
 必须包含：
 1. **原始研究问题**（用户的一句话）
@@ -317,7 +317,7 @@ opencli 自己提供了几个 AI skill，也可以装：
 npx skills add jackwener/opencli
 ```
 
-（这些 skill 和 `multi-ai-research` 不冲突，是互补的。）
+（这些 skill 和 多源并行调研与交叉验证 不冲突，是互补的。）
 
 ### 六、验证全链路
 

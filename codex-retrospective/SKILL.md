@@ -28,7 +28,7 @@ Every output must be:
 
 - After a painful or repetitive session ("Codex should have known better by now")
 - Periodically (weekly or monthly): "Do a retrospective on the last 7/30 days of my Codex usage"
-- When `codex-fluent` reports that Codex is constantly re-asking for the same context or preferences
+- When Codex 流式协作 reports that Codex is constantly re-asking for the same context or preferences
 - After you have manually corrected the same class of mistake multiple times
 
 ## The Retrospective Process
@@ -81,12 +81,12 @@ You review. The skill then helps you apply the minimal changes cleanly (never bl
 
 These two skills are designed to be used together:
 
-- `codex-retrospective` finds **behavioral and knowledge** improvements (better defaults, new rules, extracted skills).
-- `codex-fluent` finds **state and context** hygiene improvements (session bloat, missing handoffs, archive opportunities).
+- Codex 回顾 finds **behavioral and knowledge** improvements (better defaults, new rules, extracted skills).
+- Codex 流式协作 finds **state and context** hygiene improvements (session bloat, missing handoffs, archive opportunities).
 
 A good monthly ritual for serious users:
-1. Run `codex-retrospective` on the last 30 days.
-2. Run `codex-fluent` diagnosis.
+1. Run Codex 回顾 on the last 30 days.
+2. Run Codex 流式协作 diagnosis.
 3. Apply the best changes from both.
 
 ## Hard Constraints on Output

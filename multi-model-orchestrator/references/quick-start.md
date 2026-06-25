@@ -1,6 +1,6 @@
 # Quick Start (10 minutes)
 
-Part of the `multi-model-orchestrator` skill. The main `SKILL.md` keeps the
+Part of this skill's reference bundle. The main `SKILL.md` keeps the
 loop overview; load this reference when you are ready to create your first
 handoff and run the full five-step walkthrough with templates.
 

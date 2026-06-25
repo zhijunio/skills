@@ -26,7 +26,7 @@
 
 ### 辅助信号（判断是否真火）
 - Hacker News Show HN 评论质量
-- X/Twitter 讨论密度（用 multi-ai-research 或 opencli 快速交叉）
+- X/Twitter 讨论密度（用 opencli 快速抽样；深度交叉验证需用户另开调研任务）
 - 实际 fork / 依赖数（比 star 更可信）
 - 维护者历史（是否持续贡献 vs 一次性营销）
 
@@ -107,10 +107,6 @@
 
 ## 5. 进阶用法
 
-### 结合其他 skill
-- 发现 2-3 个重点项目后 → 调用 `multi-ai-research` 做“这个项目在 X 上的真实讨论密度”
-- 想发内容 → 把日报 JSON + angle 喂给 `scout-to-article` 或直接 `blog-write`
-- 想长期跟踪 → 用 `loop` 技能每天跑一次，输出到固定目录
 
 ### 开发者榜特殊处理
 开发者榜更适合“关注人”而非“关注项目”。适合场景：

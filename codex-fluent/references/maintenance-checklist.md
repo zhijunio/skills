@@ -1,6 +1,6 @@
 # Codex Fluent — Safe Maintenance Checklist
 
-Use this checklist when running `codex-fluent` in apply mode. Treat every step as mandatory unless you have a very good reason.
+Use this checklist when running Codex 流式协作 in apply mode. Treat every step as mandatory unless you have a very good reason.
 
 ## Pre-Apply (Do This Every Time)
 

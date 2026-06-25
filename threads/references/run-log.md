@@ -1,6 +1,6 @@
 # Threads Run Log
 
-Use this reference when the user asks to collect problems encountered by the `threads` skill, or when a non-trivial run should leave a compact diagnostic trail. Durable JSONL logging defaults to `data_collection: local_jsonl` for GitHub queues, multi-lane runs, or runs that may push/comment/merge. Use final-report-only for tiny read-only/single-agent runs or explicit user opt-out, and record `no_log_reason`.
+Use this reference when the user asks to collect problems encountered during a threads workflow run, or when a non-trivial run should leave a compact diagnostic trail. Durable JSONL logging defaults to `data_collection: local_jsonl` for GitHub queues, multi-lane runs, or runs that may push/comment/merge. Use final-report-only for tiny read-only/single-agent runs or explicit user opt-out, and record `no_log_reason`.
 
 ## Purpose
 

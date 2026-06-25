@@ -14,28 +14,6 @@ Use `opencli` to query Grok or Gemini through the user's already-logged-in Chrom
 > **登录**：用装了扩展的 Chrome profile 打开 grok.com 和 gemini.google.com 登录一次
 > **必须环境变量**：`export OPENCLI_BROWSER_COMMAND_TIMEOUT=300`（写进 shell rc）
 
-## Related skills (routing)
-
-| Need | Use |
-| --- | --- |
-| Grok/Gemini via **browser session** (this skill) | `ask-opencli` |
-| Gemini via **native CLI** (`gemini -p`, API/key flow) | `ask-gemini` if installed — **not bundled in this repo** |
-| Deep multi-AI research (parallel sub-agents + cross-validation) | `multi-ai-research` if installed — **not bundled in this repo** |
-| Codex CLI second-opinion review | `codex-agent` |
-| Fetch a URL/PDF as Markdown (no chat UI) | `fetch-content` |
-
-If `ask-gemini` or `multi-ai-research` is not installed, stay on `ask-opencli` or tell the user which skill to add. Do not silently switch tools.
-
-**When to trigger**:
-- User explicitly asks to query Grok or Gemini ("问一下 grok", "用 gemini 查", "让 grok 看看")
-- User wants a second opinion / external advisor from Grok or Gemini
-- User says "ask grok"/"ask gemini" or mentions these two as the information source
-
-**When NOT to trigger**:
-- User wants native Gemini CLI (`gemini -p`) → `ask-gemini` (if available)
-- User wants Claude's own opinion → answer directly
-- User wants other AI (Doubao, Yuanbao, ChatGPT, etc.) → other tools
-- User wants orchestrated multi-source research → `multi-ai-research` (if available)
 
 ## Model selection
 
@@ -122,7 +100,7 @@ If `--format json` is unsupported in the installed opencli version, fall back to
 
 To call grok and gemini in parallel, use Bash with `run_in_background=true` for both calls in the same assistant turn.
 
-For deep cross-validation (N internal sub-agents + 2 external AIs, confidence-tiered synthesis), use **`multi-ai-research`** when that skill is installed; otherwise orchestrate manually with parallel `ask-opencli` calls and a synthesis step.
+For deep cross-validation (N internal sub-agents + 2 external AIs, confidence-tiered synthesis), use **多源并行调研与交叉验证** when that skill is installed; otherwise orchestrate manually with parallel opencli 浏览器会话查询 calls and a synthesis step.
 
 ## Prerequisites (check before running)
 
@@ -156,7 +134,7 @@ Do not swallow these. Report verbatim with the fix action.
 
 ## Artifact requirement
 
-After every successful call, save a markdown artifact **outside the git workspace** — same convention as the `handoff` skill.
+After every successful call, save a markdown artifact **outside the git workspace** — same convention as the 会话交接文档 skill.
 
 Path pattern:
 

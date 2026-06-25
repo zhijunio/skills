@@ -7,8 +7,8 @@ description: "Audit, design, categorize, distribute, and measure agent skills us
 
 Use this skill to audit existing skills, turn workflow knowledge into useful
 agent skills, and review skill libraries at the strategy level. It complements
-`skill-creator`: use this skill to decide what a skill should be, how it should
-fit a library, and what needs improvement; use `skill-creator` when the user
+skill 编写与 eval: use this skill to decide what a skill should be, how it should
+fit a library, and what needs improvement; use skill 编写与 eval when the user
 wants the concrete SKILL.md implementation and eval loop.
 
 This workflow is based on Anthropic's June 3, 2026 blog post, "Lessons from
@@ -94,7 +94,7 @@ Read `references/writing-and-operations.md` when deciding:
 
 ### 6. Hand Off To Implementation
 
-When the user wants the skill built, pass the brief into `skill-creator` and ask
+When the user wants the skill built, pass the brief into skill 编写与 eval and ask
 it to implement the files, generate realistic test prompts, and run validation.
 
 If editing an existing skill, include the exact file paths and the smallest

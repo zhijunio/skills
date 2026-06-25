@@ -1,6 +1,6 @@
 # Handoff Structure Reference
 
-Part of the `multi-model-orchestrator` skill. Field-by-field reference for the
+Part of this skill's reference bundle. Field-by-field reference for the
 handoff YAML. Load this when you need to recall an exact field name, type, or
 purpose.
 

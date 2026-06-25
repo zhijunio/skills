@@ -1,6 +1,6 @@
 # Example of a High-Quality Handoff (Shortened)
 
-(This is what good handoffs produced with `codex-fluent` tend to look like.)
+(This is what good handoffs produced with Codex 流式协作 tend to look like.)
 
 **Project:** Internal billing service refactor  
 **Date:** 2026-05-12

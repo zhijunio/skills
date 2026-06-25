@@ -9,7 +9,7 @@ description: "Guard long, ambiguous, or stateful AI-agent work from drift. Use w
 
 Use this skill as the single lifecycle entrypoint for agent work that can drift, lose context, or become expensive. It routes the task, verifies current state, runs bounded execution loops, and leaves a resumable handoff.
 
-This skill coordinates other skills; it does not replace them. Use task-specific skills such as `fixflow`, `plan-flow`, `codex-retrospective`, or `vibeguard` only when their trigger is clearly met.
+This skill coordinates work phases; it does not replace narrower workflows. Continue only the workflow type the user explicitly requested (strict delivery, convergence planning, task contract, retrospective, etc.).
 
 ## Operating Contract
 

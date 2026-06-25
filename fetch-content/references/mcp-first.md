@@ -9,13 +9,13 @@ Scripts (`fetch-url.sh`) are the **reproducible default**. Some pages need **MCP
 | Heavy client-side rendering | SPAs, empty curl body with large HTML shell |
 | Known anti-bot | Repeated script failure on same domain |
 | WeChat / paywalled after all hops | User still needs content |
-| User says use Firecrawl / scrape / browser | Follow user + host Firecrawl skill |
+| User says use Firecrawl / scrape / browser | Follow user; use Firecrawl MCP when installed in the workspace |
 
-## 2. Firecrawl skill
+## 2. Firecrawl MCP
 
-If the workspace has the **Firecrawl** skill (`firecrawl/SKILL.md`):
+If **Firecrawl MCP** is available in the workspace:
 
-1. Read and follow that skill for scrape/search/crawl.
+1. Use it for scrape/search/crawl per host documentation.
 2. Normalize MCP output to Markdown-like text.
 3. Apply the same **output wrapper** as scripts — see [`output-save-handoff.md`](output-save-handoff.md).
 
@@ -41,4 +41,4 @@ For **ordinary blogs/docs** with no JS issues: **scripts first** keeps logs repr
 
 ## 5. Pairing note
 
-`tech-mastery` Source: document which method fetched each source (script vs MCP) in `plan.md` or topic notes — helps re-fetch later.
+主题 research Source: document which method fetched each source (script vs MCP) in `plan.md` or topic notes — helps re-fetch later.

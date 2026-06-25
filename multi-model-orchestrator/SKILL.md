@@ -134,7 +134,7 @@ codex exec "Read .claude/handoffs/task.yaml. Propose 3-5 YAML subtasks using goa
   - [`references/best-practices.md`](./references/best-practices.md) — high-signal subtask authoring
   - [`references/advanced-sync.md`](./references/advanced-sync.md) — optional handoff automation
   - [`references/faq.md`](./references/faq.md) — common questions
-- **Companion tools**: Codex (code-focused multi-agent router), Claude Code (interactive execution)
+- **External tools**: Codex CLI (code-focused agent), Claude Code (interactive execution) — not other skills in this repo
 
 ---
 

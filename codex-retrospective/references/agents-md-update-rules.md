@@ -1,6 +1,6 @@
 # Rules for Updating AGENTS.md via Retrospective
 
-These rules are enforced by the `codex-retrospective` skill.
+These rules are enforced by the Codex 回顾 skill.
 
 ## Acceptable Changes (Only These)
 

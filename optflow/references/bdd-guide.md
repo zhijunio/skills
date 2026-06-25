@@ -1,6 +1,6 @@
 # BDD Guide — 共享行为驱动开发参考
 
-> 本文件被 fixflow 和 optflow 共同引用，修改时请同时考虑两个工作流的需求。
+> 共享 BDD 参考；修改时保持与引用方 workflow 一致。
 
 ## 何时使用 BDD
 

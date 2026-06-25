@@ -1,6 +1,6 @@
 # Advanced: Handoff Sync (Optional)
 
-Part of the `multi-model-orchestrator` skill. The core skill works with manual
+Part of this skill's reference bundle. The core skill works with manual
 YAML editing. Load this only if you want to automate handoff updates.
 
 If you want to automate handoff updates (instead of manual YAML editing):

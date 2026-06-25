@@ -1,6 +1,6 @@
 # Technical article — DAG order (optional)
 
-Use when **tech-mastery Plan** or **rewrite-article** needs a default reader journey for **explainer / deep-dive** posts (not news, not release notes).
+Use when **topic Plan** or **结构重排** needs a default reader journey for **explainer / deep-dive** posts (not news, not release notes).
 
 ## 1. Default dependency order
 
@@ -26,9 +26,9 @@ Use when **tech-mastery Plan** or **rewrite-article** needs a default reader jou
 
 **Why:** readers need the **stable mental model** before «feature X is off by default in release N+» — same DAG rule for JVM, HTTP, DB protocols, etc.
 
-## 3. When to use rewrite-article instead
+## 3. When structure-only work is enough
 
-- Only **order** is wrong, body mostly OK → **`rewrite-article`** confirmation outline.
-- Order OK but **paragraphs long / wording** → **`humanize`**.
+- Only **order** is wrong, body mostly OK → confirmation outline + minimal edits.
+- Order OK but **paragraphs long / wording** → user may request a separate de-AI polish pass (see [`handoff-humanize.md`](handoff-humanize.md)).
 
 See also [`dag-reorder.md`](dag-reorder.md).

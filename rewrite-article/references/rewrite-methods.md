@@ -12,17 +12,17 @@ Read this file before restructuring or rewriting. Load references for the phase 
 | Inter-section transitions, duplication, gaps, final read | [`transitions-wrapup.md`](transitions-wrapup.md) |
 | Structure done; user wants de-AI or copy polish | [`handoff-humanize.md`](handoff-humanize.md) |
 
-If the user asks for structure **and** de-AI in one pass: finish **rewrite-article** first (confirm order → rewrite → wrap-up), then **`Read` `humanize`** — do not merge humanize word lists into this skill.
+If the user asks for structure **and** de-AI in one pass: finish structure work first (confirm order → rewrite → wrap-up), then follow [`handoff-humanize.md`](handoff-humanize.md) — do not merge de-AI word lists into section rewrite.
 
 ## 2. Relationship to parent `SKILL.md`
 
-- **Hard rules, boundaries, output contract** → **`rewrite-article/SKILL.md`**.
-- This directory adds **DAG patterns, rewrite heuristics, transition checks, humanize handoff** so `SKILL.md` stays short.
+- **Hard rules, boundaries, output contract** → [`SKILL.md`](../SKILL.md).
+- This directory adds **DAG patterns, rewrite heuristics, transition checks, post-structure polish** so `SKILL.md` stays short.
 
-## 3. Sibling skills
+## 3. Out of scope (do not auto-start)
 
-| Skill | When |
-|-------|------|
-| **`humanize`** | In-place de-AI / register polish after structure is settled |
-| **`tech-mastery`** | Research-from-scratch long-form; messy draft → rewrite-article then humanize |
-| **`fetch-content`** | Fetch URL/PDF before editing if the user only has a link |
+| Need | Action |
+|------|--------|
+| In-place de-AI / register polish after structure is settled | Follow [`handoff-humanize.md`](handoff-humanize.md); user must explicitly ask |
+| Research-from-scratch long-form | Out of scope — user starts a separate research workflow |
+| Fetch URL/PDF before editing | Use URL/PDF fetch scripts; out of scope for this skill |

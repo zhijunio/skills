@@ -195,7 +195,7 @@ curl -s --max-time 2 --unix-socket /tmp/verge/verge-mihomo.sock http://localhost
 curl -s --max-time 2 --unix-socket /tmp/verge/verge-mihomo.sock http://localhost/configs
 ```
 
-Summarize only the fields needed for diagnosis. Do not paste raw `/configs`, full proxy definitions, provider URLs, auth material, or full connection host lists into a public report. Do not change proxy groups, TUN, rules, DNS hijack, or route exclusions from this skill unless the user explicitly asks. If a proxy-specific fix is needed and a `clash-doctor` or `clash-routes` skill exists, use that skill or hand off to it.
+Summarize only the fields needed for diagnosis. Do not paste raw `/configs`, full proxy definitions, provider URLs, auth material, or full connection host lists into a public report. Do not change proxy groups, TUN, rules, DNS hijack, or route exclusions from this skill unless the user explicitly asks. If a proxy-specific fix is needed beyond read-only diagnosis, stop after reporting findings and let the user request a dedicated proxy configuration task.
 
 ### 5. Verify
 

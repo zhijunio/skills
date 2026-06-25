@@ -1,6 +1,6 @@
 # Delivery Base — 共享交付流程
 
-fixflow 和 optflow 共享的交付步骤基础。两者通过引用本文件复用通用流程。
+共享交付步骤基础；修改时保持与引用方 workflow 一致。
 
 ## Define Ready Criteria (DoR)
 

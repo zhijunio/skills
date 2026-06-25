@@ -180,7 +180,7 @@ After (bounded context package):
   └── config/
 ```
 
-**Spring slice tests** (see `comprehensive-testing`): `@WebMvcTest` for controllers, `@DataJpaTest` for repositories — still keep each test class focused and files under 200 lines.
+**Spring slice tests** (see 测试金字塔与 slice 测试): `@WebMvcTest` for controllers, `@DataJpaTest` for repositories — still keep each test class focused and files under 200 lines.
 
 ### Dependency Injection
 
@@ -304,20 +304,6 @@ module/
 └── errors.ts         # Custom errors
 ```
 
-## Related Skills (when to use which)
-
-| Situation | Skill | Why |
-|-----------|-------|-----|
-| New feature layout, split files, 200-line discipline | **elegant-architecture** (this skill) | Fast structural conventions + DI patterns |
-| Mature repo, migration debt, boundary contracts, P0 roadmap | **architecture-foundation** | Evidence, source-of-truth map, borrow/do_not_copy — **does not enforce 200 lines** |
-| Test pyramid, JUnit slice tests, mock vs fake guidance | **comprehensive-testing** | **Allows mocks at boundaries**; complements "no mock your own stack" here |
-| Full-repo audit (silent degradation, registry drift) | **codebase-audit** | Parallel deep review — not a layout guide |
-
-**How to reconcile**
-
-1. **200-line rule** — Default for hand-written modules. Exceptions (document in PR/RFC): generated code, large enum/registries, migration scripts, framework boilerplate. If a file is >200 lines because of **mixed responsibilities**, split. If it is one cohesive algorithm, consider `architecture-foundation` before mechanical chopping.
-2. **Testing** — This skill: integration-first for **your** domain/application layers. `comprehensive-testing`: mock **external** APIs, use fakes for DB, Spring `@MockBean` only for **outside** the slice under test. Do not mock your own repository when testing business rules.
-3. **Order of use** — Greenfield slice: **elegant-architecture** (structure) → **comprehensive-testing** (how to test) → implement. Brownfield refactor: **architecture-foundation** (spec + convergence plan) → **elegant-architecture** (split steps) → tests per **comprehensive-testing**.
 
 ## Architecture Checklist
 
@@ -338,7 +324,7 @@ module/
 
 ## Testing
 - [ ] Real or in-memory adapters for core logic
-- [ ] Mocks only for external IO (or use fakes from comprehensive-testing)
+- [ ] Mocks only for external IO (or use in-memory fakes at repository boundaries)
 - [ ] Edge cases covered
 - [ ] Integration or slice tests exist
 

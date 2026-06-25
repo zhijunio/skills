@@ -1,6 +1,6 @@
 # FAQ
 
-Part of the `multi-model-orchestrator` skill. Common questions. Load this when
+Part of this skill's reference bundle. Common questions. Load this when
 something about the workflow is unclear.
 
 **Q: Can I use this with Claude, Opus, Haiku, Grok, Mistral, etc.?**

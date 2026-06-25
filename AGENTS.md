@@ -42,6 +42,7 @@ Rules:
 - Frontmatter `name` must match the install directory name.
 - Do not invent APIs, scripts, or install paths not present in this repo.
 - Do not edit `LICENSE` or acknowledgement sections unless the user asked.
+- **Do not reference other skills by name, path, or “use skill X” in `SKILL.md` or `references/`** — describe capabilities in plain language; the user or repo router chooses skills.
 
 ## Install And Discovery
 
@@ -87,17 +88,17 @@ edited shell scripts.
 
 ## Lifecycle Routing (other repos)
 
-When work leaves this skill library:
+When work leaves this skill library, **do not chain skills from within a skill**. The user (or session router) picks the next workflow explicitly.
 
-| Situation | Skill |
-|-----------|-------|
-| Long / multi-step / resume work | `flowguard` |
-| Task kickoff / anti-hallucination contract | `vibeguard` |
-| Context compaction at phase boundaries | `strategic-compact` |
-| Generate `AGENTS.md` for another repo | `agentsmd-scaffold` |
-| Session handoff to a fresh agent | `handoff` |
+| Situation | Capability (user must invoke explicitly) |
+|-----------|------------------------------------------|
+| Long / multi-step / resume work | Lifecycle guard + state verification |
+| Task kickoff / anti-hallucination contract | Task contract before edits |
+| Context compaction at phase boundaries | Phase-boundary compression summary |
+| Generate `AGENTS.md` for another repo | Repo context scan + scoped AGENTS draft |
+| Session handoff to a fresh agent | OS-temp handoff document |
 
-Checkpoint and handoff field shapes: `flowguard/references/state-contract.md`.
+Checkpoint and handoff field shapes: `flowguard/references/state-contract.md` (same skill only — do not load other skill routers from there).
 
 ## When To Plan First
 
@@ -129,13 +130,11 @@ There is no repo CI yet for frontmatter linting.
 - `README.md` still links to `personal/`, `productivity/`, `util/`, and
   `humanize/` paths that are not in git; use root-level skill directories above
   until README is reconciled.
-- `humanize` is referenced in README and some skill chains but is not tracked in
-  this repo.
+- Install name for de-AI polish is **`humanizer/`** (not `humanize/`).
 - Install examples may use a different clone path than your machine; set `REPO`
   explicitly when symlinking.
 
 ## Escalation
 
 - Scoped Codex CLI rules: `codex-agent/AGENTS.md`
-- AGENTS scaffold for other repositories: invoke `agentsmd-scaffold` skill; do not
-  bulk-normalize unrelated repos from here
+- AGENTS scaffold for other repositories: follow the agentsmd-scaffold workflow in the current session; do not bulk-normalize unrelated repos from here

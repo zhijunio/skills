@@ -1,6 +1,6 @@
 # Best Practices
 
-Part of the `multi-model-orchestrator` skill. Patterns that keep handoffs
+Part of this skill's reference bundle. Patterns that keep handoffs
 high-signal and traceable. Load this when authoring or reviewing subtasks.
 
 ### 1. **Clear Subtask Descriptions**

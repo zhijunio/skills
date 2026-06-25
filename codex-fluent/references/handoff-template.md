@@ -1,8 +1,8 @@
 # Codex Handoff Document Template
 
-Use this structure when creating a handoff before archiving a valuable session with `codex-fluent`.
+Use this structure when creating a handoff before archiving a valuable session with Codex 流式协作.
 
-The goal of a handoff is **perfect continuity with minimal context**. A fresh Codex thread (or even Claude via the `codex` skill) should be able to read the repo + this document and continue productively without the old chat.
+The goal of a handoff is **perfect continuity with minimal context**. A fresh Codex thread (or even Claude via the Codex CLI) should be able to read the repo + this document and continue productively without the old chat.
 
 ---
 
@@ -75,4 +75,4 @@ Anything that might be useful 2 weeks or 2 months from now.
 - `docs/codex-handoffs/YYYY-MM-DD-short-topic.md`
 - Or a project-specific handoff directory you already use.
 
-After saving, you can safely archive the original heavy session using `codex-fluent`.
+After saving, you can safely archive the original heavy session using Codex 流式协作.
