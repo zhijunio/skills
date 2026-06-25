@@ -1,0 +1,22 @@
+{
+  "skill_name": "keep",
+  "evals": [
+    {
+      "id": "keep-sync-incremental",
+      "prompt": "同步 Keep 跑步到 running.json",
+      "expected_behaviors": [
+        "Uses fetch_keep_run.py",
+        "Prefers env vars for credentials",
+        "Does not echo password in output"
+      ]
+    },
+    {
+      "id": "keep-full-flag",
+      "prompt": "全量拉取 Keep --full",
+      "expected_behaviors": [
+        "Passes --full to script",
+        "Merges with existing runs by startTime"
+      ]
+    }
+  ]
+}

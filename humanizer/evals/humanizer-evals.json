@@ -1,0 +1,45 @@
+{
+  "skill_name": "humanizer",
+  "evals": [
+    {
+      "id": "humanize-zh-standard",
+      "prompt": "把这篇文章去一下AI味，中文技术博客",
+      "expected_behaviors": [
+        "Loads zh-tells.md",
+        "Preserves facts and headings",
+        "Delivers revised text"
+      ]
+    },
+    {
+      "id": "humanize-no-reorder",
+      "prompt": "humanize this article but keep section order",
+      "expected_behaviors": [
+        "Does not reorder headings",
+        "Uses en-tells or patterns"
+      ]
+    },
+    {
+      "id": "humanize-deep-qa",
+      "prompt": "deep 去AI味，要质检报告",
+      "expected_behaviors": [
+        "Runs qa-layers.md",
+        "Delivers report-template output"
+      ]
+    },
+    {
+      "id": "humanize-not-write",
+      "prompt": "humanize 帮我写一篇新文章",
+      "expected_behaviors": [
+        "Clarifies scope or declines blank-page writing"
+      ]
+    },
+    {
+      "id": "humanize-not-publish-ready-voice",
+      "prompt": "publish-ready 审校，默认作者声线，去AI味",
+      "expected_behaviors": [
+        "Clarifies this is author-voice writing refine not neutral de-AI only",
+        "Does not apply voice-default pipeline unless user chose writing refine"
+      ]
+    }
+  ]
+}

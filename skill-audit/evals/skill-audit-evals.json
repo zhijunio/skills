@@ -1,0 +1,38 @@
+{
+  "skill_name": "skill-audit",
+  "evals": [
+    {
+      "id": "audit-reject-obvious",
+      "prompt": "帮我做一个 skill：教 agent 怎么写 conventional commit",
+      "expected_behaviors": [
+        "Decision do not create or merge into existing",
+        "Cites obviousness or overlap with general knowledge"
+      ]
+    },
+    {
+      "id": "audit-classify",
+      "prompt": "审核 article-read 这个 skill",
+      "expected_behaviors": [
+        "Loads skill-taxonomy.md",
+        "Assigns primary category Data Fetching or similar",
+        "Notes progressive disclosure and evals"
+      ]
+    },
+    {
+      "id": "audit-progressive-disclosure",
+      "prompt": "topic-learn 的 SKILL 有 240 行，要优化吗",
+      "expected_behaviors": [
+        "Recommends move steps to references/workflow.md",
+        "Keeps SKILL.md as router only"
+      ]
+    },
+    {
+      "id": "audit-trigger-description",
+      "prompt": "improve 这个 skill 的 description",
+      "expected_behaviors": [
+        "Focuses on model trigger phrases not marketing summary",
+        "Names concrete user contexts"
+      ]
+    }
+  ]
+}

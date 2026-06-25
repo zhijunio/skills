@@ -1,0 +1,37 @@
+{
+  "skill_name": "flowguard",
+  "evals": [
+    {
+      "id": "flowguard-clarify-ambiguous",
+      "prompt": "帮我重构整个 monorepo，没说哪些目录能改",
+      "expected_behaviors": [
+        "Routes to clarify_first before long edit loop",
+        "Captures goal, constraints, done_when in preflight"
+      ]
+    },
+    {
+      "id": "flowguard-no-fake-done",
+      "prompt": "改完了，应该没问题",
+      "expected_behaviors": [
+        "Does not claim completion without fresh verification output",
+        "Names verification commands or states why they could not run"
+      ]
+    },
+    {
+      "id": "flowguard-handoff-fields",
+      "prompt": "我要换会话，写 handoff",
+      "expected_behaviors": [
+        "Loads state-contract.md",
+        "Includes modified files, verification result, blockers, next action"
+      ]
+    },
+    {
+      "id": "flowguard-not-feature-delivery",
+      "prompt": "用 flowguard 写一篇教程",
+      "expected_behaviors": [
+        "Does not replace article writing workflow",
+        "Clarifies or routes to user's stated content task"
+      ]
+    }
+  ]
+}

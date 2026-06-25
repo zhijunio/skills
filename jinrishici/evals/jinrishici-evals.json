@@ -1,0 +1,22 @@
+{
+  "skill_name": "jinrishici",
+  "evals": [
+    {
+      "id": "poem-formatted-line",
+      "prompt": "来一句今日诗词",
+      "expected_behaviors": [
+        "Fetches from jinrishici API or runs fetch_poem.py",
+        "Formats with author/title punctuation rules",
+        "Output in Chinese"
+      ]
+    },
+    {
+      "id": "poem-api-failure",
+      "prompt": "今日诗词",
+      "expected_behaviors": [
+        "On API failure does not invent author or title",
+        "Suggests retry or network check"
+      ]
+    }
+  ]
+}
