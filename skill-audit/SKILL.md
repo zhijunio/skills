@@ -97,34 +97,10 @@ Read `references/writing-and-operations.md` when deciding:
 When the user wants the skill built, pass the brief into skill 编写与 eval and ask
 it to implement the files, generate realistic test prompts, and run validation.
 
+**Auditing this repo's skill library:** read `references/library-audit.md` and run
+`scripts/validate-skills.sh` from the repository root.
+
 If editing an existing skill, include the exact file paths and the smallest
 content changes needed. Do not rewrite unrelated skill behavior.
 
-## Output Format
-
-For advisory requests, answer with:
-
-1. Decision: create, improve, split, merge, or do not create
-2. Category: one primary taxonomy category
-3. Skill brief: filled from the template
-4. Implementation notes: files to create/edit and validation commands
-5. Risks: overbreadth, obviousness, missing setup, missing verification, or weak
-   trigger description
-
-For repository work, actually create or update the files, then run the repo's
-skill validation command.
-
-## Gotchas
-
-- Do not make a knowledge dump. Convert article or team knowledge into decisions,
-  checklists, templates, and verification.
-- Do not put all details in SKILL.md. Long reference material belongs in support
-  files.
-- Do not write a description as a marketing summary. It must name concrete user
-  phrases and contexts that should trigger the skill.
-- Do not railroad the agent with brittle instructions. Provide defaults,
-  decision criteria, and escape hatches.
-- Do not ship a skill without at least a lightweight way to tell if it worked:
-  validation commands, example prompts, expected artifacts, or usage metrics.
-- Do not encode vague autonomy such as "be proactive." Name the direct actions,
-  escalation boundaries, and end-state checks that should change behavior.
+Output format and gotchas: `references/audit-output.md`.

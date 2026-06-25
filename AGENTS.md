@@ -1,141 +1,222 @@
 # Agent Instructions — zhijunio-skills
 
-This repository is a **Cursor / Codex Agent Skills library**. Each skill is a
-directory with `SKILL.md` as the router. This file is the repo-wide onboarding
-router; it does not replace per-skill instructions.
+This repository is a **Cursor Agent Skills library**. Each skill is a directory
+with `SKILL.md` as the router. This file is the **repo-wide** onboarding router;
+it does not replace per-skill instructions.
 
 ## Precedence
 
 1. User instructions in the current session
 2. This `AGENTS.md`
 3. The target skill's `SKILL.md` and its `references/` / `scripts/`
-4. `README.md` (human catalog and install examples — may lag git; see Open Facts)
+4. `README.md` (human catalog and install examples)
 
-## Start Here
+## Scope Of This Repo
 
-1. Confirm the goal is skill authoring, skill editing, or repo maintenance — not
-   application code in another repo.
-2. List tracked skills when unsure:
+Work here when the goal is **skill authoring, skill editing, or repo
+maintenance** — not application code in another repository.
+
+List skills on disk:
+
+```bash
+for d in */; do [ -f "${d}SKILL.md" ] && echo "${d%/}"; done | sort
+```
+
+Git-tracked list (may lag until committed):
 
 ```bash
 git ls-files '*/SKILL.md' | sed 's|/SKILL.md||' | sort
 ```
 
-3. Before creating a skill, read `skill-creator/SKILL.md` and search for an
-   existing skill with the same `name` frontmatter.
-4. Before editing a skill, read its `SKILL.md` and any linked `references/`.
-5. For Codex CLI collaboration, read `codex-agent/AGENTS.md`.
-
 ## Layout Contract
 
 ```text
 <skill-name>/
-  SKILL.md           # required router: YAML name + description
+  SKILL.md           # required: YAML name + description
   references/        # optional playbooks
-  scripts/           # optional shell / Python entry points
-  evals/             # optional behavior checks (e.g. agentsmd-scaffold)
-shared/              # repo-wide references linked as ../shared/*.md
+  scripts/           # optional shell / Python
+  evals/             # optional behavior checks
 ```
 
 Rules:
 
-- Keep `SKILL.md` concise; move long policy tables into `references/`.
-- Frontmatter `name` must match the install directory name.
-- Do not invent APIs, scripts, or install paths not present in this repo.
+- Keep `SKILL.md` concise; move long tables into `references/`.
+- Frontmatter `name` **must match** the install directory name.
+- Do not invent scripts, paths, or APIs not present in this repo.
 - Do not edit `LICENSE` or acknowledgement sections unless the user asked.
-- **Do not reference other skills by name, path, or “use skill X” in `SKILL.md` or `references/`** — describe capabilities in plain language; the user or repo router chooses skills.
+- **Cross-skill references allowed** — In `SKILL.md` and `references/`, you may name
+  other skills in this repo when clarifying boundaries or handoffs (e.g. point
+  Source ingest at `article-read`). Rules:
+  - State whether the user must trigger the other skill separately.
+  - Do not silently run another skill's full pipeline without user intent.
+  - Prefer one primary skill per user turn; references are routing hints, not auto-chains.
+
+## Core Quartet — 读 / 写 / 学 / 审
+
+Primary mental model. User invokes **one** skill per task. Skill bodies may
+**reference** siblings for boundaries and typical sequencing; they must not
+auto-invoke another skill's end-to-end workflow without explicit user intent.
+
+| 目标 | Skill | Scope |
+|------|-------|--------|
+| **读** | `article-read` | URL/PDF → Markdown; fetch, archive, optional summarize |
+| **写** | `article-write` | Ideate → gather → compose → refine (articles/documents) |
+| **学** | `topic-learn` | One topic: sources, verify, mastery assets, interview layer |
+| **审** | `codebase-audit` | Read-only codebase health — architecture, code quality, security, tests/CI, deps/docs |
+
+### Boundaries
+
+| Skill | Is not |
+|-------|--------|
+| `article-read` | Article drafts, topic-learning workspace, codebase audit |
+| `article-write` | Full-page URL ingestion, systematic topic learning, codebase audit |
+| `topic-learn` | Single-link summary, marketing-only drafts, codebase audit |
+| `codebase-audit` | Article writing, topic courses, URL fetch |
+
+### Versus external tools
+
+| Need | Use |
+|------|-----|
+| Multi-pillar read-only audit + roadmap | `codebase-audit` (this repo) |
+| General improvement audit → `plans/` | [shadcn/improve](https://github.com/shadcn/improve) — **not vendored** |
+| De-AI on finished prose (neutral, no author voice) | `humanizer` |
+| Author-voice refine / publish-ready in writing flow | `article-write` refine stage |
+| Long / multi-step / resume work | `flowguard` |
+
+## Skill Inventory (on disk)
+
+| Directory | Role |
+|-----------|------|
+| `article-read` | Core — read |
+| `article-write` | Core — write |
+| `topic-learn` | Core — learn |
+| `codebase-audit` | Core — audit |
+| `humanizer` | Polish existing prose |
+| `flowguard` | Long-task lifecycle guard |
+| `skill-audit` | Meta — audit skill design |
+| `skill-creator` | Meta — create skills and evals |
+| `keep` | Keep API → `running.json` |
+| `jinrishici` | Jinrishici poem API |
 
 ## Install And Discovery
 
-Cursor indexes `~/.cursor/skills/<name>/`. Symlink from this repo:
+**Recommended:** [skills CLI](https://github.com/vercel-labs/skills) (`npx skills`).
 
 ```bash
-REPO=~/github/zhijunio-skills   # adjust to your clone path
+# List skills in this repo
+npx skills add zhijunio/zhijunio-skills --list
+
+# Install all skills for Cursor (global)
+npx skills add zhijunio/zhijunio-skills -g -a cursor -y --all
+
+# Core quartet only
+npx skills add zhijunio/zhijunio-skills -g -a cursor -y \
+  --skill article-read --skill article-write \
+  --skill topic-learn --skill codebase-audit
+
+# Verify
+npx skills ls -a cursor -g
+```
+
+**Local clone** (install from working tree without fetching GitHub):
+
+```bash
+cd /path/to/zhijunio-skills
+npx skills add . -g -a cursor -y --all
+```
+
+Files land in `~/.agents/skills/<name>/`; the CLI registers them for Cursor.
+Start a **new Agent chat** after install.
+
+**Manual symlink** (optional, for live edits without re-running `npx`):
+
+```bash
+REPO=~/github/zhijunio-skills
 mkdir -p ~/.cursor/skills
-for skill in agentsmd-scaffold caveman codex-agent fetch-content flowguard \
-  grill-me handoff improve jinrishici keep mj-writer rewrite-article \
-  skill-creator strategic-compact tech-mastery vibeguard; do
+for skill in article-read article-write codebase-audit topic-learn \
+  humanizer flowguard skill-audit skill-creator keep jinrishici; do
   ln -sfn "$REPO/$skill" ~/.cursor/skills/$skill
 done
 ```
 
-Do **not** also symlink the same skill into `~/.agents/skills/` — duplicates load
-twice in Agent. See `README.md` for stale-entry cleanup commands.
+Do not duplicate the same skill via both `npx` global install and manual symlink.
 
-After adding or renaming a skill, update `README.md` Skills table and install loop
-in the same change set when possible.
-
-## Tracked Skills (git source of truth)
-
-`agentsmd-scaffold`, `caveman`, `codex-agent`, `fetch-content`, `flowguard`,
-`grill-me`, `handoff`, `improve`, `jinrishici`, `keep`, `mj-writer`,
-`rewrite-article`, `skill-creator`, `strategic-compact`, `tech-mastery`, `vibeguard`,
+Remove legacy names: `npx skills remove architecture-audit content-craft tech-mastery -g -a cursor -y`
 
 ## Scripted Skills
 
-| Skill | Scripts | Notes |
-|-------|---------|-------|
-| `fetch-content` | `fetch-content/scripts/*` | `bash`, `python3`; see `requirements-fetch.txt` |
-| `keep` | `keep/scripts/*` | `python3`; see `requirements.txt` |
-| `jinrishici` | `jinrishici/scripts/fetch_poem.py` | `python3` |
-| `flowguard` | `flowguard/scripts/workflow_state_snapshot.sh` | read-only repo snapshot |
-| `agentsmd-scaffold` | `agentsmd-scaffold/scripts/scan_repo_context.py` | read-only context scan |
-| `codex-agent` | `codex-agent/scripts/*` | requires Codex CLI; see scoped AGENTS |
+| Skill | Entry | Notes |
+|-------|-------|-------|
+| `article-read` | `scripts/read.sh` | `bash`, `python3`; `scripts/requirements.txt` |
+| `keep` | `scripts/fetch_keep_run.py` | `python3`, `requests` |
+| `jinrishici` | `scripts/fetch_poem.py` | `python3` |
+| `topic-learn` | `scripts/topic_scaffold.sh`, `scripts/topic_check.sh` | bootstrap + checklist |
+| `flowguard` | `scripts/workflow_state_snapshot.sh` | read-only repo snapshot |
 
 Before changing a script: read the skill's documented commands, preserve CLI
-interfaces unless the user asked for a breaking change, and run `bash -n` on
-edited shell scripts.
+interfaces unless the user asked for a breaking change, run `bash -n` on edited
+shell scripts.
 
-## Lifecycle Routing (other repos)
+## Skill Authoring
 
-When work leaves this skill library, **do not chain skills from within a skill**. The user (or session router) picks the next workflow explicitly.
+| Task | Read |
+|------|------|
+| Should this be a skill? Design, taxonomy, triggers | `skill-audit/SKILL.md` |
+| Implement, eval loop, package | `skill-creator/SKILL.md` |
 
-| Situation | Capability (user must invoke explicitly) |
-|-----------|------------------------------------------|
-| Long / multi-step / resume work | Lifecycle guard + state verification |
-| Task kickoff / anti-hallucination contract | Task contract before edits |
-| Context compaction at phase boundaries | Phase-boundary compression summary |
-| Generate `AGENTS.md` for another repo | Repo context scan + scoped AGENTS draft |
-| Session handoff to a fresh agent | OS-temp handoff document |
+When adding a skill: search for duplicate `name` frontmatter; add to README
+catalog and install loop; add `evals/` when behavior is non-obvious.
 
-Checkpoint and handoff field shapes: `flowguard/references/state-contract.md` (same skill only — do not load other skill routers from there).
+## Session Routing (user-driven)
+
+Do not chain skills from within a skill. The user picks the next step.
+
+| User goal | Skill |
+|-----------|-------|
+| Read URL/PDF as Markdown | `article-read` |
+| Write article or document | `article-write` |
+| Deep topic learning assets | `topic-learn` |
+| Codebase health review | `codebase-audit` |
+| Remove AI tells from existing text | `humanizer` |
+| Guard long multi-step work | `flowguard` |
+| Review or improve a skill | `skill-audit` |
+| Create or benchmark a skill | `skill-creator` |
+
+Handoff field shapes: `flowguard/references/state-contract.md` (load only when
+doing flowguard work — do not bulk-load other skill routers from there).
+
+External session tools (not vendored): [mattpocock/skills](https://github.com/mattpocock/skills) `handoff`, `grill-me`, `caveman`, `edit-article`.
 
 ## When To Plan First
 
-- New skill or skill split touching `SKILL.md` + `references/` + `scripts/`
-- README catalog / install loop changes across many skills
-- Rewriting an existing skill's public contract
+- New skill or split touching `SKILL.md` + `references/` + `scripts/`
+- README / AGENTS / install loop changes across many skills
+- Rewriting a skill's public contract
 
-For a one-file typo fix in a single skill, edit directly after reading that skill.
+For a one-file fix in a single skill, edit after reading that skill only.
 
 ## Validation
 
-After changing agent instructions or skill routers:
+After changing routers or scripts:
 
 ```bash
-python3 agentsmd-scaffold/scripts/scan_repo_context.py .
+bash scripts/validate-skills.sh
 ```
 
 Manual checks:
 
-- Changed `SKILL.md` files have valid YAML frontmatter with `name` and
-  `description`.
-- Shell script edits pass `bash -n <path>`.
-- No duplicated install symlinks (`~/.cursor/skills` only).
+- YAML frontmatter has `name` and `description`; `name` matches directory.
+- No duplicate symlinks under `~/.cursor/skills/`.
 
-There is no repo CI yet for frontmatter linting.
+`validate-skills.sh` checks: name match, description, eval JSON, `bash -n` on
+`scripts/*.sh`, `py_compile` on `scripts/*.py`, SKILL line-count warning (≤120
+except `skill-creator`), missing evals warning (except `skill-creator`).
 
 ## Open Facts (do not guess)
 
-- `README.md` still links to `personal/`, `productivity/`, `util/`, and
-  `humanize/` paths that are not in git; use root-level skill directories above
-  until README is reconciled.
-- Install name for de-AI polish is **`humanizer/`** (not `humanize/`).
-- Shared delivery/BDD references live under **`shared/`** (`delivery-base.md`, `bdd-guide.md`); `fixflow` and `optflow` link there — do not duplicate copies under each skill.
-- Install examples may use a different clone path than your machine; set `REPO`
-  explicitly when symlinking.
-
-## Escalation
-
-- Scoped Codex CLI rules: `codex-agent/AGENTS.md`
-- AGENTS scaffold for other repositories: follow the agentsmd-scaffold workflow in the current session; do not bulk-normalize unrelated repos from here
+- De-AI install directory is **`humanizer/`** (not `humanize/`).
+- `article-read` modes: convert (default), summarize, save, preview — via `scripts/read.sh`; run `bash -n` on shell scripts after edits.
+- Core quartet skills with `evals/`: all ten skills except `skill-creator` (meta; eval loop built-in).
+- Run `bash scripts/validate-skills.sh` after skill or router changes.
+- `improve`, `handoff`, `grill-me`, `caveman`, `edit-article` are **not** in this repo.
+- SDD-lite skills live in the Cursor plugin (`~/.cursor/plugins/local/sdd-lite/skills/`) — do not duplicate into `~/.agents/skills/`.

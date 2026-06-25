@@ -60,7 +60,7 @@ memory_used:
 staleness_checks:
 ```
 
-Required fields for compaction safety: `modified_files`, `constraint_set_or_spec`, `verification_commands`, `key_decisions`, `current_priority`, and `l1_l7_summary` when VibeGuard applies.
+Required fields for compaction safety: `modified_files`, `constraint_set_or_spec`, `verification_commands`, `key_decisions`, `current_priority`.
 
 ## Resume Checklist
 

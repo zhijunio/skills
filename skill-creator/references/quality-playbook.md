@@ -52,5 +52,5 @@ Before calling a skill good, ask:
 Run the repository-level audit when available:
 
 ```bash
-python3 scripts/audit_skill_quality.py <skill-name>
+bash scripts/validate-skills.sh
 ```
