@@ -21,7 +21,7 @@ router; it does not replace per-skill instructions.
 git ls-files '*/SKILL.md' | sed 's|/SKILL.md||' | sort
 ```
 
-3. Before creating a skill, read `write-a-skill/SKILL.md` and search for an
+3. Before creating a skill, read `skill-creator/SKILL.md` and search for an
    existing skill with the same `name` frontmatter.
 4. Before editing a skill, read its `SKILL.md` and any linked `references/`.
 5. For Codex CLI collaboration, read `codex-agent/AGENTS.md`.
@@ -34,6 +34,7 @@ git ls-files '*/SKILL.md' | sed 's|/SKILL.md||' | sort
   references/        # optional playbooks
   scripts/           # optional shell / Python entry points
   evals/             # optional behavior checks (e.g. agentsmd-scaffold)
+shared/              # repo-wide references linked as ../shared/*.md
 ```
 
 Rules:
@@ -53,7 +54,7 @@ REPO=~/github/zhijunio-skills   # adjust to your clone path
 mkdir -p ~/.cursor/skills
 for skill in agentsmd-scaffold caveman codex-agent fetch-content flowguard \
   grill-me handoff improve jinrishici keep mj-writer rewrite-article \
-  strategic-compact tech-mastery vibeguard write-a-skill; do
+  skill-creator strategic-compact tech-mastery vibeguard; do
   ln -sfn "$REPO/$skill" ~/.cursor/skills/$skill
 done
 ```
@@ -68,8 +69,7 @@ in the same change set when possible.
 
 `agentsmd-scaffold`, `caveman`, `codex-agent`, `fetch-content`, `flowguard`,
 `grill-me`, `handoff`, `improve`, `jinrishici`, `keep`, `mj-writer`,
-`rewrite-article`, `strategic-compact`, `tech-mastery`, `vibeguard`,
-`write-a-skill`
+`rewrite-article`, `skill-creator`, `strategic-compact`, `tech-mastery`, `vibeguard`,
 
 ## Scripted Skills
 
@@ -131,6 +131,7 @@ There is no repo CI yet for frontmatter linting.
   `humanize/` paths that are not in git; use root-level skill directories above
   until README is reconciled.
 - Install name for de-AI polish is **`humanizer/`** (not `humanize/`).
+- Shared delivery/BDD references live under **`shared/`** (`delivery-base.md`, `bdd-guide.md`); `fixflow` and `optflow` link there — do not duplicate copies under each skill.
 - Install examples may use a different clone path than your machine; set `REPO`
   explicitly when symlinking.
 

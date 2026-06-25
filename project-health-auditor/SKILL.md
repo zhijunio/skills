@@ -1,6 +1,6 @@
 ---
 name: project-health-auditor
-description: Comprehensive codebase health analysis. Use when reviewing code quality, identifying technical debt, checking dependencies, or assessing project structure.
+description: "Lightweight codebase health checklist in one session — code smells, dependencies, tests, docs, structure. Use for quick health review or dependency/structure assessment. NOT for deep multi-agent audit, verified Critical/High findings, FE/BE contract traces, or phased P0 repair roadmaps (user must request the deep adaptive audit workflow explicitly)."
 allowed-tools: Read, Grep, Glob, Bash
 ---
 # Project Health Auditor
@@ -10,6 +10,22 @@ allowed-tools: Read, Grep, Glob, Bash
 ## Purpose
 
 Analyze codebase health across multiple dimensions: code quality, dependencies, security, testing, documentation, and architecture.
+
+## Scope boundaries
+
+**Use this skill when:**
+
+- User wants a **fast, single-pass** health snapshot (checklist + shell commands).
+- Focus is LOC/complexity, dependency age, missing tests/docs, obvious structure smells.
+- Output is a **narrative report or scorecard** — no `.audit/` baseline artifacts required.
+
+**Do not use this skill when:**
+
+- User asks for **全面审计**, hidden bugs, silent degradation, FE/BE type mismatches, or cross-module contract traces.
+- Findings must be **verified** and sorted **Critical/High** with a **P0/P1 repair roadmap**.
+- User needs **baseline diff** across audit runs (fixed / still open / new).
+
+In those cases, stop and tell the user they need the **deep adaptive codebase audit** workflow (user must invoke it explicitly). Do not attempt the deep workflow inside this checklist skill.
 
 ## Audit Categories
 

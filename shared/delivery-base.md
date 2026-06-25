@@ -1,6 +1,6 @@
 # Delivery Base — 共享交付流程
 
-共享交付步骤基础；修改时保持与引用方 workflow 一致。
+Repo-wide delivery playbook for step-test-commit workflows. Edit here only; consumers link from `../shared/delivery-base.md`.
 
 ## Define Ready Criteria (DoR)
 

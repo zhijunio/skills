@@ -27,11 +27,11 @@ Trigger this skill when the user asks for one or more of:
 
 ### 1. Define Ready Criteria (DoR)
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 ### 2. Build Complete Plan Before Editing
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 ### 3. Add BDD/TDD Layer When Needed
 
@@ -66,12 +66,12 @@ Trigger cues for TDD mode:
 
 For BDD Lite, Scenario Quality Checklist, Scenario Outline, and Test Layer mapping, see the shared reference:
 
-> [`references/bdd-guide.md`](./references/bdd-guide.md)
+> [`../shared/bdd-guide.md`](../shared/bdd-guide.md)
 
 
 ### 4. Execute Step by Step
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 For `per_step` (default):
   - Stage only files for current step.
@@ -81,15 +81,15 @@ For `per_step` (default):
 
 ### 5. Apply No-Backward-Compatibility Mode (When Requested)
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 ### 6. Validate with Test Matrix (Verification Loop)
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 ### 7. Commit and Handoff
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 ## Guardrails
 

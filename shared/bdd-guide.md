@@ -1,6 +1,6 @@
 # BDD Guide — 共享行为驱动开发参考
 
-> 共享 BDD 参考；修改时保持与引用方 workflow 一致。
+Repo-wide BDD Lite reference. Edit here only; consumers link from `../shared/bdd-guide.md`.
 
 ## 何时使用 BDD
 

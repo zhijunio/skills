@@ -22,6 +22,22 @@ A comprehensive codebase audit that adapts its agent configuration to the projec
 - Before a major refactor or after inheriting an unfamiliar codebase
 - Periodic health check (monthly/quarterly) — see Phase 3 for baseline diffing
 
+## Scope boundaries
+
+**Use this skill when:**
+
+- User asks for **deep** audit/review of an entire codebase with **verified** findings.
+- Cross-module issues matter: FE/BE contracts, data flow, silent degradation, registry drift.
+- Deliverable includes **severity-sorted report**, **P0/P1 roadmap**, and optional **`.audit/`** artifacts with baseline diff.
+
+**Do not use this skill when:**
+
+- User only wants a **quick checklist** (deps, LOC, test/doc gaps) in one session without parallel deep dives.
+- User wants **read-only improvement plans** in `plans/` for another agent to execute (that is a separate advisor workflow).
+- User already has a fix list and wants **step-by-step implementation + commits** (that is a delivery workflow).
+
+In those cases, stop and tell the user which lighter workflow fits; do not run the full multi-agent audit here.
+
 ## Workflow
 
 ### Phase 0: Tech Stack Detection & Deterministic Scans

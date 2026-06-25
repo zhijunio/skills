@@ -37,7 +37,7 @@ Trigger this skill when the user asks for one or more of:
 
 ### 1. Define Ready Criteria (DoR)
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 Additional for optflow:
 - If implementation is requested and commit style is not explicitly specified, use `per_step` (default).
@@ -45,7 +45,7 @@ Additional for optflow:
 
 ### 2. Build Complete Plan Before Editing
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 ### 3. Add BDD Layer When Needed
 
@@ -53,12 +53,12 @@ Use BDD if user requests it, or if requirements are unclear.
 
 For BDD Lite, Scenario Quality Checklist, Scenario Outline, and Test Layer mapping, see the shared reference:
 
-> [`references/bdd-guide.md`](./references/bdd-guide.md)
+> [`../shared/bdd-guide.md`](../shared/bdd-guide.md)
 
 
 ### 4. Execute Step by Step
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 - Treat one planned step as one feature boundary whenever possible.
 - If `commit_policy = per_step` (default for implementation):
@@ -69,11 +69,11 @@ For BDD Lite, Scenario Quality Checklist, Scenario Outline, and Test Layer mappi
 
 ### 5. Apply No-Backward-Compatibility Mode (When Requested)
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 ### 6. Validate with Test Matrix
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 Per-step mandatory loop (when `commit_policy = per_step`):
 1. Implement current feature step.
@@ -83,7 +83,7 @@ Per-step mandatory loop (when `commit_policy = per_step`):
 
 ### 7. Commit and Handoff
 
-> See shared delivery base: [`references/delivery-base.md`](./references/delivery-base.md)
+> See shared delivery base: [`../shared/delivery-base.md`](../shared/delivery-base.md)
 
 - `per_step`: each step must already be committed before next step starts.
 
