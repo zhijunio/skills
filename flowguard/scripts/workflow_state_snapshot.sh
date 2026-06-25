@@ -92,6 +92,10 @@ printf '\n## Verification Hints\n'
 [ -f "$manifest_root/go.mod" ] && printf -- '- Go: go build ./...; go test ./...\n'
 [ -f "$manifest_root/pyproject.toml" ] && printf -- '- Python: inspect pyproject.toml; likely pytest\n'
 [ -f "$manifest_root/pytest.ini" ] && printf -- '- Python: pytest\n'
+[ -f "$manifest_root/pom.xml" ] && printf -- '- Java (Maven): mvn -q -DskipTests compile; mvn test\n'
+if [ -f "$manifest_root/build.gradle" ] || [ -f "$manifest_root/build.gradle.kts" ]; then
+  printf -- '- Java (Gradle): ./gradlew compileJava; ./gradlew test\n'
+fi
 
 printf '\n## Handoff Reminder\n'
 printf 'Preserve modified files, constraint set or SPEC, verification commands, key decisions, current priority, and L1-L7 summary when VibeGuard applies.\n'

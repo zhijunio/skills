@@ -105,6 +105,7 @@ Pick checks from the repo, `AGENTS.md`, and changed surface. Common defaults:
 | TypeScript | `npx tsc --noEmit` | project test command |
 | Go | `go build ./...` | `go test ./...` |
 | Python | focused import/type/lint check if present | `pytest` |
+| Java | `mvn -q -DskipTests compile` or `./gradlew compileJava` | `mvn test` or `./gradlew test` |
 
 If a check cannot run, say why and name the nearest useful fallback that did run.
 
