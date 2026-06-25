@@ -62,7 +62,7 @@ auto-invoke another skill's end-to-end workflow without explicit user intent.
 | **读** | `article-read` | URL/PDF → Markdown; fetch, archive, optional summarize |
 | **写** | `article-write` | Ideate → gather → compose → refine (articles/documents) |
 | **学** | `topic-learn` | One topic: sources, verify, mastery assets, interview layer |
-| **审** | `codebase-audit` | Read-only codebase health — architecture, code quality, security, tests/CI, deps/docs |
+| **审** | `codebase-audit` | MECE six pillars — **A**1–6, **C**0–3, **S**1, **V**1–2, **D**1, **O**1; `references/map.md` |
 
 ### Boundaries
 
@@ -77,8 +77,9 @@ auto-invoke another skill's end-to-end workflow without explicit user intent.
 
 | Need | Use |
 |------|-----|
-| Multi-pillar read-only audit + roadmap | `codebase-audit` (this repo) |
-| General improvement audit → `plans/` | [shadcn/improve](https://github.com/shadcn/improve) — **not vendored** |
+| Multi-pillar read-only audit + systemic roadmap (chat-only report) | `codebase-audit` (this repo) |
+| General improvement audit → executor-ready `plans/` (+ `execute`) | [shadcn/improve](https://github.com/shadcn/improve) — **not vendored** |
+| SDD-loop opportunity scan → spec/plan/build handoff | `sdd-improve` in Cursor SDD plugin — **not vendored** here |
 | De-AI on finished prose (neutral, no author voice) | `humanizer` |
 | Author-voice refine / publish-ready in writing flow | `article-write` refine stage |
 | Long / multi-step / resume work | `flowguard` |

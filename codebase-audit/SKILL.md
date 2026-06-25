@@ -1,85 +1,96 @@
 ---
 name: codebase-audit
-description: Read-only codebase health audit (审) — architecture, code quality, security hygiene, tests/CI, dependencies, docs/operability. Severity-ranked findings and P0/P1/P2 roadmap. Use for 代码库审查, 代码审核, 架构审查, security/test/debt review; not article writing, topic learning, or URL fetch.
+description: Read-only codebase health audit — MECE pillars architecture (A1–A6), code (C0–C3), security (S1), verification (V1–V2), dependencies (D1), operations (O1). Chat-only P0/P1/P2 roadmap; effort snapshot, standard, or deep; variants simplicity, anti-pattern, branch, direction, cicd, and pillar-scoped review. Use for codebase audit, architecture review, security hygiene, CI/CD review, over-engineering and anti-pattern scan; not article writing, topic learning, implementation edits, or plans/.
 ---
 
 # Codebase Audit
 
-**Role: 审** — Read-only assessment of **target codebase health** across multiple pillars, not content workflows or delivery runs.
+**Role:** Read-only **MECE** multi-pillar health assessment.
 
-**Produces:** boundary map (when applicable), verified findings by pillar, prioritized roadmap, optional `.codebase-audit/` baseline.
+**Produces (chat only):** boundary map, findings (one pillar per row), P0/P1/P2 roadmap, optional direction notes, suggested next moves.
 
-**Does not produce:** executor-ready implementation `plans/`, code edits, content articles, topic learning workspaces, URL fetch jobs, or step-by-step delivery commits in the target repo.
+**Does not produce:** files in the target repo (unless user explicitly asks), `plans/`, code edits, articles, or delivery commits.
+
+**Report locale:** Skill docs English; **report body in the user's language**. Literals: paths, `file:line`, lens ids, git refs, severity emojis per `report.md` (roadmap phases: text only).
 
 ## Hard rules
 
-1. **Never modify application source** in the target repo. Only write under `.codebase-audit/` when persisting baselines (user-approved or periodic re-audit).
-2. **Read-only commands** — no installs, commits, or formatters on the target tree.
-3. **Systemic findings first** — prefer patterns with structural, security, or maintainability impact. Isolated line bugs belong in a general advisor skill unless they expose a class of failure.
-4. **Vet before report** — re-read cited code for every High+ finding; ADR/documented tradeoffs are by-design, not findings.
-5. **No secret values** — `file:line` + credential type only.
+1. **Never modify the target repo** — read-only; no installs, commits, formatters, no audit artifacts on disk.
+2. **Systemic first** — pattern-class findings.
+3. **Vet before report** — re-read High+; ADRs are by-design unless contradicted.
+4. **No secret values** — `file:line` + credential type only.
+5. **MECE findings** — one lens per row; pillar boundaries in `references/map.md`.
 
-## Audit pillars
+## Six pillars
 
-| Pillar | Reference | Covers |
-|--------|-----------|--------|
-| **Architecture** | `references/lenses.md` | Boundaries, contracts, state, extension cost, testability of structure (L1–L6) |
-| **Code health** | `references/code-health.md` | Complexity hotspots, error handling, dead code, consistency, observability hooks |
-| **Security hygiene** | `references/code-health.md` § Security | Secrets, authZ gaps, injection surfaces, unsafe defaults (not full pentest) |
-| **Tests & CI** | `references/code-health.md` § Tests | Coverage gaps at boundaries, missing gates, flaky patterns |
-| **Deps & docs** | `references/code-health.md` § Deps & docs | Critical outdated deps, license flags when relevant; README/runbook/onboarding gaps |
+| Pillar | IDs | Checklist |
+|--------|-----|-----------|
+| Architecture | A1–A6 | `playbook.md` |
+| Code | C0–C3 | `playbook.md` |
+| Security | S1 | `playbook.md` |
+| Verification | V1, V2 | `playbook.md` |
+| Dependencies | D1 | `playbook.md` |
+| Operations | O1 | `playbook.md` |
 
-User may narrow to one pillar (e.g.「只审安全」); state skipped pillars in the report.
+## Effort
 
-## Effort level
+| Level | Findings | Parallelism |
+|-------|----------|-------------|
+| `snapshot` | ≤5 | 1 pass |
+| `standard` (default) | ≤20 | ≤3 batches |
+| `deep` | ≤20 + vet appendix | ≤6 workers |
 
-User may say `snapshot`, `standard` (default), or `deep` anywhere in the invocation.
+Chinese effort triggers (same limits): 快照 = snapshot · 标准 = standard · 深度 = deep.
 
-| | snapshot | standard | deep |
-|---|----------|----------|------|
-| Goal | Directionally healthy? Top risks? | Hotspot audit across pillars | Whole-repo audit across pillars |
-| Architecture | Shape + boundaries + top risks | L1–L6 on churn hotspots | L1–L6 full scope |
-| Code health | Top 3 maintainability/security signals | D1–D5 on hotspots | D1–D5 full scope |
-| Parallelism | Single pass | ≤3 batches | ≤6 parallel read-only workers |
-| Output | 1–2 pages | Full report | Full report + refuted appendix |
+## Invocation
 
-State what was **not** audited.
+### English
+
+| Keyword | Lenses |
+|---------|--------|
+| `architecture` | A1–A6 |
+| `security` | S1 |
+| `tests` | V1 |
+| `ci` | V2 |
+| `deps` / `dx` | D1 |
+| `ops` / `release` / `cd` | O1 |
+| `cicd` | V2, O1 |
+| `simplicity` / `over-engineering` | A5, A6, C1 |
+| `anti-pattern` | A1, A5, A6, C1 |
+| `branch` | same scope; tag `introduced` / `pre-existing` |
+| `direction` | + optional direction notes |
+
+### Chinese triggers (user phrases — no English words required)
+
+| Trigger | Scope |
+|---------|-------|
+| 代码库审查 | all pillars (+ 快照/标准/深度 for effort) |
+| 架构审查 / 架构 | A1–A6 |
+| 安全审查 / 安全 | S1 |
+| 测试审查 / 测试 | V1 |
+| 持续集成审查 / 流水线审查 | V2 |
+| 依赖审查 / 依赖 / 开发体验 | D1 |
+| 运维审查 / 发布审查 / 部署审查 | O1 |
+| 流水线与发布审查 / 集成与部署审查 | V2 + O1 |
+| 简化审查 / 简化 / 过度设计 | A5, A6, C1 |
+| 反模式 | A1, A5, A6, C1 |
+| 分支审查 / 本分支 | same scope; attribution 本分支引入 / 既有问题 |
+| 方向性建议 / 方向 | + optional direction notes |
+
+When the user writes in Chinese, match Chinese triggers; do not require English keywords.
 
 ## Workflow
 
-1. **Recon** — Read `references/recon.md`. Map stack, entrypoints, verification commands, ADRs/specs if present.
-2. **Shape** — Classify project shape (library, CLI, API service, runtime, full-stack, …). Sketch boundary map when architecture pillar is in scope.
-3. **Audit** — Run selected pillars: `references/lenses.md` + `references/code-health.md`. Deep mode: read `references/deep-parallel.md`.
-4. **Vet** — Read `references/vet.md`; drop false positives; merge duplicate root causes.
-5. **Report** — Fill `references/report-template.md`. Roadmap items are **systemic moves** (converge X, add contract tests, fix auth gap class), not a flat bug backlog.
-6. **Baseline** (optional) — Persist `findings-YYYY-MM-DD.json` under `.codebase-audit/`; diff against prior run when present.
+1. `map.md` — pillar routing  
+2. `playbook.md` — Recon → invoked pillar sections → Stack signals  
+3. `playbook.md` § Vet  
+4. `report.md` — post full report in chat  
+5. `deep-parallel.md` — `deep` / 深度 only
 
-## Validation
+## Self-check
 
-Read-only audit — no target-repo edits except optional `.codebase-audit/` baseline.
-
-Self-check before delivery:
-
-- Every High+ finding re-read at cited `file:line`
-- Report states skipped pillars and depth limits
-- Roadmap items are systemic, not ticket-level bug list
-
-## Scope boundaries
-
-| Use this skill | Do not use |
-|----------------|------------|
-| Multi-pillar codebase health before refactor or onboarding | Quick dep/LOC checklist only |
-| Architecture drift + security/test/debt patterns | General improvement `plans/` only |
-| Pre-merge structural or hygiene review on unfamiliar repo | Known fix list + per-step delivery |
+Valid lens: A1–A6, C0–C3, S1, V1–V2, D1, O1. Simplicity (简化审查) → A5, A6, C1. Anti-pattern (反模式) → A1, A5, A6, C1. One row per root cause. Skipped pillars stated.
 
 ## References
 
-- `references/recon.md` — intake checklist
-- `references/lenses.md` — architecture lenses L1–L6
-- `references/code-health.md` — code quality, security, tests, deps, docs dimensions
-- `references/finding-format.md` — table columns and severity rubric
-- `references/report-template.md` — deliverable shape
-- `references/vet.md` — false-positive classes
-- `references/deep-parallel.md` — parallel fan-out for deep mode
-- `references/stack-signals.md` — stack-specific search hints
-- `references/baseline-schema.json` — optional `.codebase-audit/` JSON shape
+`references/map.md` · `references/playbook.md` · `references/report.md`

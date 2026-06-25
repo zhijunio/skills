@@ -11,7 +11,7 @@
 | **读** | [`article-read`](article-read/SKILL.md) | URL / PDF → Markdown；抓取、存档、可选摘要 |
 | **写** | [`article-write`](article-write/SKILL.md) | 选题 → 调研 → 成稿 → 定稿（文档 / 文章） |
 | **学** | [`topic-learn`](topic-learn/SKILL.md) | 单主题溯源、验证、mastery 资产、访谈层 |
-| **审** | [`codebase-audit`](codebase-audit/SKILL.md) | 只读代码库健康审查：架构、代码质量、安全、测试 / CI、依赖与文档 |
+| **审** | [`codebase-audit`](codebase-audit/SKILL.md) | MECE 六柱：**A** 架构 · **C** 代码 · **S** 安全 · **V** 验证 · **D** 依赖 · **O** 运维 |
 
 典型顺序（**每步须用户单独开口**；括号内为 skill 名）：
 
@@ -30,7 +30,15 @@
 | `topic-learn` | 单链摘要、营销向空写、审代码 |
 | `codebase-audit` | 写文章、主题课、抓链接 |
 
-与 **[shadcn/improve](https://github.com/shadcn/improve)** 的区别：`codebase-audit` 做多柱只读审查与路线图；`improve` 产出可执行的 `plans/` 改进方案（本库未收录）。
+与外部只读审计 skill 的区别：
+
+| 能力 | `codebase-audit`（本库） | [shadcn/improve](https://github.com/shadcn/improve) | SDD `sdd-improve`（插件） |
+|------|--------------------------|-----------------------------------------------------|---------------------------|
+| 产出 | 对话内多柱 findings + **P0/P1/P2 路线图**（不写盘） | findings + 可执行 **`plans/`**（含 `execute`） | 对话 findings + **SDD 环路由** |
+| 变体 | `snapshot` / `standard` / `deep`；**`branch`**（introduced / pre-existing）；**`direction`** | `quick` / `branch` / `next` / `execute` / `reconcile` | `branch`；Confirm → spec/plan/build |
+| 适用 | 入职、重构前、PR 前看整体或分支健康 | 审计完要逐步实施计划 | 项目走 SDD 交付环时的机会扫描 |
+
+`improve` 与 `sdd-improve` **未收录**于本库；审完后若要 `plans/` 或 SDD，由用户另开任务选用。
 
 ## 全部 skill
 
@@ -41,7 +49,7 @@
 | [`article-read`](article-read/SKILL.md) | `read.sh`；convert / summarize / save / preview |
 | [`article-write`](article-write/SKILL.md) | 五阶段；`voice-default.md`；outline / draft / publish-ready |
 | [`topic-learn`](topic-learn/SKILL.md) | `new` / `refresh`；`topic_scaffold.sh` + `topic_check.sh`；mastery-map、验证、访谈层 |
-| [`codebase-audit`](codebase-audit/SKILL.md) | snapshot / standard / deep；P0 / P1 / P2 路线图 |
+| [`codebase-audit`](codebase-audit/SKILL.md) | A·C·S·V·D·O 六柱；变体 `simplicity`、`反模式` |
 
 ### 辅助
 

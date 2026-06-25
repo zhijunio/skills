@@ -3,38 +3,107 @@
   "evals": [
     {
       "id": "audit-multi-pillar",
-      "prompt": "对当前仓库做 standard 代码库审查，架构和安全都要看",
+      "prompt": "对当前仓库做标准代码库审查，架构和安全都要看",
       "expected_behaviors": [
-        "Runs architecture lenses and code-health dimensions",
-        "Produces boundary map when architecture in scope",
-        "Does not modify source files",
-        "Report in Chinese with finding table"
+        "Runs A1-A6 and S1",
+        "Uses six MECE pillars per map.md",
+        "Does not modify source files"
       ]
     },
     {
       "id": "audit-snapshot",
-      "prompt": "snapshot 代码库审核，只要方向性结论",
+      "prompt": "快照代码库审查，只要方向性结论",
       "expected_behaviors": [
-        "Short executive summary across pillars",
-        "Skips or abbreviates full findings table",
-        "States what was not audited"
+        "At most five findings with lens ids",
+        "States skipped pillars"
       ]
     },
     {
       "id": "audit-security-only",
       "prompt": "只审这个项目的安全卫生，不要全量架构",
       "expected_behaviors": [
-        "Loads code-health.md security section",
-        "States architecture pillar skipped",
-        "Does not run full L1-L6 unless asked"
+        "Loads playbook Security section only",
+        "Skips architecture pillar"
+      ]
+    },
+    {
+      "id": "audit-deps-vs-ops",
+      "prompt": "审查依赖和发布，分清依赖柱和运维柱",
+      "expected_behaviors": [
+        "Outdated lockfile as D1 not S1",
+        "Deploy runbook gaps as O1 not D1",
+        "One finding one pillar"
+      ]
+    },
+    {
+      "id": "audit-cicd-focus",
+      "prompt": "流水线与发布审查",
+      "expected_behaviors": [
+        "V2 for CI gates",
+        "O1 for deploy/release",
+        "D1 for Dockerfile or manifest if relevant"
+      ]
+    },
+    {
+      "id": "audit-mece-overlap",
+      "prompt": "标准审查，清单里的漏洞版本和代码里的不安全用法不要报两行",
+      "expected_behaviors": [
+        "Manifest CVE as D1",
+        "Unsafe API use as S1",
+        "Single row per root cause"
       ]
     },
     {
       "id": "audit-no-plans",
-      "prompt": "代码库审核并生成 shadcn 那种 plans",
+      "prompt": "代码库审查并生成可执行计划目录",
       "expected_behaviors": [
-        "Produces roadmap not implementation plans/",
-        "Does not claim to output shadcn-style plan files"
+        "Produces roadmap in chat not plans/"
+      ]
+    },
+    {
+      "id": "audit-anti-pattern",
+      "prompt": "反模式审查，看贫血模型、上帝类、透传层",
+      "expected_behaviors": [
+        "Uses playbook Anti-patterns table",
+        "Scopes A1 A5 A6 C1",
+        "Systemic class-level findings not single-class GoF labels",
+        "Does not edit source files"
+      ]
+    },
+    {
+      "id": "audit-simplicity",
+      "prompt": "简化审查，看有没有过度设计、方法过长、能删的抽象",
+      "expected_behaviors": [
+        "Scopes A5 A6 C1 only per playbook",
+        "Skips S V D O pillars",
+        "Systemic findings not line-by-line lint",
+        "Does not edit source files"
+      ]
+    },
+    {
+      "id": "audit-chat-only",
+      "prompt": "标准代码库审查",
+      "expected_behaviors": [
+        "Posts full report in conversation",
+        "Does not write audit files to target repo"
+      ]
+    },
+    {
+      "id": "audit-chinese-pure",
+      "prompt": "深度反模式审查，本分支引入的问题单独标出",
+      "expected_behaviors": [
+        "Recognizes 深度 反模式 本分支 without English keywords",
+        "Scopes A1 A5 A6 C1",
+        "Uses 本分支引入 or 既有问题 in attribution when report is Chinese"
+      ]
+    },
+    {
+      "id": "audit-emoji-levels",
+      "prompt": "标准代码库审查",
+      "expected_behaviors": [
+        "Findings use severity emojis 🚨 🔴 🟡 🟢 with labels",
+        "Roadmap uses P0 P1 P2 text only without emoji",
+        "Emoji are not a ship gate"
       ]
     }
   ]
