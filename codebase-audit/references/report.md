@@ -1,6 +1,8 @@
 # Report
 
-**Delivery: chat only** — post the full report in the conversation. Do **not** write audit files to the target repo unless the user explicitly asks.
+**Delivery: chat only** — post the full report in the conversation.
+
+**No disk by default** — do **not** create or update audit files in the target repo (including `.codebase-audit/`, `findings-*.json`, or report Markdown) unless the user **explicitly** asks to persist a baseline or export.
 
 **Report body:** user's language. **Section headings** follow the user's language too (use English headings below when the user writes in English). Literals: paths, lens ids, git refs, **severity emojis** (below).
 
@@ -53,6 +55,8 @@ Cell format: `P0` · `P1` · `P2` only — **no emoji**. Severity and scheduling
 
 **snapshot / 快照** → Scope + summary + ≤5 findings. **standard / deep / 标准 / 深度** → full below.
 
+**Section order:** `Scope` → `Executive summary` → `Boundary map` (if in scope) → `Findings` → `Roadmap` → `Direction notes` (optional) → `Rejected findings` → `Not audited` → **`Suggested next steps` last**.
+
 ```markdown
 # Codebase Audit — {Project}
 
@@ -94,10 +98,6 @@ Simplicity audits: roadmap rows should favor **delete / merge / collapse** over 
 
 2–4 options with trade-offs — not ranked vs findings.
 
-## Suggested next steps
-
-Direct edits · implementation plans · behavior spec · diff review · follow-up deep pillar.
-
 ## Rejected findings
 
 | title | reason |
@@ -105,4 +105,8 @@ Direct edits · implementation plans · behavior spec · diff review · follow-u
 ## Not audited
 
 …
+
+## Suggested next steps
+
+**Always last section.** Direct edits · implementation plans · behavior spec · diff review · follow-up deep pillar.
 ```

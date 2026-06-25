@@ -15,7 +15,7 @@ description: Read-only codebase health audit — MECE pillars architecture (A1�
 
 ## Hard rules
 
-1. **Never modify the target repo** — read-only; no installs, commits, formatters, no audit artifacts on disk.
+1. **Never modify the target repo** — read-only; no installs, commits, formatters; **report in chat only** (no `.codebase-audit/` or other audit files unless the user explicitly asks).
 2. **Systemic first** — pattern-class findings.
 3. **Vet before report** — re-read High+; ADRs are by-design unless contradicted.
 4. **No secret values** — `file:line` + credential type only.
