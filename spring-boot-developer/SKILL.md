@@ -64,6 +64,7 @@ Read [boot-versions.md](references/boot-versions.md) for the current release lin
 
 - **Spring Data JPA**: Entity modelling, value-object `@EmbeddedId` with UUIDv7, `equals`/`hashCode` rules, repositories per aggregate root, projections, N+1, keyset pagination and batch writes. Read [spring-data-jpa.md](references/spring-data-jpa.md)
 - **Database Concurrency**: Constraints, optimistic and pessimistic locking, transaction boundaries, retries and real-database concurrency tests. Read [database-concurrency.md](references/database-concurrency.md)
+- **Database Schema and SQL**: Relational schema design, constraints, indexes, safe SQL, bounded queries, execution plans, and production-database verification. Read [database-schema-and-sql.md](references/database-schema-and-sql.md)
 - **Database Backup and Recovery**: RPO/RTO, isolated restores, consistency across database and file stores, and recovery drills. Read [database-backup-recovery.md](references/database-backup-recovery.md)
 - **Auditing**: Spring Data audit metadata, current and system actors, privacy boundaries, and the distinction between mutable metadata and immutable history. Read [auditing.md](references/auditing.md)
 - **Transactions**: Where `@Transactional` belongs, propagation, `readOnly`, rollback rules, optimistic locking, and binding side effects to commit rather than to publish. Read [transactions.md](references/transactions.md)

@@ -59,6 +59,7 @@ metadata:
 
 - **Spring Data JPA：**实体建模、使用 UUIDv7 的值对象 `@EmbeddedId`、`equals`/`hashCode` 规则、按聚合根设置 Repository、投影、N+1、keyset 分页和批量写入。读 [spring-data-jpa.zh-CN.md](references/spring-data-jpa.zh-CN.md)。
 - **数据库并发：**约束、乐观锁和悲观锁、事务边界、重试及真实数据库并发测试。读 [database-concurrency.zh-CN.md](references/database-concurrency.zh-CN.md)。
+- **数据库 Schema 与 SQL：**关系模型设计、约束、索引、安全 SQL、有界查询、执行计划和生产数据库验证。读 [database-schema-and-sql.zh-CN.md](references/database-schema-and-sql.zh-CN.md)。
 - **数据库备份与恢复：**RPO/RTO、隔离恢复、数据库与文件存储的一致性，以及恢复演练。读 [database-backup-recovery.zh-CN.md](references/database-backup-recovery.zh-CN.md)。
 - **审计字段：**Spring Data 审计元数据、当前与系统操作者、隐私边界，以及可变元数据和不可变历史的区别。读 [auditing.zh-CN.md](references/auditing.zh-CN.md)。
 - **事务：**`@Transactional` 的位置、传播行为、`readOnly`、回滚规则、乐观锁，以及将副作用绑定到提交时机。读 [transactions.zh-CN.md](references/transactions.zh-CN.md)。

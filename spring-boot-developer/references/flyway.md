@@ -38,7 +38,7 @@ src/main/resources/db/migration/
 
 **Two underscores** between version and description; single underscores inside the description. `V1_create_customers.sql` is not a valid migration and is silently ignored.
 
-Repeatable migrations are for objects you can safely recreate wholesale - views, functions, stored procedures. Write them idempotently (`CREATE OR REPLACE`).
+Use repeatable migrations for replaceable views when needed, and write them idempotently (`CREATE OR REPLACE`). Keep business behavior in the application layer; do not introduce custom stored functions or procedures, triggers, database extensions, or other engine-specific programmable objects because they couple the application to one database and complicate local setup, migration, rollback, and testing. If a legacy schema already contains one, document the dependency, manage its DDL through versioned migrations, and verify its lifecycle against the target engine.
 
 ## The rule that matters
 
