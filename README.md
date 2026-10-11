@@ -26,11 +26,46 @@ Agent Skills are designed to be used with agentic coding tools like Claude Code,
 
 To use these skills in your own environment you may follow the instructions for your specific tool or use a community tool like [skills.sh](https://skills.sh).
 
+## SkillsJars packaging
+
+This repository can also package its skills into a Maven JAR with [SkillsJars](https://skillsjars.com). The build scans immediate child directories of the repository root and packages each directory that contains a `SKILL.md`; other directories are skipped.
+
+```bash
+./mvnw clean verify
+jar tf target/agent-skills-0.1.0-SNAPSHOT.jar | grep '^META-INF/skills/'
+```
+
+To consume an installed snapshot from another Maven project, first install it locally:
+
+```bash
+./mvnw install
+```
+
+Add the artifact as a dependency in the consuming project:
+
+```xml
+<dependency>
+  <groupId>io.github.zhijunio</groupId>
+  <artifactId>agent-skills</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+Then extract it into a project-local Codex skills directory:
+
+```bash
+mvn com.skillsjars:maven-plugin:extract \
+  -Ddir=.codex/skills \
+  -DuseSkillsNameAsDirectory=true
+```
+
+The artifact is a packaging format; it does not replace the existing skills CLI or direct-copy installation options. SkillsJars packaging is documented here; publishing coordinates to Maven Central requires a separate release configuration and namespace verification.
+
 <details open>
 <summary><b>pnpm</b></summary>
 
 ```bash
-pnpm dlx skills add https://github.com/0avi/skills
+pnpm dlx skills add https://github.com/zhijunio/skills
 ```
 
 </details>
@@ -39,7 +74,7 @@ pnpm dlx skills add https://github.com/0avi/skills
 <summary><b>npm</b></summary>
 
 ```bash
-npx skills add https://github.com/0avi/skills
+npx skills add https://github.com/zhijunio/skills
 ```
 
 </details>
