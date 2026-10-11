@@ -86,6 +86,7 @@ For the language itself - records, sealed types, `Optional`, `var`, patterns - u
 | 41 | Security 7 is lambda-DSL only. `securityMatcher` on every chain; `anyRequest()` last. | [security-fundamentals.md](security-fundamentals.md) |
 | 42 | `@EnableMethodSecurity` - without it `@PreAuthorize` is silently inert, which is a hole, not an inefficiency. | [security-fundamentals.md](security-fundamentals.md) |
 | 43 | Configure `authenticationEntryPoint` and `accessDeniedHandler` - advice cannot catch filter exceptions. | [security-fundamentals.md](security-fundamentals.md) |
+| 44 | Authorize STOMP inbound commands and subscriptions, require CSRF for cookie-authenticated `CONNECT`, and bound connections and frames. | [websocket.md](websocket.md) |
 | 44 | Prefer an external IdP. If self-issuing, use Spring Security's own encoder/decoder - not a hand-written filter. | [jwt-authentication.md](jwt-authentication.md) |
 | 45 | Set `issuer-uri` **and** `audiences`; scopes are `hasAuthority('SCOPE_…')`, not `hasRole`. | [oauth2-resource-server.md](oauth2-resource-server.md) |
 | 46 | Refresh tokens are opaque, hashed, rotated on use, with reuse treated as compromise. | [jwt-authentication.md](jwt-authentication.md) |
@@ -130,6 +131,22 @@ For the language itself - records, sealed types, `Optional`, `var`, patterns - u
 | 70 | Never concatenate user input into a prompt. Never execute or render model output unescaped. | [spring-ai.md](spring-ai.md) |
 | 71 | `log-prompt: false` in production, and never tag a metric with prompt content. | [ai-observability.md](ai-observability.md) |
 | 72 | Cap `max-tokens`, track token usage per operation, and alert on spend. | [ai-observability.md](ai-observability.md) |
+
+## Cross-cutting API safeguards
+
+| # | Rule | Reference |
+| - | ---- | --------- |
+| 73 | Use resource-oriented paths; put filters, pagination and allowlisted sorting in query parameters. Keep credentials out of URLs. | [rest-controllers.md](rest-controllers.md) |
+| 74 | Define a scoped idempotency contract for retryable create operations; persist keys atomically and recheck authorization before replaying a response. | [api-idempotency.md](api-idempotency.md) |
+| 75 | Apply rate limits and hard resource bounds at the appropriate gateway and application layers; return a documented overload response. | [rate-limiting.md](rate-limiting.md) |
+| 76 | Treat database constraints as the final concurrency guard; translate constraint failures only after handling the failed transaction boundary. | [database-concurrency.md](database-concurrency.md) |
+| 77 | Derive tenant context from trusted identity and enforce it in every persistence, cache, storage and background-job path. | [multi-tenancy.md](multi-tenancy.md) |
+| 78 | CI promotes the same verified artifact digest; schema changes remain compatible across rollout and rollback windows. | [ci-cd-release.md](ci-cd-release.md) |
+| 79 | Public API changes have compatibility checks; deprecation has a replacement, owner, dates and measured client usage. | [api-versioning.md](api-versioning.md) |
+| 80 | Secrets have an owner, least-privilege scope, rotation and revocation procedure; CI does not expose them to untrusted code. | [configuration.md](configuration.md) |
+| 81 | Alerts have an owner, user impact, actionable runbook and SLO-aligned threshold; logs validate client-supplied correlation IDs. | [observability.md](observability.md) |
+| 82 | Backup policies meet stated RPO/RTO and restore drills verify data, schema, access controls and dependent stores. | [database-backup-recovery.md](database-backup-recovery.md) |
+| 83 | External client tests exercise the network boundary; local substitutes cannot silently fall through to live providers. | [external-service-testing.md](external-service-testing.md) |
 
 ---
 

@@ -21,6 +21,8 @@ spring:
 
 This converts **Spring's own** exceptions - 404 on no handler, 405, 415, malformed body - into `ProblemDetail`. It does nothing for your domain exceptions; those still need handlers.
 
+When several `@RestControllerAdvice` beans can handle the same exception, ordering matters. With Boot's Problem Details advice enabled, a separate custom advice that handles validation or framework exceptions may lose to Boot's advice and return its default body. Prefer extending `ResponseEntityExceptionHandler` and overriding its hook when you need to customise MVC exceptions. If the design requires a separate advice, give it an explicit higher precedence (for example `@Order(Ordered.HIGHEST_PRECEDENCE)`) and verify the actual status, content type and body in a web-slice test. Do not assume an `@ExceptionHandler` method wins solely because it is more specific.
+
 ## The domain exception hierarchy
 
 ```java
@@ -205,6 +207,7 @@ Logging every 404 at `ERROR` turns the log into noise and hides real failures. L
 - Agent returns `Map<String, Object>` or a custom error record - use `ProblemDetail`
 - Agent writes a handler that does not extend `ResponseEntityExceptionHandler` - you lose Spring's own MVC exception handling
 - Agent assumes `problemdetails.enabled: true` covers domain exceptions - it converts only Spring's own exceptions
+- Agent adds a competing advice beside Boot's Problem Details advice and assumes its validation handler wins - advice ordering decides; extend `ResponseEntityExceptionHandler` or set explicit precedence and test the response
 - Agent leaves `type` unset - it is the stable machine-readable identifier for the error kind
 - Agent puts `ex.getMessage()` in a 500 response - log it, return a generic message
 - Agent adds a `timestamp` property - the `Date` header has it

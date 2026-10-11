@@ -78,7 +78,7 @@ Versioning is **required** unless you configure a default or call `setVersionReq
 | Version not in the supported list | `InvalidApiVersionException` | 400 |
 | No version and none defaulted | `MissingApiVersionException` | 400 |
 
-Both flow through `ResponseEntityExceptionHandler`, so they emit `ProblemDetail` - see [error-handling.md](error-handling.md).
+Both are raised during handler mapping. Enable `spring.mvc.problemdetails.enabled=true` if the API contract requires the framework's Problem Details response for these errors; without it, do not promise that the native version-resolution error body is `ProblemDetail`. Test unsupported and missing versions against the configured application. See [error-handling.md](error-handling.md) for advice ordering when customising the body.
 
 Set a default when you are adding versioning to an API that already has clients. Without one, every existing caller breaks the day you deploy.
 
@@ -98,7 +98,9 @@ public void configureApiVersioning(ApiVersionConfigurer configurer) {
 }
 ```
 
-Emits the RFC 9745 `Deprecation` and `Sunset` headers plus a `Link` to the migration notes. Do not invent your own sunset header - clients and gateways already understand these.
+Emits the `Deprecation` header defined by [RFC 9745](https://www.rfc-editor.org/rfc/rfc9745.html), the `Sunset` header defined by [RFC 8594](https://www.rfc-editor.org/rfc/rfc8594.html), and a `Link` to the migration notes. Do not invent your own sunset header - clients and gateways already understand these.
+
+Deprecation is a migration process, not just a response header. Inventory affected clients, publish a migration guide and a supported replacement, announce the dates through the channels clients use, and monitor version usage before sunset. Keep a named owner and a removal issue. A sunset date is a real shutdown commitment; do not emit it until the replacement and operational plan are ready. Where request-level versions are unavailable, document the deprecation clearly in OpenAPI and release notes, and use standard response headers where the framework or gateway can do so safely.
 
 ## Clients send versions too
 
@@ -129,6 +131,8 @@ Adding a version is expensive: every version is a contract you support until sun
 
 Prefer expanding the current version over minting a new one. When you must version, version the **representation**, not the whole API - one changed endpoint, one new handler.
 
+Run an OpenAPI compatibility diff in CI for public APIs and review intentional breaking changes. Add consumer contract tests for critical integrations; a schema diff cannot prove business semantics are unchanged. Preserve tolerant-reader behavior: clients should ignore unknown response fields, and servers should define how they handle unknown request fields rather than relying on inconsistent defaults. Document nullability, enum evolution, pagination and error changes as part of the contract.
+
 ## If on Boot 3.5.x
 
 The `version` mapping attribute and `ApiVersionConfigurer` **do not exist** on Framework 6. Options, best first:
@@ -145,7 +149,7 @@ Whichever you pick, keep the version at the web boundary. A version that reaches
 - Agent writes `version = 1` - it is a semantic version `String`, `"1.0"`
 - Agent configures two resolution sources - pick one
 - Agent enables versioning with no default and no `setVersionRequired(false)` - every existing client gets a 400
-- Agent invents `X-Sunset` or similar - use `StandardApiVersionDeprecationHandler` for RFC 9745 headers
+- Agent invents `X-Sunset` or similar - use the standard `Deprecation` and `Sunset` fields (`StandardApiVersionDeprecationHandler` on supported Framework versions)
 - Agent duplicates all endpoints for one changed representation - version the mapping that changed
 - Agent leaks the version into the service layer - version at the web boundary only
 - Agent uses the Boot 4 `version` attribute on a 3.5.x project - it does not exist on Framework 6

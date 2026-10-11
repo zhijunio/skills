@@ -122,6 +122,14 @@ spring:
     import: optional:configtree:/etc/secrets/
 ```
 
+### Secret lifecycle
+
+Secret delivery is only one part of secret management. Assign an owner and rotation procedure to each credential, use short-lived or workload identity credentials where the platform supports them, and grant each service only the permissions it needs. Rotate by allowing a bounded overlap when the provider supports two active credentials, deploy the new credential, verify traffic, then revoke the old one. Plan an emergency revocation path and test it outside an incident.
+
+Do not print resolved configuration during startup or include it in support bundles. Restrict who can read deployment variables and mounted secret files; environment variables may be visible to process inspection or crash diagnostics. Do not assume Actuator sanitization protects custom endpoints or application logs. See [observability.md](observability.md).
+
+For local development, use a developer-specific ignored file with non-production credentials. CI should use its secret store or federated workload identity, never a committed `.env` file. See [local-development.md](local-development.md).
+
 Redact secrets from the actuator. `/actuator/env` and `/actuator/configprops` will happily print them - see [observability.md](observability.md).
 
 ## Feature flags

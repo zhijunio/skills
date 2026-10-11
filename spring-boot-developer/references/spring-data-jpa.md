@@ -217,9 +217,23 @@ class JpaConfig {
 `@Version` here is doing two jobs:
 
 1. **Optimistic locking.** A concurrent update throws `ObjectOptimisticLockingFailureException`, which maps to 409 - see [error-handling.md](error-handling.md).
-2. **New-state detection.** With an assigned `@EmbeddedId`, Spring Data cannot use "is the id null?" to decide between `persist` and `merge`. It checks a nullable `@Version` first: null means new. **This is why the wrapper `Long` matters** - a primitive `long` defaults to `0`, which JPA treats as an existing first version, and every `save()` becomes a `merge` with a preceding `SELECT`.
+2. **New-state detection.** With an assigned ID (including a regular UUID `@Id` or `@EmbeddedId`), Spring Data cannot use "is the id null?" to decide between `persist` and `merge`. It checks a nullable `@Version` first: null means new. **This is why the wrapper `Long` matters** - a primitive `long` defaults to `0`, which JPA treats as an existing first version, and every `save()` becomes a `merge` with a preceding `SELECT`.
 
 Without `@Version`, an assigned-ID entity needs `Persistable` with an `isNew` flag cleared by `@PostPersist` and `@PostLoad`. `@Version` is simpler and you usually want the locking anyway.
+
+When an API response includes the new version, flush before mapping the response. Hibernate increments the managed entity's version when it executes the update; before flush, the in-memory value can still be the old version. Flushing also surfaces an optimistic-lock conflict before the service constructs its response:
+
+```java
+@Transactional
+public TaskResponse changeStatus(UUID id, TaskStatus status) {
+    var task = tasks.findById(id).orElseThrow();
+    task.changeStatus(status);
+    tasks.flush();
+    return TaskResponse.from(task);
+}
+```
+
+Flush is not commit: the transaction may still fail afterward. Use it when the response needs the updated version or the operation must detect the update conflict before returning from the service.
 
 Prefer Spring Data auditing (`@CreatedDate`) over Hibernate's `@CreationTimestamp` - it also gives `@CreatedBy`/`@LastModifiedBy` from an `AuditorAware` bean, and it is not tied to the ORM.
 
@@ -441,6 +455,7 @@ spring:
 - Agent puts `@GeneratedValue` on an `@EmbeddedId` - embedded ids are assigned; generate in the factory
 - Agent uses a primitive `long` for `@Version` - must be a nullable `Long`, or new-state detection breaks and every save does a SELECT first
 - Agent omits `@Version` on an assigned-ID entity - Spring Data cannot tell new from existing
+- Agent returns a version-bearing DTO before flushing - it can contain the old version; flush before mapping when the API must return the incremented value
 - Agent writes `equals`/`hashCode` on an entity - don't, unless there is a stable natural key
 - Agent uses `getClass()` in entity `equals` - fails against a Hibernate proxy; use `instanceof`
 - Agent includes an association in `equals`, `hashCode` or `toString` - triggers a lazy load, or infinite recursion

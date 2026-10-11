@@ -166,6 +166,8 @@ Alert on symptoms users feel, not on causes:
 - Dead-letter topic depth ([messaging.md](messaging.md))
 - Business signals - orders placed per minute dropping to zero is often the fastest detector of a broken deploy
 
+For each alert, define an owner, user impact, actionable runbook and a threshold that pages only when a human response is needed. Tie availability and latency targets to service-level objectives (SLOs); use an error-budget or multi-window burn-rate policy for paging rather than alerting on every transient spike. Dashboards should show the same service signals over a deploy annotation so regressions can be tied to a release. Review alerts for duplicates and pages that routinely produce no action.
+
 ## Tracing
 
 ```xml
@@ -220,6 +222,8 @@ Log rules that matter more than the format:
 - **Never log secrets, tokens, passwords or personal data.** Redact at the source; a log store is rarely as well protected as a database.
 - **`ERROR` means a human should look.** A 404 logged at `ERROR` trains everyone to ignore the level. See [error-handling.md](error-handling.md).
 - Use placeholders - `log.info("Placed order {}", orderId)` - not concatenation, so the message is not built when the level is disabled.
+
+Use trace/span IDs as cross-service correlation fields. If clients can submit a request/correlation ID, validate its syntax and length or replace it with a server-generated ID; never use an untrusted value as a metric tag or trust it for authorization. Keep log retention and access appropriate to the identifiers and business data recorded, and document which fields are intentionally omitted or redacted.
 
 ## The info endpoint
 

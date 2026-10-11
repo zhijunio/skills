@@ -14,6 +14,8 @@ Boot 4 name. On 3.5.x this is `spring-boot-starter-test`. Do not add both - the 
 
 ## `@WebMvcTest` - controllers in isolation
 
+On Boot 4, import the slice from `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest`. Boot 3.5.x uses `org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest`; do not carry the old package into a Boot 4 project.
+
 Loads the web layer only: controllers, `@ControllerAdvice`, filters, converters, `MockMvcTester`. `@Service`, `@Repository` and `@Component` are **not** loaded, so any collaborator the controller needs must be a `@MockitoBean` or the context fails to start.
 
 ```java

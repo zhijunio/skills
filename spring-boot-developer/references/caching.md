@@ -260,4 +260,4 @@ The abstraction, all four annotations, `sync = true`, Caffeine and the Redis pro
 
 ## Related
 
-- [transactions.md](transactions.md) · [spring-proxies-and-di.md](spring-proxies-and-di.md) · [json-and-jackson.md](json-and-jackson.md) · [observability.md](observability.md) · [configuration.md](configuration.md)
+- [cache-consistency.md](cache-consistency.md) · [transactions.md](transactions.md) · [spring-proxies-and-di.md](spring-proxies-and-di.md) · [json-and-jackson.md](json-and-jackson.md) · [observability.md](observability.md) · [configuration.md](configuration.md)

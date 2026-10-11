@@ -45,8 +45,6 @@ spring:
     default-property-inclusion: non_null
     deserialization:
       fail-on-unknown-properties: false
-    serialization:
-      write-dates-as-timestamps: false
 ```
 
 Inject `JsonMapper` where you genuinely need to serialise by hand. Do not inject `ObjectMapper` on Boot 4.
@@ -112,12 +110,7 @@ Serialises as `"9f2c…"`, not `{"value":"9f2c…"}`. Without `@JsonValue`, ever
 
 ## Dates and times
 
-```yaml
-spring:
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false   # ISO-8601 strings, not epoch numbers
-```
+On Boot 4, Jackson 3's Java time serializers use ISO-8601 strings by default. Do not copy the Jackson 2-era `write-dates-as-timestamps` setting into `spring.jackson.serialization`: Jackson 3 no longer exposes that `SerializationFeature`, and Boot 4 can fail while binding the property. If you need a non-default date representation, configure a Jackson 3 serializer explicitly and cover it with a JSON test. On Boot 3.5.x, the property remains available when needed.
 
 - **`Instant` for a moment in time.** Serialises as `2026-08-10T09:15:30Z`. Use it for `createdAt`, `placedAt`, anything that happened.
 - **`LocalDate` for a date with no time** - a birth date, an invoice date.
@@ -185,7 +178,7 @@ Jackson 2 throughout. `com.fasterxml.jackson.databind.ObjectMapper`, `@JsonCompo
 - Agent serialises a value object without `@JsonValue` - the API gets `{"value":"…"}` instead of a scalar
 - Agent adds `@JsonValue` and expects path variables to bind - that needs a `Converter`
 - Agent uses `LocalDateTime` for a timestamp - no zone; use `Instant`
-- Agent writes dates as epoch numbers - set `write-dates-as-timestamps: false`
+- Agent copies `write-dates-as-timestamps` into Boot 4's `spring.jackson.serialization` - Jackson 3 does not support that feature; ISO-8601 is already the default
 - Agent enables default typing on the request mapper - a deserialisation gadget vector
 - Agent returns a sealed interface from a controller - configure `@JsonTypeInfo` or map to a flat record
 - Agent writes a custom serializer for something `@JsonValue` would handle

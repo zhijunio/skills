@@ -66,7 +66,78 @@ ResponseEntity<Void> cancel(@PathVariable OrderId id) { … }
 
 Resist annotating every parameter and field. A controller where the annotations outweigh the code is harder to read and no better documented - springdoc already knew the types.
 
+### Javadoc support
+
+For code-first APIs, springdoc can use Javadocs as documentation instead of repeating descriptions in Swagger annotations:
+
+- A controller method's Javadoc becomes the OpenAPI operation description.
+- The method's `@return` text becomes the response description.
+- A DTO field's Javadoc becomes that schema property's description.
+
+This requires Therapi at both compile time and runtime. Add its annotation processor and runtime reader; the current springdoc documentation uses Therapi `0.15.0`:
+
+```xml
+<properties>
+    <therapi.version>0.15.0</therapi.version>
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>com.github.therapi</groupId>
+        <artifactId>therapi-runtime-javadoc</artifactId>
+        <version>${therapi.version}</version>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>com.github.therapi</groupId>
+                        <artifactId>therapi-runtime-javadoc-scribe</artifactId>
+                        <version>${therapi.version}</version>
+                    </path>
+                    <!-- Keep any other annotation processors already used by the project. -->
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+Gradle equivalent:
+
+```kotlin
+dependencies {
+    implementation("com.github.therapi:therapi-runtime-javadoc:0.15.0")
+    annotationProcessor("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
+}
+```
+
+Write useful contract documentation at the API boundary:
+
+```java
+/**
+ * Moves a task to the next allowed lifecycle state.
+ *
+ * @return the task after the state change
+ */
+@PutMapping("/{id}/status")
+TaskResponse changeStatus(@PathVariable UUID id, @RequestBody ChangeTaskStatusRequest request) { … }
+```
+
+Keep Javadoc focused on externally visible behavior: allowed transitions, sorting or paging defaults, units, nullability, and relevant failure conditions. Do not repeat what the Java type or validation annotation already says. Javadoc on Java record components can vary with compiler and processor support; inspect the generated schema, and use an explicit `@Schema(description = …)` for a property whose description must be guaranteed. If both Javadoc and a Swagger annotation provide the same description, the Swagger annotation takes precedence.
+
+The processor setup is easy to omit and springdoc may then generate a spec with no error but no Javadocs. Test the generated `/v3/api-docs` for representative operation, response, and schema descriptions. Modern `springdoc-openapi-starter-*` modules include Javadoc integration; do not add the removed legacy `springdoc-openapi-javadoc` module.
+See [springdoc's Javadoc support documentation](https://springdoc.org/#javadoc-support) for the current integration details.
+
 Document error responses as `ProblemDetail` so consumers see the real shape ([error-handling.md](error-handling.md)).
+
+Framework 7's native API-version resolver does not necessarily appear in springdoc's inferred operation parameters. When versioning through a request header, explicitly document that header on the affected operations (for example with `@Parameter(name = "API-Version", in = ParameterIn.HEADER, required = false, ...)`) or add it through a tested OpenAPI customiser. Match `required` to the configured default-version behavior, and assert the generated `/v3/api-docs` includes it.
 
 ### Value objects in the schema
 
@@ -172,15 +243,21 @@ Spec-first only works if the spec is authoritative. Enforce it:
 
 Everything else is the same. The generated spec is produced by Jackson 2 on 3.5.x, which does not change the schema. For spec-first, the OpenAPI Generator's Spring templates target a Spring generation too - verify the generated code compiles against your Boot version.
 
+Javadoc support uses the same Therapi runtime library and annotation processor on the springdoc 2.x line; continue to select the springdoc major version that matches the Boot line.
+
 ## Gotchas
 
 - Agent adopts spec-first for a single-team API - code-first with springdoc is less machinery and cannot drift
 - Agent pins a springdoc version that does not match the Boot line - check the compatibility matrix; it is not BOM-managed
 - Agent annotates every field with `@Schema` - springdoc infers types and validation constraints already
+- Agent expects Javadocs to work without the Therapi runtime library and annotation processor - support can fail silently; test the generated spec
+- Agent adds the legacy `springdoc-openapi-javadoc` module to a modern starter - Javadoc integration is included in the starter; add Therapi reader and processor instead
+- Agent relies on record-component Javadocs without checking processor output - verify `/v3/api-docs` and use `@Schema` for descriptions that must be present
 - Agent documents errors as a bespoke object - document `ProblemDetail`
 - Agent leaves Swagger UI enabled in production - ship the spec, disable the UI
 - Agent adds `/v3/api-docs` to `permitAll` without thinking - that publishes the full API surface anonymously
 - Agent lets a `@JsonValue` value object document as an object - the schema then contradicts the payload
+- Agent assumes springdoc discovers Framework 7's API-version header automatically - declare the header explicitly or use a tested OpenAPI customiser, then inspect the generated spec
 - Agent omits `useSpringBoot3=true` - generates `javax.*` imports that do not compile
 - Agent omits `skipDefaultInterface=true` - a missing implementation compiles and returns 501 at runtime
 - Agent commits generated sources - generate into `target/` and gitignore them

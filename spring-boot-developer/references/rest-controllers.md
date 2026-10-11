@@ -64,6 +64,10 @@ POST   /api/orders/{id}/cancel  state transition
 
 Versioning is not a URL convention on Boot 4 - see [api-versioning.md](api-versioning.md).
 
+Use the path to identify the resource or a genuine state-transition subresource. Put filters, search terms, pagination and whitelisted sort fields in query parameters; put create/update data in the request body. Keep route names independent of representation formats and avoid putting credentials or sensitive values in URLs, which are commonly logged and cached.
+
+Preserve method semantics in the implementation: `GET` must not mutate state; `PUT` replaces a representation and should be idempotent; `PATCH` must document its patch format and whether repeating the same operation is safe; `POST` is not inherently idempotent. If a client must retry a non-idempotent command safely, define an idempotency-key contract rather than changing the resource path. See [api-idempotency.md](api-idempotency.md).
+
 ## Status codes
 
 | Situation | Status |
@@ -155,4 +159,4 @@ Controller code is unchanged. Two differences:
 
 ## Related
 
-- [error-handling.md](error-handling.md) · [validation.md](validation.md) · [json-and-jackson.md](json-and-jackson.md) · [api-versioning.md](api-versioning.md) · [spring-data-jpa.md](spring-data-jpa.md) · [testing-slices-web.md](testing-slices-web.md)
+- [error-handling.md](error-handling.md) · [validation.md](validation.md) · [json-and-jackson.md](json-and-jackson.md) · [api-versioning.md](api-versioning.md) · [api-idempotency.md](api-idempotency.md) · [rate-limiting.md](rate-limiting.md) · [spring-data-jpa.md](spring-data-jpa.md) · [testing-slices-web.md](testing-slices-web.md)
