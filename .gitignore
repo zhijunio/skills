@@ -1,0 +1,35 @@
+# Maven and Gradle build output
+**/target/
+**/build/
+.gradle/
+
+# Local editor and IDE state
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Local secrets and machine-specific Spring configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+**/application-local.yml
+**/application-local.yaml
+
+# Compiled files, logs, JVM crash reports and heap dumps
+*.class
+*.log
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# Node-based tooling used by frontend projects
+node_modules/
+.angular/cache/
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
