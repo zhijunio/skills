@@ -4,7 +4,7 @@
 
 ## H2 陷阱
 
-每种持久化切片（`@DataJpaTest`、`@JdbcTest`、`@DataJdbcTest`、`@JooqTest`）默认都会自动配置**内嵌 H2 DataSource**。简单派生查询在 H2 上能通过，于是测试套件看起来全绿，实际却悄悄偏离生产环境：
+Spring Boot 的持久化切片（`@DataJpaTest`、`@JdbcTest`、`@DataJdbcTest`、`@JooqTest`）默认都会自动配置**内嵌 H2 DataSource**。简单派生查询在 H2 上能通过，于是测试套件看起来全绿，实际却悄悄偏离生产环境：
 
 - PostgreSQL 原生查询使用 `to_tsvector`、`ON CONFLICT`、数组或 JSON 列时，在生产环境会报 `Function "TO_TSVECTOR" not found`，而 H2 测试此前已通过。
 - 类型转换、`NULL` 排序、字符串比较和日期计算的行为都有差异。
@@ -12,7 +12,7 @@
 
 最后一点是决定性原因。只有针对部署使用的数据库测试，持久化测试才有意义。
 
-**四种切片都遵循同一规则：** 添加 `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)`，避免 DataSource 被替换为 H2，并提供 Testcontainers 数据库。参见[Testcontainers](testcontainers.zh-CN.md)。
+**四种 Spring Boot 切片的规则：**添加 `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)`，避免 DataSource 被替换为 H2，并提供 Testcontainers 数据库。MyBatis-Plus 使用其匹配版本的 `@MybatisPlusTest` 测试 starter，并遵循相同的真实数据库规则；见下文和 [mybatis-plus.zh-CN.md](mybatis-plus.zh-CN.md)。
 
 ## `@DataJpaTest`
 
@@ -112,6 +112,10 @@ class OrderSummaryQueryTest {
 
 Spring Data JDBC Repository 和 jOOQ `DSLContext` 也遵循同一规则。jOOQ 在 H2 上测试，同样会彻底掩盖方言相关 SQL 问题。
 
+## MyBatis-Plus Mapper 测试
+
+MyBatis-Plus 在 `mybatis-plus-boot-starter-test` 中提供 `@MybatisPlusTest`。该测试依赖应与 MyBatis-Plus 版本对齐，并确认兼容项目的 Boot 主版本。让切片使用共享的 Testcontainers `DataSource`，针对生产同类数据库验证自定义 SQL、结果映射、分页和拦截器行为。使用乐观锁或租户隔离时，验证影响行数和跨租户隔离。避免只重复测试 `BaseMapper` CRUD 的用例。详见官方[测试指南](https://baomidou.com/en/getting-started/test/)。
+
 ## 免费覆盖迁移
 
 真实数据库配合 `spring.jpa.hibernate.ddl-auto=validate` 时，持久化切片只要**能启动**，就已证明 Flyway 迁移可以执行，且结果 Schema 与实体映射匹配。仅靠一个配置就获得了相当多覆盖。
@@ -139,7 +143,7 @@ Spring Data JDBC Repository 和 jOOQ `DSLContext` 也遵循同一规则。jOOQ �
 
 ## 相关文档
 
-- [Testcontainers](testcontainers.zh-CN.md) · [Spring Data JPA](spring-data-jpa.zh-CN.md) · [Flyway](flyway.zh-CN.md) · [测试策略](testing-strategy.zh-CN.md)
+- [Testcontainers](testcontainers.zh-CN.md) · [Spring Data JPA](spring-data-jpa.zh-CN.md) · [MyBatis-Plus](mybatis-plus.zh-CN.md) · [Flyway](flyway.zh-CN.md) · [测试策略](testing-strategy.zh-CN.md)
 
 ---
 

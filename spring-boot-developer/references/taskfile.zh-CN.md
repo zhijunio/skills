@@ -72,5 +72,3 @@ Gradle 项目可将 Wrapper 变量改为 `{{if eq OS "windows"}}gradlew.bat{{els
 - 用任务依赖表达执行顺序——依赖可能并行运行；顺序操作应通过 `cmds` 中的任务调用表达。
 - 认为 Task 变量会自动成为进程环境变量——命令需要导出值时使用 `env:`。
 - 将密钥放进已提交的 `.env` 或 Taskfile——从环境变量或被忽略的本地配置读取。
-
-> 中文要点版。更多 Taskfile 字段与模板语法请参阅[英文原文](taskfile.md)及[Task 官方文档](https://taskfile.dev/docs/guide/)。

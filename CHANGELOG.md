@@ -10,6 +10,9 @@ This file records notable repository changes. Keep unreleased work under `Unrele
 - Added the `demo-task-manager` sample with task lifecycle, optimistic locking, status history, Flyway, OpenAPI, caching, health probes, Prometheus metrics, and Docker Compose.
 - Added Spring Boot references for local development, server-rendered views, integrations, persistence, API design, security, operations, and testing, with Chinese counterparts for most references.
 - Added database schema and SQL design guidance in English and Chinese.
+- Added English and Chinese MyBatis-Plus guidance for Boot-specific starters, safe SQL, pagination, plugins, and real-database testing.
+- Added Maven Surefire guidance for test discovery, focused test runs, and separating fast tests from Docker-backed integration tests.
+- Added optional JUnit 5 tree console reporting through Surefire.
 - Added the Spring Cloud Developer skill entry point.
 - Added five authoring/review prompts and five SDD skills with their planning and review references.
 

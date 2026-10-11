@@ -87,6 +87,68 @@ In a multi-module build, the plugin belongs **only in the runnable module**. In 
 
 None of these are required. Each buys something specific.
 
+### Test execution with Surefire
+
+Maven Surefire runs unit and test-slice tests in the `test` lifecycle phase. Spring Boot's parent manages the plugin version; when importing only the Boot BOM, declare a Surefire version through your normal plugin management. Add `maven-surefire-plugin` configuration only when the project needs non-default behavior.
+
+Use the default class-name patterns (`Test*`, `*Test`, `*Tests`, `*TestCase`) and keep Docker-dependent integration tests under a Failsafe convention such as `*IT`. This keeps `./mvnw test` fast and independent of Docker, while `./mvnw verify` can run the full suite. Avoid custom include/exclude lists unless test names genuinely require them; stale patterns can silently omit tests.
+
+```xml
+<!-- Usually no extra configuration is needed. Declare the plugin only to customize it. -->
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <configuration>
+        <failIfNoTests>true</failIfNoTests>
+    </configuration>
+</plugin>
+```
+
+`failIfNoTests` is useful in runnable application modules, but may need a different policy in aggregator or intentionally test-free modules. Surefire runs tests matching its patterns; it does not configure Failsafe or move integration tests to `verify`.
+
+```bash
+./mvnw test
+./mvnw test -Dtest=OrderServiceTest
+./mvnw test -Dtest='OrderServiceTest#rejectsExpiredOrder'
+./mvnw verify
+```
+
+See the official [Surefire guide](https://maven.apache.org/surefire/maven-surefire-plugin/) and the project's [testing strategy](testing-strategy.md). For Testcontainers and full-context tests, configure Failsafe separately and run `verify`.
+
+#### Optional JUnit 5 tree output
+
+For per-test console output, `maven-surefire-junit5-tree-reporter` is an optional plugin dependency; it does not enter the application's runtime classpath. Pin a reporter release compatible with the Surefire version managed by the project. The example below uses reporter `1.5.1`; check [Maven Central](https://central.sonatype.com/artifact/me.fabriciorby/maven-surefire-junit5-tree-reporter) before upgrading.
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>me.fabriciorby</groupId>
+            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+            <version>1.5.1</version>
+        </dependency>
+    </dependencies>
+    <configuration>
+        <reportFormat>plain</reportFormat>
+        <consoleOutputReporter>
+            <disable>true</disable>
+        </consoleOutputReporter>
+        <statelessTestsetInfoReporter
+                implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+            <theme>ASCII</theme>
+            <printStacktraceOnError>true</printStacktraceOnError>
+            <printStacktraceOnFailure>true</printStacktraceOnFailure>
+            <printStdoutOnSuccess>false</printStdoutOnSuccess>
+            <printStderrOnSuccess>false</printStderrOnSuccess>
+        </statelessTestsetInfoReporter>
+    </configuration>
+</plugin>
+```
+
+Keep `reportFormat=plain`, the tree reporter, and `consoleOutputReporter.disable` together to avoid duplicate or empty output. Set successful-test stdout/stderr to `true` temporarily when diagnosing output-dependent failures. Merge this into the existing Surefire block rather than declaring the plugin twice. Failsafe does not inherit Surefire's plugin configuration; repeat the dependency and configuration there only if integration tests also need tree output. See the official [JUnit Platform / Surefire extension guide](https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html#external-extensions-for-the-plugin).
+
 ### Configuration metadata
 
 ```xml

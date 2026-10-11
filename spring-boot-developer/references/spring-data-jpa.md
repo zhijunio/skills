@@ -131,7 +131,7 @@ For the wire, add `@JsonValue`/`@JsonCreator` ([json-and-jackson.md](json-and-ja
 
 `@GeneratedValue(strategy = GenerationType.UUID)` produces a **random v4** UUID. Every insert lands at a random point in the primary-key B-tree, causing page splits and destroying cache locality. On a large, write-heavy table this is measurable throughput loss.
 
-**UUIDv7 is time-ordered** - the leading 48 bits are a millisecond timestamp - so inserts append. Same 128 bits, same opacity, no downside.
+**UUIDv7 is time-ordered** - the leading 48 bits are a millisecond timestamp - so inserts have better index locality. It keeps the 128-bit UUID format and needs no external coordination, but it reveals approximate creation time and order. Never use an identifier as an authorization capability; use UUIDv4 when the identifier itself is part of a security-sensitive operation ([RFC 9562, Security Considerations](https://www.rfc-editor.org/rfc/rfc9562.html#section-8)).
 
 An `@EmbeddedId` is **assigned, not generated**: `@GeneratedValue` and `@UuidGenerator` do not apply to it. Generate the value in the factory. UUIDv7 is fully specified by RFC 9562 and needs no dependency:
 
@@ -475,4 +475,4 @@ spring:
 
 ## Related
 
-- [transactions.md](transactions.md) · [flyway.md](flyway.md) · [domain-modelling.md](domain-modelling.md) · [java-in-spring.md](java-in-spring.md) · [testing-slices-persistence.md](testing-slices-persistence.md)
+- [MyBatis-Plus](mybatis-plus.md) · [transactions.md](transactions.md) · [flyway.md](flyway.md) · [domain-modelling.md](domain-modelling.md) · [java-in-spring.md](java-in-spring.md) · [testing-slices-persistence.md](testing-slices-persistence.md)

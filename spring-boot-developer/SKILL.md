@@ -1,6 +1,6 @@
 ---
 name: spring-boot-developer
-description: Generates modern Spring Boot code and provides architectural guidance for Spring Boot 4.x and 3.5.x. Trigger when writing or modernising Spring Boot applications, or for best practices on package structure, Spring Modulith, REST controllers, WebSocket and STOMP, RFC 9457 error handling, validation, Jackson 3, Spring Data JPA, transactions, Flyway, caching, Spring Security, JWT, OAuth2, HTTP interface clients, resilience, messaging, configuration, Actuator observability, async, virtual threads and structured concurrency, Spring Batch, Spring AI, MCP servers, Testcontainers testing, or Boot 3 to Boot 4 migration.
+description: Generates modern Spring Boot code and provides architectural guidance for Spring Boot 4.x and 3.5.x. Trigger when writing or modernising Spring Boot applications, or for best practices on package structure, Spring Modulith, REST controllers, WebSocket and STOMP, RFC 9457 error handling, validation, Jackson 3, Spring Data JPA, MyBatis-Plus, transactions, Flyway, caching, Spring Security, JWT, OAuth2, HTTP interface clients, resilience, messaging, configuration, Actuator observability, async, virtual threads and structured concurrency, Spring Batch, Spring AI, MCP servers, Testcontainers testing, or Boot 3 to Boot 4 migration.
 license: MIT
 metadata:
   author: Avinay Basnet
@@ -63,10 +63,11 @@ Read [boot-versions.md](references/boot-versions.md) for the current release lin
 ## Persistence
 
 - **Spring Data JPA**: Entity modelling, value-object `@EmbeddedId` with UUIDv7, `equals`/`hashCode` rules, repositories per aggregate root, projections, N+1, keyset pagination and batch writes. Read [spring-data-jpa.md](references/spring-data-jpa.md)
+- **MyBatis-Plus**: Boot-specific starters, explicit SQL and mapper boundaries, safe wrappers, bounded pagination, audit-field filling, logical deletion, data permissions, custom type handlers, plugin ordering, transactions, optimistic locking, tenant isolation, and production-database tests. Read [mybatis-plus.md](references/mybatis-plus.md)
 - **Database Concurrency**: Constraints, optimistic and pessimistic locking, transaction boundaries, retries and real-database concurrency tests. Read [database-concurrency.md](references/database-concurrency.md)
 - **Database Schema and SQL**: Relational schema design, constraints, indexes, safe SQL, bounded queries, execution plans, and production-database verification. Read [database-schema-and-sql.md](references/database-schema-and-sql.md)
 - **Database Backup and Recovery**: RPO/RTO, isolated restores, consistency across database and file stores, and recovery drills. Read [database-backup-recovery.md](references/database-backup-recovery.md)
-- **Auditing**: Spring Data audit metadata, current and system actors, privacy boundaries, and the distinction between mutable metadata and immutable history. Read [auditing.md](references/auditing.md)
+- **Auditing**: Spring Data auditing and MyBatis-Plus `MetaObjectHandler`, current and system actors, privacy boundaries, and the distinction between mutable metadata and immutable history. Read [auditing.md](references/auditing.md)
 - **Transactions**: Where `@Transactional` belongs, propagation, `readOnly`, rollback rules, optimistic locking, and binding side effects to commit rather than to publish. Read [transactions.md](references/transactions.md)
 - **Flyway**: Naming, the expand/contract pattern for safe schema change, the `CONCURRENTLY` transaction trap, and why Boot 4 no longer pulls Flyway in for you. Read [flyway.md](references/flyway.md)
 - **Caching**: The Spring Cache abstraction first, Redis specifics second - serializers, TTL with jitter, and the stampede on a hot key. Read [caching.md](references/caching.md)
@@ -118,7 +119,7 @@ Write tests at complementary levels. The levels are not alternatives - a green u
 | What you are testing | Level | Reference |
 |---|---|---|
 | Business logic, no framework | Unit, no Spring context | [testing-unit.md](references/testing-unit.md) |
-| JPA / JDBC / Spring Data JDBC / jOOQ queries | Persistence slice + Testcontainers | [testing-slices-persistence.md](references/testing-slices-persistence.md) |
+| JPA / JDBC / Spring Data JDBC / jOOQ / MyBatis-Plus queries | Persistence slice + Testcontainers | [testing-slices-persistence.md](references/testing-slices-persistence.md), [mybatis-plus.md](references/mybatis-plus.md) |
 | Controller, JSON serialization, or an outbound REST client | Web slice | [testing-slices-web.md](references/testing-slices-web.md) |
 | A few real components together, external HTTP, or a startup smoke test | Sliced `@SpringBootTest(classes = …)` | [testing-integration.md](references/testing-integration.md) |
 | Full REST API over a real port | End-to-end | [testing-rest-api.md](references/testing-rest-api.md) |

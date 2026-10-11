@@ -1,6 +1,6 @@
 ---
 name: spring-boot-developer
-description: 面向 Spring Boot 4.x 和 3.5.x 的现代 Spring Boot 开发与架构指导。适用于编写或现代化 Spring Boot 应用，以及包结构、Spring Modulith、REST Controller、WebSocket、STOMP、RFC 9457 错误处理、校验、Jackson 3、Spring Data JPA、事务、Flyway、缓存、Spring Security、JWT、OAuth2、HTTP 客户端、韧性、消息、配置、Actuator 可观测性、异步、虚拟线程与结构化并发、Spring Batch、Spring AI、MCP、Testcontainers 测试和 Boot 3 到 Boot 4 迁移。
+description: 面向 Spring Boot 4.x 和 3.5.x 的现代 Spring Boot 开发与架构指导。适用于编写或现代化 Spring Boot 应用，以及包结构、Spring Modulith、REST Controller、WebSocket、STOMP、RFC 9457 错误处理、校验、Jackson 3、Spring Data JPA、MyBatis-Plus、事务、Flyway、缓存、Spring Security、JWT、OAuth2、HTTP 客户端、韧性、消息、配置、Actuator 可观测性、异步、虚拟线程与结构化并发、Spring Batch、Spring AI、MCP、Testcontainers 测试和 Boot 3 到 Boot 4 迁移。
 license: MIT
 metadata:
   author: Avinay Basnet
@@ -58,10 +58,11 @@ metadata:
 ## 持久化
 
 - **Spring Data JPA：**实体建模、使用 UUIDv7 的值对象 `@EmbeddedId`、`equals`/`hashCode` 规则、按聚合根设置 Repository、投影、N+1、keyset 分页和批量写入。读 [spring-data-jpa.zh-CN.md](references/spring-data-jpa.zh-CN.md)。
+- **MyBatis-Plus：**Boot 专用 starter、显式 SQL 与 Mapper 边界、安全 Wrapper、分页上限、审计字段自动填充、逻辑删除、数据权限、自定义类型处理器、插件顺序、事务、乐观锁、租户隔离和真实数据库测试。读 [mybatis-plus.zh-CN.md](references/mybatis-plus.zh-CN.md)。
 - **数据库并发：**约束、乐观锁和悲观锁、事务边界、重试及真实数据库并发测试。读 [database-concurrency.zh-CN.md](references/database-concurrency.zh-CN.md)。
 - **数据库 Schema 与 SQL：**关系模型设计、约束、索引、安全 SQL、有界查询、执行计划和生产数据库验证。读 [database-schema-and-sql.zh-CN.md](references/database-schema-and-sql.zh-CN.md)。
 - **数据库备份与恢复：**RPO/RTO、隔离恢复、数据库与文件存储的一致性，以及恢复演练。读 [database-backup-recovery.zh-CN.md](references/database-backup-recovery.zh-CN.md)。
-- **审计字段：**Spring Data 审计元数据、当前与系统操作者、隐私边界，以及可变元数据和不可变历史的区别。读 [auditing.zh-CN.md](references/auditing.zh-CN.md)。
+- **审计字段：**Spring Data 审计与 MyBatis-Plus `MetaObjectHandler`、当前与系统操作者、隐私边界，以及可变元数据和不可变历史的区别。读 [auditing.zh-CN.md](references/auditing.zh-CN.md)。
 - **事务：**`@Transactional` 的位置、传播行为、`readOnly`、回滚规则、乐观锁，以及将副作用绑定到提交时机。读 [transactions.zh-CN.md](references/transactions.zh-CN.md)。
 - **Flyway：**命名、expand/contract 安全迁移、`CONCURRENTLY` 的事务陷阱，以及 Boot 4 不再传递引入 Flyway 的变化。读 [flyway.zh-CN.md](references/flyway.zh-CN.md)。
 - **缓存：**先讲 Spring Cache 抽象，再讲 Redis 特性，包括序列化、带抖动的 TTL 和热点 key 击穿。读 [caching.zh-CN.md](references/caching.zh-CN.md)。
@@ -113,7 +114,7 @@ metadata:
 | 被测内容 | 层级 | 参考 |
 |---|---|---|
 | 纯业务逻辑，不依赖框架 | 单元测试，不启动 Spring | [testing-unit.zh-CN.md](references/testing-unit.zh-CN.md) |
-| JPA / JDBC / Spring Data JDBC / jOOQ 查询 | 持久化切片 + Testcontainers | [testing-slices-persistence.zh-CN.md](references/testing-slices-persistence.zh-CN.md) |
+| JPA / JDBC / Spring Data JDBC / jOOQ / MyBatis-Plus 查询 | 持久化切片 + Testcontainers | [testing-slices-persistence.zh-CN.md](references/testing-slices-persistence.zh-CN.md)、[mybatis-plus.zh-CN.md](references/mybatis-plus.zh-CN.md) |
 | Controller、JSON 序列化、外部 REST 客户端 | Web 切片 | [testing-slices-web.zh-CN.md](references/testing-slices-web.zh-CN.md) |
 | 少量真实组件协作、外部 HTTP 或启动冒烟 | 指定 classes 的切片式 `@SpringBootTest` | [testing-integration.zh-CN.md](references/testing-integration.zh-CN.md) |
 | 真实端口上的完整 REST API | 端到端测试 | [testing-rest-api.zh-CN.md](references/testing-rest-api.zh-CN.md) |

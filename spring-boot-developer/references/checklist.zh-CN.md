@@ -1,121 +1,159 @@
-# Spring Boot 项目审查清单
+# 最佳实践清单
 
-在改动前后使用此清单。按项目实际情况判断，不要为了勾选而盲目改动。对于不适用的条目，记录原因。
+使用此清单审查现有代码。每条规则都链接到说明例外情况的参考文档。
+
+语言本身的规则（Record、Sealed Type、`Optional`、`var`、模式匹配）请同时使用 java-developer 的清单。
 
 ## 版本与构建
 
-- [ ] Spring Boot、Spring Framework、Java 版本彼此兼容，并与项目支持周期相符。参见 [版本与升级](boot-versions.zh-CN.md)。
-- [ ] 依赖由 Spring Boot BOM 或一致的依赖管理方式管理；没有重复声明版本或不兼容的覆盖项。
-- [ ] 构建在干净检出环境中可重复执行；Wrapper 已提交，CI 使用相同的构建命令。
-- [ ] 插件、编译器和注解处理器版本明确，不依赖开发机的隐式配置。
-- [ ] Java 编译目标与运行时版本一致；语言特性没有超出部署运行时能力。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 1 | 使用当前 Boot 4.x 版本线；不要用 3.5.x 开始新项目。 | [Boot 版本](boot-versions.zh-CN.md) |
+| 2 | Boot BOM 管理的依赖不要声明版本。 | [Maven](maven.zh-CN.md) · [Gradle](gradle.zh-CN.md) |
+| 3 | Boot 4 显式添加 `spring-boot-starter-flyway`：它不再通过传递依赖引入，缺少时迁移会静默停止运行。 | [Flyway](flyway.zh-CN.md) |
+| 4 | 将 3.4 → 3.5 → 4.0 分成单独提交迁移，然后审查差异。 | [Boot 版本](boot-versions.zh-CN.md) |
+| 5 | 提交构建 Wrapper。用 Gradle Toolchain 固定 JDK，不要用 `sourceCompatibility`。 | [Maven](maven.zh-CN.md) · [Gradle](gradle.zh-CN.md) |
 
-## 结构与模块
+## 结构
 
-- [ ] 应用类位于根包，使组件扫描覆盖预期的业务包。
-- [ ] 配置按边界组织，不存在一个承载所有 Bean 的巨大配置类。
-- [ ] 模块依赖方向明确；领域逻辑不依赖 Web、持久化或框架实现细节。
-- [ ] 对重要模块边界有自动化约束。参见 [ArchUnit](archunit.zh-CN.md)、[代码组织](code-organization.zh-CN.md) 与 [Spring Modulith](spring-modulith.zh-CN.md)。
-- [ ] 包名和类名表达业务职责，不使用 `util`、`common` 等无明确边界的大杂烩包。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 6 | 按功能组织包，而非按层。Entity 和 Repository 使用包级可见性。 | [代码组织](code-organization.zh-CN.md) |
+| 7 | 逐级加强边界：包级可见性 → Modulith → 嵌套模块 → 构建模块。 | [代码组织](code-organization.zh-CN.md) |
+| 8 | 使用 Modulith 时，全局 `config/` 和 `shared/` 标记 `@ApplicationModule(type = OPEN)`。 | [Spring Modulith](spring-modulith.zh-CN.md) |
+| 9 | 认证是全局职责；**授权属于具体功能**。 | [安全基础](security-fundamentals.zh-CN.md) |
+| 10 | 用 ArchUnit 或 Modulith 强制验证布局和依赖规则，不要只依赖代码审查。 | [ArchUnit](archunit.zh-CN.md) |
 
-## Bean、代理与依赖注入
+## Bean 与代理
 
-- [ ] 构造器注入用于必需依赖；对象创建失败能尽早暴露缺失依赖。
-- [ ] 没有因字段注入或大量 setter 注入掩盖依赖关系。
-- [ ] `@Transactional`、缓存、异步和安全等代理功能不会被同类自调用绕过。参见 [代理与依赖注入](spring-proxies-and-di.zh-CN.md)。
-- [ ] Bean 的作用域与状态相符；单例 Bean 不保存请求级可变状态。
-- [ ] 没有重复的组件扫描、重复 Bean 定义或隐式覆盖。
-- [ ] 条件 Bean、自动配置和自定义 Bean 的生效顺序清晰，启动时可以诊断。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 11 | 只使用构造器注入。唯一构造器上不需要字段注入或 `@Autowired`。 | [Spring 代理与依赖注入](spring-proxies-and-di.zh-CN.md) |
+| 12 | **不要在 `this` 上调用带注解的方法**：这会绕过代理，使 `@Transactional`、`@Async`、`@Cacheable`、`@Retryable` 和 `@PreAuthorize` 静默失效。 | [Spring 代理与依赖注入](spring-proxies-and-di.zh-CN.md) |
+| 13 | 不用 Lombok。显式编写构造器、访问器和 Logger。 | [Java 在 Spring 中](java-in-spring.zh-CN.md) |
+| 14 | DTO、命令、事件和值对象使用 Record；Entity 和 Bean 使用类。 | [Java 在 Spring 中](java-in-spring.zh-CN.md) |
 
-## Web 与 API
+## Web
 
-- [ ] Controller 只负责 HTTP 输入输出和编排，不包含领域规则或持久化细节。
-- [ ] 请求 DTO 与领域实体分离；输入经过校验，输出不会意外泄漏内部字段。
-- [ ] HTTP 状态码、错误响应格式和分页行为保持一致。
-- [ ] API 的兼容性与版本策略明确；对外契约有 OpenAPI 文档或等效说明。参见 [REST Controller](rest-controllers.zh-CN.md)、[API 版本管理](api-versioning.zh-CN.md) 与 [OpenAPI](openapi.zh-CN.md)。
-- [ ] 路径以资源为中心；过滤、分页和白名单排序放在查询参数中，URL 不携带凭据。参见 [REST Controller](rest-controllers.zh-CN.md)。
-- [ ] 可重试的创建操作定义了有范围的幂等契约；幂等键原子持久化，重放响应前重新检查授权。参见 [API 幂等](api-idempotency.zh-CN.md)。
-- [ ] 对输入长度、集合大小、文件大小和请求频率设置合理限制。
-- [ ] 在适当的网关和应用层实施限流与硬资源上限，并定义过载响应。参见 [限流与资源保护](rate-limiting.zh-CN.md)。
-- [ ] CORS、CSRF、认证和授权策略按部署模式显式配置，而不是依赖默认行为。
-- [ ] 重定向、回调和外部 URL 输入不会形成开放重定向或 SSRF 风险。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 15 | 每个 Endpoint 调用一个 Service。不要输入或输出 Entity，不放 `@Transactional`，也不要写 `try`/`catch`。 | [REST Controller](rest-controllers.zh-CN.md) |
+| 16 | 错误使用 RFC 9457 `ProblemDetail`；不要统一包装成功/错误响应。设置 `type`。 | [错误处理](error-handling.zh-CN.md) |
+| 17 | 扩展 `ResponseEntityExceptionHandler`；全局 Advice 处理框架错误，功能 Advice 处理领域错误。 | [错误处理](error-handling.zh-CN.md) |
+| 18 | 500 响应中不要放 `ex.getMessage()`。将其写入日志，响应返回通用信息。 | [错误处理](error-handling.zh-CN.md) |
+| 19 | 用 `max-page-size` 限制 `Pageable`。不要返回 `Page<Entity>`。 | [REST Controller](rest-controllers.zh-CN.md) |
+| 20 | 使用 `@Valid` 校验请求 Record，并报告**所有**违反项。 | [校验](validation.zh-CN.md) |
+| 21 | Boot 4 声明 `JsonMapper` Bean，而非 `ObjectMapper`；不要替换 Boot 的 Mapper Bean。 | [JSON 与 Jackson](json-and-jackson.zh-CN.md) |
+| 22 | 对映射进行版本化，不要版本化 Controller。只选一种版本解析策略。 | [API 版本管理](api-versioning.zh-CN.md) |
 
 ## 持久化
 
-- [ ] 事务边界位于应用服务或明确的用例边界，而不是散落在 Controller 中。
-- [ ] 查询和更新符合预期；检查 N+1、分页、批处理和锁行为。
-- [ ] 实体关系、级联和删除策略有明确理由，不让 ORM 默认行为决定业务结果。
-- [ ] 数据库迁移由 Flyway、Liquibase 或项目认可的单一工具管理；迁移可审查且按顺序执行。参见 [Spring Data JPA](spring-data-jpa.zh-CN.md) 与 [Flyway](flyway.zh-CN.md)。
-- [ ] 生产配置不会在启动时自动创建或重建表结构。
-- [ ] 数据库连接池、连接超时、事务超时和健康检查与负载及运行环境相符。
-- [ ] 备份策略满足 RPO/RTO；恢复演练验证数据、Schema、访问控制和关联存储。参见[数据库备份与恢复](database-backup-recovery.zh-CN.md)。
-- [ ] 乐观锁、悲观锁和唯一约束等并发规则在数据库层得到保护。
-- [ ] 数据库约束作为并发保护的最终仲裁；约束冲突在正确处理失败事务边界后再转换。参见 [数据库并发](database-concurrency.zh-CN.md)。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 23 | 值对象 `@EmbeddedId` 使用时间有序的 UUIDv7。高写入表不要使用 `GenerationType.UUID`（UUIDv4）。 | [Spring Data JPA](spring-data-jpa.zh-CN.md) |
+| 24 | `@Version` 使用可空的 `Long`：它同时支持乐观锁和新状态检测。 | [Spring Data JPA](spring-data-jpa.zh-CN.md) |
+| 25 | Entity 不实现 `equals` / `hashCode`，除非有稳定的自然键；实现时使用 `instanceof`，不要用 `getClass()`。 | [Spring Data JPA](spring-data-jpa.zh-CN.md) |
+| 26 | 每个 to-one 关系都设 `fetch = LAZY`。枚举使用 `@Enumerated(STRING)`。不要在 `equals` / `hashCode` / `toString` 中包含关联。 | [Spring Data JPA](spring-data-jpa.zh-CN.md) |
+| 27 | 所有环境（包括本地）都设置 `spring.jpa.open-in-view=false` 和 `ddl-auto=validate`。 | [Spring Data JPA](spring-data-jpa.zh-CN.md) |
+| 28 | 每个聚合根一个 Repository。列表视图使用 Projection。Endpoint 中不要调用 `findAll()`。 | [Spring Data JPA](spring-data-jpa.zh-CN.md) |
+| 29 | 不要修改已经应用的迁移。破坏性变更采用 Expand and Contract。 | [Flyway](flyway.zh-CN.md) |
 
 ## 事务与副作用
 
-- [ ] 明确哪些异常会回滚事务；受检异常和自定义异常的规则经过确认。
-- [ ] 长时间外部调用不占用数据库事务；事务范围尽可能短。
-- [ ] 事务提交后才执行的副作用采用可靠机制，例如事务事件或 outbox。
-- [ ] 重试不会重复执行非幂等写入；幂等键或去重策略有明确边界。
-- [ ] 事务内调用异步方法、消息发送或其他代理 Bean 时，传播和提交顺序已验证。参见 [事务](transactions.zh-CN.md)。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 30 | `@Transactional` 放在 Service 上。类级别设置 `readOnly = true`，写操作在方法级别覆盖。 | [事务](transactions.zh-CN.md) |
+| 31 | **不要在事务中发起网络调用。** | [事务](transactions.zh-CN.md) |
+| 32 | 副作用绑定到事务提交：使用 `@TransactionalEventListener(AFTER_COMMIT)` 或 Modulith 的 `@ApplicationModuleListener`。 | [事务](transactions.zh-CN.md) |
+| 33 | 领域异常使用非受检异常，以自动触发回滚。 | [错误处理](error-handling.zh-CN.md) |
+| 34 | 不要在同一个方法上叠加 `@Retryable` 和 `@Transactional`；将重试放到调用方 Bean。 | [弹性模式](resilience.zh-CN.md) |
 
-## 外部集成
+## 集成
 
-- [ ] HTTP 客户端配置连接、读取和整体调用超时；超时不是无限等待。
-- [ ] 错误状态、响应体、重试与熔断策略符合下游服务契约。
-- [ ] 重试只用于可安全重试的操作，并有次数上限、退避和抖动。
-- [ ] 消息消费者处理重复投递、失败重试、死信和消息顺序问题。
-- [ ] 外部依赖故障时有降级或清晰的失败行为，不会耗尽线程池、连接池或队列。参见 [HTTP 客户端](http-clients.zh-CN.md)、[弹性模式](resilience.zh-CN.md) 与 [消息](messaging.zh-CN.md)。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 35 | **每个 HTTP 客户端都设置连接和读取超时。**默认值实际上接近无限。 | [HTTP 客户端](http-clients.zh-CN.md) |
+| 36 | 在客户端边界将远端失败转换成领域异常。不要泄漏上游错误消息。 | [HTTP 客户端](http-clients.zh-CN.md) |
+| 37 | 只重试暂时性错误，并使用退避**和抖动**。设置 `includes`；默认配置会重试程序错误。 | [弹性模式](resilience.zh-CN.md) |
+| 38 | 每个消息 Consumer 都必须幂等；Broker 至少投递一次。 | [消息](messaging.zh-CN.md) |
+| 39 | 不要在事务中直接向 Broker 发布；使用 Outbox 或 Modulith 事件注册表。 | [消息](messaging.zh-CN.md) |
+| 40 | 不要设置 `spring.json.trusted.packages=*`，并始终使用 `ErrorHandlingDeserializer` 包装。 | [消息](messaging.zh-CN.md) |
 
 ## 安全
 
-- [ ] 输入验证在服务端执行，且不把校验当作授权。
-- [ ] 认证与授权分开设计；每个敏感操作都按资源和动作检查权限。
-- [ ] WebSocket/STOMP 入站命令与订阅均经过授权；Cookie 认证的 `CONNECT` 保留 CSRF 校验，并限制连接数和帧大小。参见 [WebSocket 与 STOMP](websocket.zh-CN.md)。
-- [ ] 租户上下文来自可信身份，并在持久化、缓存、存储和后台任务的每条路径执行隔离。参见[多租户](multi-tenancy.zh-CN.md)。
-- [ ] 密码、令牌、密钥和个人信息不会出现在日志、错误响应、示例配置或版本库中。
-- [ ] 密钥从受控的环境或密钥管理系统注入；配置文件不包含真实凭据。
-- [ ] 每个秘密都有负责人、最小权限范围、轮换和撤销流程；CI 不向不可信代码暴露生产秘密。参见[配置](configuration.zh-CN.md)。
-- [ ] SQL 使用参数化查询；文件路径、归档内容、表达式和反序列化输入受到限制。
-- [ ] Actuator、管理端点、调试端点和 API 文档按环境限制访问。
-- [ ] 安全响应头、Cookie 属性、TLS 和跨域策略符合部署要求。
-- [ ] 依赖和镜像定期检查漏洞；升级风险与缓解措施有记录。参见 [安全基础](security-fundamentals.zh-CN.md) 与 [OAuth2 资源服务器](oauth2-resource-server.zh-CN.md)。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 41 | Security 7 只使用 Lambda DSL。每个 Filter Chain 都设置 `securityMatcher`；`anyRequest()` 放在最后。 | [安全基础](security-fundamentals.zh-CN.md) |
+| 42 | 设置 `@EnableMethodSecurity`；否则 `@PreAuthorize` 会静默失效，这是安全漏洞而非效率问题。 | [安全基础](security-fundamentals.zh-CN.md) |
+| 43 | 配置 `authenticationEntryPoint` 和 `accessDeniedHandler`；Advice 无法捕获 Filter 异常。 | [安全基础](security-fundamentals.zh-CN.md) |
+| 44 | 授权 STOMP 入站命令和订阅；Cookie 认证的 `CONNECT` 要求 CSRF，并限制连接数和帧大小。 | [WebSocket](websocket.zh-CN.md) |
+| 44 | 优先使用外部 IdP。自行签发时使用 Spring Security 的 Encoder / Decoder，不要手写 Filter。 | [JWT 认证](jwt-authentication.zh-CN.md) |
+| 45 | 同时设置 `issuer-uri` 和 `audiences`；Scope 使用 `hasAuthority('SCOPE_…')`，而非 `hasRole`。 | [OAuth2 资源服务器](oauth2-resource-server.zh-CN.md) |
+| 46 | 刷新 Token 使用不透明值、仅存哈希、每次使用都轮换，并将重放视为凭据泄漏。 | [JWT 认证](jwt-authentication.zh-CN.md) |
 
 ## 配置与运维
 
-- [ ] 配置按环境外置；生产密钥不提交到仓库。
-- [ ] 必需配置缺失时应用能快速失败，并指出具体属性。
-- [ ] 配置属性有类型、校验和合理默认值；相关属性集中定义。
-- [ ] 日志是结构化且有用的，包含关联 ID；不记录秘密或不必要的敏感数据。
-- [ ] 指标、追踪和健康检查可用于定位问题；探针不会泄露敏感信息。
-- [ ] 告警有负责人、用户影响、可执行排障手册和符合 SLO 的阈值；客户端关联 ID 经过校验。参见[可观测性](observability.zh-CN.md)。
-- [ ] 关闭流程、就绪状态和优雅终止符合部署平台要求。
-- [ ] 配置变更、功能开关和数据迁移支持安全回滚。参见 [配置](configuration.zh-CN.md)、[可观测性](observability.zh-CN.md) 与 [本地开发](local-development.zh-CN.md)。
-- [ ] CI 将同一已验证制品摘要晋级到各环境；发布和回滚窗口内应用版本与数据库结构保持兼容。参见[CI/CD 与发布](ci-cd-release.zh-CN.md)。
-- [ ] 公共 API 变更经过兼容性检查；弃用计划包含替代方案、负责人、时间表和客户端使用情况。参见[API 版本管理](api-versioning.zh-CN.md)。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 47 | 使用带 `@Validated` 的 `@ConfigurationProperties` Record，不要散落使用 `@Value`。启动时校验失败。 | [配置](configuration.zh-CN.md) |
+| 48 | 仓库中不保存秘密。必需秘密不要提供默认值，缺失时应阻止启动。 | [配置](configuration.zh-CN.md) |
+| 49 | 未指定 Profile 时的默认配置必须安全。不要用 `@Profile` 区分业务实现。 | [配置](configuration.zh-CN.md) |
+| 50 | 不要设置 `management.endpoints.web.exposure.include: "*"`：这会暴露 `/env` 和 `/heapdump`。 | [可观测性](observability.zh-CN.md) |
+| 51 | 数据库只加入**就绪探针**，不要加入存活探针。 | [可观测性](observability.zh-CN.md) |
+| 52 | 指标不能使用用户 ID、实体 ID 或异常消息作为标签。 | [可观测性](observability.zh-CN.md) |
+| 53 | 记录异常对象，而不是 `ex.getMessage()`。不要记录秘密或个人数据。 | [可观测性](observability.zh-CN.md) |
+| 54 | Java 21+ 启用默认关闭的虚拟线程，然后调整连接池大小；连接池现在会成为瓶颈。 | [异步与定时任务](async-and-scheduling.zh-CN.md) |
+| 55 | 虚拟线程不能并行化一个请求内的串行 Fan-out。`StructuredTaskScope` 才能解决：Java 25 中是 Preview；应放在 Service，不要放在 Controller，也不要在 `@Transactional` 中围绕 Repository 调用使用。 | [异步与定时任务](async-and-scheduling.zh-CN.md) |
+| 56 | `@Scheduled` Job 会在每个副本运行一次。应保证幂等或显式认领任务。 | [异步与定时任务](async-and-scheduling.zh-CN.md) |
+| 57 | 使用 `MaxRAMPercentage`，而非 `-Xmx`。以非 root 用户运行。优雅停机时间应短于编排器的宽限时间。 | [容器化与 Native Image](containerization-and-native.zh-CN.md) |
 
 ## 测试
 
-- [ ] 单元测试覆盖重要领域行为，避免为实现细节编写脆弱断言。
-- [ ] Web、持久化和 JSON 映射使用合适的切片测试；关键用例由真实依赖或容器验证。
-- [ ] 集成测试验证真实配置、迁移、事务和外部边界行为。
-- [ ] 测试数据隔离，测试不依赖执行顺序、共享环境或真实生产凭据。
-- [ ] 对失败路径、权限拒绝、边界输入、并发和重试进行测试。
-- [ ] 外部客户端测试经过网络边界；本地替身缺失时不会静默回退到真实提供方。参见[外部服务测试](external-service-testing.zh-CN.md)。
-- [ ] CI 执行与本地相同的检查；失败能定位到具体模块和原因。参见 [测试策略](testing-strategy.zh-CN.md)、[单元测试](testing-unit.zh-CN.md)、[集成测试](testing-integration.zh-CN.md) 与 [测试切片](testing-slices-web.zh-CN.md)。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 58 | 分层测试：单元、切片、冒烟和一个端到端测试。单元测试全绿不代表应用可运行。 | [测试策略](testing-strategy.zh-CN.md) |
+| 59 | 保护上下文缓存：共享 `application-test.yml`、将 Mock 放入基类、避免 `@DirtiesContext`。 | [测试策略](testing-strategy.zh-CN.md) |
+| 60 | 使用 Testcontainers 测试真实数据库，绝不要用 H2；H2 也意味着迁移没有运行。 | [持久化切片测试](testing-slices-persistence.zh-CN.md) |
+| 61 | 整个测试套件共享一个容器；使用 `static` 容器或共享 `@TestConfiguration`，并固定镜像 Tag。 | [Testcontainers](testcontainers.zh-CN.md) |
+| 62 | 有对应工厂时使用 `@ServiceConnection`；只有配置值无法预先定义时才用 `DynamicPropertyRegistrar`。 | [Testcontainers](testcontainers.zh-CN.md) |
+| 63 | `@WebMvcTest` 需要 `@Import(SecurityConfig.class)`，否则测到的是 Boot 默认安全配置。 | [Web 测试切片](testing-slices-web.zh-CN.md) |
+| 64 | 断言负向安全场景：401 和 403。 | [Web 测试切片](testing-slices-web.zh-CN.md) |
+| 65 | 异步行为使用 Awaitility。不要使用 `Thread.sleep`。 | [集成测试](testing-integration.zh-CN.md) |
+| 66 | 注入 `Clock`；可测试代码中不要直接调用 `Instant.now()`。 | [单元测试](testing-unit.zh-CN.md) |
+| 67 | 使用 `@MockitoBean`，不要使用 Boot 4 已移除的 `@MockBean`。 | [Boot 版本](boot-versions.zh-CN.md) |
 
-## AI 功能（如适用）
+## AI
 
-- [ ] 模型输出被视为不可信输入，经过验证后才能用于工具调用或持久化。
-- [ ] Prompt、模型和检索配置可追踪；敏感数据不会意外发送给外部模型。
-- [ ] Token、超时、重试、成本和速率设置有上限。
-- [ ] 评估集涵盖质量、安全和回归；生产调用有可观测性且避免记录敏感内容。参见 [Spring AI](spring-ai.zh-CN.md)。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 68 | 版本配对：Boot 4 使用 Spring AI 2.0，Boot 3.5 使用 1.x。 | [Spring AI](spring-ai.zh-CN.md) |
+| 69 | 会话 ID 按用户或 Session 隔离；共享 ID 会泄漏用户之间的历史记录。 | [Spring AI](spring-ai.zh-CN.md) |
+| 70 | 不要将用户输入拼接进 Prompt；不要不转义地执行或渲染模型输出。 | [Spring AI](spring-ai.zh-CN.md) |
+| 71 | 生产环境设置 `log-prompt: false`，指标标签不能包含 Prompt 内容。 | [AI 可观测性](ai-observability.zh-CN.md) |
+| 72 | 限制 `max-tokens`，按操作追踪 Token 用量，并对费用告警。 | [AI 可观测性](ai-observability.zh-CN.md) |
 
-## 最应优先修复的五类问题
+## 跨领域 API 防护
 
-1. 生产环境暴露未保护的管理端点或缺少资源级授权。
-2. 无超时、无限重试或重复执行非幂等操作。
-3. 事务边界错误，导致数据与消息、缓存或外部系统状态不一致。
-4. 数据库迁移、连接池或 ORM 查询行为未经生产规模验证。
-5. 测试只验证 Mock 行为，没有验证应用的真实配置和集成边界。
+| # | 规则 | 参考 |
+| - | ---- | --------- |
+| 73 | 使用面向资源的路径；过滤、分页和白名单排序放在查询参数中。凭据不要放入 URL。 | [REST Controller](rest-controllers.zh-CN.md) |
+| 74 | 可重试的创建操作应定义有作用范围的幂等契约；原子保存幂等键，并在重放响应前重新检查授权。 | [API 幂等](api-idempotency.zh-CN.md) |
+| 75 | 在合适的网关和应用层实施限流及硬资源上限；返回有文档说明的过载响应。 | [限流与资源保护](rate-limiting.zh-CN.md) |
+| 76 | 数据库约束作为最终并发保护；处理失败事务边界后再转换约束冲突。 | [数据库并发](database-concurrency.zh-CN.md) |
+| 77 | 租户上下文来自可信身份，并在持久化、缓存、存储和后台任务的每条路径强制隔离。 | [多租户](multi-tenancy.zh-CN.md) |
+| 78 | CI 晋级同一份已验证制品摘要；数据库 Schema 变更在发布和回滚窗口内保持兼容。 | [CI/CD 与发布](ci-cd-release.zh-CN.md) |
+| 79 | 公共 API 变更要做兼容性检查；弃用需有替代方案、负责人、日期和已测量的客户端用量。 | [API 版本管理](api-versioning.zh-CN.md) |
+| 80 | 每个秘密都应有负责人、最小权限范围、轮换和撤销流程；CI 不向不可信代码暴露秘密。 | [配置](configuration.zh-CN.md) |
+| 81 | 告警应有负责人、用户影响、可执行手册和符合 SLO 的阈值；校验客户端提供的关联 ID。 | [可观测性](observability.zh-CN.md) |
+| 82 | 备份策略应满足所声明的 RPO/RTO；恢复演练应验证数据、Schema、访问控制和依赖存储。 | [数据库备份与恢复](database-backup-recovery.zh-CN.md) |
+| 83 | 外部客户端测试应经过真实网络边界；本地替身不可用时不能静默调用真实提供商。 | [外部服务测试](external-service-testing.zh-CN.md) |
+
+---
+
+## 造成最大损害的五个问题
+
+1. **自调用。**`this.method()` 会静默禁用 `@Transactional`、`@Async`、`@Cacheable`、`@Retryable`，以及作为安全漏洞的 `@PreAuthorize`。没有异常，也没有警告。
+2. **持久化测试使用 H2。**迁移不会运行，数据库专属 SQL 会产生差异，但测试套件仍一直全绿。
+3. **HTTP 客户端没有超时。**一个慢依赖会耗尽请求线程，并拖垮整个应用。
+4. **`exposure.include: "*"`。**`/actuator/heapdump` 可以下载进程内存副本，其中包含所有秘密。
+5. **保持 `open-in-view` 开启。**N+1 问题在开发环境中静默通过，最终在生产环境成为事故。

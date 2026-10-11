@@ -1,6 +1,6 @@
 # Auditing
 
-Auditing metadata answers who created or last changed a current row and when. It is useful for operational traceability, but it is not an immutable audit trail: updates overwrite `lastModified*`. Regulated or security-sensitive history needs append-only events with retention, access control and tamper-evidence appropriate to the requirement.
+Auditing metadata answers who created or last changed a current row and when. It is useful for operational traceability, but it is not an immutable audit trail: updates overwrite the current `updated*` values. Regulated or security-sensitive history needs append-only events with retention, access control and tamper-evidence appropriate to the requirement.
 
 ## Spring Data auditing
 
@@ -35,7 +35,7 @@ abstract class AuditedEntity {
 
     @LastModifiedDate
     @Column(nullable = false)
-    private Instant lastModifiedAt;
+    private Instant updatedAt;
 
     @CreatedBy
     @Column(updatable = false)
@@ -47,6 +47,12 @@ abstract class AuditedEntity {
 ```
 
 If only timestamps are needed, no `AuditorAware` is required. Use `Instant` for persisted timestamps and keep `@Version` separate: auditing describes authorship/time; versioning detects concurrent writes. See [spring-data-jpa.md](spring-data-jpa.md).
+
+## MyBatis-Plus auditing
+
+For MyBatis-Plus entities, use its `MetaObjectHandler` auto-fill lifecycle instead of Spring Data's JPA auditing listener. Keep the same property names across persistence models where practical: `createdAt`, `updatedAt`, `createdBy`, and `updatedBy`. Mark insert-only fields with `@TableField(fill = FieldFill.INSERT)` and fields refreshed on insert and update with `FieldFill.INSERT_UPDATE`; implement the fill behavior in a Spring-managed handler. See [mybatis-plus.md](mybatis-plus.md) for the handler example and the SQL paths that need explicit handling.
+
+Resolve actor IDs from trusted server-side identity. Define an explicit system actor for scheduled jobs and message consumers with no request principal, and pass an initiating actor as a deliberate command value when required. Do not assume JPA's `@CreatedBy` / `@LastModifiedBy` annotations run for MyBatis-Plus writes. Custom mapper SQL, direct JDBC, and update forms not invoking auto-fill must set these values explicitly and be covered by tests.
 
 ## Principal and background work
 
@@ -64,7 +70,7 @@ Auditing callbacks run as part of persistence lifecycle; they are not a replacem
 
 ## Testing
 
-Test create and update metadata with a fixed clock or controlled persistence time where practical. Test authenticated and system actors, and verify clients cannot supply audit fields. For message consumers or scheduled jobs, test the no-request-context path. Persistence behavior belongs in a JPA slice test against the real database engine.
+Test create and update metadata with a fixed clock or controlled persistence time where practical. Test authenticated and system actors, and verify clients cannot supply audit fields. For message consumers or scheduled jobs, test the no-request-context path. Verify JPA callbacks in a JPA slice and MyBatis-Plus fill and custom SQL in a persistence slice, both against the real database engine ([testing-slices-persistence.md](testing-slices-persistence.md), [testcontainers.md](testcontainers.md)).
 
 ## Gotchas
 
@@ -74,6 +80,8 @@ Test create and update metadata with a fixed clock or controlled persistence tim
 - Agent filters anonymous authentication by comparing a literal username - use `AuthenticationTrustResolver` and map authenticated principals to stable subject IDs.
 - Agent lets request DTOs carry `createdBy` or timestamps - auditing fields are server-owned.
 - Agent uses a mutable username/email as the audit actor and then renames or deletes it - store a stable subject ID and define retention/pseudonymization behavior.
+- Agent expects JPA auditing annotations to fill MyBatis-Plus entities - use a `MetaObjectHandler` for MyBatis-Plus writes.
+- Agent assumes the MyBatis-Plus handler covers custom SQL or direct JDBC - set audit fields explicitly on those paths and test them.
 - Agent calls `@LastModifiedDate` an audit history - it is overwritten; use append-only records for retained history.
 - Agent stores full payloads or credentials in audit columns - retain only the minimum safe metadata.
 - Agent mixes auditing with optimistic locking - keep `@Version` for concurrency detection.

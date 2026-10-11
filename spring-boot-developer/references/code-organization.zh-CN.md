@@ -135,4 +135,4 @@ import org.springframework.modulith.ApplicationModule;
 
 ## 相关文档
 
-[spring-modulith.zh-CN.md](spring-modulith.zh-CN.md) · [archunit.zh-CN.md](archunit.zh-CN.md) · [hexagonal-architecture.zh-CN.md](hexagonal-architecture.zh-CN.md) · [domain-modelling.zh-CN.md](domain-modelling.zh-CN.md)
+- [spring-modulith.zh-CN.md](spring-modulith.zh-CN.md) · [archunit.zh-CN.md](archunit.zh-CN.md) · [hexagonal-architecture.zh-CN.md](hexagonal-architecture.zh-CN.md) · [domain-modelling.zh-CN.md](domain-modelling.zh-CN.md)

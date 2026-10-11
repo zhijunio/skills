@@ -51,5 +51,3 @@
 ## 相关文档
 
 - [缓存](caching.zh-CN.md) · [事务](transactions.zh-CN.md) · [消息](messaging.zh-CN.md) · [弹性模式](resilience.zh-CN.md) · [Testcontainers](testcontainers.zh-CN.md)
-
-> 中文要点版。更多实现细节请参阅[英文原文](cache-consistency.md)。

@@ -46,5 +46,3 @@ HTTP 语义和资源上限与 Boot 版本无关。Spring Framework 的 `@Concurr
 ## 相关文档
 
 - [弹性模式](resilience.zh-CN.md) · [安全基础](security-fundamentals.zh-CN.md) · [REST Controller](rest-controllers.zh-CN.md) · [配置](configuration.zh-CN.md) · [可观测性](observability.zh-CN.md) · [文件上传与下载](file-storage.zh-CN.md)
-
-> 中文要点版。更多实现细节请参阅[英文原文](rate-limiting.md)。

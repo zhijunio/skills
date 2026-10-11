@@ -20,6 +20,16 @@ For shared tables:
 - Make bulk updates, deletes, exports and native SQL explicitly tenant-scoped.
 - Consider database row-level security as defense in depth, but set and clear the database tenant context within the transaction and test connection-pool reuse.
 
+### MyBatis-Plus tenant-line plugin
+
+For a shared-table MyBatis-Plus application, `TenantLineInnerInterceptor` can add a tenant predicate to supported SQL statements. Treat it as a persistence safety net, not as the source of tenant identity or a replacement for explicit tenant-scoped service and mapper contracts. Register the tenant interceptor once in the application's `MybatisPlusInterceptor` and verify its ordering with pagination and other SQL-rewriting plugins.
+
+Resolve the tenant from the authenticated principal or a server-validated membership. If the tenant-line handler reads from Spring Security's `SecurityContext`, ensure mapper calls only run after authentication has been established. Use a request filter only when the application needs to bind a verified tenant into a context carrier for persistence code; place it after authentication and clear the carrier in `finally`. Do not derive it directly from an untrusted header, path, or body field. A filter is not required if the handler can safely resolve the tenant directly from the authenticated principal.
+
+A small `TenantContext` backed by `ThreadLocal` can be appropriate for synchronous mapper execution or explicit maintenance operations. Give it scoped APIs that restore any previous value and remove the value in `finally`; fail closed when no tenant is present. Never treat the context itself as authentication or authorization. Do not rely on it across async, scheduled, reactive, or executor boundaries: pass an immutable tenant identifier explicitly, establish a fresh validated scope in the worker, and clear it on every completion path. Avoid inheritable thread locals because pooled threads can leak tenant state.
+
+Maintain an explicit allowlist of global tables and test every excluded table. Review joins, custom XML/annotation SQL, subqueries, batch operations, dynamic table names, and any `@InterceptorIgnore` use: plugin coverage and SQL parsing are not universal guarantees, so tenant ownership must remain explicit in custom SQL. Insert behavior must also assign the trusted tenant ID; do not assume a select predicate alone protects writes. Integration tests should verify generated SQL and cross-tenant reads, updates, deletes, inserts, missing context, global tables, and connection/thread reuse against the production database family. See [mybatis-plus.md](mybatis-plus.md).
+
 Return a consistent not-found or forbidden policy for cross-tenant object IDs so responses do not reveal another tenant's records. Authorization still checks the actor's permission for the action; tenant filtering alone is not object authorization. See [security-fundamentals.md](security-fundamentals.md) and [oauth2-resource-server.md](oauth2-resource-server.md).
 
 ## Preserve the boundary across the system

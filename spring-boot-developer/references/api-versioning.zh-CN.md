@@ -158,4 +158,4 @@ Framework 6 **没有** `version` 映射属性和 `ApiVersionConfigurer`。可选
 
 ## 相关文档
 
-[rest-controllers.zh-CN.md](rest-controllers.zh-CN.md) · [error-handling.zh-CN.md](error-handling.zh-CN.md) · [http-clients.zh-CN.md](http-clients.zh-CN.md) · [openapi.zh-CN.md](openapi.zh-CN.md)
+- [rest-controllers.zh-CN.md](rest-controllers.zh-CN.md) · [error-handling.zh-CN.md](error-handling.zh-CN.md) · [http-clients.zh-CN.md](http-clients.zh-CN.md) · [openapi.zh-CN.md](openapi.zh-CN.md)

@@ -12,7 +12,7 @@ Every persistence slice (`@DataJpaTest`, `@JdbcTest`, `@DataJdbcTest`, `@JooqTes
 
 That last point is the decisive one. Testing against the deployed database is the only way a persistence test means anything.
 
-**The rule for all four slices:** add `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)` so the DataSource is not swapped for H2, and supply a Testcontainers database. See [testcontainers.md](testcontainers.md).
+**The rule for the four Spring Boot slices:** add `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)` so the DataSource is not swapped for H2, and supply a Testcontainers database. For MyBatis-Plus, use its matching `@MybatisPlusTest` test starter and apply the same real-database rule; see below and [mybatis-plus.md](mybatis-plus.md).
 
 ## `@DataJpaTest`
 
@@ -112,6 +112,10 @@ class OrderSummaryQueryTest {
 
 Same rule for Spring Data JDBC repositories and for jOOQ's `DSLContext`. jOOQ against H2 masks dialect-specific SQL just as thoroughly as JPA does.
 
+## MyBatis-Plus mapper tests
+
+MyBatis-Plus documents `@MybatisPlusTest` in `mybatis-plus-boot-starter-test`. Keep that test dependency aligned with the MyBatis-Plus release and verify its compatibility with the Boot line. Configure the slice to use the shared Testcontainers `DataSource` rather than an embedded database, and verify custom SQL, result mappings, pagination and interceptor behavior against the production database family. Test optimistic-lock affected-row outcomes and tenant isolation where those features are used. Avoid tests that only repeat `BaseMapper` CRUD behavior. See the official [testing guide](https://baomidou.com/en/getting-started/test/).
+
 ## Migrations are covered for free
 
 With the real database and `spring.jpa.hibernate.ddl-auto=validate`, a persistence slice that **starts** has already proved that your Flyway migrations apply cleanly and that the resulting schema matches your entity mappings. That is a substantial amount of coverage from a configuration setting.
@@ -139,7 +143,7 @@ Slice annotations, `@AutoConfigureTestDatabase`, `@ServiceConnection`, `JdbcClie
 
 ## Related
 
-- [testcontainers.md](testcontainers.md) · [spring-data-jpa.md](spring-data-jpa.md) · [flyway.md](flyway.md) · [testing-strategy.md](testing-strategy.md)
+- [testcontainers.md](testcontainers.md) · [spring-data-jpa.md](spring-data-jpa.md) · [mybatis-plus.md](mybatis-plus.md) · [flyway.md](flyway.md) · [testing-strategy.md](testing-strategy.md)
 
 ---
 

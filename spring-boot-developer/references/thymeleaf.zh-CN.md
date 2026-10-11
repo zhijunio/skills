@@ -98,5 +98,3 @@ Thymeleaf 不能替代 Spring Security。基于 Session 的表单应用必须保
 ## 相关文档
 
 - [REST Controller](rest-controllers.zh-CN.md) · [校验](validation.zh-CN.md) · [安全基础](security-fundamentals.zh-CN.md) · [Web 切片测试](testing-slices-web.zh-CN.md) · [错误处理](error-handling.zh-CN.md)
-
-> 中文要点版。更多实现细节请参阅[英文原文](thymeleaf.md)。

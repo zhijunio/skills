@@ -108,7 +108,7 @@ public record Money(BigDecimal amount, String currency) {
 
 - 金额使用 **`BigDecimal`，不要用 `double`**。`0.1 + 0.2` 并不等于精确的 `0.3`。
 - 操作应**返回新实例**。值对象不可变，因此 `add` 返回新的 `Money`。
-- 拒绝相加不同币种的金额，是原始 `BigDecimal` 类型无法帮你捕获的一类错误。
+- 拒绝相加币种不同的金额；这是原始 `BigDecimal` 无法捕获的一类错误。
 
 标识符也应建模为值对象，参见[Spring Data JPA](spring-data-jpa.zh-CN.md)。
 
@@ -282,7 +282,9 @@ class StripePaymentAdapter implements PaymentPort {
 }
 ```
 
-只有 Adapter 知道最小货币单位、小写币种代码和提供商状态字符串。没有它们，这些约定就会扩散到领域代码中，更换提供商也会变成重写。Adapter 属于基础设施层；`PaymentPort` 接口属于领域层（参见[六边形架构](hexagonal-architecture.zh-CN.md)）。
+只有 Adapter 知道最小货币单位、小写币种代码和提供商状态字符串。没有它们，这些约定就会扩散到领域代码中，更换提供商也会变成重写。
+
+Adapter 属于基础设施层；`PaymentPort` 接口属于领域层（参见[六边形架构](hexagonal-architecture.zh-CN.md)）。
 
 ## 使用 Spring Boot 3.5.x 时
 

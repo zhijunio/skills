@@ -1,56 +1,237 @@
 # Spring Modulith
 
-Spring Modulith 帮助在单体应用中维护模块边界，并为模块结构、模块测试和模块间事件提供工具。它不要求把应用拆成微服务；先用清晰模块降低耦合，再按实际需要决定是否拆分部署。
+Spring Modulith 是[代码组织](code-organization.zh-CN.md)分级体系中的第二级和第三级：当功能拆分为子包后，javac 无法再检查边界时，它可以强制验证模块边界。它是一个**测试时验证工具**，同时也提供事件基础设施；除非使用事件功能，否则不会改变运行时行为。
+
+当功能超出单一平铺包的规模时再引入它，不要过早采用。
 
 ## 约定
 
-以顶层业务包作为模块边界。模块默认只暴露根包中的公共 API；内部包对其他模块不可见。通过模块 API 交互，不要直接依赖别的模块内部类。
+| 规则 | 含义 |
+|---|---|
+| 主应用包的每个**直接子包**都是一个应用模块 | `com.example.app.orders` 是模块；`com.example.app.orders.internal` 不是 |
+| 模块的**基础包就是它的 API** | 其他模块唯一可以依赖的包 |
+| **嵌套包属于内部实现** | 其他模块引用 `orders.internal.*` 会导致验证失败 |
+| `@NamedInterface` 可以重新公开嵌套包 | 仅在基础包不足以表达 API 时使用 |
 
-## 配置与验证测试
+在 Modulith 中，嵌套包用于**声明**内部实现。这与平铺包结构相反：平铺结构中嵌套包会破坏边界；Modulith 用它替代失去的 `package-private` 强制能力。
 
-引入 Spring Modulith 对应 Starter，并编写模块结构验证测试，检查无循环依赖、无非法内部访问。验证测试应在 CI 运行，使边界约束成为可执行规则。
+```
+com.example.app/
+├── Application.java
+├── orders/
+│   ├── OrdersApi.java             ← API：对其他模块可见
+│   ├── OrderResponse.java         ← API
+│   └── internal/                  ← 对其他模块不可见
+│       ├── Order.java
+│       ├── OrderRepository.java
+│       └── OrderService.java
+├── inventory/
+├── shared/                        ← OPEN
+└── config/                        ← OPEN
+```
 
-## 共享与配置模块
+## 配置
 
-确有跨模块共享的类型时，显式公开并限制共享范围。配置模块可作为基础设施装配点，但不要把业务逻辑集中到 `shared` 或 `common` 包。共享模块越大，模块边界越难维护。
+```xml
+<properties>
+    <spring-modulith.version>2.1.0</spring-modulith.version>
+</properties>
 
-## 暴露根包以外的 API
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-bom</artifactId>
+            <version>${spring-modulith.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 
-若确需公开子包，显式声明允许的接口 / 包，并记录其契约。避免通过宽泛扫描或让所有类 `public` 绕过边界。
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.modulith</groupId>
+        <artifactId>spring-modulith-starter-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.modulith</groupId>
+        <artifactId>spring-modulith-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+```
 
-## 嵌套模块与大型功能
+Boot 4 使用 **Modulith 2.x**，Boot 3.5.x 使用 1.4.x。不要直接照抄上面的版本；应确认当前兼容分支中的最新补丁版本。
 
-模块可进一步包含子模块，适用于规模较大的业务功能。拆分应反映稳定的业务职责，而非纯粹按技术层次拆成 Controller / Service / Repository 模块。
+## 结构验证测试
 
-## 使用事件通信
+没有这个测试，Modulith 不会执行任何边界验证。只需在根包中编写一次：
 
-模块间事件能降低直接依赖。事件应是不可变事实，携带 ID 和必要值，而非实体。发布者与订阅者需明确事务时序；异步事件要考虑失败恢复。
+```java
+class ModularityTests {
 
-### 让事件能跨崩溃存活
+    static final ApplicationModules modules = ApplicationModules.of(Application.class);
 
-普通应用内事件不等于持久化消息。如果进程可能在提交后、监听器处理前崩溃，使用 Modulith 的事件发布注册表 / 持久化发布机制，并监控未完成发布。跨进程通信仍应采用消息代理与 Outbox 等方案。
+    @Test
+    void verifiesModularStructure() {
+        modules.verify();
+    }
+
+    @Test
+    void writesDocumentation() {
+        new Documenter(modules).writeDocumentation();
+    }
+}
+```
+
+`verify()` 会在模块之间存在循环依赖或某模块引用另一个模块的内部实现时令构建失败。`Documenter` 会将 PlantUML 组件图和 AsciiDoc 模块画布写到 `target/spring-modulith-docs`，方便代码审查，而且无需额外成本。
+
+## 开放 shared 和 config 模块
+
+`shared/` 和 `config/` 会被识别为模块，因此依赖它们的每个功能都会被报告为违规。将它们标记为开放模块：
+
+```java
+@ApplicationModule(type = ApplicationModule.Type.OPEN)
+package com.example.app.shared;
+
+import org.springframework.modulith.ApplicationModule;
+```
+
+`OPEN` 表示“这里没有内部结构，任何模块都可以依赖其中任何内容”。只对真正横切多个功能的包使用。一个开放的功能模块自相矛盾：它主动放弃了引入 Modulith 的目的。
+
+## 公开基础包以外的 API
+
+```java
+@NamedInterface("events")
+package com.example.app.orders.events;
+
+import org.springframework.modulith.NamedInterface;
+```
+
+之后，其他模块除了基础包，还可以依赖 `orders.events`。可将它用于模块对外发布的事件类型，或由其他模块实现的 SPI。每个命名接口都是对外的长期承诺，应有意识地添加，不能只为消除验证失败。
+
+## 嵌套模块：大型功能
+
+从 Modulith 1.3 起，模块内部的包本身也可以成为模块。对于包含十个 Service 和多个子领域的大型功能，这是受支持的组织方式：
+
+```java
+@ApplicationModule
+package com.example.app.orders.pricing;
+
+import org.springframework.modulith.ApplicationModule;
+```
+
+```
+orders/
+├── OrdersApi.java              ← 顶层模块的 API
+├── pricing/                    ← 嵌套模块，对 inventory/、shipping/… 不可见
+│   └── internal/
+├── fulfilment/                 ← 嵌套模块
+│   └── internal/
+└── internal/
+```
+
+嵌套模块对同级的**顶层模块**不可见，但可以使用顶层模块公开的内容。这样大型功能能保留内部结构，而不向外泄漏。
+
+采用这种结构前，先应用[代码组织](code-organization.zh-CN.md)中的判断标准：如果这些部分没有共享不变量且依赖方向各异，它们可能本就是被放在一起的多个功能；嵌套只会将错误结构固定下来。
+
+## 使用事件进行模块通信
+
+跨模块直接注入会产生耦合。对于不需要同步返回结果的操作，发布事件：
+
+```java
+// 在 orders 模块中，事件类型属于该模块 API
+public record OrderPlaced(OrderId orderId, CustomerId customerId, Money total) {}
+
+// 在 orders/internal 中
+@Transactional
+public OrderId place(PlaceOrderCmd cmd) {
+    var order = Order.place(cmd);
+    orderRepository.save(order);
+    events.publishEvent(new OrderPlaced(order.id(), order.customerId(), order.total()));
+    return order.id();
+}
+```
+
+```java
+// 在 inventory 模块中：不编译依赖 orders 的内部实现
+@Component
+class OrderPlacedListener {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderPlacedListener.class);
+
+    @ApplicationModuleListener
+    void on(OrderPlaced event) {
+        inventoryService.reserve(event.orderId());
+    }
+}
+```
+
+应使用 `@ApplicationModuleListener`。它是一个组合注解，包含：
+
+- `@TransactionalEventListener(phase = AFTER_COMMIT)`：只有发布者事务提交后才运行监听器。
+- `@Async`：在独立线程执行，发布者不必等待。
+- `@Transactional(propagation = REQUIRES_NEW)`：监听器使用自己的事务。
+
+这几项组合通常正是所需行为，但手动编写时很容易遗漏。为什么 `AFTER_COMMIT` 很重要，参见[事务](transactions.zh-CN.md)。
+
+### 让事件在崩溃后仍可恢复
+
+默认情况下，异步监听器失败后事件会丢失。事件发布注册表会持久化每次发布，并在监听器成功后标记完成：
+
+```xml
+<dependency>
+    <groupId>org.springframework.modulith</groupId>
+    <artifactId>spring-modulith-starter-jdbc</artifactId>
+</dependency>
+```
+
+```properties
+spring.modulith.events.jdbc.schema-initialization.enabled=true
+spring.modulith.events.completion-mode=update
+spring.modulith.events.republish-outstanding-events-on-restart=true
+```
+
+未完成的发布会在重启时重试。生产环境应通过 [Flyway](flyway.zh-CN.md) 管理事件发布表，而不是让 Modulith 创建它；`schema-initialization.enabled=true` 只适合开发便利场景。
+
+这是用于进程内模块的事务 Outbox。跨进程边界时参见[消息](messaging.zh-CN.md)。
 
 ## 模块测试
 
-使用 Modulith 提供的模块测试支持，限制测试可访问的 Bean / 模块，验证模块独立性。模块 API 测试应覆盖消费者真正依赖的行为，而非内部实现。
+```java
+@ApplicationModuleTest
+class OrdersModuleTests {
 
-## 使用 Spring Boot 3.5.x 时
+    @Test
+    void placesOrder(Scenario scenario) {
+        scenario.stimulate(() -> ordersApi.place(cmd))
+                .andWaitForEventOfType(OrderPlaced.class)
+                .toArriveAndVerify(event -> assertThat(event.total()).isEqualTo(expected));
+    }
+}
+```
 
-选择与 Boot / Spring Framework 版本兼容的 Spring Modulith 版本。模块边界和事件概念相同，但 API、Starter 和支持矩阵可能变化；以项目依赖管理和对应版本文档为准。
+`@ApplicationModuleTest` 只启动被测模块，并在它访问其他模块内部实现时失败。`Scenario` 会等待异步事件送达；不要用 `Thread.sleep`。
+
+## 使用 Boot 3.5.x 时
+
+使用 Modulith **1.4.x**；2.x 面向 Boot 4。嵌套模块（1.3+）、`@ApplicationModuleListener`、`@NamedInterface` 和事件发布注册表在 1.4.x 中都可用。Modulith 2.1 与 Boot 切片测试支持的集成仅存在于 2.x。
 
 ## 常见问题
 
-- 把 Modulith 当成微服务脚手架，过早拆部署。
-- 所有业务放入一个共享模块，绕过模块边界。
-- 模块直接依赖其他模块的内部包。
-- 只靠约定、不在 CI 执行结构验证。
-- 事件携带实体或可变对象。
-- 认为同步应用事件一定持久、崩溃后会自动重放。
-- 用事件隐藏紧耦合，或让事件契约没有版本管理。
-- 未确认 Modulith 版本与 Boot 版本兼容。
+- Agent 添加 Modulith 依赖后没有编写结构验证测试：测试中没有 `modules.verify()` 就不会强制任何边界。
+- Agent 期待 Modulith 在运行时强制模块边界：它是构建时检查工具，另带事件库。
+- Agent 未标记 `shared/` 和 `config/`：它们会被识别为模块，依赖它们会被报告违规；应标记 `type = OPEN`。
+- Agent 为消除错误将功能模块标记为 `OPEN`：这会放弃引入 Modulith 的唯一目的。
+- Agent 添加 `@NamedInterface` 来消除违规：违规通常是真实问题；应移动类型或发布事件。
+- Agent 直接注入另一个模块的 `@Service`：应依赖其 API 类型或通过事件通信。
+- Agent 在模块间使用普通 `@EventListener`：它在发布者事务中运行，后续回滚时副作用已经发生；应使用 `@ApplicationModuleListener`。
+- Agent 认为异步事件默认能在崩溃后恢复：应添加 `spring-modulith-starter-jdbc`。
+- Agent 在生产环境让 Modulith 创建事件表：应交给 Flyway 管理。
+- Agent 将 Entity 和 Repository 放在模块基础包中：这会将它们公开；应放入嵌套内部包。
+- Agent 在一个实际包含多个功能的模块内继续嵌套：先检查这些部分是否共享不变量。
 
 ## 相关文档
 
 - [代码组织](code-organization.zh-CN.md) · [领域建模](domain-modelling.zh-CN.md) · [事务](transactions.zh-CN.md) · [消息](messaging.zh-CN.md) · [架构测试](archunit.zh-CN.md)
-
-> 中文要点版。完整注解、配置和模块测试代码请参阅[英文原文](spring-modulith.md)。

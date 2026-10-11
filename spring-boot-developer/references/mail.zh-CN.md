@@ -56,5 +56,3 @@ spring:
 ## 相关文档
 
 - [事务](transactions.zh-CN.md) · [消息](messaging.zh-CN.md) · [异步与定时任务](async-and-scheduling.zh-CN.md) · [本地开发](local-development.zh-CN.md) · [可观测性](observability.zh-CN.md)
-
-> 中文要点版。更多实现细节请参阅[英文原文](mail.md)。

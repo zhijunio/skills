@@ -47,5 +47,3 @@
 ## 相关文档
 
 - [Spring Data JPA](spring-data-jpa.zh-CN.md) · [事务](transactions.zh-CN.md) · [弹性模式](resilience.zh-CN.md) · [持久化切片测试](testing-slices-persistence.zh-CN.md)
-
-> 中文要点版。更多实现细节请参阅[英文原文](database-concurrency.md)。

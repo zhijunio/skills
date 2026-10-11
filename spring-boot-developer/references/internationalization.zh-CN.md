@@ -65,5 +65,3 @@ API 的机器可读错误类型/代码应保持稳定。若要本地化 `Problem
 ## 相关文档
 
 - [Thymeleaf](thymeleaf.zh-CN.md) · [校验](validation.zh-CN.md) · [错误处理](error-handling.zh-CN.md) · [配置](configuration.zh-CN.md)
-
-> 中文要点版。更多实现细节请参阅[英文原文](internationalization.md)。

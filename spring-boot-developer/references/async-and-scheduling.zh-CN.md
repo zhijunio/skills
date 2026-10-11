@@ -59,7 +59,7 @@ public class SpeakerProfileService {
 
 Boot 应用中有三处容易出错：
 
-1. **异常不会原样传出。** `Joiner.result()` 抛出的领域异常会被包装；`join()` 抛出 `StructuredTaskScope.FailedException`，原异常是其 cause。为领域异常编写的 `@RestControllerAdvice` 处理器不会触发，客户端会收到 500，而不是预期的 `ProblemDetail`。在 Service 边界解包，不要让 Advice 了解 `FailedException`（参见[错误处理](error-handling.zh-CN.md)）：
+**1. 异常不会原样传出。** `Joiner.result()` 抛出的领域异常会被包装；`join()` 抛出 `StructuredTaskScope.FailedException`，原异常是其 cause。为领域异常编写的 `@RestControllerAdvice` 处理器不会触发，客户端会收到 500，而不是预期的 `ProblemDetail`。在 Service 边界解包，不要让 Advice 了解 `FailedException`（参见[错误处理](error-handling.zh-CN.md)）：
 
 ```java
 try {
@@ -73,8 +73,9 @@ try {
 }
 ```
 
-2. **不要在 `@Transactional` 方法中 fork 仓储调用。** Spring 通过 `TransactionSynchronizationManager` 将事务、连接、`EntityManager` 和同步器绑定到当前线程；它使用 `ThreadLocal`。fork 出的子任务在另一个线程上运行，因此看不到原事务，会从连接池获取自己的连接，并独立提交。应在开启事务前并行调用，或只并行执行非数据库工作。
-3. **必须调用 `scope.join()`。** 作用域关闭时如果尚未 join，会抛出 `IllegalStateException: Owner did not join after forking`。在最后一次 `fork` 和 `join` 之间提前 `return`，会让问题在生产环境中出现。
+**2. 不要在 `@Transactional` 方法中 fork 仓储调用。** Spring 通过 `TransactionSynchronizationManager` 将事务、连接、`EntityManager` 和同步器绑定到当前线程；它使用 `ThreadLocal`。fork 出的子任务在另一个线程上运行，因此看不到原事务，会从连接池获取自己的连接，并独立提交。应在开启事务前并行调用，或只并行执行非数据库工作。
+
+**3. 必须调用 `scope.join()`。** 作用域关闭时如果尚未 join，会抛出 `IllegalStateException: Owner did not join after forking`。在最后一次 `fork` 和 `join` 之间提前 `return`，会让问题在生产环境中出现。
 
 聚合逻辑位于普通 Java 类 `Joiner` 中，可以直接构造实例，给 `onComplete` 传入自行创建的子任务，再断言 `result()`，无需 `@SpringBootTest` 或 `MockMvc`（参见[单元测试](testing-unit.zh-CN.md)）。
 
@@ -140,6 +141,20 @@ AsyncUncaughtExceptionHandler asyncExceptionHandler() {
 - `@RequestScope` Bean 和 `RequestContextHolder` 可能抛异常或返回空值。
 - MDC 中的关联 ID 会丢失，异步日志无法关联。Micrometer 的上下文传播会处理 Trace 上下文；MDC 需要任务装饰器。
 
+### 只传播子任务需要的上下文
+
+对于 Spring 管理的执行器任务，应在指定执行器上设置 `TaskDecorator`。Spring Framework 的 `ContextPropagatingTaskDecorator` 使用 Micrometer Context Propagation 捕获和恢复已注册的上下文，例如 Observation 和日志上下文：
+
+将此行添加到下文的 `reportExecutor` Bean 中：
+
+```java
+executor.setTaskDecorator(new ContextPropagatingTaskDecorator());
+```
+
+此装饰器只传播已注册 `ThreadLocalAccessor` 支持的上下文；它不会让任意应用 `ThreadLocal`、请求作用域 Bean 或事务变得可传递。自定义上下文应添加并测试对应的 accessor，或显式传入关联 ID、操作者 ID 等不可变值。异步任务确实需要使用提交任务的调用者安全上下文时，Spring Security 提供 `DelegatingSecurityContextAsyncTaskExecutor` 及相关包装器；只在用例确有需要时传播，并确保执行后清除上下文。不要让任务持有超出预期生命周期的请求对象或可变安全状态。
+
+直接提交到 JDK 执行器或通过 `StructuredTaskScope` fork 的任务不受 Spring `TaskDecorator` 管理。将所需不可变值作为参数传入；结构化子任务也可以使用 Java `ScopedValue` 等受支持的作用域上下文。不要依赖池化线程中的 `InheritableThreadLocal`：工作线程可能保留某个请求的值，并将其暴露给后续任务。事务始终绑定线程；确有需要时，应在工作线程中开启独立事务，并按独立提交 / 回滚设计操作。定时任务没有提交它的 Web 请求，因此应显式建立系统 / 服务身份和关联 ID，而不是尝试继承请求上下文。
+
 ### 执行器
 
 Spring Boot 自动配置一个 `applicationTaskExecutor`。启用虚拟线程后使用虚拟线程，池大小不再重要。未启用时，默认执行器是 `ThreadPoolTaskExecutor`，其队列**无界**：持续负载下任务会不断占用内存，最终耗尽堆，而不是施加背压。
@@ -150,7 +165,7 @@ Executor reportExecutor() {
     var executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(4);
     executor.setMaxPoolSize(8);
-    executor.setQueueCapacity(100);                 // 有界；拒绝任务，避免耗尽堆
+    executor.setQueueCapacity(100);                 // 有界；CallerRunsPolicy 会施加背压
     executor.setThreadNamePrefix("report-");
     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
     executor.setWaitForTasksToCompleteOnShutdown(true);
@@ -166,6 +181,19 @@ public CompletableFuture<Report> generate(ReportRequest request) { … }
 ```
 
 为线程设置可读名称。堆栈中的 `pool-2-thread-7` 无法提供有用信息。
+
+### 生产环境中的 `@Async` 实践
+
+将 `@Async` 用于有界且允许进程故障丢失的工作，例如主要用例提交后发送通知。如果工作必须在重启后保留或在崩溃后重试，应在同一事务中持久化 outbox 记录，再通过持久化消息代理发布；由于持久化投递仍可能导致重复处理，消费者必须幂等。执行器队列位于内存中，不能充当任务存储。
+
+- 为延迟、流量或下游限制不同的工作负载配置不同的具名执行器。限制工作线程数和队列长度，并同时依据下游容量和 CPU 进行配置。应有意识地选择拒绝策略。`CallerRunsPolicy` 通过让提交任务的线程执行工作来施加背压，但可能占用 Web 请求线程并增加请求延迟；若不能接受这种影响，应显式返回拒绝响应或使用持久化队列。
+- 保持请求路径简短。工作确实被延后时返回 accepted 响应；不要立即调用 `Future.get()` 或 `join()`，让请求继续等待任务。明确执行器饱和时调用方能观察到的行为。
+- 为所有下游网络或数据库操作设置超时。`CompletableFuture` 超时或取消并不保证阻塞工作已经停止；应使用可中断的操作，并在支持的情况下传播取消信号。
+- 显式处理失败。通过完成回调观察返回的 Future，记录并监控失败，或将其交给重试 / 死信处理。`AsyncUncaughtExceptionHandler` 只适用于 `void` 方法；它无法重试任务，也无法向原调用方返回结果。
+- 当调用方、调度器或重试流程可能重复提交同一工作时，应确保副作用幂等。超时后，调用方可能无法判断任务是否已经完成。
+- 将执行器停机视为有时限的排空过程，而不是持久化投递。配置符合部署终止窗口的停机等待时间，并监控活动工作线程、队列深度、拒绝数、任务耗时和失败数。在队列达到容量前触发告警。
+
+若异步工作负责数据库操作，应在异步工作线程自己的 Service 边界内管理事务。调用方事务不会跨越线程边界，因此应先提交主要状态和任何 outbox 记录，再派发允许丢失的工作。
 
 ## `@Scheduled`
 
@@ -297,5 +325,5 @@ void sendsConfirmationAsynchronously() {
 
 ## 相关文档
 
-- [代理与依赖注入](spring-proxies-and-di.zh-CN.md) · [事务](transactions.zh-CN.md) · [错误处理](error-handling.zh-CN.md) · [弹性模式](resilience.zh-CN.md) · [可观测性](observability.zh-CN.md) · [Spring Batch](spring-batch.zh-CN.md) · [配置](configuration.zh-CN.md)
+- [代理与依赖注入](spring-proxies-and-di.zh-CN.md) · [事务](transactions.zh-CN.md) · [错误处理](error-handling.zh-CN.md) · [弹性模式](resilience.zh-CN.md) · [消息](messaging.zh-CN.md) · [API 幂等性](api-idempotency.zh-CN.md) · [可观测性](observability.zh-CN.md) · [Spring Batch](spring-batch.zh-CN.md) · [配置](configuration.zh-CN.md)
 - java-developer 的 `structured-concurrency.md` 介绍语言层面的 API：`StructuredTaskScope`、`Joiner`、`ScopedValue` 及载体线程固定的测量数据。

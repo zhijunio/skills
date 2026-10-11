@@ -117,7 +117,6 @@ class OrderApiTest extends BaseIntegrationTest {
 
 在此处断言拒绝场景：未认证为 401，角色错误为 403。`securityMatcher` 变更时，这些路径很容易静默损坏。
 
-Service 上的 `@PreAuthorize` 也可在切片 `@SpringBootTest` 中通过 `@WithMockUser` 测试。参见[安全基础](security-fundamentals.zh-CN.md)。
 
 ## 使用 Spring Boot 3.5.x 时
 

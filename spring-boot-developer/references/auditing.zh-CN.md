@@ -1,6 +1,6 @@
 # 审计字段
 
-审计元数据记录当前行由谁创建/最后修改以及发生时间，适合运维追踪，但不是不可变审计轨迹：`lastModified*` 会被覆盖。受监管或安全敏感的历史记录需要根据要求设计只追加事件、保留周期、访问控制和防篡改机制。
+审计元数据记录当前行由谁创建/最后修改以及发生时间，适合运维追踪，但不是不可变审计轨迹：当前的 `updated*` 值会被覆盖。受监管或安全敏感的历史记录需要根据要求设计只追加事件、保留周期、访问控制和防篡改机制。
 
 ## Spring Data 审计
 
@@ -35,7 +35,7 @@ abstract class AuditedEntity {
 
     @LastModifiedDate
     @Column(nullable = false)
-    private Instant lastModifiedAt;
+    private Instant updatedAt;
 
     @CreatedBy
     @Column(updatable = false)
@@ -47,6 +47,12 @@ abstract class AuditedEntity {
 ```
 
 只需要时间戳时，无需实现 `AuditorAware`。持久化时间使用 `Instant`；`@Version` 应单独保留：审计记录人员/时间，版本字段用于检测并发写入。参见[Spring Data JPA](spring-data-jpa.zh-CN.md)。
+
+## MyBatis-Plus 审计
+
+对于 MyBatis-Plus 实体，应使用其 `MetaObjectHandler` 自动填充生命周期，而不是使用 Spring Data JPA 的审计监听器。在可行时，让不同持久化模型使用相同属性名：`createdAt`、`updatedAt`、`createdBy` 和 `updatedBy`。仅插入时填充的字段标记为 `@TableField(fill = FieldFill.INSERT)`；插入和更新时都刷新的字段标记为 `FieldFill.INSERT_UPDATE`；填充逻辑由 Spring 管理的 Handler 实现。Handler 示例及需要显式处理的 SQL 路径参见 [MyBatis-Plus](mybatis-plus.zh-CN.md)。
+
+操作者 ID 应从可信的服务端身份中解析。为没有请求主体的定时任务和消息消费者定义显式系统主体；若需要保留发起用户，则将操作者作为明确的命令值传入。不要假定 JPA 的 `@CreatedBy` / `@LastModifiedBy` 注解会为 MyBatis-Plus 写入填充值。不会触发自动填充的自定义 Mapper SQL、直接 JDBC 和更新形式必须显式设置这些值，并纳入测试。
 
 ## 主体与后台任务
 
@@ -64,7 +70,7 @@ abstract class AuditedEntity {
 
 ## 测试
 
-尽可能使用固定时钟或可控持久化时间测试创建和更新元数据。测试已认证主体和系统主体，并确认客户端不能提供审计字段。定时任务或消息消费者还要测试无请求上下文路径。持久化行为应在连接真实数据库引擎的 JPA 切片测试中验证。
+尽可能使用固定时钟或可控持久化时间测试创建和更新元数据。测试已认证主体和系统主体，并确认客户端不能提供审计字段。定时任务或消息消费者还要测试无请求上下文路径。JPA 回调应在 JPA 切片中验证；MyBatis-Plus 填充和自定义 SQL 应在持久化切片中验证；两者都应连接真实数据库引擎（参见[持久化切片测试](testing-slices-persistence.zh-CN.md)和[Testcontainers](testcontainers.zh-CN.md)）。
 
 ## 常见问题
 
@@ -74,6 +80,8 @@ abstract class AuditedEntity {
 - 用固定用户名字符串判断匿名认证——使用 `AuthenticationTrustResolver`，并将已认证主体映射为稳定 ID。
 - 允许请求 DTO 提供 `createdBy` 或时间戳——审计字段由服务端管理。
 - 将可变用户名/邮箱用作审计主体，之后又允许重命名或删除——存储稳定主体 ID，并定义保留/去标识策略。
+- 期望 JPA 审计注解为 MyBatis-Plus 实体自动填充——MyBatis-Plus 写入应使用 `MetaObjectHandler`。
+- 假定 MyBatis-Plus Handler 会覆盖自定义 SQL 或直接 JDBC——这些路径应显式设置审计字段并进行测试。
 - 将 `@LastModifiedDate` 当作审计历史——它会被覆盖；持久历史应使用只追加记录。
 - 将完整载荷或凭据存入审计列——只保留必要且安全的元数据。
 - 将审计字段与乐观锁混为一谈——并发检测仍使用 `@Version`。
@@ -85,5 +93,3 @@ Spring Data 审计注解和 `AuditorAware` 契约相同。在一处配置中启�
 ## 相关文档
 
 - [Spring Data JPA](spring-data-jpa.zh-CN.md) · [安全基础](security-fundamentals.zh-CN.md) · [异步与定时任务](async-and-scheduling.zh-CN.md) · [事务](transactions.zh-CN.md)
-
-> 中文要点版。更多实现细节请参阅[英文原文](auditing.md)。

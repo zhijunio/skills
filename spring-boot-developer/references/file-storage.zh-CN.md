@@ -57,5 +57,3 @@ spring:
 ## 相关文档
 
 - [REST Controller](rest-controllers.zh-CN.md) · [安全基础](security-fundamentals.zh-CN.md) · [事务](transactions.zh-CN.md) · [集成测试](testing-integration.zh-CN.md)
-
-> 中文要点版。更多实现细节请参阅[英文原文](file-storage.md)。

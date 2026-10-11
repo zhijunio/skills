@@ -149,4 +149,4 @@ ArchUnit 与 Boot 版本无关，上述规则都可以照用。唯一相关差�
 
 ## 相关文档
 
-[code-organization.zh-CN.md](code-organization.zh-CN.md) · [spring-modulith.zh-CN.md](spring-modulith.zh-CN.md) · [hexagonal-architecture.zh-CN.md](hexagonal-architecture.zh-CN.md) · [testing-strategy.zh-CN.md](testing-strategy.zh-CN.md)
+- [code-organization.zh-CN.md](code-organization.zh-CN.md) · [spring-modulith.zh-CN.md](spring-modulith.zh-CN.md) · [hexagonal-architecture.zh-CN.md](hexagonal-architecture.zh-CN.md) · [testing-strategy.zh-CN.md](testing-strategy.zh-CN.md)

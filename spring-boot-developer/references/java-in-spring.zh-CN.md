@@ -18,7 +18,9 @@ java-developer 的 `beans-vs-records.md` 建议明确选择 record 或 Bean，�
 | **`@Entity`** | **class** | 可变、基于身份，需要无参构造器和非 final 字段以支持代理；record 不能用作实体 |
 | **Spring Bean**（`@Service`、`@Component`、`@Configuration`） | **class** | 持有协作者，并且必须可代理 |
 
-这是 java-developer 所说的明确划分：边界数据使用 record，框架负责的两类对象使用 class。实体规则也与“record 组件应为简单值类型、不能持有协作者”的数据导向建议一致；Spring Bean 只持有协作者，正是应使用 class 的原因。
+这是 java-developer 所说的“明确划分”方案，不是半套采用：凡是跨越边界的数据都使用 record，框架负责的两类对象则使用 class。
+
+实体的规则还要与 java-developer 的数据导向建议一并理解：record 组件应是简单类型，不能持有协作者；Spring Bean 只持有协作者，这正是它应使用 class 的原因。
 
 ## 不使用 Lombok
 

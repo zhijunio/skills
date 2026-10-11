@@ -141,6 +141,20 @@ The security context, the request scope and MDC logging context are all thread-b
 - `@RequestScope` beans and `RequestContextHolder` throw or return nothing.
 - MDC values - a correlation id - are lost, so async log lines are unattributable. Micrometer's context propagation handles the tracing context; MDC needs a task decorator.
 
+### Propagate only the context a child task needs
+
+For Spring-managed executor tasks, attach a `TaskDecorator` to the specific executor. Spring Framework's `ContextPropagatingTaskDecorator` uses Micrometer Context Propagation to capture and restore registered context such as observations and logging context:
+
+Add this line to the `reportExecutor` bean shown below:
+
+```java
+executor.setTaskDecorator(new ContextPropagatingTaskDecorator());
+```
+
+This decorator only propagates context supported by registered `ThreadLocalAccessor`s; it does not make arbitrary application `ThreadLocal`s, request-scoped beans, or transactions transferable. Add and test an accessor for custom context, or pass immutable values such as a correlation ID and actor ID explicitly. Spring Security provides `DelegatingSecurityContextAsyncTaskExecutor` and related wrappers when an async task must run with the submitting caller's security context; propagate only when the use case requires it, and ensure the context is cleared after execution. Never retain a request object or mutable security state in a task beyond its intended lifetime.
+
+For tasks submitted directly to a JDK executor or forked with `StructuredTaskScope`, a Spring `TaskDecorator` does not apply. Pass required immutable values to the task, or use a supported scoped context such as Java `ScopedValue` for structured child tasks. Do not rely on `InheritableThreadLocal` with pooled threads: a worker can retain one request's value and expose it to a later task. Transactions are always thread-bound; start a separate transaction inside the worker if needed, and design the operation for independent commit/rollback. Scheduled jobs have no submitting web request, so establish an explicit system/service identity and correlation ID rather than trying to inherit request context.
+
 ### The executor
 
 Boot auto-configures one `applicationTaskExecutor`. With virtual threads enabled it uses them, and sizing stops mattering. Without them, the default is a `ThreadPoolTaskExecutor` with an **unbounded queue** - under sustained load, work accumulates in memory until the heap gives out rather than applying backpressure.
@@ -151,7 +165,7 @@ Executor reportExecutor() {
     var executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(4);
     executor.setMaxPoolSize(8);
-    executor.setQueueCapacity(100);                 // bounded - reject rather than exhaust the heap
+    executor.setQueueCapacity(100);                 // bounded; CallerRunsPolicy applies backpressure
     executor.setThreadNamePrefix("report-");
     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
     executor.setWaitForTasksToCompleteOnShutdown(true);
@@ -167,6 +181,19 @@ public CompletableFuture<Report> generate(ReportRequest request) { … }
 ```
 
 Name the threads. `pool-2-thread-7` in a stack trace tells you nothing.
+
+### Production `@Async` practices
+
+Use `@Async` for bounded, best-effort work that can tolerate process failure, such as sending a notification after the primary use case has committed. If work must survive a restart or be retried after a crash, persist an outbox record in the same transaction and publish it through a durable broker; make the consumer idempotent because durable delivery can still result in duplicate processing. An executor queue is in-memory and is not a job store.
+
+- Give workloads with different latency, volume, or downstream limits separate named executors. Bound both the worker count and queue; size them against downstream capacity as well as CPU. Choose a rejection policy deliberately. `CallerRunsPolicy` applies backpressure by making the submitting thread do the work, but can turn a web request thread into a worker and increase request latency; use an explicit rejection response or durable queue when that is unacceptable.
+- Keep the request path short. Return an accepted response when work is genuinely deferred; do not immediately call `Future.get()` or `join()` and make the request wait for the task. Define caller-visible behavior for executor saturation.
+- Set timeouts on every downstream network or database operation. A `CompletableFuture` timeout or cancellation does not guarantee that blocking work has stopped; use interruptible operations and propagate cancellation where supported.
+- Handle failures explicitly. Observe returned futures with a completion path that logs and records the failure or routes it to retry/dead-letter handling. Use `AsyncUncaughtExceptionHandler` only for `void` methods; it cannot retry work or report a result to the original caller.
+- Make side effects idempotent when a caller, scheduler, or retry path can submit the same work more than once. A timeout can leave the caller unsure whether the task completed.
+- Treat executor shutdown as a bounded drain, not durable delivery. Set a shutdown wait that fits the deployment termination window and monitor active workers, queue depth, rejections, task duration, and failures. Alert before the queue reaches capacity.
+
+Keep transactions inside the async worker's service boundary when it owns database work. The caller's transaction does not cross the thread boundary, so commit the primary state and any outbox record before dispatching best-effort work.
 
 ## `@Scheduled`
 
@@ -298,5 +325,5 @@ Disable scheduling in tests so jobs do not fire unpredictably - `spring.task.sch
 
 ## Related
 
-- [spring-proxies-and-di.md](spring-proxies-and-di.md) · [transactions.md](transactions.md) · [error-handling.md](error-handling.md) · [resilience.md](resilience.md) · [observability.md](observability.md) · [spring-batch.md](spring-batch.md) · [configuration.md](configuration.md)
+- [spring-proxies-and-di.md](spring-proxies-and-di.md) · [transactions.md](transactions.md) · [error-handling.md](error-handling.md) · [resilience.md](resilience.md) · [messaging.md](messaging.md) · [api-idempotency.md](api-idempotency.md) · [observability.md](observability.md) · [spring-batch.md](spring-batch.md) · [configuration.md](configuration.md)
 - java-developer's `structured-concurrency.md` owns the language-level API - `StructuredTaskScope`, `Joiner`, `ScopedValue`, and the measured pinning numbers.

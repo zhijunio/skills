@@ -35,4 +35,4 @@ Schema 迁移不等于备份。删除或重写数据的迁移可能无法逆转�
 
 ## 相关文档
 
-[flyway.zh-CN.md](flyway.zh-CN.md) · [ci-cd-release.zh-CN.md](ci-cd-release.zh-CN.md) · [observability.zh-CN.md](observability.zh-CN.md) · [file-storage.zh-CN.md](file-storage.zh-CN.md) · [configuration.zh-CN.md](configuration.zh-CN.md)
+- [flyway.zh-CN.md](flyway.zh-CN.md) · [ci-cd-release.zh-CN.md](ci-cd-release.zh-CN.md) · [observability.zh-CN.md](observability.zh-CN.md) · [file-storage.zh-CN.md](file-storage.zh-CN.md) · [configuration.zh-CN.md](configuration.zh-CN.md)

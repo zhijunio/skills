@@ -183,7 +183,6 @@ class InventoryClientTest {
 - 忘记导入 Converter——路径参数绑定会失效。
 - Boot 4 同时添加 `spring-boot-starter-test` 和 `spring-boot-starter-webmvc-test`——`-test` Starter 已自成一体。
 - 使用 `@MockBean`——Boot 4 已移除，应使用 `@MockitoBean`。
-- Boot 4 的 `@WebMvcTest` 仍从 Boot 3 包导入——使用 `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest`。
 - 用原始 `MockMvc` 和 `andExpect(jsonPath(...))`——`MockMvcTester` 会提供更清晰的 AssertJ 失败信息。
 - 忘记 `@WithMockUser`，然后遇到不明原因的 401。
 - 只测试已授权请求——还应断言 401 和 403。

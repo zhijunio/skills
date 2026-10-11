@@ -20,6 +20,16 @@
 - 批量更新、删除、导出和原生 SQL 都要显式限定租户。
 - 可以用数据库行级安全作为纵深防御，但必须在事务内设置和清理数据库租户上下文，并测试连接池复用。
 
+### MyBatis-Plus 租户行插件
+
+对于共享表的 MyBatis-Plus 应用，`TenantLineInnerInterceptor` 可以为其支持的 SQL 语句追加租户条件。应将它视为持久化层的安全网，而不是租户身份来源，也不能替代显式的租户范围 Service 和 Mapper 契约。在应用的 `MybatisPlusInterceptor` 中只注册一次租户拦截器，并验证它与分页及其他 SQL 改写插件的顺序。
+
+从已认证的 Principal 或服务端校验过的成员关系中解析租户。如果租户行处理器从 Spring Security `SecurityContext` 读取租户，确保 Mapper 调用只会在认证建立后执行。只有当应用需要为持久化代码绑定租户上下文载体时才使用请求过滤器；过滤器应位于认证之后，并在 `finally` 中清理上下文载体。不要直接从不可信的 Header、路径或请求体字段中取得租户。若处理器可以安全地直接从已认证 Principal 解析租户，则不需要额外过滤器。
+
+对于同步 Mapper 调用或显式维护操作，使用基于 `ThreadLocal` 的小型 `TenantContext` 是合理的。为其提供作用域 API，在 `finally` 中恢复之前的值或移除当前值；缺少租户时必须拒绝执行。上下文本身不能充当认证或授权。不要依赖它跨越异步、定时、响应式或执行器边界：显式传递不可变租户 ID，在工作线程中重新建立经过校验的作用域，并在所有完成路径清理。避免使用可继承 ThreadLocal，以免线程池工作线程泄漏租户状态。
+
+显式维护全局表白名单，并逐一测试排除表。审查 join、自定义 XML / 注解 SQL、子查询、批处理、动态表名和所有 `@InterceptorIgnore` 用法：插件覆盖范围和 SQL 解析并非没有边界，因此自定义 SQL 仍须明确租户归属。插入操作也必须设置可信租户 ID；不能认为查询条件会自动保护写入。应针对生产同类数据库进行集成测试，验证生成 SQL、跨租户读取 / 更新 / 删除 / 插入、缺失上下文、全局表以及连接和线程复用。详见 [MyBatis-Plus](mybatis-plus.zh-CN.md)。
+
 跨租户对象 ID 应采用一致的 Not Found 或 Forbidden 策略，避免泄露其他租户是否拥有该记录。租户过滤不能替代对操作者动作权限的检查。参见[安全基础](security-fundamentals.zh-CN.md)和[OAuth2 资源服务器](oauth2-resource-server.zh-CN.md)。
 
 ## 在系统边界间保持隔离
@@ -47,4 +57,4 @@
 
 ## 相关文档
 
-[security-fundamentals.zh-CN.md](security-fundamentals.zh-CN.md) · [oauth2-resource-server.zh-CN.md](oauth2-resource-server.zh-CN.md) · [spring-data-jpa.zh-CN.md](spring-data-jpa.zh-CN.md) · [caching.zh-CN.md](caching.zh-CN.md) · [auditing.zh-CN.md](auditing.zh-CN.md) · [api-idempotency.zh-CN.md](api-idempotency.zh-CN.md)
+- [security-fundamentals.zh-CN.md](security-fundamentals.zh-CN.md) · [oauth2-resource-server.zh-CN.md](oauth2-resource-server.zh-CN.md) · [spring-data-jpa.zh-CN.md](spring-data-jpa.zh-CN.md) · [caching.zh-CN.md](caching.zh-CN.md) · [auditing.zh-CN.md](auditing.zh-CN.md) · [api-idempotency.zh-CN.md](api-idempotency.zh-CN.md)
