@@ -4,7 +4,9 @@
 | --- | ------- | -------------- |
 | Stream gatherers | 24 | When a stream needs an intermediate operation the JDK does not have |
 | Virtual threads | 21 | I/O-bound concurrency - usually a framework config change, not new code |
-| Structured concurrency, `ScopedValue` | 25 | Fanning out I/O *inside* one task, and the context that has to survive it. See [structured-concurrency.md](structured-concurrency.md) |
+| `ScopedValue` | 25 (final) | Context that must survive structured task forks |
+| `StructuredTaskScope` | 21–27 (preview; API changes by release) | Fanning out I/O *inside* one task; use only when the exact JDK preview is acceptable. See [structured-concurrency.md](structured-concurrency.md) |
+| `HttpClient` HTTP/3 support | 26 | Enable HTTP/3 where the server/network and client requirements support it; this adds protocol support to the standard client |
 | Foreign Function & Memory | 22 | Replacing existing JNI or `sun.misc.Unsafe` code |
 
 ---
@@ -118,13 +120,14 @@ The table at the top of this page carries each API's release. Verified floors fo
 | `Stream.gather` with `Gatherers.windowFixed` / `scan` / `mapConcurrent` | 24 |
 | `synchronized` no longer pinning a blocked virtual thread | **24** |
 | `ScopedValue` | **25** as a final API |
-| `StructuredTaskScope` in its current shape | **25**, and still preview |
+| `StructuredTaskScope` shape shown in [structured-concurrency.md](structured-concurrency.md) | **25**, fifth preview; Java 26 is sixth preview and Java 27 seventh preview with a changed API shape |
 
-`ScopedValue` is the trap: the virtual threads advice above recommends it over `ThreadLocal`, and it is a Java 25 API. It does compile on 21 with `--enable-preview`, but with a **different API shape** (`ScopedValue.runWhere(...)` rather than `where(...).run(...)`), so code written against one does not compile on the other. On 21 to 24, keep `ThreadLocal` and revisit on 25. Gatherers are 24, so on a Java 21 LTS project the whole of that section is unavailable and a loop is the correct answer.
+`ScopedValue` is the trap: the virtual threads advice above recommends it over `ThreadLocal`, and it is a Java 25 API. It does compile on 21 with `--enable-preview`, but with a **different API shape** (`ScopedValue.runWhere(...)` rather than `where(...).run(...)`), so code written against one does not compile on the other. On 21 to 24, keep `ThreadLocal` and revisit on 25+. Gatherers are 24, so on a Java 21 LTS project the whole of that section is unavailable and a loop is the correct answer. Structured concurrency remains preview through 27; the Java 25 examples are not source-compatible with the later preview APIs.
 
 ## Gotchas
 
 - Agent recommends `ScopedValue` on a Java 21 project - it is 25. `ThreadLocal` is the only option on 21 to 24
+- Agent recommends Java 26/27 preview APIs as stable library dependencies - preview APIs are release-specific and may change incompatibly
 - Agent generates gatherer code on Java 21 - `Stream.gather` is 24
 - Agent pools virtual threads, or sizes a virtual thread executor - one per task, then let it die. Pooling defeats the design
 - Agent moves CPU-bound work onto virtual threads for throughput - they give nothing there; use the common `ForkJoinPool`

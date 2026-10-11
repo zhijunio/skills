@@ -101,6 +101,8 @@ static int firstByte(Reader reader) throws IOException {
 
 `Object.finalize()` is deprecated for removal. Overriding it is a build warning today and a compile error eventually, and it never worked well: there is no guarantee it runs, no guarantee of when, and an exception thrown inside it is discarded.
 
+On Java 27, `ThreadPoolExecutor.finalize()` has been removed. Code that overrides it and calls `super.finalize()` may stop compiling or resolve to `Object.finalize()` with its checked `Throwable`; remove the finalizer rather than adding a compatibility workaround. See the [JDK 27 release notes](https://www.oracle.com/java/technologies/javase/27-relnote-issues.html).
+
 Two replacements, in order of preference:
 
 1. **`AutoCloseable` plus try-with-resources.** Deterministic, visible in the code, and the caller controls it.

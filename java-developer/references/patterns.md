@@ -26,7 +26,7 @@ obj instanceof Person p                    // `Person p` is a pattern
 switch (obj) { case Person p -> ... }      // `Person p` is a pattern
 ```
 
-Three pattern kinds exist in Java 25: **type**, **record** ([record-patterns.md](record-patterns.md)), and **match-all**.
+The stable pattern kinds are **type**, **record** ([record-patterns.md](record-patterns.md)), and **match-all**. Java 26 and 27 preview primitive patterns, which extend pattern contexts and `instanceof`/`switch` to primitive types; they are not stable syntax and require the matching JDK's preview mode.
 
 ## Type patterns
 
@@ -119,6 +119,7 @@ The three pattern kinds arrived across three releases, so "use patterns" means d
 | Type pattern in a `switch` case, and `when` guards | 21 |
 | Record pattern, at any nesting depth | 21 |
 | Match-all `_` | 22 |
+| Primitive patterns, primitive `instanceof`, and primitive `switch` | Preview in 26 (fourth preview), preview in 27 (fifth preview) |
 
 The `instanceof` pass this page recommends is therefore available from **16**, which makes it the cheapest modernisation on a 17 project. The switch rewrite is not: it needs 21. On Java 8 to 15 neither exists and `instanceof` + cast is the only option.
 
@@ -131,7 +132,8 @@ The `instanceof` pass this page recommends is therefore available from **16**, w
 - Agent generates a pattern for a generic type, as in `o instanceof List<String> l` - rejected unless the cast is provably safe; use `List<?>`
 - Agent keeps a redundant cast inside the pattern branch after binding
 - Agent uses `case _ ->` as a catch-all over a sealed type - that silently swallows future alternatives. Omit it instead
-- Agent generates array patterns, deconstruction patterns for ordinary classes, or patterns in `catch` - none of these exist in Java 25
+- Agent generates array patterns, deconstruction patterns for ordinary classes, or patterns in `catch` - these are not part of Java 27 either
+- Agent uses primitive patterns as stable Java 26/27 syntax - the feature remains preview and is release-specific
 - Agent hand-writes `equals` at all - prefer a record or a generated bean, per [beans-vs-records.md](beans-vs-records.md)
 
 ## Related

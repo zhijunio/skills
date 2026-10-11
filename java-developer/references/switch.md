@@ -114,12 +114,14 @@ The six kinds of `switch` did not arrive together. **The form this page tells yo
 | `case null`, and `case null, default` | 21 |
 | Record patterns in a `case` | 21 |
 | `MatchException` when a recompiled sealed hierarchy gains a subtype | 21 |
+| Primitive selectors and primitive patterns in `switch` | Preview in 26 and 27; compile and run with the matching JDK and `--enable-preview` |
 
 On Java 14 to 20, `switch (payment) { case CardPayment c -> ... }` does not compile: switch over types needs 21. Use an `instanceof` chain there, or a `switch` over an enum discriminator. On Java 8 to 13 there is no arrow form at all, so the label statement form this page tells you to ignore is the only one available, and `break` discipline matters again.
 
 ## Gotchas
 
 - Agent generates a pattern switch on a Java 17 project - `case Type t ->` is 21. Arrow form alone is 14
+- Agent writes a primitive pattern switch as a stable feature - it is still preview in 26/27 and its syntax may change
 - Agent writes a statement switch missing enum constants and assumes the compiler will object - **it compiles silently** and the unmatched values do nothing. Only the expression form is checked
 - Agent maintains a legacy label switch without `-Xlint:fallthrough` on - the one hazard of that form is the one javac will warn about if asked
 - Agent cites Google Java Style 4.8.4.3 to justify adding an empty `default` to a sealed switch - read its definition of exhaustive; a complete sealed switch already qualifies

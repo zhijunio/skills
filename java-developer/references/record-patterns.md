@@ -95,7 +95,7 @@ Record patterns are **Java 21**, at any nesting depth. The match-all `_` used to
 | `_` in place of a component pattern | 22 |
 | `Objects.requireNonNullElse`, used in the guard example above | 9 |
 
-On Java 21 exactly, every component must be named, so write `var ignoredCity` where this page writes `_`. Below 21 there are no record patterns: call the accessors. The `null` rule described below is unchanged across 21 to 25.
+On Java 21 exactly, every component must be named, so write `var ignoredCity` where this page writes `_`. Below 21 there are no record patterns: call the accessors. The `null` rule described below is unchanged through Java 27.
 
 ## Gotchas
 
@@ -107,7 +107,7 @@ On Java 21 exactly, every component must be named, so write `var ignoredCity` wh
 - Agent destructures a record whose accessor is overridden to compute something - the pattern reports whatever the accessor returns, so a lying accessor makes the pattern lie
 - Agent mixes `var` and redundant explicit types in one pattern - pick the codebase's convention and hold it
 - Agent uses an explicit type intending only documentation - it is not documentation, it is a runtime test that changes null behaviour
-- Agent nests a pattern for a non-record type - deconstruction patterns exist only for records in Java 25
+- Agent nests a pattern for a non-record type - deconstruction patterns exist only for records through Java 27
 
 ## Related
 

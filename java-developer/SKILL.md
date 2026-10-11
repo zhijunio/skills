@@ -1,6 +1,6 @@
 ---
 name: java-developer
-description: Generates modern Java code and provides architectural guidance for Java 8 through 25. Trigger when writing or modernising Java, or for best practices on immutability, records, sealed types, pattern matching, switch expressions, Optional vs null, JSpecify nullness annotations, var, text blocks, instance main methods, unnamed variables, module imports, Javadoc and Markdown doc comments, exceptions and resource management, JPMS modules, bean generation, data-oriented programming, virtual threads and carrier pinning, structured concurrency with StructuredTaskScope and Joiner, ScopedValue versus ThreadLocal, static analysis and formatting with javac lint, Error Prone, NullAway and google-java-format, Google Java Style, or version migration.
+description: Generates modern Java code and provides architectural guidance for Java 8 through 27. Trigger when writing or modernising Java, or for best practices on immutability, records, sealed types, pattern matching, switch expressions, Optional vs null, JSpecify nullness annotations, var, text blocks, instance main methods, unnamed variables, module imports, Javadoc and Markdown doc comments, exceptions and resource management, JPMS modules, bean generation, data-oriented programming, virtual threads and carrier pinning, structured concurrency with StructuredTaskScope and Joiner, ScopedValue versus ThreadLocal, static analysis and formatting with javac lint, Error Prone, NullAway and google-java-format, Google Java Style, or version migration.
 license: MIT
 metadata:
   author: Avinay Basnet
@@ -9,7 +9,7 @@ metadata:
 
 # Java Developer Guidelines
 
-Covers Java 8 through 25. Use this skill for language and standard-library guidance; route JVM performance diagnosis and tuning to [java-performance-developer](../java-performance-developer/SKILL.md).
+Covers Java 8 through 27. Treat preview and incubator features as release-specific experiments, not stable APIs; see [java-versions.md](references/java-versions.md) and the relevant reference before using them. Use this skill for language and standard-library guidance; route JVM performance diagnosis and tuning to [java-performance-developer](../java-performance-developer/SKILL.md).
 
 ## Workflow
 
@@ -19,7 +19,7 @@ Covers Java 8 through 25. Use this skill for language and standard-library guida
 4. **Use tools to enforce rules where possible.** Check [enforcement.md](references/enforcement.md) before recommending build or static-analysis changes.
 5. **Compile the changes and run the project's tests** with its build tool. Use the repository's documented commands.
 
-The version floors in the references were checked by compiling the idioms with `javac --release`; see [java-versions.md](references/java-versions.md). For new projects, target Java 25 and use `release` or a Gradle toolchain. For migration, use OpenRewrite recipes as a starting point and review the resulting diff.
+The established feature floors are in [java-versions.md](references/java-versions.md); consult its verification notes because coverage depth differs by release. For new projects, target the newest suitable LTS release (Java 25 as of this guidance) and use `release` or a Gradle toolchain. For migration, use OpenRewrite recipes as a starting point and review the resulting diff.
 
 ## Choose a topic
 
@@ -40,7 +40,7 @@ The version floors in the references were checked by compiling the idioms with `
 
 - **Exceptions and resources**: preserve causes when wrapping, restore interrupt status, model expected absence as data, and use try-with-resources. Read [exceptions-and-resources.md](references/exceptions-and-resources.md).
 - **Modern APIs**: assess Stream Gatherers, virtual threads, and the Foreign Function & Memory API against the actual use case. Read [modern-apis.md](references/modern-apis.md).
-- **Structured concurrency**: use the Java 25 `StructuredTaskScope` shape and `ScopedValue` with their version and preview constraints in mind. Read [structured-concurrency.md](references/structured-concurrency.md).
+- **Structured concurrency**: choose the `StructuredTaskScope` API shape for the exact target release; its preview API changed after Java 25. Use `ScopedValue` with its version constraints in mind. Read [structured-concurrency.md](references/structured-concurrency.md).
 - **Smaller language features**: check each feature's verdict and release floor, including text blocks, unnamed variables, compact source files, and module import declarations. Read [smaller-features.md](references/smaller-features.md).
 - **Javadoc**: follow the summary, tag, snippet, and Markdown-comment rules; several features depend on the Javadoc tool version rather than `--release`. Read [javadoc.md](references/javadoc.md).
 - **JPMS**: understand module-path enforcement and publication costs before modularising an application. Read [modules.md](references/modules.md).

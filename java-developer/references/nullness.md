@@ -95,7 +95,7 @@ So the annotations reach back to Java 8 but **the enforcement does not**: a Java
 
 The two NullAway rows are that project's own documented requirements. **Every placement in the table above was compiled against the JSpecify 1.0.0 artefact**, including the module declaration, `Map.@Nullable Entry`, `Object @Nullable...` and `@Nullable` on a local, which is legal and simply carries no checked meaning.
 
-Null-restricted types (`String!` / `String?`) are a future language feature, in no release through 25. When they arrive they replace these annotations, not `Optional` - see [optional-and-null.md](optional-and-null.md).
+Null-restricted types (`String!` / `String?`) are a future language feature, in no release through Java 27. When they arrive they replace these annotations, not `Optional` - see [optional-and-null.md](optional-and-null.md).
 
 ## Gotchas
 

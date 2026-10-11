@@ -16,7 +16,7 @@ Then run `java -version`. Projects frequently build on a newer JDK than they tar
 
 ## Target the newest LTS
 
-Use Java 25 for new projects, and set `release` rather than `source`/`target` so the compiler validates against the correct API surface.
+Use the newest suitable LTS release for new projects (Java 25 as of this guidance), and set `release` rather than `source`/`target` so the compiler validates against the correct API surface. Java 26 and 27 are non-LTS feature releases; adopt them when their fixes or features justify the shorter upgrade cadence.
 
 ```xml
 <properties>
@@ -61,7 +61,7 @@ mvn -U org.openrewrite.maven:rewrite-maven-plugin:run \
 
 ## Version notes
 
-This page is the skill's version reference. Every floor below was established by compiling a minimal example of the exact idiom at each release from 8 to 25 with `javac --release`, and recording the lowest release that compiles. Use it to answer "can this project have that?" before generating anything.
+This page is the skill's version reference. The 8–25 floors below were established by compiling minimal examples of the exact idioms at each release with `javac --release`. Java 26/27 entries are based on the official release notes, with Java 27 APIs and preview syntax spot-checked using Temurin 27. Do not interpret that spot-check as exhaustive per-release compilation; preview APIs can change shape between releases. Use this page to answer "can this project have that?" before generating anything.
 
 | Release | What becomes available |
 | ------- | ---------------------- |
@@ -79,7 +79,15 @@ This page is the skill's version reference. Every floor below was established by
 | 22 | Unnamed variables and patterns (`_`), the Foreign Function & Memory API |
 | 23 | Markdown doc comments (`///`) - a javadoc tool change, so `///` compiles as an ordinary comment on any release and simply produces no documentation below 23 |
 | 24 | Stream gatherers (`Stream.gather`, `Gatherers`). **`synchronized` stops pinning a blocked virtual thread** (JEP 491) - a runtime change, not a language one |
-| 25 | `ScopedValue`, `java.lang.IO`, compact source files with instance `main`, module import declarations. `StructuredTaskScope` redesigned, still preview |
+| 25 | `ScopedValue`, `java.lang.IO`, compact source files with instance `main`, module import declarations. `StructuredTaskScope` redesigned (fifth preview), still preview |
+| 26 | `HttpClient` gains HTTP/3 support; `Process` implements `AutoCloseable`; `Comparator.min` / `max`; `UUID.ofEpochMillis`; `Instant.plusSaturating`; primitive patterns (fourth preview), Lazy Constants (second preview), Structured Concurrency (sixth preview), PEM API (second preview), and Vector API (eleventh incubator) |
+| 27 | Primitive patterns (fifth preview), Structured Concurrency (seventh preview), Lazy Constants (third preview), PEM API (third preview), and Vector API (twelfth incubator); TLS 1.3 post-quantum hybrid key exchange. G1 and compact object headers become HotSpot defaults; JFR adds in-process redaction |
+
+The JDK 26/27 items above have different stability levels. HTTP/3 support and the listed library additions are standard APIs in 26; Java 27's primitive patterns, Structured Concurrency, Lazy Constants, PEM API, and Vector API remain preview/incubator features. Preview language and API features require the matching JDK's `--enable-preview` at compile and run time and are not a cross-release compatibility promise. The Vector API additionally requires `--add-modules jdk.incubator.vector`.
+
+**Java 27 is not a drop-in continuation of the Java 25 `StructuredTaskScope` example.** Its seventh-preview API changes the scope and joiner type signatures again. Keep the examples in [structured-concurrency.md](structured-concurrency.md) tied to Java 25; do not copy them into a Java 26/27 target without consulting that release's API and compiling against it.
+
+For migration impact rather than feature floors, check the primary release notes: [JDK 26](https://www.oracle.com/java/technologies/javase/26-relnote-issues.html) and [JDK 27](https://www.oracle.com/java/technologies/javase/27-relnote-issues.html). Java 27 removes JVMCI/GraalJIT integration and several legacy launcher flags, and no longer honors `java.locale.useOldISOCodes`; inventory custom runtimes, launch scripts, and locale compatibility before upgrading. JDK 27 also changes JFR's default redaction behavior, which can affect consumers of recordings.
 
 Five results that surprise people, all measured rather than assumed:
 
@@ -96,6 +104,9 @@ Five results that surprise people, all measured rather than assumed:
 - Agent reads the installed JDK from `java -version` and treats that as the target - the build configuration is authoritative, and projects routinely build on a newer JDK than they target
 - Agent finds `maven.compiler.source` / `target` and leaves them - `release` is the one that validates against the correct API surface. Source and target can be set to 8 while a Java 11 method still compiles
 - Agent sees Java 25 installed and generates 25 features for a project whose `release` is 17
+- Agent sees Java 27 installed and assumes preview language/API features are stable or source-compatible with Java 25
+- Agent reuses the Java 25 `StructuredTaskScope` snippet on Java 26/27 without checking the changed preview API shape
+- Agent upgrades to JDK 27 without checking custom JVMCI/GraalJIT use, removed launcher flags, legacy locale-code properties, or JFR recording consumers
 - Agent checks the language version but not the API - most of what breaks is library surface, not syntax. `Optional.or` on Java 8 is the classic
 - Agent treats a migration past 18 as source-compatible and stops there - the default charset changes at runtime, so file and stream code that never named a charset changes behaviour
 - Agent assumes a doc-comment feature is gated by `release` - `///`, `{@return}` and `{@snippet}` track the javadoc tool version instead. See [javadoc.md](javadoc.md)

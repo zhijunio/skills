@@ -2,10 +2,12 @@
 
 Two APIs that only start to matter once virtual threads are in use. Virtual threads make **concurrent requests** cheap; they do nothing for a **serial fan-out inside one request**. `StructuredTaskScope` is what fixes that, and `ScopedValue` is what keeps context alive once you have fanned out.
 
-| API | Status on 25 | Verdict |
-| --- | ------------ | ------- |
-| `StructuredTaskScope` | **Preview** - needs `--enable-preview` | Use it in an application you control and can rebuild. **Never in a published library**, and never enable preview across a whole production build just to get it |
-| `ScopedValue` | **Final** | Adopt. It is the only correct answer once you fork |
+| API | Status on 25 | Status on 26/27 | Verdict |
+| --- | ------------ | --------------- | ------- |
+| `StructuredTaskScope` | **Preview** - needs `--enable-preview` | Still preview; its API shape changes again in 27 | Use only against the exact JDK preview you compile and run. **Never in a published library**, and never enable preview across a whole production build just to get it |
+| `ScopedValue` | **Final** | Final | Adopt when the target release supports it. It is the context API designed to work across structured subtasks |
+
+**The code examples on this page target Java 25's fifth-preview API.** Java 26 has the sixth preview revision, and Java 27's seventh preview changes `StructuredTaskScope` to three type parameters (`T, R, R_X`) and updates `Joiner` to include its exception type and timeout behavior. Some Java 25 built-in joiner names and result types also differ. Do not paste the examples into a 26/27 project; inspect the target JDK's JavaDoc and compile a small, isolated experiment with that JDK before using it. This churn is expected for preview APIs, not a compatibility guarantee. See [java-versions.md](java-versions.md).
 
 The two are a package deal: the moment you fork, every plain `ThreadLocal` in the call chain stops working. Do not adopt the first without the second.
 
@@ -66,7 +68,7 @@ try (var scope = open(Joiner.<Info>awaitAll())) {
 
 `fork` returns a `Subtask<T>` immediately - a handle, not a value. **Read nothing until `join()` has returned.** `Subtask.state()` is `UNAVAILABLE`, `SUCCESS` or `FAILED`; `get()` is valid only on the second, `exception()` only on the third.
 
-### `open()` is fail-fast, and that is the Java 25 behaviour change
+### `open()` is fail-fast in the Java 25 preview shape
 
 Bare `open()` is `open(Joiner.awaitAllSuccessfulOrThrow())`. One failed subtask and `join()` throws `StructuredTaskScope.FailedException` with the first failure as its cause - the filtering above is never reached. **`Joiner.awaitAll()` is what makes a failure survivable**, and it has to be asked for.
 
@@ -187,10 +189,12 @@ Every floor below was established by compiling and running the exact idiom on th
 | `Thread.ofVirtual()`, `Executors.newVirtualThreadPerTaskExecutor()` | 21 | Final |
 | `synchronized` no longer pins a blocking virtual thread | **24** | Measured on 21 and 25. JEP 491 |
 | `ScopedValue` | 25 final | **Present on 21 as a preview API with a different shape** - static `runWhere` / `callWhere` / `getWhere`. Java 21 source does not compile on 25 |
-| `StructuredTaskScope` as used here | 25, **preview** | `--enable-preview` at compile and at run |
-| `Joiner.allUntil(Predicate)` | 25 | The fifth built-in; easy to miss |
+| `StructuredTaskScope` examples on this page | 25, fifth preview | `--enable-preview` at compile and run; not the Java 26/27 API shape |
+| `StructuredTaskScope` in Java 26 | 26, sixth preview | Preview APIs require the matching JDK; consult that JDK's API docs |
+| `StructuredTaskScope` in Java 27 | 27, seventh preview | Three generic parameters; Joiner API and built-in result types changed again |
+| `Joiner.allUntil(Predicate)` | 25 preview shape | The fifth built-in in the Java 25 API shown above; do not assume the same inventory in later previews |
 
-**The Java 25 redesign is a source break, not an addition.** On 21 to 24 `StructuredTaskScope` was a class you instantiated; on 25 it is an interface you open:
+**The Java 25 redesign is a source break, not an addition.** On 21 to 24 `StructuredTaskScope` was a class you instantiated; on 25 it is an interface you open. This comparison documents only the Java 25 shape:
 
 | | 21 to 24 | 25 |
 | --- | -------- | -- |
@@ -205,7 +209,8 @@ None of the Java 21 names exist on 25. Any structured-concurrency snippet predat
 ## Gotchas
 
 - Agent writes `new StructuredTaskScope<>()` or `ShutdownOnFailure` on Java 25 - both were removed; the entry point is `open()`
-- Agent generates `StructuredTaskScope` code without `--enable-preview` on the compiler **and** the launcher - it is still preview on 25
+- Agent copies the Java 25 examples into a Java 26/27 project - later preview revisions can break source and API shape; compile against the exact target
+- Agent generates `StructuredTaskScope` code without `--enable-preview` on the compiler **and** the launcher - it remains preview through 27
 - Agent puts a preview API into a library, or turns on `--enable-preview` across a production build to get one - preview classes are not binary compatible between releases
 - Agent uses bare `open()` and then filters on `Subtask.State` - `open()` is fail-fast, so `join()` already threw. `Joiner.awaitAll()` is the one that tolerates failure
 - Agent reads `subtask.get()` before `join()` - the result is not available and it throws
