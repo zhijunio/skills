@@ -43,7 +43,7 @@ Prefer **systemic** Structure/smell hits (repeat across a module or boundary). D
 
 For Structure, search for hotspots where a simpler model could delete branches, flags, helper layers, or state; ad-hoc conditionals and feature leakage; thin or magical abstractions; unclear type boundaries; duplicate non-canonical helpers; avoidable serialized orchestration; partial-update shapes; and cohesive files/modules growing without a clear ownership boundary. Treat a 1,000-line boundary as a decomposition prompt, not an automatic finding. Prefer systemic evidence and report leverage rather than demanding an ideal refactor.
 
-When a Structure finding is an over-engineering **cut**, label it with a ponytail-style tag (same vocabulary as [`ponytail-audit`](../ponytail-audit/SKILL.md)):
+When a Structure finding is an over-engineering **cut**, label it with one of these tags:
 
 - `delete:` — dead / speculative; replacement nothing
 - `stdlib:` — hand-rolled; name the stdlib equivalent
@@ -118,7 +118,7 @@ Candidate card:
 | Request | Primary dimension |
 | --- | --- |
 | architecture / 架构 | Structure |
-| simplicity / 过度设计 / bloat | Structure — prefer cut-tagged candidates; for **cuts-only** one-shot lists suggest [`ponytail-audit`](../ponytail-audit/SKILL.md) |
+| simplicity / 过度设计 / bloat | Structure — prefer cut-tagged candidates; a cuts-only pass limits its scope to removal opportunities |
 | security / 安全 | Correctness (signaled) |
 | tests / 测试 | Verification |
 | deps / dx / docs | Traceability |
@@ -131,7 +131,7 @@ Candidate card:
 | --- | --- |
 | Branch / PR / since X / quality report | [`sdd-review`](../sdd-review/SKILL.md) |
 | Spec / AC compliance on a diff | [`sdd-review`](../sdd-review/SKILL.md) |
-| Over-engineering / bloat / what to delete only | [`ponytail-audit`](../ponytail-audit/SKILL.md) |
+| Over-engineering / bloat / what to delete only | This skill, with scope limited to removal opportunities |
 | Trade-offs / grill a design | Upstream design-interview skill |
 | Fix while scanning | Decline — finish the improve report first; Stop |
 

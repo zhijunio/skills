@@ -163,7 +163,7 @@ Smells default 🟢/🟡; 🔴 only with AC/spec gap or documented hard rule. No
 | --- | --- |
 | Branch / PR / since X / quality report | **This skill** (missing fixed point → default branch via `origin/HEAD`) |
 | Repo / module / area improve pass | [`sdd-improve`](../sdd-improve/SKILL.md) |
-| Over-engineering / bloat / what to delete only | [`ponytail-audit`](../ponytail-audit/SKILL.md) |
+| Over-engineering / bloat / what to delete only | [`sdd-improve`](../sdd-improve/SKILL.md), with scope limited to removal opportunities |
 | Push / PR / merge / tag | Out of pack |
 
 Do not: edit files; review WIP by default; treat pre-existing whole-repo debt as must-fix unless this diff worsened it; claim Spec pass without a spec; pick one winner across axes; auto-start follow-up work after the report.
