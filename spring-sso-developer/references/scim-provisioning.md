@@ -128,7 +128,7 @@ Both mean you cannot infer intent from the operation name alone; apply the seman
   `If-Match: W/"a330bc54f0671c9"`.
 
 **Implement it.** A directory sync that retries, or two administrators acting at once, is exactly the
-lost-update scenario `If-Match` exists to prevent. If you have `angular-spring-contract` installed, its
+lost-update scenario `If-Match` exists to prevent. If you have `frontend-spring-contract` installed, its
 optimistic concurrency material covers the same mechanism on the application's own API.
 
 ## Multi-tenant SCIM: the credential is the tenant

@@ -90,7 +90,7 @@ The environment-configuration rule still applies: a bundle with a baked-in API U
 
 ## Testing
 
-- **Karma is deprecated.** Current Angular projects use Vitest or Jest; a project still on Karma is on borrowed time, and the migration is covered by [`angular-webpack-esbuild-migration`](../../angular-webpack-esbuild-migration/SKILL.md).
+- **Karma is deprecated.** Current Angular projects use Vitest or Jest; a project still on Karma needs an explicit test-runner migration plan.
 - **Headless browser tests need the browser present.** Hosted Linux runners include Chrome; verify rather than assuming, and install Playwright browsers explicitly with `npx playwright install --with-deps`.
 - **Playwright browser downloads are large.** Cache them keyed on the Playwright version, or the install dominates the job.
 - **End-to-end tests belong after a deploy**, not against a dev server. See [testing-in-ci.md](testing-in-ci.md).
@@ -124,4 +124,4 @@ The environment-configuration rule still applies: a bundle with a baked-in API U
 
 ## Related
 
-- [caching.md](caching.md) · [testing-in-ci.md](testing-in-ci.md) · [quality-gates.md](quality-gates.md) · [environments-and-promotion.md](environments-and-promotion.md) · [artifacts-and-registries.md](artifacts-and-registries.md) · [target-cloudflare-workers.md](target-cloudflare-workers.md) · [`typescript-developer`](../../typescript-developer/SKILL.md) · [`angular-webpack-esbuild-migration`](../../angular-webpack-esbuild-migration/SKILL.md) · [checklist.md](checklist.md)
+- [caching.md](caching.md) · [testing-in-ci.md](testing-in-ci.md) · [quality-gates.md](quality-gates.md) · [environments-and-promotion.md](environments-and-promotion.md) · [artifacts-and-registries.md](artifacts-and-registries.md) · [target-cloudflare-workers.md](target-cloudflare-workers.md) · [`typescript-developer`](../../typescript-developer/SKILL.md) · [checklist.md](checklist.md)

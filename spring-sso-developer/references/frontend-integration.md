@@ -14,7 +14,7 @@ adding one would be four copies of this page with the nouns changed.
 
 **This file owns what is specific to an SSO redirect flow.** Token lifecycle in general - where a token
 lives, the refresh stampede, a 401 mid-request, route guards as a UX affordance - is owned by our
-`angular-spring-contract` skill's `auth-flow.md`, and is not restated here. What is different about SSO is
+`frontend-spring-contract` skill's `auth-flow.md`, and is not restated here. What is different about SSO is
 that **there is no password form, the browser leaves your application entirely, and it may come back
 without ever having been in your application first**.
 
@@ -41,7 +41,7 @@ origin**. The BFF removes the token from the browser instead of protecting it th
 [security-oauth2-oidc.md](security-oauth2-oidc.md).
 
 **If you cannot use a BFF**, because the frontend is served separately from any backend you control, then
-the rules in `angular-spring-contract`'s `auth-flow.md` apply and the token goes in an `HttpOnly`,
+the rules in `frontend-spring-contract`'s `auth-flow.md` apply and the token goes in an `HttpOnly`,
 `Secure`, `SameSite` cookie, never `localStorage`.
 
 ## The browser leaves, and your application state goes with it
@@ -217,7 +217,7 @@ background: with a redirect-based flow that means an iframe or popup, both of wh
 under current cookie policies.
 
 Token-level concerns behind this, the refresh stampede and concurrent 401s, are owned by our
-`angular-spring-contract` skill's `auth-flow.md`.
+`frontend-spring-contract` skill's `auth-flow.md`.
 
 ### 5. Discarding state on logout
 
@@ -253,7 +253,7 @@ more than the four rules above, it earns a file. If it does not, it does not.
 - **The app bootstraps twice per login**, once before the redirect and once after. Anything expensive in
   bootstrap happens twice, and anything that assumes single initialisation may misbehave.
 - **Guards are UX, not security.** A route guard prevents a confusing screen; the server prevents access.
-  Our `angular-spring-contract` skill's `auth-flow.md` makes this point and it holds identically here.
+  Our `frontend-spring-contract` skill's `auth-flow.md` makes this point and it holds identically here.
 - **With a BFF, requests need credentials.** Session cookies are only sent if the request is configured to
   include them and the server's CORS policy allows it, which is a reason to serve the frontend from the
   same origin as the BFF and avoid CORS entirely. See
@@ -288,7 +288,7 @@ more than the four rules above, it earns a file. If it does not, it does not.
 | Concern | Detail |
 | ------- | ------ |
 | Spring side | Spring Security 7.1.0. `oauth2Login()` produces the BFF shape by default. Initiation path is per registration; see [spring-security-oidc.md](spring-security-oidc.md) for the exact defaults |
-| Token lifecycle | Owned by our `angular-spring-contract` skill's `auth-flow.md`. Not restated |
+| Token lifecycle | Owned by our `frontend-spring-contract` skill's `auth-flow.md`. Not restated |
 | Framework mechanics | Owned by the official `angular-developer` skill. No Angular or React API is asserted here |
 | Third-party cookies | Browser restrictions continue to tighten, which progressively breaks iframe and silent-renewal patterns. Prefer the redirect and the BFF, which do not depend on them |
 | Back-channel logout | Implemented on Spring Security 7.1.0, and the right mechanism for propagating a logout the user performed elsewhere. Needs a shared `OidcSessionRegistry` to work behind a load balancer |
