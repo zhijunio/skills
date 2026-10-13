@@ -3,7 +3,7 @@ name: ci-cd-developer
 description: Designs, reviews and fixes CI/CD pipelines across GitHub Actions, Azure DevOps and GitLab CI, and the release path onto Kubernetes, Azure App Service and Container Apps, AWS ECS and Fargate, plain VMs and on-prem, Cloudflare Workers and Cloudflare Containers. Trigger when writing or reviewing a workflow or pipeline, when a build is slow or flaky, for caching and parallelism, secrets and OIDC federation to a cloud, pinning and hardening third-party actions, SBOM generation, SLSA provenance and artifact signing, dependency updates with Renovate or Dependabot, SAST DAST and container scanning placement, reproducible builds, artifact registries and promotion, versioning and release tagging, environment promotion and approvals, database migration gating, deployment strategies including blue-green canary and rolling, rollback, or measuring delivery with the four key metrics.
 license: MIT
 metadata:
-  author: Avinay Basnet
+  author: Zhijunio
   version: '1.0'
 ---
 

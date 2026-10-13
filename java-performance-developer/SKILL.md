@@ -3,7 +3,7 @@ name: java-performance-developer
 description: Diagnoses and fixes Java performance problems, and writes Java that does not create them, for Java 8 through 25. Trigger when an application is slow, when latency or throughput regresses, for GC pause and heap tuning, out-of-memory errors, high CPU, memory growth and native leaks, slow startup and warm-up, JVM flag selection, garbage collector choice between Serial, Parallel, G1, ZGC, Shenandoah and Epsilon, JIT and code cache tuning, benchmarking with JMH, profiling with JFR, JMC, async-profiler, jcmd, jstat and Native Memory Tracking, heap dump analysis, thread pool and executor sizing, lock contention and false sharing, allocation and object sizing, collection and String performance, buffered I/O, serialization, container and cgroup memory limits, or JDBC and JPA access cost.
 license: MIT
 metadata:
-  author: Avinay Basnet
+  author: Zhijunio
   version: '1.0'
 ---
 

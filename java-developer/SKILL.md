@@ -3,7 +3,7 @@ name: java-developer
 description: Generates modern Java code and provides architectural guidance for Java 8 through 27. Trigger when writing or modernising Java, or for best practices on immutability, records, sealed types, pattern matching, switch expressions, Optional vs null, JSpecify nullness annotations, var, text blocks, instance main methods, unnamed variables, module imports, Javadoc and Markdown doc comments, exceptions and resource management, JPMS modules, bean generation, data-oriented programming, virtual threads and carrier pinning, structured concurrency with StructuredTaskScope and Joiner, ScopedValue versus ThreadLocal, static analysis and formatting with javac lint, Error Prone, NullAway and google-java-format, Google Java Style, or version migration.
 license: MIT
 metadata:
-  author: Avinay Basnet
+  author: Zhijunio
   version: '1.0'
 ---
 
