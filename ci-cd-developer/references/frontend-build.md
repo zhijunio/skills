@@ -124,4 +124,4 @@ The environment-configuration rule still applies: a bundle with a baked-in API U
 
 ## Related
 
-- [caching.md](caching.md) · [testing-in-ci.md](testing-in-ci.md) · [quality-gates.md](quality-gates.md) · [environments-and-promotion.md](environments-and-promotion.md) · [artifacts-and-registries.md](artifacts-and-registries.md) · [target-cloudflare-workers.md](target-cloudflare-workers.md) · [`typescript-developer`](../../typescript-developer/SKILL.md) · [checklist.md](checklist.md)
+- [caching.md](caching.md) · [testing-in-ci.md](testing-in-ci.md) · [quality-gates.md](quality-gates.md) · [environments-and-promotion.md](environments-and-promotion.md) · [artifacts-and-registries.md](artifacts-and-registries.md) · [target-cloudflare-workers.md](target-cloudflare-workers.md) · [checklist.md](checklist.md)
