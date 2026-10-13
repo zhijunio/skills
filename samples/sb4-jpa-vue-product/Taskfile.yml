@@ -1,0 +1,64 @@
+version: '3'
+
+vars:
+  WRAPPER: '{{if eq OS "windows"}}mvnw.cmd{{else}}./mvnw{{end}}'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  test:
+    desc: Run Java unit tests
+    cmds:
+      - '{{.WRAPPER}} test'
+
+  verify:
+    desc: Run backend and frontend verification
+    cmds:
+      - '{{.WRAPPER}} verify'
+
+  run:
+    desc: Run the Spring Boot application
+    cmds:
+      - '{{.WRAPPER}} spring-boot:run'
+
+  frontend:dev:
+    desc: Start the Vue development server
+    dir: frontend
+    cmds:
+      - npm run dev
+
+  frontend:check:
+    desc: Lint and test the Vue application
+    dir: frontend
+    cmds:
+      - npm run lint:check
+      - npm run test:unit -- --run
+
+  frontend:build:
+    desc: Build Vue assets into Spring Boot static resources
+    dir: frontend
+    cmds:
+      - npm run build
+
+  compose:up:
+    desc: Start local PostgreSQL
+    cmds:
+      - docker compose up -d postgres
+
+  compose:stop:
+    desc: Stop local services and keep their data
+    cmds:
+      - docker compose stop
+
+  docker:up:
+    desc: Build and start the Docker Compose application
+    cmds:
+      - docker compose -f compose.full.yaml up -d --build
+
+  docker:down:
+    desc: Stop the Docker Compose application and keep its data
+    cmds:
+      - docker compose -f compose.full.yaml down
