@@ -16,7 +16,7 @@ jobs:
     uses: zhijun-io/github-workflows/.github/workflows/maven-snapshot.yml@ac1365b64103fd6b6927e2cd04b09589e6879e50
     with:
       java-version: '17'
-      skip-tests: true
+      skip-tests: false
     secrets:
       MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
       MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}

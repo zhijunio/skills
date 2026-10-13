@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>io.github.zhijunio</groupId>
-    <artifactId>agent-skills</artifactId>
+    <artifactId>skills</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
