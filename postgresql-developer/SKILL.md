@@ -3,7 +3,7 @@ name: postgresql-developer
 description: Designs PostgreSQL schemas from requirements, makes database architecture decisions, writes SQL, and diagnoses and fixes slow queries. Trigger when designing or reviewing a schema, choosing a multi-tenancy model, picking data types and keys, writing constraints, planning a migration, writing or reviewing SQL (joins, aggregation, window functions, CTEs, upserts, pagination, full-text search, JSONB), choosing or fixing indexes, reading an EXPLAIN plan, diagnosing a slow query or high database CPU, tuning autovacuum or dealing with bloat, resolving locks and deadlocks, choosing an isolation level, setting up row-level security, sizing a connection pool, or planning partitioning, replication and backups. Targets PostgreSQL 14 through 18.
 license: MIT
 metadata:
-  author: Avinay Basnet
+  author: Zhijunio
   version: '1.0'
 ---
 

@@ -28,7 +28,9 @@ If you are handed a schema that already has quoted mixed-case names, match it an
 | Prefixes | No `tbl_`, no `t_`. The catalogue already knows it is a table |
 | Junction tables | Both sides, alphabetical: `order_product`, or a domain name if one exists (`enrolment` beats `course_student`) |
 
-Singular versus plural is genuinely arbitrary and the argument is not worth having. Plural (`users`, `orders`) reads better in `FROM` clauses; singular (`user`, `order`) matches the entity and the class name. **Plural avoids a real problem**: `user` and `order` are reserved words in SQL, so singular forces you to quote exactly the two tables every schema has. Prefer plural for that reason alone.
+Singular versus plural is a project convention, not a PostgreSQL requirement. Plural (`users`, `orders`) reads naturally as a collection in a `FROM` clause; singular (`user`, `order`) often matches an entity or class name, and some ORM conventions use plural table names by default. Pick one convention and apply it consistently; either is reasonable.
+
+Plural names can avoid a collision with a reserved singular name such as `user` or `order` in PostgreSQL, but this is only an incidental benefit. A plural form is not guaranteed to be non-reserved across PostgreSQL versions or other database engines. Check the target server's keyword list and use a clear alternative name when needed. If a reserved identifier must be retained for compatibility, quote it consistently as described above.
 
 Check before naming anything:
 
@@ -116,7 +118,7 @@ The reserved-word list grows slowly between majors. `pg_get_keywords()` reflects
 
 - Agent generates `camelCase` or `PascalCase` identifiers - unquoted they fold to lower case, and quoted they force quoting everywhere forever
 - Agent quotes identifiers "to be safe" - quoting is what creates the case-sensitivity problem, not what avoids it
-- Agent names a table `user` or `order` - reserved words, requiring quotes on exactly the tables you use most
+- Agent uses an unquoted reserved word as a table name - check the target server's keyword list; choose a clearer name or quote it consistently when compatibility requires it
 - Agent leaves constraints unnamed - the application then reports `orders_check1` on failure, which identifies nothing
 - Agent names a boolean `deleted` or `status_flag` - it does not read as a predicate at the call site
 - Agent uses `created` or `create_date` for a `timestamptz` - `_at` for timestamps, `_date`/`_on` for dates, consistently

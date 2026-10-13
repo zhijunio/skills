@@ -32,7 +32,7 @@ Every rule in one scannable list. Use it as a review pass over an existing schem
 | # | Rule | Reference |
 |---|---|---|
 | 8 | `snake_case`, never quoted identifiers | [naming-and-conventions.md](naming-and-conventions.md) |
-| 9 | Plural table names, avoiding reserved words like `user` and `order` | [naming-and-conventions.md](naming-and-conventions.md) |
+| 9 | Pick singular or plural table names and use the convention consistently; check reserved words against the target server | [naming-and-conventions.md](naming-and-conventions.md) |
 | 10 | Name every constraint - the name is what the application sees on failure | [naming-and-conventions.md](naming-and-conventions.md) |
 | 11 | `_at` for timestamps, `_date`/`_on` for dates, `is_`/`has_` for booleans | [naming-and-conventions.md](naming-and-conventions.md) |
 | 12 | One database with several schemas, divided by domain, not by layer | [schema-organisation.md](schema-organisation.md) |
