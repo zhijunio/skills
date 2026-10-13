@@ -3,7 +3,7 @@ name: spring-cloud-developer
 description: Designs and implements Spring Cloud features for Java applications. Use when working with Spring Cloud Gateway, centralized configuration, service discovery, client-side load balancing, service-to-service resilience, Spring Cloud Stream, or when diagnosing Spring Cloud compatibility and runtime behavior. Establish the project's Spring Boot and Spring Cloud versions before giving version-specific guidance.
 license: MIT
 metadata:
-  author: Avinay Basnet
+  author: Zhijunio
   version: '1.0'
 ---
 
@@ -42,13 +42,13 @@ Preserve the project's existing dependency-management model. Prefer the compatib
 
 ## Topic map
 
-This entry point establishes scope and working rules. Component-specific guidance will be added as focused references and linked here:
+Use the focused references below after establishing the project's exact Spring Boot, Java, and Spring Cloud release-train versions:
 
-- API gateway and edge routing: Spring Cloud Gateway.
-- Externalized and distributed configuration: Spring Cloud Config.
-- Service discovery and client-side load balancing.
-- Service-to-service resilience and its interaction with Spring Framework resilience.
-- Event-driven integration with Spring Cloud Stream and binders.
-- Compatibility, upgrades, observability, security, and integration testing.
+- Compatibility and support windows: [version-compatibility.md](references/version-compatibility.md).
+- API gateway and edge routing: [gateway.md](references/gateway.md).
+- Externalized and distributed configuration: [config.md](references/config.md).
+- Service discovery, client-side load balancing, and resilience: [service-discovery-and-resilience.md](references/service-discovery-and-resilience.md).
+- Event-driven integration with Spring Cloud Stream and binders remains a topic requiring a focused guide; verify the chosen binder against the release train and broker documentation.
+- Observability, security, and integration testing are cross-cutting concerns; apply the matching Spring Boot and Spring Security guidance and test the real remote boundary.
 
 For Spring Boot application concerns, see [spring-boot-developer](../spring-boot-developer/SKILL.md). For OAuth2/OIDC and SAML login or federation, see [spring-sso-developer](../spring-sso-developer/SKILL.md).
