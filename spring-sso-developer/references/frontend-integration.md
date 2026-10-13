@@ -1,6 +1,6 @@
 # The Frontend Half
 
-**Written 14/08/2026.** Spring identifiers are Spring Security 7.1.0.
+**Written 2026-08-14.** Spring identifiers are Spring Security 7.1.0.
 
 **This file is framework-independent and complete on its own.** Almost all frontend SSO advice is the same
 whether you are in Angular, React, Vue, Solid or anything else, because the constraints come from the
@@ -12,11 +12,10 @@ end are that, not a substitute for reading your framework's own documentation. A
 dedicated file in this skill only if its server-rendering story needs more than the rules here; otherwise
 adding one would be four copies of this page with the nouns changed.
 
-**This file owns what is specific to an SSO redirect flow.** Token lifecycle in general - where a token
-lives, the refresh stampede, a 401 mid-request, route guards as a UX affordance - is owned by our
-`frontend-spring-contract` skill's `auth-flow.md`, and is not restated here. What is different about SSO is
-that **there is no password form, the browser leaves your application entirely, and it may come back
-without ever having been in your application first**.
+**This file owns the browser side of an SSO redirect flow.** The server remains the authorization
+authority; client navigation and token refresh improve the experience but never protect an endpoint.
+What is different about SSO is that **there is no password form, the browser leaves your application
+entirely, and it may come back without ever having been in your application first**.
 
 ## The decision that removes most of the problems
 
@@ -40,9 +39,12 @@ client types, but neither removes the fact that **a token in a browser is reacha
 origin**. The BFF removes the token from the browser instead of protecting it there. See
 [security-oauth2-oidc.md](security-oauth2-oidc.md).
 
-**If you cannot use a BFF**, because the frontend is served separately from any backend you control, then
-the rules in `frontend-spring-contract`'s `auth-flow.md` apply and the token goes in an `HttpOnly`,
-`Secure`, `SameSite` cookie, never `localStorage`.
+**If you cannot use a BFF**, use Authorization Code with PKCE. Keep short-lived access tokens in memory;
+avoid persistent JavaScript-readable storage such as `localStorage`. If the design uses a refresh cookie,
+mark it `HttpOnly` and `Secure`, choose `SameSite` for the actual cross-site flow (`None` also requires
+`Secure`), and protect state-changing requests with an explicit CSRF design. Do not put an access token in
+a cookie without considering automatic sending, CSRF, domain scope and lifetime. See
+[security-oauth2-oidc.md](security-oauth2-oidc.md).
 
 ## The browser leaves, and your application state goes with it
 
@@ -216,8 +218,11 @@ server's login initiation path as a **navigation**. Do not attempt a silent re-a
 background: with a redirect-based flow that means an iframe or popup, both of which fail intermittently
 under current cookie policies.
 
-Token-level concerns behind this, the refresh stampede and concurrent 401s, are owned by our
-`frontend-spring-contract` skill's `auth-flow.md`.
+For a pure SPA that refreshes tokens, coordinate concurrent eligible 401 responses through one in-flight
+refresh operation. Queue requests while it runs, retry each eligible request at most once, and clear the
+shared operation after success or failure. Do not refresh on 403 or on a network error; do not blindly
+replay a write unless it is idempotent or the original request is known to have had no side effect. With a
+BFF, keep refresh and retry handling on the server where possible.
 
 ### 5. Discarding state on logout
 
@@ -253,14 +258,14 @@ more than the four rules above, it earns a file. If it does not, it does not.
 - **The app bootstraps twice per login**, once before the redirect and once after. Anything expensive in
   bootstrap happens twice, and anything that assumes single initialisation may misbehave.
 - **Guards are UX, not security.** A route guard prevents a confusing screen; the server prevents access.
-  Our `frontend-spring-contract` skill's `auth-flow.md` makes this point and it holds identically here.
 - **With a BFF, requests need credentials.** Session cookies are only sent if the request is configured to
   include them and the server's CORS policy allows it, which is a reason to serve the frontend from the
   same origin as the BFF and avoid CORS entirely. See
   [security-sessions-and-tenancy.md](security-sessions-and-tenancy.md) on why reflecting origins with
   credentials is the mistake to avoid.
-- **Framework mechanics belong to the official Angular skill.** Interceptors, guards and bootstrap are its
-  material, not ours.
+- **Keep framework mechanics in the framework guide.** For this repository, see the
+  [Angular](../../spring-boot-developer/references/frontend/angular.md) and
+  [React](../../spring-boot-developer/references/frontend/react.md) references.
 
 ## React notes
 
@@ -276,8 +281,8 @@ more than the four rules above, it earns a file. If it does not, it does not.
 ## Not verified in this pass
 
 - **Exact Angular and React APIs are deliberately not asserted here.** Nothing in this file names a
-  framework method signature, because framework mechanics belong to the official Angular skill and to the
-  React ecosystem, and both move faster than this file will.
+  framework method signature; use the versioned [Angular](../../spring-boot-developer/references/frontend/angular.md)
+  and [React](../../spring-boot-developer/references/frontend/react.md) guides for those mechanics.
 - Which identity providers will call a back-channel logout endpoint, and how each is configured to do so.
   Spring's side is verified and written up in [spring-security-oidc.md](spring-security-oidc.md); the
   provider's side belongs in that provider's file and was not established per vendor in this pass.
@@ -288,8 +293,8 @@ more than the four rules above, it earns a file. If it does not, it does not.
 | Concern | Detail |
 | ------- | ------ |
 | Spring side | Spring Security 7.1.0. `oauth2Login()` produces the BFF shape by default. Initiation path is per registration; see [spring-security-oidc.md](spring-security-oidc.md) for the exact defaults |
-| Token lifecycle | Owned by our `frontend-spring-contract` skill's `auth-flow.md`. Not restated |
-| Framework mechanics | Owned by the official `angular-developer` skill. No Angular or React API is asserted here |
+| Token lifecycle | Prefer the BFF. For a pure SPA, use short-lived in-memory access tokens and single-flight refresh; cookie-based refresh needs explicit CSRF protection |
+| Framework mechanics | Kept in the versioned [Angular](../../spring-boot-developer/references/frontend/angular.md) and [React](../../spring-boot-developer/references/frontend/react.md) guides |
 | Third-party cookies | Browser restrictions continue to tighten, which progressively breaks iframe and silent-renewal patterns. Prefer the redirect and the BFF, which do not depend on them |
 | Back-channel logout | Implemented on Spring Security 7.1.0, and the right mechanism for propagating a logout the user performed elsewhere. Needs a shared `OidcSessionRegistry` to work behind a load balancer |
 

@@ -3,8 +3,27 @@
 This file covers running your **own** OAuth2 and OIDC provider. Read the first section before the rest,
 because for most products the correct answer is not to.
 
-Verified against **Spring Authorization Server 1.5.8** on 12/08/2026, with default endpoint paths read
+Verified against **Spring Authorization Server 1.5.8** on 2026-08-12, with default endpoint paths read
 from the `AuthorizationServerSettings` source at the 1.5.8 tag rather than from documentation examples.
+
+## Security advisories checked 2026-10-13
+
+These advisories affect specific versions and configurations; this is a targeted list, not a complete
+dependency vulnerability feed. Check the resolved Spring Security and Spring Authorization Server
+versions against the current vendor advisories before release.
+
+| Advisory | Exposure | Fixed versions and action |
+| -------- | -------- | ------------------------- |
+| [CVE-2026-47877](https://spring.io/security/cve-2026-47877/) | Spring Security authorization server 7.1.0 and 7.0.0–7.0.6 when using the default consent page; a cross-site scripting issue | Fixed in 7.1.1 and 7.0.7. A custom consent page is not affected. |
+| [CVE-2026-59316](https://spring.io/security/cve-2026-59316/) | Spring Authorization Server 1.5.0–1.5.8 and 1.4.0–1.4.11 when using `DefaultConsentPage`; a cross-site scripting issue | The advisory lists 1.5.9 and 1.4.12 as fixes, both Enterprise Support Only. A custom consent page is not affected. The advisory lists no open-source fix for these lines. |
+| [CVE-2026-22752](https://spring.io/security/cve-2026-22752/) | Dynamic client registration when enabled; insufficient validation can be reached by an attacker with a valid initial access token. Spring Authorization Server 1.5.0–1.5.6 is affected. | Fixed in 1.5.7. Version 1.5.8 is outside the affected range. Disable dynamic registration if it is not needed. |
+| [CVE-2026-41008](https://spring.io/security/cve-2026-41008/) | Spring Security 7.0.0–7.0.5 authorization server handling of `request_uri`; open redirect | Fixed in 7.0.6. |
+| [CVE-2026-59276](https://spring.io/security/cve-2026-59276/) | Includes `InMemoryOAuth2AuthorizationService` in affected Spring Security versions; timing side channel requires repeated probing. | Fixed in 7.1.1 and 7.0.7; the 6.5.12 fix is Enterprise Support Only. Do not use the in-memory authorization service in production. |
+
+The version ranges above are copied from the linked Spring advisories and are not inferred from a Boot
+version alone. In particular, Spring Authorization Server 1.5.8 remains the stable open-source line
+verified here, but its default consent page is in the affected range for CVE-2026-59316. Use a custom
+consent page or follow the advisory's support and upgrade guidance.
 
 ## Should you run one at all
 
@@ -276,12 +295,12 @@ this project does not close that gap.
 
 ## Version notes
 
-**Verified against Spring Authorization Server 1.5.8 on 12/08/2026.** Endpoint defaults come from the
+**Verified against Spring Authorization Server 1.5.8 on 2026-08-12.** Endpoint defaults come from the
 `AuthorizationServerSettings` source at the 1.5.8 tag.
 
 | Concern | Detail |
 | ------- | ------ |
-| Versions available | 1.5.8 is current stable. 1.4.8, 1.3.7 and 1.2.7 are also maintained lines, and **2.0.0-M2** is a preview. Do not build production on the milestone |
+| Versions available | 1.5.8 is the stable line verified here. 1.4.8, 1.3.7 and 1.2.7 were listed as maintained lines in the 2026-08-12 check; re-check current maintenance and security status before selecting one. **2.0.0-M2** was a preview at that check; do not build production on a milestone |
 | Java floor | 17 or higher |
 | Boot and Security version requirements | **Not stated** on the getting-started page. Let the Boot starter manage them |
 | `MULTIPLE_ISSUERS_ALLOWED` | Defaults to `false` |

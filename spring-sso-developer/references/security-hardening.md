@@ -24,6 +24,9 @@ the default flipped between the two versions this skill covers. Verified from
 | **7.1.0**, Boot 4.1.0 | `private boolean requireProofKey = true;` | **PKCE is on by default.** Nothing to do |
 | **6.5.11**, Boot 3.5.16 | `private boolean requireProofKey;`, so `false` | **PKCE is off by default.** You must enable it |
 
+Boot 4.1.1 manages Spring Security 7.1.1. This implementation comparison was checked at 7.1.0 and
+6.5.11; verify the exact point release when a default affects the security decision.
+
 So on Boot 4.x the good news is that Spring already meets RFC 9700's recommendation for confidential
 clients. On Boot 3.5.x it does not, and enabling it is a deliberate act. **Establish the version before
 reporting this as a finding either way**, and see
@@ -61,14 +64,16 @@ Work outward from the token, not inward from the framework:
 
 ## On CVEs
 
-**Exactly one CVE is cited in this skill**, and only because it was read from the vendor's own advisory
-page: **CVE-2026-40988**, an unbounded DEFLATE inflation denial of service in
-`spring-security-saml2-service-provider`, fixed in 7.0.6 and 6.5.11. It is written up with its affected
-ranges in [security-saml.md](security-saml.md).
+The CVEs listed in this skill were checked against Spring's vendor advisories on 2026-10-13. This is a
+targeted set of findings relevant to the covered Spring SSO components, **not an exhaustive or
+continuously updated vulnerability list**. SAML's DEFLATE inflation denial of service,
+**CVE-2026-40988**, and its affected ranges are in [security-saml.md](security-saml.md). Authorization
+server and consent-page advisories, including affected configurations and fixed versions, are in
+[spring-authorization-server.md](spring-authorization-server.md).
 
-Nothing else is cited. A CVE may be cited only when verified against NVD or the vendor's advisory, and
-citing one from memory is precisely the failure the rule exists to prevent, so where verification did
-not happen the page carries nothing rather than something that might be wrong.
+A CVE may be cited only after verifying it against NVD or the vendor's advisory. Do not infer exposure
+from a Spring Boot version alone: inspect the resolved dependency tree and the relevant feature
+configuration, then compare them with the current vendor advisory.
 
 **The CVE that matters to you is the one in your resolved dependency tree**, which no document can
 know. A cited list dates within months; a scanner does not. Check resolved versions against the vendor
@@ -83,18 +88,18 @@ assuming.
 ## Version notes
 
 **Spring identifiers and defaults across these pages were read from the Spring Security 7.1.0
-reference documentation on 12/08/2026.** Specifications cited: RFC 9700 (BCP 240, January 2025),
+reference documentation on 2026-08-12.** Specifications cited: RFC 9700 (BCP 240, January 2025),
 RFC 6749, RFC 7636, RFC 9207, RFC 8705, RFC 9449, RFC 9336, and the OWASP SAML Security and OAuth2
 cheat sheets.
 
 | Concern | Detail |
 | ------- | ------ |
-| Boot to Spring Security mapping | Verified from Boot's own `spring-boot-dependencies` build files: **Boot 4.1.0 manages Spring Security 7.1.0**, Boot 4.0.0 manages 7.0.0, Boot 4.0.7 manages 7.0.6, and **Boot 3.5.16 manages Spring Security 6.5.11**. So the 3.5.x line is on 6.5.x, not 7.x |
+| Boot to Spring Security mapping | Verified from Boot's own `spring-boot-dependencies` build files: **Boot 4.1.1 manages Spring Security 7.1.1**, Boot 4.1.0 manages 7.1.0, Boot 4.0.0 manages 7.0.0, Boot 4.0.7 manages 7.0.6, and **Boot 3.5.16 manages 6.5.11**. So the 3.5.x line is on 6.5.x, not 7.x |
 | Java floor | Spring Security 7.1.0 "requires a Java 17 or higher Runtime Environment" |
 | `OpenSaml5AuthenticationProvider` | The current class name. Older material names `OpenSaml4AuthenticationProvider` or `OpenSamlAuthenticationProvider` |
 | Deprecated patterns in older books | `WebSecurityConfigurerAdapter` and `authorizeRequests()` were **removed** in Spring Security 6. Any example using them predates every supported version |
 | OWASP ASVS | Cross-checked against **ASVS 5.0.0**, 30 May 2025, chapters **V6 Authentication**, **V7 Session Management**, **V9 Self-contained Tokens** and **V10 OAuth and OIDC**. 5.0 renumbered V2 and V3 to V6 and V7, so guidance citing V2 and V3 is against ASVS 4.x. V9 and V10 are new in 5.0, and V10's seven sections split requirements by role: client, resource server, authorization server, OIDC relying party, OpenID provider and consent |
-| CVE policy | One CVE cited, **CVE-2026-40988**, from the vendor advisory. Nothing else, by design |
+| CVE policy | Targeted Spring advisories checked 2026-10-13; see [security-saml.md](security-saml.md) and [spring-authorization-server.md](spring-authorization-server.md). Not an exhaustive vulnerability feed |
 
 ## Gotchas
 

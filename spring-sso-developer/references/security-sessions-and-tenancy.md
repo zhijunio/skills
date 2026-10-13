@@ -297,7 +297,7 @@ isolation must be the same value, resolved once.
 ## Version notes
 
 **Sources:** OWASP OAuth2 and SAML cheat sheets, and the Spring Security 7.1.0 reference documentation
-read on 12/08/2026 for the tenant-aware key selection warning.
+read on 2026-08-12 for the tenant-aware key selection warning.
 
 | Concern | Detail |
 | ------- | ------ |

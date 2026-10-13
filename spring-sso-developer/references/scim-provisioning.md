@@ -1,6 +1,6 @@
 # SCIM Provisioning
 
-**Verified against RFC 7644 on 12/08/2026.** SCIM is defined by three RFCs: **RFC 7642** (definitions and
+**Verified against RFC 7644 on 2026-08-12.** SCIM is defined by three RFCs: **RFC 7642** (definitions and
 requirements), **RFC 7643** (core schema), and **RFC 7644**, "System for Cross-domain Identity Management:
 Protocol", September 2015.
 
@@ -128,8 +128,9 @@ Both mean you cannot infer intent from the operation name alone; apply the seman
   `If-Match: W/"a330bc54f0671c9"`.
 
 **Implement it.** A directory sync that retries, or two administrators acting at once, is exactly the
-lost-update scenario `If-Match` exists to prevent. If you have `frontend-spring-contract` installed, its
-optimistic concurrency material covers the same mechanism on the application's own API.
+lost-update scenario `If-Match` exists to prevent. API clients should preserve the ETag exactly and handle
+`412 Precondition Failed` by reloading and reconciling the resource; do not silently retry the same update
+without a fresh version.
 
 ## Multi-tenant SCIM: the credential is the tenant
 

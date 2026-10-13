@@ -1,6 +1,6 @@
 # OneLogin
 
-**Verified against OneLogin developer documentation on 12/08/2026.** Spring identifiers are Spring
+**Verified against OneLogin developer documentation on 2026-08-12.** Spring identifiers are Spring
 Security 7.1.0. See [providers.md](providers.md).
 
 **A note on depth.** The OneLogin OIDC overview page read for this file is a conceptual overview and does
@@ -64,7 +64,7 @@ Run these against the tenant, not against the documentation:
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | The documented flow list, including Implicit and Resource Owner Password Grant, and that an Authorization Code with PKCE guide exists. OneLogin developer documentation, 12/08/2026 |
+| Verified | The documented flow list, including Implicit and Resource Owner Password Grant, and that an Authorization Code with PKCE guide exists. OneLogin developer documentation, 2026-08-12 |
 | Implicit and ROPC | Documented by the provider, **excluded by RFC 9700**. Availability is not endorsement |
 | Everything else | **Not verified.** Use the discovery document and a decoded real token |
 

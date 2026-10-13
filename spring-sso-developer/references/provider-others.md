@@ -1,6 +1,6 @@
 # Any other identity provider
 
-**Written 12/08/2026.** Spring identifiers are Spring Security 7.1.0. See [providers.md](providers.md).
+**Written 2026-08-12.** Spring identifiers are Spring Security 7.1.0. See [providers.md](providers.md).
 
 This file covers providers without a file of their own, and it is deliberately a **procedure** rather than
 a set of guesses. Its content is the pattern learned from verifying twelve providers: what to establish,

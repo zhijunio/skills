@@ -1,6 +1,6 @@
 # Ping Identity
 
-**Verified against Ping Identity documentation on 12/08/2026.** Spring identifiers are Spring Security
+**Verified against Ping Identity documentation on 2026-08-12.** Spring identifiers are Spring Security
 7.1.0. See [providers.md](providers.md).
 
 ## "Ping" is at least five products
@@ -100,7 +100,7 @@ Named precisely, and the list is longer than for the providers with a single pro
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | That the discovery URI is the issuer plus the well-known path and must be `https`; the ForgeRock-lineage realm-based issuer form `https://<tenant-env-fqdn>/am/oauth2/realms/root/realms/alpha`; that a shorthand discovery path also exists. Ping Identity documentation, 12/08/2026 |
+| Verified | That the discovery URI is the issuer plus the well-known path and must be `https`; the ForgeRock-lineage realm-based issuer form `https://<tenant-env-fqdn>/am/oauth2/realms/root/realms/alpha`; that a shorthand discovery path also exists. Ping Identity documentation, 2026-08-12 |
 | Product identification | **The first question.** Five documented products, two lineages, different issuer formats |
 | Issuer | **Take it verbatim from the discovery document**, not from the URL you fetched |
 | Self-hosted products | Version and configuration are the customer's. Treat as questions |

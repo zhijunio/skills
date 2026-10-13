@@ -3,7 +3,7 @@ name: spring-sso-developer
 description: Implements Single Sign-On in Java and Spring applications, both internal organisational SSO and SSO-as-a-feature in multi-tenant SaaS products. Trigger when integrating an external identity provider over OIDC or SAML, when acting as an OAuth2 or OIDC client or resource server, when running your own authorization server, when configuring a SAML service provider, when choosing between OIDC and SAML for a customer, when per-organisation identity provider configuration or home-realm discovery is needed, when provisioning or deprovisioning users from an identity provider, when reviewing a Spring Security configuration for vulnerabilities, or when an SSO login, logout or token validation is failing. Covers Spring Boot 4.x and 3.5.x with Spring Security 7 and 6.5, and drops into legacy, in-progress and greenfield work alike.
 license: MIT
 metadata:
-  author: Avinay Basnet
+  author: Zhijunio
   version: '1.0'
 ---
 
@@ -60,7 +60,10 @@ Every reference carries a **`## Version notes`** section stating what differs ac
 and 3.5.x and across provider versions, and a **`## Gotchas`** list of the specific mistakes agents
 make in that area. Read the gotchas even when skimming. Spring identifiers throughout were read from
 the Spring Security 7.1.0 reference documentation rather than recalled, and protocol requirements are
-attributed to the RFC, OASIS specification or OWASP sheet they come from.
+attributed to the RFC, OASIS specification or OWASP sheet they come from. The current Spring Boot
+baseline is 4.1.1, which manages Spring Security 7.1.1; most implementation-level checks in these
+references are pinned to 7.1.0 (Boot 4.1.0). Recheck version-sensitive defaults and implementation
+details against the consuming project's managed Security version before applying them.
 
 ## Establishing the situation
 
@@ -129,6 +132,10 @@ Three points that decide this more often than the table:
   starting the flow with `fetch` cannot work, why logout must be a navigation rather than a request, home
   realm discovery as an unauthenticated endpoint, and arriving already authenticated from an
   IdP-initiated flow. Read [frontend-integration.md](references/frontend-integration.md)
+- **Testing OIDC login against a local provider**: use Spring Security's mock OIDC support for fast
+  web tests, Dex for a configurable local IdP, or Rose Authorization Server for a Spring/Testcontainers
+  fixture with controlled users and claims. Read
+  [testing-oidc-with-local-provider.md](references/testing-oidc-with-local-provider.md)
 - **Provisioning with SCIM**: whether you need SCIM at all rather than just-in-time provisioning, the
   endpoints RFC 7644 defines, and the deprovisioning ambiguity that decides your implementation, since
   the RFC defines `DELETE` while clients overwhelmingly send `PATCH` setting `active` to `false`. Read
@@ -165,6 +172,7 @@ Three points that decide this more often than the table:
 | A token verifies but was minted for a different service | [security-oauth2-oidc.md](references/security-oauth2-oidc.md) |
 | Tokens from more than one identity provider must be accepted | [security-oauth2-oidc.md](references/security-oauth2-oidc.md) |
 | The build cannot resolve the SAML dependency | [spring-security-saml.md](references/spring-security-saml.md) |
+| Testing an OIDC login or resource server with Dex or Rose Authorization Server | [testing-oidc-with-local-provider.md](references/testing-oidc-with-local-provider.md) |
 | The application will not start, complaining that signing credentials must not be empty | [spring-security-saml.md](references/spring-security-saml.md) |
 | A user who signed out at the identity provider is still signed in here | [spring-security-oidc.md](references/spring-security-oidc.md) |
 | SAML login succeeds and you are not sure what was validated | [security-saml.md](references/security-saml.md) |

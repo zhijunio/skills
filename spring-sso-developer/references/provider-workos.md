@@ -1,6 +1,6 @@
 # WorkOS
 
-**Verified against WorkOS documentation on 12/08/2026.** Spring identifiers are Spring Security 7.1.0.
+**Verified against WorkOS documentation on 2026-08-12.** Spring identifiers are Spring Security 7.1.0.
 See [providers.md](providers.md).
 
 **A note on depth.** Two WorkOS documentation pages were read and both were overview level: the SSO page
@@ -115,7 +115,7 @@ document and a JWKS; if it does, prefer the standard Spring path.
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | The `organization`, `connection` and `provider` selection parameters and sample `provider` values; the `org_` identifier prefix; `organizationId` on the profile and the instruction to validate it; that profiles carry normalised and raw attributes. WorkOS documentation, 12/08/2026 |
+| Verified | The `organization`, `connection` and `provider` selection parameters and sample `provider` values; the `org_` identifier prefix; `organizationId` on the profile and the instruction to validate it; that profiles carry normalised and raw attributes. WorkOS documentation, 2026-08-12 |
 | Integration shape | **Unverified whether standard OIDC applies.** Establish this first |
 | SCIM | Directory Sync is described as implementing SCIM; **the version and event schema were not verified**. Protocol-level material is in [scim-provisioning.md](scim-provisioning.md) |
 | Dependency | A third party in your authentication path. Weigh availability and blast radius, not only licence cost |

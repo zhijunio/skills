@@ -435,8 +435,10 @@ authorising it either: in a multi-tenant product the issuer identifies the tenan
 
 ## Version notes
 
-Boot 4.1.0 manages Spring Security 7.1.0, Boot 4.0.0 manages 7.0.0, Boot 4.0.7 manages 7.0.6 and Boot 3.5.16
-manages 6.5.11, so the 3.5.x line is on 6.5.x. Spring Security 7.1.0 requires Java 17 or higher.
+Boot 4.1.1 manages Spring Security 7.1.1; Boot 4.1.0 manages 7.1.0, Boot 4.0.0 manages 7.0.0,
+Boot 4.0.7 manages 7.0.6, and Boot 3.5.16 manages 6.5.11, so the 3.5.x line is on 6.5.x. The
+implementation checks below were made against 7.1.0 and 6.5.11; re-check version-sensitive details
+against another point release. Spring Security 7.1.0 requires Java 17 or higher.
 
 | Concern | Detail |
 | ------- | ------ |

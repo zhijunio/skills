@@ -1,6 +1,6 @@
 # Keycloak
 
-**Verified against Keycloak's documentation and the `AccessToken` source on 12/08/2026.** Spring
+**Verified against Keycloak 26.7 documentation and the `AccessToken` source on 2026-08-12; UI mapper labels rechecked on 2026-10-13.** Spring
 identifiers are Spring Security 7.1.0. Keycloak is the usual answer when an organisation wants to run its
 own identity provider, and it is the only entry here that is both a product you operate and a provider you
 integrate with. See [providers.md](providers.md).
@@ -96,9 +96,10 @@ Keycloak distinguishes **roles**, which are authorisation categories, from **gro
 users and can carry role mappings. Keycloak states that per client "you can tailor what claims and
 assertions are stored in the OIDC token or SAML assertion" through **protocol mappers**.
 
-**Group membership does not appear in a token by default.** A protocol mapper must be added. **The exact
-name of the built-in group mapper was not verified in this pass**, so read the client's mapper list in
-the admin console rather than copying a name from a tutorial.
+**Group membership does not appear in a token by default.** A protocol mapper must be added. The
+current admin guide calls the built-in option **Group Membership**; its claim name and whether it is
+added to the access token, ID token, or both remain configurable. Inspect the mapper attached to the
+client scope and verify the resulting access token rather than assuming a universal claim shape.
 
 The design advice is the same as Entra's for the same reason: **prefer roles for authorisation** and
 treat groups as the administrative convenience that assigns them. It keeps the token small and keeps
@@ -140,7 +141,7 @@ per RFC 9700's recommendation, `cnf` is where the binding lands. See
 
 - The exact issuer string in an issued token, as opposed to the realm base URL derived from the discovery
   path.
-- The name of the built-in **group** protocol mapper.
+- The mapper's configured claim name and whether the application receives it in the access token.
 - SAML metadata URL shape, certificate rotation and single logout behaviour.
 - **SCIM support.** Whether current Keycloak provides SCIM natively or through an extension was not
   established. Do not assume provisioning is built in.
@@ -152,7 +153,7 @@ per RFC 9700's recommendation, `cnf` is where the binding lands. See
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | Realm discovery path, and the `realm_access`, `resource_access` and `roles` claim names from the `AccessToken` source, on 12/08/2026 |
+| Verified | Realm discovery path, and the `realm_access`, `resource_access` and `roles` claim names from the `AccessToken` source, on 2026-08-12 |
 | `/auth` path prefix | Absent in current documentation, present in older deployments. **Ask for the discovery URL rather than constructing it** |
 | Issuer | Derived from the discovery path by OIDC Discovery convention, not from a quoted example |
 | Adapters | Keycloak's documentation calls the Java adapters "legacy". Timeline unverified |

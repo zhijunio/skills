@@ -1,6 +1,6 @@
 # Shibboleth and academic federations
 
-**Verified against Shibboleth and REFEDS documentation on 12/08/2026.** Spring identifiers are Spring
+**Verified against Shibboleth and REFEDS documentation on 2026-08-12.** Spring identifiers are Spring
 Security 7.1.0. See [providers.md](providers.md).
 
 **Relevant if you sell to universities, research institutions or government.** Shibboleth is SAML-based
@@ -119,7 +119,7 @@ inheriting another's account, which is the identifier-reuse hazard in
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | Metadata as the basis of trust; `<md:EntitiesDescriptor>` aggregates signed as a unit; the descriptor role elements; entity-attribute-based attribute release with the IdP v2.3.4 floor; the federation-URI anti-pattern. Shibboleth and REFEDS documentation, 12/08/2026 |
+| Verified | Metadata as the basis of trust; `<md:EntitiesDescriptor>` aggregates signed as a unit; the descriptor role elements; entity-attribute-based attribute release with the IdP v2.3.4 floor; the federation-URI anti-pattern. Shibboleth and REFEDS documentation, 2026-08-12 |
 | Entity attributes in filter policies | Requires **Shibboleth IdP v2.3.4 or later** on the institution's side |
 | Spring's model | Assumes a known asserting party. A federation requires resolution from an aggregate plus discovery |
 | Identifiers | **Unverified and important.** Read the federation's technical recommendations |

@@ -1,6 +1,6 @@
 # Amazon Cognito user pools
 
-**Verified against AWS's Cognito developer guide on 12/08/2026.** Spring identifiers are Spring Security
+**Verified against AWS's Cognito developer guide on 2026-08-12.** Spring identifiers are Spring Security
 7.1.0. See [providers.md](providers.md).
 
 Cognito is the provider whose token shape departs most from what a Spring resource server expects, in two
@@ -182,7 +182,7 @@ conflate them constantly.
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | Issuer and JWKS formats, the `aud` versus `client_id` split, `token_use`, `cognito:groups` in both tokens, two key pairs per pool, key rotation guidance, token size variability, pre token generation trigger. AWS Cognito developer guide, 12/08/2026 |
+| Verified | Issuer and JWKS formats, the `aud` versus `client_id` split, `token_use`, `cognito:groups` in both tokens, two key pairs per pool, key rotation guidance, token size variability, pre token generation trigger. AWS Cognito developer guide, 2026-08-12 |
 | Access token audience | **`client_id`, not `aud`.** Spring's `audiences` property does not apply |
 | `token_use` | Must be validated. Not a standard claim, so Spring does not check it |
 | Signing | `RS256`, 2048-bit RSA, **two key pairs per user pool** |

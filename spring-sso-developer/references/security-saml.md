@@ -236,7 +236,7 @@ more specific needs a primary source that has not been consulted here.
 
 ## Version notes
 
-**Spring identifiers read from the Spring Security 7.1.0 reference documentation on 12/08/2026.**
+**Spring identifiers read from the Spring Security 7.1.0 reference documentation on 2026-08-12.**
 Sources: OWASP SAML Security Cheat Sheet, RFC 9336, NIST SP 800-131A Rev. 2, and OASIS SAML 2.0 Core,
 Bindings and Profiles for protocol-level requirements.
 

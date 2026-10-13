@@ -189,7 +189,7 @@ resource server.
 ## Version notes
 
 Every rule holds against **Spring Security 7.1.0** and **Spring Authorization Server 1.5.8**, as read on
-12/08/2026. Version dependence:
+2026-08-12. Version dependence:
 
 | Rule | Depends on |
 | ---- | ---------- |
@@ -201,7 +201,7 @@ Every rule holds against **Spring Security 7.1.0** and **Spring Authorization Se
 | 71 | `ClientSettings.builder().requireProofKey(boolean)`, defaulting to **`false`**, read from the source at the 1.5.8 tag |
 | 74 | Boot 4.x on Spring Security 7.x, Boot 3.5.16 on 6.5.11 |
 | 77 | Deprecation of the `spring-boot-starter-oauth2-` names begins at Boot **4.0.0**, not 4.1.0. On 3.5.x those names are correct |
-| 78 | CVE-2026-40988, from the Spring advisory. **Six of its eight** fixed versions are enterprise-support only, including 7.0.5.1 and 6.5.10.2 |
+| 78 | CVE-2026-40988, from the Spring advisory. **Six of its eight** fixed versions are enterprise-support only, including 7.0.5.1 and 6.5.10.2. Authorization-server advisories are listed in [spring-authorization-server.md](spring-authorization-server.md) |
 | 79 to 88 | **ASVS 5.0.0**, chapters V6 and V7. ASVS 5.0 renumbered these from 4.x's V2 and V3, so a review against a 4.x checklist uses different identifiers |
 | 95 to 106 | **ASVS 5.0.0**, chapters V9 and V10, both **new in 5.0** with no 4.x equivalent. 96 and 102 name assurance levels, so they depend on the level being targeted |
 | 101 to 104 | Back-channel logout on Spring Security 7.1.0. Not applicable to a SAML-only integration, which has its own SLO rules at 34 and 35 |
@@ -211,8 +211,10 @@ Every rule holds against **Spring Security 7.1.0** and **Spring Authorization Se
 V6 and V7 produced rules 79 to 88, then V9 Self-contained Tokens and V10 OAuth and OIDC produced 95 to
 106. V10 is the chapter most specific to this skill's subject, and its seven sections split requirements by
 role, so read the section matching what you are: client, resource server, authorization server, OIDC
-relying party, OpenID provider, or consent. The CVE pass produced exactly one citation, CVE-2026-40988,
-verified against the vendor advisory; nothing else is cited, deliberately.
+relying party, OpenID provider, or consent. The CVE pass originally covered CVE-2026-40988 only. The
+targeted Spring advisories checked on 2026-10-13 are indexed in [security-hardening.md](security-hardening.md),
+with authorization-server details in [spring-authorization-server.md](spring-authorization-server.md).
+Those references are not an exhaustive or continuously updated vulnerability list.
 
 ## Gotchas
 

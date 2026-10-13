@@ -1,6 +1,6 @@
 # Microsoft Entra ID
 
-**Verified against Microsoft's identity platform documentation on 12/08/2026.** Spring identifiers are
+**Verified against Microsoft's identity platform documentation on 2026-08-12.** Spring identifiers are
 Spring Security 7.1.0. This is the most-deployed enterprise identity provider and the one with the most
 traps, so this file is longer than the others. See [providers.md](providers.md) for the questions it
 answers.
@@ -226,7 +226,7 @@ hours**. Spring caches JWKS, so an over-cached or pinned key set fails at rotati
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | Issuer formats and multi-tenant validation rules, identity claim guidance, group limits and behaviour, `amr` values, audience behaviour, token versions and lifetimes, key rotation cadence. Microsoft identity platform documentation, 12/08/2026 |
+| Verified | Issuer formats and multi-tenant validation rules, identity claim guidance, group limits and behaviour, `amr` values, audience behaviour, token versions and lifetimes, key rotation cadence. Microsoft identity platform documentation, 2026-08-12 |
 | Group limits | **150 SAML, 200 JWT**, including nested. Five for implicit flow. Filtering only below 1,000 groups |
 | Overage behaviour | Group claims are **omitted entirely**, not truncated |
 | `amr` and `auth_time` | **Optional claims.** Absent unless requested. SAML needs `include_granular_amr` |

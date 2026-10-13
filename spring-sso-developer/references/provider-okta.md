@@ -1,6 +1,6 @@
 # Okta
 
-**Verified against Okta's developer documentation on 12/08/2026.** Spring identifiers are Spring Security
+**Verified against Okta's developer documentation on 2026-08-12.** Spring identifiers are Spring Security
 7.1.0. Vendor behaviour changes; re-check anything here that a decision depends on, and see
 [providers.md](providers.md) for the questions this file is answering.
 
@@ -133,7 +133,7 @@ Stated plainly rather than guessed, because these need Okta's own current docume
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | Authorization server types, issuer formats, discovery endpoints, org-server limitations, and the groups claim behaviour, from Okta developer documentation on 12/08/2026 |
+| Verified | Authorization server types, issuer formats, discovery endpoints, org-server limitations, and the groups claim behaviour, from Okta developer documentation on 2026-08-12 |
 | Org server token stability | Okta states contents are subject to change without notice. Treat org-server access tokens as unsuitable for your own API authorization |
 | API Access Management | A separate paid product, required for a custom authorization server. This is a procurement dependency, not a configuration one |
 | Groups scope on a custom server | The documentation's custom-server example shows only `scope=openid`. Not confirmed whether a `groups` scope is required there |

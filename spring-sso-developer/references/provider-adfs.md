@@ -1,6 +1,6 @@
 # Active Directory Federation Services (AD FS)
 
-**Verified against Microsoft's AD FS documentation on 12/08/2026.** Spring identifiers are Spring Security
+**Verified against Microsoft's AD FS documentation on 2026-08-12.** Spring identifiers are Spring Security
 7.1.0. See [providers.md](providers.md).
 
 AD FS is customer-operated, on-premises, and the provider you are most likely to meet in a large
@@ -144,7 +144,7 @@ V7.1.3.
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | OIDC applies to **AD FS 2016 and later**; endpoint paths; application group requirement; the scope model and scope list; the `urn:microsoft:userinfo` default resource and its unconfigurable policies; access token audience; `allatclaims` preconditions; refresh token lifetime behaviour; OIDC single logout on 2016+. Microsoft AD FS documentation, 12/08/2026 |
+| Verified | OIDC applies to **AD FS 2016 and later**; endpoint paths; application group requirement; the scope model and scope list; the `urn:microsoft:userinfo` default resource and its unconfigurable policies; access token audience; `allatclaims` preconditions; refresh token lifetime behaviour; OIDC single logout on 2016+. Microsoft AD FS documentation, 2026-08-12 |
 | Pre-2016 | **No OIDC.** SAML 2.0 or WS-Federation only |
 | PKCE | **Not verified.** Test it first against Spring Security 7.1.0's default |
 | Customer-operated | The customer chooses the version, the claim rules and the session settings. Treat all three as questions, not constants |

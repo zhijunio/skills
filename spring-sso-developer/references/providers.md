@@ -37,7 +37,7 @@ Provisioning is protocol-level rather than per vendor: see [scim-provisioning.md
 
 | Provider | Where roles or groups are | Spring's default sees it |
 | -------- | ------------------------- | ------------------------ |
-| **Auth0** | Permissions in **`scope`**, roles in a namespaced custom claim | **Partly.** Auth0's own guidance treats `scope` as the place permissions live, which Spring reads natively. The **claim name and the setting that enables it are unverified**, so confirm from a real token. Roles via a custom claim do not |
+| **Auth0** | API scopes in `scope`; optionally RBAC permissions in `permissions`; roles can be added by a Post-Login Action as a custom claim | **Partly.** Spring maps `scope` natively; the optional `permissions` and custom role claims need deliberate mapping. Confirm the tenant's settings and decoded access token |
 | **Okta**, org auth server | `groups`, **ID token only** | No. And it **cannot** be moved to the access token |
 | **Okta**, custom auth server | `groups`, ID and access tokens | No. Not a `scope` |
 | **Entra ID** | `groups`, or `roles` for app roles | No. And `groups` is **omitted entirely** above the limit |
@@ -161,10 +161,10 @@ for your own staff, buying is overkill and the two Spring files are the whole jo
 
 | Concern | Detail |
 | ------- | ------ |
-| Verification dates | Each vendor file states its own. All were read on 12/08/2026 |
+| Verification dates | Each vendor file states its own. All were read on 2026-08-12 |
 | Depth varies | With each vendor's public documentation quality. Files with thinner coverage say so and list what is missing |
 | Unverified rows | Ping, OneLogin and Entra External ID role claims, and most of JumpCloud, Zitadel and authentik. Treat as questions |
-| Spring identifiers | Spring Security 7.1.0 throughout. Boot 3.5.16 carries Security 6.5.11, so re-check against the 6.5.x reference |
+| Spring identifiers | Checked against Spring Security 7.1.0 throughout. Boot 4.1.1 now manages 7.1.1, while Boot 3.5.16 manages 6.5.11; re-check version-sensitive details against the consuming project's BOM |
 | The comparison tables | Synthesised from the vendor files. Where a vendor file says unverified, the table says unverified |
 
 ## Gotchas

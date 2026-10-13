@@ -1,13 +1,11 @@
 # Auth0
 
-**Verified against Auth0's documentation on 12/08/2026.** Spring identifiers are Spring Security 7.1.0.
+**Verified against Auth0's current documentation on 2026-10-13.** Spring identifiers are Spring Security 7.1.0.
 
-**A note on this file's depth.** Three separate Auth0 documentation pages were read and the token-level
-specifics were largely absent from them: the pages describe concepts and cross-reference each other
-rather than stating claim names and formats. So this file is **shorter and carries more unverified
-entries than the Okta, Entra ID and Keycloak files**. That is a property of the source material, not a
-judgement about Auth0, and the gaps below name exactly what to go and read. See
-[providers.md](providers.md).
+**A note on this file's depth.** The 2026-10-13 review verified common token-format and claim-mapping
+behavior from Auth0's current documentation. Tenant-specific discovery metadata, Actions, audience,
+RBAC settings, and account-linking policy still need confirmation from the actual tenant. Those are
+listed below instead of inferred. See [providers.md](providers.md) for the cross-vendor comparison.
 
 ## The trailing slash
 
@@ -38,12 +36,11 @@ be treated as opaque (regardless of whether it actually is), so you don't need t
 build your own authorisation on Management API tokens**, which is the same advice as Okta's org
 authorization server for the same reason.
 
-**What is not verified:** the precise condition that produces an opaque token rather than a JWT.
-Auth0's documentation, across the three pages read, does not state it plainly. **The practical
-diagnostic:** if your resource server rejects everything with a decoding or malformed-token error rather
-than a validation error, you are being handed something that is not a JWT, and the place to look is your
-**registered API and the audience the client requests** rather than anything in Spring. Read Auth0's
-current documentation on requesting tokens for a custom API before configuring this.
+**The token format depends on the requested audience.** Auth0 documents an opaque access token for the
+`/userinfo` audience when no API audience is requested; a registered custom API audience produces a
+JWT access token. The Management API token may also be a JWT, but Auth0 says to treat it as opaque.
+If Spring reports a decoding or malformed-token error, first inspect the requested audience and the
+registered API rather than weakening validation. See Auth0's [access token format guidance](https://auth0.com/docs/secure/tokens/access-tokens/get-access-tokens).
 
 ## Audience, which Auth0 makes explicit
 
@@ -70,20 +67,23 @@ is a confused-deputy problem rather than a hygiene issue. See
 
 ## Roles and permissions
 
-**Not verified.** Auth0 distinguishes roles from permissions in its RBAC model, and the documentation
-read describes the concepts without naming the claims that carry them or the setting that enables them.
+Auth0 distinguishes requested API scopes, RBAC permissions, and assigned roles:
 
 What can be said safely, and is enough to plan around:
 
-- **`scope` carries permissions in the standard place**, and Auth0's own validation guidance says to
-  check it. Spring maps `scope` to `SCOPE_`-prefixed authorities automatically, so this path works with
-  no converter.
-- **Anything richer than `scope` will need a converter**, exactly as with every other provider in this
-  set. See the comparison in [providers.md](providers.md).
-- **Auth0 requires custom claims to be namespaced**, which is a well-known constraint of its model, but
-  **the exact namespace format rule was not verified here.** If you are adding roles through a custom
-  claim, read Auth0's current documentation on custom claims before choosing a claim name, because a
-  non-conforming name is silently dropped rather than rejected.
+- **API scopes appear in `scope`** and Spring maps them to `SCOPE_`-prefixed authorities by default.
+- **The optional `permissions` claim** requires enabling RBAC and the API's “Add Permissions in the
+  Access Token” setting. Spring does not treat this claim as `scope`; map it deliberately if the
+  application authorizes from it.
+- **Roles are not automatically included as a standard claim.** A Post-Login Action can read
+  `event.authorization.roles` and add them to an ID token or access token as a custom claim. Use the
+  token that matches the application role: an API must authorize from an access token, not an ID token.
+- Use a public namespace URL you control, such as `https://id.example.com/roles`. Auth0 does not allow
+  Auth0-owned domains as namespace identifiers. While private non-namespaced claims are allowed in
+  some contexts, custom API access tokens cannot contain them; namespacing also avoids collisions with
+  reserved claims such as `roles` and `permissions`. On collision, token issuance can succeed while the
+  custom claim is omitted. Follow Auth0's current
+  [custom claims guidance](https://auth0.com/docs/secure/tokens/json-web-tokens/create-custom-claims).
 
 **Design advice that does not depend on the unverified parts:** prefer `scope` and permissions over
 custom role claims where you can, because it is the path Spring handles natively and the one Auth0
@@ -93,12 +93,11 @@ documents most clearly.
 
 Named precisely, so the gap is actionable:
 
-- The condition that produces an **opaque** access token rather than a JWT.
-- The **discovery document URL** format for an Auth0 tenant.
-- The **JWKS URI** format.
-- The **permissions claim name** and the setting that enables it.
-- The **custom claim namespacing** rule and format.
-- **Roles** in tokens: whether present by default, and under what claim.
+- The exact **issuer and discovery metadata** for a specific tenant or custom domain. Read the tenant's
+  `/.well-known/openid-configuration` and use its issuer and `jwks_uri` values verbatim.
+- The precise **scope-to-authority mapping** for the tenant's API, including whether application code
+  should use `scope` or Auth0's optional `permissions` claim.
+- The specific Post-Login Action and token type used to emit custom roles for the application.
 - **SAML** support specifics: metadata, certificate rotation, single logout.
 - **SCIM** provisioning support and deprovisioning semantics.
 - **PKCE for confidential clients**: whether Auth0 accepts it.
@@ -113,11 +112,11 @@ how your tenant handles account linking before keying records on anything.
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | Issuer format with trailing slash, JWT versus opaque statement for custom and Management APIs, audience and scope validation guidance. Auth0 documentation, 12/08/2026 |
+| Verified | Issuer format with trailing slash; `/userinfo` opaque-token and custom-API JWT behavior by audience; optional RBAC `permissions` claim setting; Post-Login Action role claim mechanism; custom claim namespace guidance. Auth0 documentation, 2026-10-13 |
 | Issuer | **Ends with a slash.** `https://{tenant}.auth0.com/` |
 | Custom domains | Use one domain consistently across configuration and tokens |
 | Management API tokens | Auth0 says to treat as opaque and not validate. Not a basis for your own authorisation |
-| Depth | Lower than the Okta, Entra ID and Keycloak files, because the token-level specifics were not present in the pages read. Everything absent is listed above rather than inferred |
+| Remaining tenant-specific checks | Read discovery metadata and a decoded access token from the actual tenant; confirm claim names, API audience, enabled RBAC settings, roles and custom Actions |
 
 ## Gotchas
 

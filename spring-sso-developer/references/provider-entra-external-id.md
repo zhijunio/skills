@@ -1,6 +1,6 @@
 # Azure AD B2C and Microsoft Entra External ID
 
-**Verified against Microsoft's Azure AD B2C documentation on 12/08/2026.** Spring identifiers are Spring
+**Verified against Microsoft's Azure AD B2C documentation on 2026-08-12.** Spring identifiers are Spring
 Security 7.1.0. See [providers.md](providers.md).
 
 **This is customer identity, not workforce SSO.** It is for *your* end users signing up to your product,
@@ -143,7 +143,7 @@ blank." **A blank claim rather than an error** is the failure mode to design aga
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | Endpoint and metadata URL shapes with the policy in the path, both issuer forms and the compliance statement, `tfp` versus `acr`, `sub` immutability and the ObjectID setting, `auth_time`'s caveat, token lifetime defaults and ranges, the 24-hour SPA refresh token, key rotation guidance, pass-through limits. Azure AD B2C documentation, 12/08/2026 |
+| Verified | Endpoint and metadata URL shapes with the policy in the path, both issuer forms and the compliance statement, `tfp` versus `acr`, `sub` immutability and the ObjectID setting, `auth_time`'s caveat, token lifetime defaults and ranges, the 24-hour SPA refresh token, key rotation guidance, pass-through limits. Azure AD B2C documentation, 2026-08-12 |
 | Product status | **B2C closed to new customers from 1 May 2025.** Entra External ID is the successor |
 | Default issuer | **Not OIDC Discovery compliant.** Switch to the `/tfp/` form for a compliant library |
 | `sub` | Immutable, not reassigned or reused. Safe to key on, unlike workforce Entra ID |

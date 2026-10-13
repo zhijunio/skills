@@ -1,6 +1,6 @@
 # Google Workspace and Google Identity
 
-**Verified against Google's OpenID Connect documentation on 12/08/2026.** Spring identifiers are Spring
+**Verified against Google's OpenID Connect documentation on 2026-08-12.** Spring identifiers are Spring
 Security 7.1.0. See [providers.md](providers.md).
 
 ## Two issuer values, and Spring validates one
@@ -117,7 +117,7 @@ What this means for design, which does not depend on the API name:
 
 | Concern | Detail |
 | ------- | ------ |
-| Verified | Discovery URL, both accepted `iss` forms, the `hd` claim and its trust boundary, `sub` stability and uniqueness, `email_verified`. Google OpenID Connect documentation, 12/08/2026 |
+| Verified | Discovery URL, both accepted `iss` forms, the `hd` claim and its trust boundary, `sub` stability and uniqueness, `email_verified`. Google OpenID Connect documentation, 2026-08-12 |
 | `iss` | **Two accepted forms:** `https://accounts.google.com` and `accounts.google.com` |
 | `hd` | Trustworthy **as a claim**, not as a request parameter. Absent for personal accounts |
 | `sub` | Globally unique and never changed. Unlike Entra ID and Keycloak |
