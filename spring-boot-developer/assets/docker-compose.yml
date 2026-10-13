@@ -1,0 +1,63 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:-user}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512m
+    networks:
+      - spring-network
+
+  # Spring Boot Application
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Front-end build mirrors for corporate proxies. Defaults match the
+      # Dockerfile; override them in .env — see workshop Appendix B.
+      args:
+        NODE_DOWNLOAD_ROOT: ${NODE_DOWNLOAD_ROOT:-https://nodejs.org/dist/}
+        NPM_DOWNLOAD_ROOT: ${NPM_DOWNLOAD_ROOT:-https://registry.npmjs.org/npm/-/}
+        NPM_CONFIG_REGISTRY: ${NPM_CONFIG_REGISTRY:-https://registry.npmjs.org}
+    environment:
+      SPRING_BOOT_PORT: ${SPRING_BOOT_PORT:-8080}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydb
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-user}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-password}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
+    ports:
+      - "${SPRING_BOOT_PORT:-8080}:${SPRING_BOOT_PORT:-8080}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 768m
+    networks:
+      - spring-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+
+networks:
+  spring-network:
+    driver: bridge

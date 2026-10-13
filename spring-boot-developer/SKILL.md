@@ -1,144 +1,201 @@
 ---
 name: spring-boot-developer
-description: Generates modern Spring Boot code and provides architectural guidance for Spring Boot 4.x and 3.5.x. Trigger when writing or modernising Spring Boot applications, or for best practices on package structure, Spring Modulith, REST controllers, WebSocket and STOMP, RFC 9457 error handling, validation, Jackson 3, Spring Data JPA, MyBatis-Plus, transactions, Flyway, caching, Spring Security, JWT, OAuth2, HTTP interface clients, resilience, messaging, configuration, Actuator observability, async, virtual threads and structured concurrency, Spring Batch, Spring AI, MCP servers, Testcontainers testing, or Boot 3 to Boot 4 migration.
-license: MIT
-metadata:
-  author: Avinay Basnet
-  version: '1.0'
+description: Creates and maintains Spring Boot applications, including REST APIs, persistence, tests, frontend integration, and container deployment. Use when scaffolding a Spring Boot project, implementing or changing application behavior, debugging failures, upgrading Boot versions, or preparing an application for delivery.
 ---
 
-# Spring Boot Developer Guidelines
+# Spring Boot Full-Stack Developer
 
-Covers Spring Boot 4.x (the baseline) and 3.5.x (the last 3.x line, and the realistic upgrade source).
+Use this skill for Spring Boot project creation and implementation. It includes a Spring Initializr project generator, environment checker, setup assets, domain guides, frontend integration guides, deployment instructions, and a CRUD workshop. All instructions and assets needed by this skill are contained in this directory.
 
-1. **Always determine the Boot version, the Java version and the build tool before giving guidance.** Boot 4 renamed starters, moved to Jackson 3, Spring Security 7, Spring Batch 6, Testcontainers 2 and JSpecify. Advice that is correct on 4.x frequently will not compile on 3.5.x, and the reverse.
+## Core Rules
 
-2. **This skill pairs with [`java-developer`](https://github.com/zhijunio/skills).** It is fully usable on its own, but where both are installed, java-developer owns the language - immutability, records, sealed types, patterns, `Optional`, `var`, text blocks. This skill owns the framework and never restates or overrides a language rule. Read [java-in-spring.md](references/java-in-spring.md) for how the two meet.
+1. **Determine the versions before giving version-sensitive guidance.** Read the build configuration and establish the exact Spring Boot version, Java version, and build tool. Do not infer them from the installed JDK or from another project.
+2. **Preserve existing project choices.** For existing projects, keep the detected Boot line, build tool, package structure, API contract, and migration strategy unless the requested change requires an update. Do not silently upgrade dependencies or migrate Boot 3.5.x to 4.x.
+3. **Use Boot 4.x for new projects by default.** Boot 3.5.x is supported for existing projects and realistic upgrades. Consult [Spring Boot version compatibility and migration](references/spring-boot-migration.md) before changing versions, starters, or APIs.
+4. **Read the focused guide for the task.** Use the reference map below to select only the relevant guidance. Where a guide has version-specific notes, keep Boot 4 / Spring Framework 7 / Jackson 3 usage distinct from Boot 3.5 / Spring Framework 6 / Jackson 2 usage.
+5. **Follow the project's dependency management.** Prefer the Spring Boot parent or BOM. Check compatibility before overriding managed versions or adding third-party libraries.
+6. **Keep boundaries clear.** Organize new code by business feature where practical. Use request and response DTOs at HTTP boundaries; do not expose persistence entities as API representations.
+7. **Avoid unnecessary infrastructure.** Add authentication, messaging, caching, cloud services, or other optional systems only when the request requires them. Follow existing project conventions when they already define the choice.
+8. **Verify implementation changes.** Use the project's wrapper and established checks. Compile and run relevant tests after code changes; validate Compose configuration after container changes. Report the commands run and their actual results, including checks not run.
 
-3. **Never generate Lombok.** No `@Data`, `@Getter`, `@RequiredArgsConstructor`, `@Builder` or `@Slf4j` - write the constructor, the accessors and the logger. [java-in-spring.md](references/java-in-spring.md) carries the replacement for each annotation. If the project already uses Lombok, match the surrounding code and raise it rather than silently mixing styles.
+## Version and Environment Discovery
 
-4. **This is a Spring MVC skill.** Servlet stack, with virtual threads for concurrency across requests on Java 21+ and structured concurrency for fan-out within one. Do not improvise WebFlux guidance - where Boot exposes parallel configuration for both, the reference names the `spring.webflux.*` key and stops there. A genuinely reactive requirement is out of scope; say so rather than guessing.
+Inspect the repository before implementation:
 
-5. **Errors are RFC 9457 `ProblemDetail`.** No success/error envelope wrapper. Success responses are DTOs and the HTTP status carries the meaning. See [error-handling.md](references/error-handling.md).
+- Maven: check the parent version or imported Spring Boot BOM in `pom.xml`, properties, and profiles.
+- Gradle: check the Spring Boot plugin and dependency management in the build files and version catalog.
+- Java: check the toolchain, compiler release, Maven properties, CI configuration, and project wrapper settings.
+- Also read repository instructions, application configuration, existing tests, and relevant neighboring code.
 
-6. **After generating code, compile it and run the tests** with the project's build tool. Do not skip this - starter renames, Jackson 3 package moves and Security 7 API removals all fail at compile time, and entity mapping errors fail only at runtime.
+For a new project, use `versions.json` as the generator's compatibility baseline and defaults. Respect explicit user choices and project constraints. Use `node scripts/check-environment.mjs --help` and `node scripts/create-project.mjs --help` for supported options.
 
-Every reference carries an **`## If on Boot 3.5.x`** section wherever behaviour differs, and a **`## Gotchas`** list of the specific mistakes agents make in that area. Read the gotchas even when skimming.
+## Project Workflow
 
-## Determining the Version
+### Create a project
 
-**Step 1.** Read the build config, not the installed toolchain. Maven: the `spring-boot-starter-parent` version, or `spring-boot-dependencies` in `dependencyManagement`. Gradle: the `org.springframework.boot` plugin version. Also check `spring-boot.version` properties and CI workflow files.
+Run the bundled scripts from this skill directory and set the output directory to the intended workspace. Do not generate a project inside the skill directory.
 
-**Step 2.** Establish the Java version the same way - Boot 4 requires Java 17 as a floor and is built for 21+; virtual-thread and record-pattern guidance depends on it. java-developer's [java-versions.md](https://github.com/zhijunio/skills) covers this.
+```bash
+node scripts/check-environment.mjs --docker
+node scripts/create-project.mjs \
+  --name inventory-api \
+  --group-id com.example \
+  --docker \
+  --output-dir /absolute/path/to/workspace
+```
 
-**Step 3.** Only generate APIs that exist in that release. If a recommendation needs Boot 4, say so and give the 3.5.x alternative. Never silently generate Boot 4 code for a 3.5.x project.
+The generator defaults to JPA persistence and PostgreSQL. Select `--persistence jpa|mybatis-plus|none` and `--database postgresql|none`; MyBatis-Plus uses the starter matching the selected Spring Boot major version. Generated projects include Spotless Java formatting, a wrapper-based `Taskfile.yml` with `format`, `test`, and `verify` tasks, and an `.sdkmanrc` for the selected Java major. PostgreSQL/Testcontainers Maven projects also receive Failsafe-bound `*IT` integration tests. Front-end, VS Code, and Dev Container files are optional and are not generated unless their workflow is requested. The generator uses Spring Initializr, then applies this skill's project setup assets. It does not overwrite an existing target, install global tools, or initialize Git. Docker generation requires PostgreSQL and Maven; the generator rejects Gradle with `--docker`. Check `--help` for all supported arguments and the actual version choices in `versions.json`.
 
-Read [boot-versions.md](references/boot-versions.md) for the current release lines and the complete Boot 3.5 → 4 delta index.
+For changes to generated project defaults or repository files, read [project setup](references/tooling/project-setup.md). For local PostgreSQL and Compose workflows, read [local development](references/tooling/local-development.md).
 
-## Foundations
+### Change an existing project
 
-- **Boot Versions and Migration**: Current release lines, the full 3.5→4 change index (starter renames, Jackson 3, Security 7, Batch 6, Testcontainers 2, JSpecify, `@MockBean` removal, Flyway no longer transitive), and how to run the migration. Read [boot-versions.md](references/boot-versions.md)
-- **Code Organization**: Package by feature, not by layer. The four-rung boundary ladder from package-private through Spring Modulith to Maven modules, where global `config/` and `shared/` live, and why a feature owning its own authorization beats one god-object `SecurityConfig`. Read [code-organization.md](references/code-organization.md)
-- **Spring Modulith**: Rungs two and three of the ladder - module base package as API, nested packages as internals, `@NamedInterface`, nested `@ApplicationModule` for a feature that has outgrown itself, and the event infrastructure. Read [spring-modulith.md](references/spring-modulith.md)
-- **Spring Proxies and DI**: Constructor injection without Lombok, and the self-invocation trap taught once - it silently disables `@Transactional`, `@Async`, `@Cacheable`, `@Retryable` and `@PreAuthorize` alike. Read [spring-proxies-and-di.md](references/spring-proxies-and-di.md)
+1. Inspect repository instructions, the working tree, build files, configuration, related code, and tests.
+2. Identify the behavior and constraints to preserve. For CRUD or REST work, establish fields, validation, pagination and ordering, status codes, error behavior, persistence changes, and client states.
+3. Read the relevant topic guides and implement the smallest coherent change in the existing conventions.
+4. Add or update tests at the narrowest layer that proves the behavior. Use the real database or the project's established integration setup for database-specific behavior.
+5. Run relevant checks and review the final diff for unintended changes.
 
-## Java in Spring
+If a requirement is ambiguous and affects the API, data model, security, or deployment behavior, state the assumption or ask for the missing decision before locking in the implementation.
 
-- **Java in Spring**: Where java-developer's rules land in a Spring codebase - records for DTOs, commands, events and value objects; classes for entities; the Lombok replacement table; `Optional` on repository returns; sealed types for domain state. Read [java-in-spring.md](references/java-in-spring.md)
+### Debug a failure
 
-## Web Layer
+Start from the observed symptom. Inspect the failing code path, configuration, logs, and recent changes; reproduce with the narrowest useful command; test the leading cause; then verify the affected path. If the cause is uncertain, compare plausible causes against evidence instead of changing unrelated code.
 
-- **REST Controllers**: Controller responsibilities and what must not be in them, URL and status conventions, binding value-object IDs, and capping `Pageable`. Read [rest-controllers.md](references/rest-controllers.md)
-- **WebSocket and STOMP**: choosing server push versus HTTP, STOMP broker messaging versus raw handlers, message authorization, connection limits, scaling, and protocol-level testing. Read [websocket.md](references/websocket.md)
-- **File Upload and Download**: Multipart limits, content validation, opaque storage keys, authorization, streaming and cleanup. Read [file-storage.md](references/file-storage.md)
-- **Thymeleaf**: Server-rendered MVC views, form DTOs, Post/Redirect/Get, safe template output, CSRF, and testing rendered HTML. Read [thymeleaf.md](references/thymeleaf.md)
-- **Internationalization**: Message bundles, locale and timezone selection, validation, localized API errors and tests. Read [internationalization.md](references/internationalization.md)
-- **Error Handling**: RFC 9457 `ProblemDetail`, the global versus per-feature `@RestControllerAdvice` split, the domain exception hierarchy, and why security filter exceptions never reach your handler. Read [error-handling.md](references/error-handling.md)
-- **Validation**: Jakarta Validation, and the three places validation can live - request DTO, record compact constructor, entity invariant - with the rule for choosing. Read [validation.md](references/validation.md)
-- **JSON and Jackson**: Jackson 3 on Boot 4 (`tools.jackson`, `JsonMapper`, `@JacksonComponent`), serialising records and value objects, and the Jackson 2 fallback on 3.5.x. Read [json-and-jackson.md](references/json-and-jackson.md)
-- **API Versioning**: Boot 4's native `version` mapping attribute and single resolution strategy, compatibility checks, deprecation lifecycle and headers, and the 3.5.x fallback. Read [api-versioning.md](references/api-versioning.md)
-- **HATEOAS**: Assemblers, `PagedResourcesAssembler`, and when hypermedia earns its cost. Read [hateoas.md](references/hateoas.md)
-- **OpenAPI**: Spec-first generation with the delegate pattern, and code-first with springdoc. Read [openapi.md](references/openapi.md)
+## Implementation Guidance
 
-## Persistence
+- Keep controllers focused on HTTP binding and response mapping. Put business rules and transaction coordination in an appropriate application service; avoid pass-through layers without a clear responsibility.
+- Validate untrusted input at the boundary. Return useful client errors without exposing stack traces, internal details, or secrets.
+- Use database migrations for deployed schema changes. Treat automatic schema generation as a local-development aid, not a production migration strategy.
+- Use constructor injection. Follow the project's established Java conventions and the guidance in [Java in Spring](references/architecture/java-in-spring.md).
+- For new API errors, prefer RFC 9457 `ProblemDetail` unless the project already has a required error contract.
+- Keep credentials outside source control. Use documented environment variables and placeholder values in example environment files.
+- For frontend integration, align browser calls with backend routes, validation, pagination, JSON wire types, and error responses. Keep generated wire types at the API boundary; handle loading, empty, success, HTTP-error, and no-response states. Prefer a same-origin API contract when suitable. See [OpenAPI](references/web/openapi.md), [JSON and Jackson](references/web/json-and-jackson.md), and [Error handling](references/web/error-handling.md).
+- Keep operational endpoints and metrics limited to the intended management boundary. Never log credentials, access tokens, or sensitive request payloads.
 
-- **Spring Data JPA**: Entity modelling, value-object `@EmbeddedId` with UUIDv7, `equals`/`hashCode` rules, repositories per aggregate root, projections, N+1, keyset pagination and batch writes. Read [spring-data-jpa.md](references/spring-data-jpa.md)
-- **MyBatis-Plus**: Boot-specific starters, explicit SQL and mapper boundaries, safe wrappers, bounded pagination, audit-field filling, logical deletion, data permissions, custom type handlers, plugin ordering, transactions, optimistic locking, tenant isolation, and production-database tests. Read [mybatis-plus.md](references/mybatis-plus.md)
-- **Database Concurrency**: Constraints, optimistic and pessimistic locking, transaction boundaries, retries and real-database concurrency tests. Read [database-concurrency.md](references/database-concurrency.md)
-- **Database Schema and SQL**: Relational schema design, constraints, indexes, safe SQL, bounded queries, execution plans, and production-database verification. Read [database-schema-and-sql.md](references/database-schema-and-sql.md)
-- **Database Backup and Recovery**: RPO/RTO, isolated restores, consistency across database and file stores, and recovery drills. Read [database-backup-recovery.md](references/database-backup-recovery.md)
-- **Auditing**: Spring Data auditing and MyBatis-Plus `MetaObjectHandler`, current and system actors, privacy boundaries, and the distinction between mutable metadata and immutable history. Read [auditing.md](references/auditing.md)
-- **Transactions**: Where `@Transactional` belongs, propagation, `readOnly`, rollback rules, optimistic locking, and binding side effects to commit rather than to publish. Read [transactions.md](references/transactions.md)
-- **Flyway**: Naming, the expand/contract pattern for safe schema change, the `CONCURRENTLY` transaction trap, and why Boot 4 no longer pulls Flyway in for you. Read [flyway.md](references/flyway.md)
-- **Caching**: The Spring Cache abstraction first, Redis specifics second - serializers, TTL with jitter, and the stampede on a hot key. Read [caching.md](references/caching.md)
-- **Cache Consistency**: Commit ordering, durable invalidation, stale-reader races, multi-instance coherence and cache outage behavior. Read [cache-consistency.md](references/cache-consistency.md)
+## Testing and Verification
 
-## Architecture Patterns
+Choose tests according to the behavior under test; the levels complement one another:
 
-- **Domain Modelling**: Aggregates, value objects, domain events published on commit, specifications, the anti-corruption layer, and the `Cmd`/`Query`/`Result` service-layer conventions. Read [domain-modelling.md](references/domain-modelling.md)
-- **Hexagonal Architecture**: Ports and adapters as the internal shape of a feature, not a rival to feature-first packaging. Read [hexagonal-architecture.md](references/hexagonal-architecture.md)
+| Behavior | Preferred starting point |
+| --- | --- |
+| Isolated domain or application logic | Plain unit test |
+| MVC binding, validation, JSON, or controller behavior | Web slice |
+| JPA mappings, repositories, SQL, or migrations | Persistence slice with the production database engine when relevant |
+| Several Spring components or configuration working together | Focused integration test |
+| Full HTTP behavior through a running server | REST end-to-end test |
 
-## Security
+Use Testcontainers for PostgreSQL-specific integration behavior unless the project already provides an equivalent real-database environment. See [testing strategy](references/testing/testing-strategy.md), the specific [testing guides](#testing), and [Testcontainers](references/testing/testcontainers.md). Run the build tool's wrapper and report actual outcomes; do not claim verification that was not performed.
 
-- **Security Fundamentals**: Spring Security 7's lambda-only DSL, the filter chain, method security, the global-authentication versus per-feature-authorization split, JSON 401/403, and testing secured code. Read [security-fundamentals.md](references/security-fundamentals.md)
-- **JWT Authentication**: Self-issued tokens - signing, the filter, access versus refresh, and rotation. Read [jwt-authentication.md](references/jwt-authentication.md)
-- **OAuth2 Resource Server**: Validating tokens from an external IdP, issuer and JWK configuration, and mapping claims to authorities. Read [oauth2-resource-server.md](references/oauth2-resource-server.md)
-- **Multi-Tenancy**: Resolving trusted tenant context, enforcing isolation in persistence and async work, and testing cross-tenant access. Read [multi-tenancy.md](references/multi-tenancy.md)
+## Java Code Intelligence
 
-## Integration
+Generated projects include `.github/lsp.json` for JDTLS integration. When a Java language server is available, use semantic navigation for code changes: go to definition, find references before changing a signature, inspect symbols and types, rename symbols with LSP rename, and check diagnostics. Use the [JDTLS guide](references/tooling/jdtls.md) for setup and troubleshooting. If language-server support is unavailable, use Java-scoped search and inspect the relevant call sites.
 
-- **HTTP Clients**: Declarative `@HttpExchange` interfaces with Boot 4's `@ImportHttpServices` groups, the manual proxy factory on 3.5.x, and `RestClient` versus `WebClient`. Read [http-clients.md](references/http-clients.md)
-- **Resilience**: Spring Framework 7's core `@Retryable` and `@ConcurrencyLimit` - which is not Spring Retry repackaged - and why retry must sit outside the transaction. Read [resilience.md](references/resilience.md)
-- **External Service Testing**: Local HTTP stubs, provider contracts, safe local substitutes, and failure-path verification. Read [external-service-testing.md](references/external-service-testing.md)
-- **Messaging**: Kafka, RabbitMQ and JMS - serialization, consumer error handling and dead-letter topics, idempotent consumers, and the transactional outbox. Read [messaging.md](references/messaging.md)
-- **API Idempotency**: Safe retries for non-idempotent commands, durable key scope, concurrent duplicates, replay security and outbox boundaries. Read [api-idempotency.md](references/api-idempotency.md)
-- **Email**: SMTP configuration and timeouts, after-commit delivery, outbox/retry guarantees, local mail sinks and delivery tests. Read [mail.md](references/mail.md)
+## Reference Guide
 
-## Runtime and Operations
+Load the guide that matches the task. The focused guides contain implementation details and version-specific caveats; this file defines the workflow and routes requests to those guides.
 
-- **Configuration and Secrets**: `@ConfigurationProperties`, profile and environment binding, startup validation, secret delivery, least privilege and credential rotation. Read [configuration.md](references/configuration.md)
-- **Async and Scheduling**: `@Async` and its proxy trap, task executors, `@Scheduled`, virtual threads - including when they remove the reason to reach for reactive - and structured concurrency for the fan-out inside one request that virtual threads do not touch. Read [async-and-scheduling.md](references/async-and-scheduling.md)
-- **Observability**: Actuator endpoints, health probes, Micrometer metrics, tracing, structured logs, actionable alerts and SLOs, and safe production exposure. Read [observability.md](references/observability.md)
-- **Rate Limiting and Resource Protection**: Gateway versus application limits, tenant quotas, 429 responses, hard resource bounds and distributed failure behavior. Read [rate-limiting.md](references/rate-limiting.md)
-- **CI/CD and Releases**: Reproducible artifact promotion, schema compatibility, rollout gates, least-privilege pipelines and recovery evidence. Read [ci-cd-release.md](references/ci-cd-release.md)
-- **JVM performance is a separate skill.** Actuator and Micrometer tell you *that* the application is slow; they do not tune the JVM under it. For GC pause and heap tuning, `OutOfMemoryError` diagnosis, native memory and container limits (`MaxRAMPercentage` rather than a fixed `-Xmx`, and the CPU-limit cascade that silently changes collector and pool sizes), startup via CDS and the AOT cache, profiling with JFR and async-profiler, or thread-pool sizing from what the work actually does, use [`java-performance-developer`](../java-performance-developer/SKILL.md). It owns **proving** where a bottleneck is and defers framework configuration back to this skill.
-- **Spring Batch**: Batch 6's API, the resourceless default repository that silently costs you restartability, `JobOperator`, chunk boundaries and reader thread-safety. Read [spring-batch.md](references/spring-batch.md)
+### Spring Boot versions and project setup
 
-## AI
+- **Version selection or Boot 3.5.x to 4.x migration**: [Spring Boot version compatibility and migration](references/spring-boot-migration.md)
+- **Project generation, defaults, or repository setup assets**: [Project setup](references/tooling/project-setup.md)
+- **Maven build configuration**: [Maven](references/tooling/maven.md)
+- **Gradle build configuration**: [Gradle](references/tooling/gradle.md)
+- **Local development, PostgreSQL/Redis Compose, or DevTools**: [Local development](references/tooling/local-development.md) and [Docker](references/deployment/docker.md)
+- **Task commands and Taskfile**: [Taskfile](references/tooling/taskfile.md)
+- **Git branches, commits, review, or undo**: [Git workflow](references/tooling/git.md)
+- **Java navigation and JDTLS**: [JDTLS](references/tooling/jdtls.md)
 
-- **Spring AI**: `ChatClient`, chat memory and the mandatory conversation id, externalised prompt templates, structured output, RAG and streaming. Read [spring-ai.md](references/spring-ai.md)
-- **MCP Server**: Building an MCP server with the Spring AI starter, `@McpTool`, transport selection, and stdout hygiene on stdio. Read [mcp-server.md](references/mcp-server.md)
-- **AI Observability**: GenAI semantic-convention metrics, the advisor API, token and cost tracking, and keeping prompts out of production logs. Read [ai-observability.md](references/ai-observability.md)
+### Architecture and Java
 
-## Testing
+- **Package and feature boundaries**: [Code organization](references/architecture/code-organization.md)
+- **Domain model, aggregates, and domain events**: [Domain modelling](references/architecture/domain-modelling.md)
+- **Java language choices in Spring-managed code**: [Java in Spring](references/architecture/java-in-spring.md)
+- **Ports and adapters**: [Hexagonal architecture](references/architecture/hexagonal-architecture.md)
+- **Spring Modulith boundaries and events**: [Spring Modulith](references/architecture/spring-modulith.md)
+- **Dependency injection, proxies, and self-invocation**: [Spring proxies and dependency injection](references/architecture/spring-proxies-and-di.md)
+- **Architecture tests**: [ArchUnit](references/architecture/archunit.md)
 
-Write tests at complementary levels. The levels are not alternatives - a green unit test suite routinely coexists with a broken application, because it exercises no mapping, no serialization and no configuration. Most framework-touching tests belong at the fast **sliced** level; keep full-context `@SpringBootTest` for a smoke test plus one request-level end-to-end test.
+### Web and API
 
-- **Testing Strategy**: Why the levels are complementary, the sliced-first distribution, context caching and what forks the cache key, one container per suite, and the native-image caveat. Read [testing-strategy.md](references/testing-strategy.md)
+- **REST endpoints, HTTP semantics, and pagination**: [REST controllers](references/web/rest-controllers.md)
+- **Validation**: [Validation](references/web/validation.md)
+- **Error responses**: [Error handling](references/web/error-handling.md)
+- **JSON serialization and Jackson**: [JSON and Jackson](references/web/json-and-jackson.md)
+- **API versioning**: [API versioning](references/web/api-versioning.md)
+- **OpenAPI and API documentation**: [OpenAPI](references/web/openapi.md)
+- **HATEOAS**: [HATEOAS](references/web/hateoas.md)
+- **Internationalization**: [Internationalization](references/web/internationalization.md)
+- **WebSocket and STOMP**: [WebSocket](references/web/websocket.md)
+- **Thymeleaf views**: [Thymeleaf](references/web/thymeleaf.md)
+- **Serving frontend files and SPA routes**: [Static resources](references/web/static-resources.md)
+- **Idempotent API commands**: [API idempotency](references/web/api-idempotency.md)
 
-| What you are testing | Level | Reference |
-|---|---|---|
-| Business logic, no framework | Unit, no Spring context | [testing-unit.md](references/testing-unit.md) |
-| JPA / JDBC / Spring Data JDBC / jOOQ / MyBatis-Plus queries | Persistence slice + Testcontainers | [testing-slices-persistence.md](references/testing-slices-persistence.md), [mybatis-plus.md](references/mybatis-plus.md) |
-| Controller, JSON serialization, or an outbound REST client | Web slice | [testing-slices-web.md](references/testing-slices-web.md) |
-| A few real components together, external HTTP, or a startup smoke test | Sliced `@SpringBootTest(classes = …)` | [testing-integration.md](references/testing-integration.md) |
-| Full REST API over a real port | End-to-end | [testing-rest-api.md](references/testing-rest-api.md) |
-| Wiring a container | - | [testcontainers.md](references/testcontainers.md) |
-| Architecture and layout rules | Build-time | [archunit.md](references/archunit.md) |
+### Persistence and configuration
 
-All persistence and integration tests use **Testcontainers against the real database**, never in-memory H2 - see [testcontainers.md](references/testcontainers.md).
+- **Spring Data JPA entities, repositories, and queries**: [Spring Data JPA](references/persistence/spring-data-jpa.md)
+- **MyBatis-Plus**: [MyBatis-Plus](references/persistence/mybatis-plus.md)
+- **Transaction boundaries and propagation**: [Transactions](references/persistence/transactions.md)
+- **Schema changes and Flyway**: [Flyway](references/persistence/flyway.md)
+- **SQL, indexes, and schema design**: [Database schema and SQL](references/persistence/database-schema-and-sql.md)
+- **Backup and recovery objectives, database restore, or recovery drills**: [Backup and recovery](references/persistence/backup-and-recovery.md)
+- **Concurrency, locking, and uniqueness races**: [Database concurrency](references/persistence/database-concurrency.md)
+- **Auditing**: [Auditing](references/persistence/auditing.md)
+- **Caching, Redis, cache failure behavior, or Redis Compose**: [Caching](references/persistence/caching.md), [cache consistency](references/persistence/cache-consistency.md), and [Docker](references/deployment/docker.md)
+- **Multi-tenant data isolation**: [Multi-tenancy](references/persistence/multi-tenancy.md)
+- **Profiles, properties, environment variables, and secrets**: [Configuration](references/configuration/configuration.md)
 
-## Build and Delivery
+### Security
 
-The rest of this skill is build-tool agnostic. Read whichever applies:
+- **Filter chains, authorization, passwords, CORS, and CSRF**: [Security fundamentals](references/security/security-fundamentals.md)
+- **Issuing JWTs for local accounts**: [JWT authentication](references/security/jwt-authentication.md)
+- **Validating tokens from an identity provider**: [OAuth2 resource server](references/security/oauth2-resource-server.md)
 
-- **Maven**: [maven.md](references/maven.md) - parent, starters, and the plugins worth configuring.
-- **Gradle**: [gradle.md](references/gradle.md) - the Kotlin DSL equivalents.
+### Testing
 
-- **Local Development**: Boot's Docker Compose support, devtools, and a Taskfile for the common commands. Read [local-development.md](references/local-development.md)
-- **Taskfile**: Designing discoverable, portable development tasks without duplicating the build tool. Read [taskfile.md](references/taskfile.md)
-- **Containerization and Native**: Buildpacks, layered jars, and GraalVM native images with AOT. Read [containerization-and-native.md](references/containerization-and-native.md)
+- **Test levels, context caching, and build setup**: [Testing strategy](references/testing/testing-strategy.md)
+- **Unit tests**: [Unit testing](references/testing/testing-unit.md)
+- **MVC, JSON, and web client tests**: [Web slice testing](references/testing/testing-slices-web.md)
+- **JPA and database tests**: [Persistence slice testing](references/testing/testing-slices-persistence.md)
+- **Focused application integration tests**: [Integration testing](references/testing/testing-integration.md)
+- **Full REST tests**: [REST API testing](references/testing/testing-rest-api.md)
+- **Containers and service connections (PostgreSQL, Redis, and other dependencies)**: [Testcontainers](references/testing/testcontainers.md)
+- **Testing external services and outbound HTTP clients**: [External service testing](references/testing/testing-external-service.md)
 
-## Checklist
+### Integration and runtime
 
-- **Best Practices Checklist**: Every rule in one scannable list, for a review pass over existing code. Read [checklist.md](references/checklist.md)
+- **HTTP service clients**: [HTTP clients](references/integration/http-clients.md)
+- **Retries, concurrency limits, and resilience**: [Resilience](references/integration/resilience.md)
+- **Kafka, RabbitMQ, JMS, and outbox patterns**: [Messaging](references/integration/messaging.md)
+- **Async work and scheduled tasks**: [Async and scheduling](references/integration/async-and-scheduling.md)
+- **Email delivery**: [Mail](references/integration/mail.md)
+- **File upload and storage**: [File storage](references/integration/file-storage.md)
+- **Rate limiting and resource protection**: [Rate limiting](references/integration/rate-limiting.md)
+- **Batch jobs**: [Spring Batch](references/integration/spring-batch.md)
+- **Spring AI applications**: [Spring AI](references/integration/spring-ai.md)
+- **MCP servers**: [MCP server](references/integration/mcp-server.md)
+
+### Observability and performance
+
+- **Logging**: [Logging](references/observability/logging.md)
+- **Health, metrics, tracing, and alerts**: [Observability](references/observability/observability.md)
+- **HTTP server and application performance settings**: [Performance](references/observability/performance.md)
+- **AI and token usage signals**: [AI observability](references/observability/ai-observability.md)
+
+### Frontend integration
+
+Choose the requested client. Each guide covers scaffolding, local API proxying, and packaging frontend assets with Spring Boot:
+
+- [Vue](references/frontend/vue.md)
+- [React](references/frontend/react.md)
+- [Angular](references/frontend/angular.md)
+- [Vanilla JavaScript](references/frontend/vanilla-js.md)
+
+### Containers and deployment
+
+- **Dockerfiles, Compose, and container workflows**: [Docker](references/deployment/docker.md)
+- **Native images and AOT**: [GraalVM Native Image](references/deployment/graalvm.md)
+- **Azure Container Apps deployment**: [Azure](references/deployment/azure.md)
+- **CI/CD and release practices**: [CI/CD and releases](references/deployment/ci-cd-release.md)
+- **Guided full-stack implementation**: [Spring Boot Full-Stack Workshop](workshop/README.md)
+- **Review an application against the collected conventions**: [Best practices checklist](references/checklist.md)

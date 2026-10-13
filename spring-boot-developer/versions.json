@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-10-13",
+  "springBoot": {
+    "default": "4.1.1",
+    "supportedLines": ["4.1.x", "3.5.x"]
+  },
+  "java": {
+    "default": "25",
+    "minimum": "17",
+    "maximumForSpringBootDefault": "26",
+    "maximumBySpringBootMajor": {
+      "4": "26",
+      "3": "25"
+    }
+  },
+  "mavenMinimum": "3.6.3",
+  "gradleMinimum": "8.14",
+  "postgresql": {
+    "defaultMajor": "18",
+    "image": "postgres:18-alpine"
+  },
+  "graalvm": {
+    "defaultMajor": "25"
+  },
+  "testcontainers": {
+    "defaultMajor": "2.0.5"
+  },
+  "spotless": {
+    "mavenPlugin": "3.10.4",
+    "gradlePlugin": "8.10.4",
+    "palantirJavaFormat": "2.102.0"
+  },
+  "mybatisPlus": {
+    "default": "3.5.17",
+    "source": "https://baomidou.com/en/getting-started/install/"
+  },
+  "springFramework": {
+    "defaultMajor": "7.0"
+  },
+  "hibernate": {
+    "defaultMajor": "7.4"
+  },
+  "node": {
+    "default": "24.21.0",
+    "minimum": "24.0.0",
+    "npm": "11.20.0",
+    "npmMinimum": "11.0.0"
+  },
+  "vue": {
+    "major": "3",
+    "piniaMajor": "4",
+    "routerMajor": "5",
+    "viteMajor": "8",
+    "mavenFrontendPlugin": "2.0.2"
+  },
+  "react": {
+    "major": "19",
+    "routerMajor": "8"
+  },
+  "angular": {
+    "major": "22"
+  },
+  "frontend": {
+    "bootstrap": "5.3.8",
+    "bootstrapIcons": "1.13.1"
+  },
+  "sources": {
+    "springBootSystemRequirements": "https://docs.spring.io/spring-boot/system-requirements.html",
+    "springInitializr": "https://start.spring.io",
+    "nodeReleaseSchedule": "https://github.com/nodejs/Release",
+    "viteGuide": "https://vite.dev/guide/"
+  }
+}
