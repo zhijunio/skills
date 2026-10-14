@@ -19,15 +19,17 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Node/Vite frontend
+# Node frontend (Vite, Angular, or Next.js)
 frontend/node_modules/
 frontend/dist/
+frontend/.next/
+frontend/out/
 frontend/.vite/
 frontend/.eslintcache
 
-# Front-end build output. Vite / the Angular CLI write into Spring Boot's static
-# folder (`outDir: ../src/main/resources/static`) during `generate-resources`,
-# so everything the bundler emits there is generated, never hand-edited.
+# Front-end build output. Vite / the Angular CLI can write into Spring Boot's
+# static folder during `generate-resources`; Next.js static exports are copied
+# into the build output directory. Treat generated frontend files as disposable.
 # The placeholder `index.html` shipped for frontend-less projects stays tracked;
 # once you add a frontend/ project the build overwrites it, so add
 # `/src/main/resources/static/index.html` here too if you do not want that diff.
@@ -58,6 +60,7 @@ dependency-check-report.*
 .env.*
 .env.local
 !.env.sample
+.bootui/
 
 # Native builds
 **/*.exe

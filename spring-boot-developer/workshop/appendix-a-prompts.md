@@ -15,7 +15,7 @@ For a complete full-stack request:
 
 ```text
 Use spring-boot-developer to create [application]. Features: [observable behaviors].
-Frontend: [Vue, React, Angular, or vanilla JavaScript]. Persistence:
+Frontend: [Vue, React, Next.js, Angular, or vanilla JavaScript]. Persistence:
 [JPA, MyBatis-Plus, or none]. Database: [PostgreSQL or none]. State whether
 authentication is in scope. Include tests and Docker support if required.
 Follow the skill's version manifest and do not overwrite existing files.

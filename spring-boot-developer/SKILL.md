@@ -165,6 +165,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 ### Integration and runtime
 
 - **HTTP service clients**: [HTTP clients](references/integration/http-clients.md)
+- **Embedded local developer console**: [BootUI](references/integration/bootui.md)
 - **Retries, concurrency limits, and resilience**: [Resilience](references/integration/resilience.md)
 - **Kafka, RabbitMQ, JMS, and outbox patterns**: [Messaging](references/integration/messaging.md)
 - **Async work and scheduled tasks**: [Async and scheduling](references/integration/async-and-scheduling.md)
@@ -184,10 +185,11 @@ Load the guide that matches the task. The focused guides contain implementation 
 
 ### Frontend integration
 
-Choose the requested client. Each guide covers scaffolding, local API proxying, and packaging frontend assets with Spring Boot:
+Choose the requested client. The guides cover scaffolding and API integration; packaging depends on whether the frontend is static or requires its own runtime:
 
 - [Vue](references/frontend/vue.md)
 - [React](references/frontend/react.md)
+- [Next.js](references/frontend/nextjs.md)
 - [Angular](references/frontend/angular.md)
 - [Vanilla JavaScript](references/frontend/vanilla-js.md)
 

@@ -1,14 +1,14 @@
 # Spring Boot Full-Stack Developer
 
-An Agent Skill for creating and maintaining Spring Boot applications. Generate a Spring Boot backend with Maven or Gradle, add PostgreSQL and Docker support, and integrate Vue, React, Angular, or vanilla JavaScript.
+An Agent Skill for creating and maintaining Spring Boot applications. Generate a Spring Boot backend with Maven or Gradle, add PostgreSQL and Docker support, and integrate Vue, React, Next.js, Angular, or vanilla JavaScript.
 
 ## What This Skill Provides
 
 - **Project generation** from Spring Initializr with Spring Boot 4.x as the default and support for existing Boot 3.5.x projects
 - **PostgreSQL and Docker support** with development and full-stack Compose configurations
 - **Selectable persistence** with JPA (default), MyBatis-Plus, or no persistence framework
-- **Backend guidance** for REST APIs, persistence, validation, security, configuration, testing, and application architecture
-- **Frontend integration guides** for Vue, React, Angular, and vanilla JavaScript
+- **Backend guidance** for REST APIs, persistence, validation, security, configuration, testing, application architecture, and optional local BootUI diagnostics
+- **Frontend integration guides** for Vue, React, Next.js, Angular, and vanilla JavaScript
 - **Deployment guidance** for Docker, GraalVM Native Image, and Azure Container Apps
 - **Existing-project support** for implementation, debugging, version migration, and verification
 - **A hands-on workshop** that builds and verifies a Spring Boot, Vue, and PostgreSQL CRUD application
@@ -52,7 +52,7 @@ Follow the [Spring Boot Full-Stack Workshop](workshop/README.md) to generate a b
 - **Web and API:** [REST controllers](references/web/rest-controllers.md) · [Validation](references/web/validation.md) · [Error handling](references/web/error-handling.md) · [JSON and Jackson](references/web/json-and-jackson.md) · [API versioning](references/web/api-versioning.md) · [OpenAPI](references/web/openapi.md) · [HATEOAS](references/web/hateoas.md) · [Internationalization](references/web/internationalization.md) · [WebSocket](references/web/websocket.md) · [Thymeleaf](references/web/thymeleaf.md) · [Static resources](references/web/static-resources.md) · [API idempotency](references/web/api-idempotency.md)
 - **Persistence:** [Spring Data JPA](references/persistence/spring-data-jpa.md) · [MyBatis-Plus](references/persistence/mybatis-plus.md) · [Transactions](references/persistence/transactions.md) · [Flyway](references/persistence/flyway.md) · [Database schema and SQL](references/persistence/database-schema-and-sql.md) · [Backup and recovery](references/persistence/backup-and-recovery.md) · [Database concurrency](references/persistence/database-concurrency.md) · [Auditing](references/persistence/auditing.md) · [Caching and Redis](references/persistence/caching.md) · [Cache consistency](references/persistence/cache-consistency.md) · [Multi-tenancy](references/persistence/multi-tenancy.md)
 - **Security:** [Security fundamentals](references/security/security-fundamentals.md) · [JWT authentication](references/security/jwt-authentication.md) · [OAuth2 resource server](references/security/oauth2-resource-server.md)
-- **Integration:** [HTTP clients](references/integration/http-clients.md) · [Resilience](references/integration/resilience.md) · [Messaging](references/integration/messaging.md) · [Async and scheduling](references/integration/async-and-scheduling.md) · [Mail](references/integration/mail.md) · [File storage](references/integration/file-storage.md) · [Rate limiting](references/integration/rate-limiting.md) · [Spring Batch](references/integration/spring-batch.md) · [Spring AI](references/integration/spring-ai.md) · [MCP server](references/integration/mcp-server.md)
+- **Integration:** [HTTP clients](references/integration/http-clients.md) · [BootUI](references/integration/bootui.md) · [Resilience](references/integration/resilience.md) · [Messaging](references/integration/messaging.md) · [Async and scheduling](references/integration/async-and-scheduling.md) · [Mail](references/integration/mail.md) · [File storage](references/integration/file-storage.md) · [Rate limiting](references/integration/rate-limiting.md) · [Spring Batch](references/integration/spring-batch.md) · [Spring AI](references/integration/spring-ai.md) · [MCP server](references/integration/mcp-server.md)
 - **Testing:** [Testing strategy](references/testing/testing-strategy.md) · [Unit tests](references/testing/testing-unit.md) · [Web slice tests](references/testing/testing-slices-web.md) · [Persistence slice tests](references/testing/testing-slices-persistence.md) · [Integration tests](references/testing/testing-integration.md) · [REST API tests](references/testing/testing-rest-api.md) · [External service tests](references/testing/testing-external-service.md) · [Testcontainers](references/testing/testcontainers.md)
 - **Configuration and operations:** [Configuration](references/configuration/configuration.md) · [Logging](references/observability/logging.md) · [Observability](references/observability/observability.md) · [Performance](references/observability/performance.md) · [AI observability](references/observability/ai-observability.md)
 - **Review checklist:** [Spring Boot best practices](references/checklist.md)
@@ -61,10 +61,11 @@ Follow the [Spring Boot Full-Stack Workshop](workshop/README.md) to generate a b
 
 - [Vue](references/frontend/vue.md)
 - [React](references/frontend/react.md)
+- [Next.js](references/frontend/nextjs.md)
 - [Angular](references/frontend/angular.md)
 - [Vanilla JavaScript](references/frontend/vanilla-js.md)
 
-Each guide covers frontend scaffolding, local API proxying, and integration of production assets with Spring Boot.
+The guides cover frontend scaffolding and API integration. Production packaging varies by framework; Next.js supports either a static export hosted by Spring Boot or a separate Node.js runtime.
 
 ### Deployment guides
 
@@ -83,7 +84,7 @@ When requesting a new application, state the target workspace and required techn
 
 ```text
 Use spring-boot-developer to create an application in my workspace.
-Use PostgreSQL and Docker Compose. Add a Vue frontend and CRUD for products.
+Use PostgreSQL and Docker Compose. Add a Next.js frontend and CRUD for products.
 ```
 
 For an existing application, specify the requested behavior and relevant constraints. The skill will inspect the project version and conventions, then use the corresponding guides.

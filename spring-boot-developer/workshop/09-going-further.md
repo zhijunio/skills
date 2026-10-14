@@ -37,11 +37,11 @@ review the API and database plan.
 
 ## 4. Try a different front-end
 
-Create a separate copy of the workspace and try [React](../references/frontend/react.md), [Angular](../references/frontend/angular.md), or [Vanilla JavaScript](../references/frontend/vanilla-js.md). Keep the same product API so you can compare frontends without changing backend behavior.
+Create a separate copy of the workspace and try [React](../references/frontend/react.md), [Next.js](../references/frontend/nextjs.md), [Angular](../references/frontend/angular.md), or [Vanilla JavaScript](../references/frontend/vanilla-js.md). Keep the same product API so you can compare frontends without changing backend behavior.
 
 ```text
 Use spring-boot-developer to create a separate frontend for this inventory API
-using [React, Angular, or Vanilla JavaScript]. Read the matching frontend guide,
+using [React, Next.js, Angular, or Vanilla JavaScript]. Read the matching frontend guide,
 preserve the existing API contract, and do not modify the backend. Scaffold,
 normalize if required, and verify the development proxy and production build.
 Report the files and commands used.

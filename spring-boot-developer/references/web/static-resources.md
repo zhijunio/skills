@@ -33,7 +33,7 @@ Do not apply a year-long cache policy to every static resource: it would also ca
 
 ## Related
 
-- [Vue](../frontend/vue.md) · [React](../frontend/react.md) · [Angular](../frontend/angular.md) · [Vanilla JavaScript](../frontend/vanilla-js.md) · [Docker](../deployment/docker.md)
+- [Vue](../frontend/vue.md) · [React](../frontend/react.md) · [Next.js](../frontend/nextjs.md) · [Angular](../frontend/angular.md) · [Vanilla JavaScript](../frontend/vanilla-js.md) · [Docker](../deployment/docker.md)
 
 ## References
 

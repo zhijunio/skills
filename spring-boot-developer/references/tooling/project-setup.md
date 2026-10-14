@@ -83,13 +83,16 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Node/Vite frontend
+# Node frontend (Vite, Angular, or Next.js)
 frontend/node_modules/
 frontend/dist/
+frontend/.next/
+frontend/out/
 frontend/.vite/
 frontend/.eslintcache
 
-# Front-end build output (Vite / Angular CLI write into src/main/resources/static)
+# Front-end build output (Vite / Angular CLI may write into src/main/resources/static;
+# Next.js static exports are copied into the build output directory)
 /src/main/resources/static/assets/
 /src/main/resources/static/*.js
 /src/main/resources/static/*.css
@@ -116,6 +119,7 @@ dependency-check-report.*
 .env
 .env.*
 .env.local
+.bootui/
 
 # Native builds
 **/*.exe
@@ -254,12 +258,15 @@ Shrink Docker build context; speeds up builds and avoids leaking secrets.
 node_modules
 **/node_modules
 frontend/dist
+frontend/.next
+frontend/out
 frontend/.vite
 frontend/.eslintcache
 .target
 /target
 .env
 .env.*
+.bootui
 .idea
 .vscode
 .DS_Store

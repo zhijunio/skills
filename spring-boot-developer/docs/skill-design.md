@@ -111,7 +111,7 @@ spring-boot-developer/
 
 ## 交付范围
 
-当前技能覆盖项目生成、Boot 4 与 Boot 3.5.x 指导、Maven/Gradle、JPA/MyBatis-Plus/无持久化选项、PostgreSQL、Vue/React/Angular/原生 JavaScript 集成、测试、安全、观测、Docker、Native Image、Azure 及提示词驱动 Workshop。版本和默认值由 `versions.json` 管理；具体能力以 `SKILL.md`、脚本帮助和实际文件为准。
+当前技能覆盖项目生成、Boot 4 与 Boot 3.5.x 指导、Maven/Gradle、JPA/MyBatis-Plus/无持久化选项、PostgreSQL、Vue/React/Next.js/Angular/原生 JavaScript 集成、BootUI 本地开发诊断、测试、安全、观测、Docker、Native Image、Azure 及提示词驱动 Workshop。Next.js 指南说明静态导出托管和独立 Node.js 运行时两种集成方式。BootUI 参考说明仅开发环境集成与生产隔离。版本和默认值由 `versions.json` 管理；具体能力以 `SKILL.md`、脚本帮助和实际文件为准。
 
 ## 完成标准
 
