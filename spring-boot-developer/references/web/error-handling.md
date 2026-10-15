@@ -195,7 +195,7 @@ Scoped advice applies only to controllers in that package. The rule: **the globa
 )
 ```
 
-Write the `ProblemDetail` to the response by hand there - see [security-fundamentals.md](../security/security-fundamentals.md).
+Write the `ProblemDetail` to the response by hand there. `BearerTokenAuthenticationFilter` does not use the `exceptionHandling()` entry point. On a resource-server chain, also set `authenticationEntryPoint` and `accessDeniedHandler` on `oauth2ResourceServer()`; that access-denied handler is registered with `ExceptionTranslationFilter` for bearer requests. See [security-fundamentals.md](../security/security-fundamentals.md).
 
 Same applies to failures during request parsing before dispatch, and to anything thrown from an async listener after the response has been sent ([async-and-scheduling.md](../integration/async-and-scheduling.md)).
 
@@ -223,7 +223,7 @@ Logging every 404 at `ERROR` turns the log into noise and hides real failures. L
 - Agent returns 200 with an error body - use the status code
 - Agent maps every failure to 400 - 400 is a parse/bind failure, 422 is a business rule refusal
 - Agent catches exceptions in the controller - throw from the service, handle in advice
-- Agent expects advice to catch a security filter exception - configure `authenticationEntryPoint` and `accessDeniedHandler`
+- Agent expects advice to catch a security filter exception, or on a resource-server chain sets the handlers only on `exceptionHandling()` - also set them on `oauth2ResourceServer()`
 - Agent returns only the first validation error - report all violations
 - Agent validates request bodies but leaves query/path constraints untested - cover the MVC method-validation path and normalize it to the same Problem Details contract
 - Agent uses checked exceptions for domain failures - unchecked, and they roll back by default

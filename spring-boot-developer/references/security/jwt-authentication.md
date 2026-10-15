@@ -51,10 +51,13 @@ class JwtKeyConfig {
         var decoder = NimbusJwtDecoder.withPublicKey(jwtRsaKey.toRSAPublicKey())
                 .signatureAlgorithm(SignatureAlgorithm.RS256)
                 .build();
-        OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience().contains(properties.audience())
-                ? OAuth2TokenValidatorResult.success()
-                : OAuth2TokenValidatorResult.failure(
-                        new OAuth2Error("invalid_token", "Required audience is missing", null));
+        OAuth2TokenValidator<Jwt> audienceValidator = jwt -> {
+            var audience = jwt.getAudience(); // null when aud is absent
+            return audience != null && audience.contains(properties.audience())
+                    ? OAuth2TokenValidatorResult.success()
+                    : OAuth2TokenValidatorResult.failure(
+                            new OAuth2Error("invalid_token", "Required audience is missing", null));
+        };
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
                 JwtValidators.createDefaultWithIssuer(properties.issuer()),
                 audienceValidator, sessionValidator));
@@ -195,7 +198,7 @@ The properties are resource references:
 ```yaml
 app:
   jwt:
-    public-key: ${JWT_PUBLIC_KEY}     # classpath:/keys/public.pem in local dev
+    public-key: ${JWT_PUBLIC_KEY}
     private-key: ${JWT_PRIVATE_KEY}
     key-id: ${JWT_KEY_ID}
     issuer: ${JWT_ISSUER}
@@ -204,7 +207,7 @@ app:
     refresh-token-ttl: 30d
 ```
 
-Keys come from the environment or a secret manager - never the repository, never `application.yml`. See [configuration.md](../configuration/configuration.md).
+Keys come from the environment or a secret manager - never the repository, never `application.yml`. These values are `Resource` locations. A value with no protocol, including one that starts with `/`, is loaded from the classpath. Use `classpath:/keys/public.pem` for a local classpath key and `file:/run/secrets/jwt-private.pem` for a filesystem path. See [configuration.md](../configuration/configuration.md).
 
 The `keyID` matters: it goes in the token header as `kid`, which lets verifiers choose the matching public key. During rotation, sign new tokens with one active private key and publish both its public key and the retiring public key until all tokens signed by the old key have expired. Configure any local decoder to accept both keys during that window; the single-key decoder above is the starting configuration and needs a key-set-based validator for rollover. The `Jwks` loader shown here handles RSA; EC keys need an `ECKey` loader and a matching signature algorithm.
 
@@ -274,7 +277,7 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
 
 Implement the failure handler separately as well when its response contract or observability behavior may expand. Keep credentials and internal exception messages out of the response.
 
-`ApiAuthenticationConverter` deserializes and validates the login request with `JsonMapper` and Bean Validation, then returns an unauthenticated `UsernamePasswordAuthenticationToken`. The configured `DaoAuthenticationProvider` verifies the password and returns `SecurityUser`. The filter's failure handler maps authentication failures to a generic 401 response.
+`ApiAuthenticationConverter` deserializes and validates the login request with `JsonMapper` and Bean Validation, then returns an unauthenticated `UsernamePasswordAuthenticationToken`. The configured `DaoAuthenticationProvider` verifies the password and returns `SecurityUser`. The filter's failure handler maps authentication failures to a generic 401 response. Do not reuse that converter for refresh. A refresh request carries the refresh token, so the refresh filter needs its own converter.
 
 ### Put login, refresh and logout in the security flow when required
 
@@ -336,17 +339,18 @@ SecurityFilterChain securityFilterChain(
         HttpSecurity http,
         @Qualifier("loginAuthenticationManager") AuthenticationManager loginManager,
         @Qualifier("refreshAuthenticationManager") AuthenticationManager refreshManager,
-        ApiAuthenticationConverter converter,
+        ApiAuthenticationConverter loginConverter,
+        RefreshTokenAuthenticationConverter refreshConverter,
         RefreshTokenLogoutHandler logoutHandler,
-        SecurityProblemDetailHandler problemDetailHandler,
+        SecurityProblemHandlers problemDetailHandler,
         LoginAuthenticationSuccessHandler loginSuccessHandler,
         LoginAuthenticationFailureHandler loginFailureHandler,
         RefreshAuthenticationSuccessHandler refreshSuccessHandler,
         RefreshAuthenticationFailureHandler refreshFailureHandler) throws Exception {
     var loginFilter = new LoginAuthenticationFilter(
-            loginManager, converter, loginSuccessHandler, loginFailureHandler);
+            loginManager, loginConverter, loginSuccessHandler, loginFailureHandler);
     var refreshFilter = new RefreshAuthenticationFilter(
-            refreshManager, converter, refreshSuccessHandler, refreshFailureHandler);
+            refreshManager, refreshConverter, refreshSuccessHandler, refreshFailureHandler);
     return http
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -354,7 +358,10 @@ SecurityFilterChain securityFilterChain(
                     .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh",
                             "/api/auth/logout", "/.well-known/jwks.json", "/error").permitAll()
                     .anyRequest().authenticated())
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+            .oauth2ResourceServer(oauth2 -> oauth2
+                    .jwt(Customizer.withDefaults())
+                    .authenticationEntryPoint(problemDetailHandler)
+                    .accessDeniedHandler(problemDetailHandler))
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint(problemDetailHandler)
                     .accessDeniedHandler(problemDetailHandler))
@@ -374,11 +381,13 @@ SecurityFilterChain securityFilterChain(
 }
 ```
 
-This application-wide API chain is intentionally catch-all. Signature, expiry and issuer are validated by the decoder; `audienceValidator` checks the configured audience and `SessionJwtValidator` checks the `sid` against the session store. Invalid bearer tokens reach the configured entry point as 401 responses. Scope claims map to `SCOPE_*` authorities automatically - see [oauth2-resource-server.md](oauth2-resource-server.md) for custom claim mapping.
+This application-wide API chain is intentionally catch-all. Signature, expiry and issuer are validated by the decoder; `audienceValidator` checks the configured audience and `SessionJwtValidator` checks the `sid` against the session store. Invalid bearer tokens are rejected inside `BearerTokenAuthenticationFilter`, which calls the entry point set on `oauth2ResourceServer()`. Scope claims map to `SCOPE_*` authorities automatically - see [oauth2-resource-server.md](oauth2-resource-server.md) for custom claim mapping.
 
 ### Immediate session revocation
 
 Short-lived self-contained JWTs remain usable until expiry after logout or session revocation. If the product requires immediate invalidation, include a `sid` claim and add an `OAuth2TokenValidator<Jwt>` that checks the session ID, subject ownership, expiry and revocation state against the session store on every bearer request. Revoke the session and its refresh tokens together. This adds a store lookup to each authenticated request; keep it uncached when revocation must take effect on the next request, and fail closed if the store cannot be checked.
+
+Distinguish an inactive or revoked session from an unavailable session store. The former is an invalid credential (`401`); when Redis or another required shared-state store cannot be checked, fail closed with `503 Service Unavailable` rather than treating the token as valid or misreporting it as an invalid credential. Apply the same distinction to login, refresh and logout operations that depend on that store. Return a stable problem response and keep infrastructure details out of the response.
 
 The validator performs the session lookup through a repository and rejects missing IDs as invalid tokens:
 
@@ -401,7 +410,7 @@ When the product needs session management, keep one session row per login and li
 Reading the caller in a controller:
 
 ```java
-@GetMapping("/me")
+@GetMapping("/api/users/me")
 public UserResponse me(Authentication authentication) {
     String userId = authentication.getName();
     return users.findById(userId)
@@ -416,13 +425,13 @@ public UserResponse me(Authentication authentication) {
 
 Hash the opaque value before storage by default. Because the value is high entropy, a fast cryptographic hash such as SHA-256 is appropriate; password hashing is not needed. If a requirement explicitly calls for storing the raw token, preserve that requirement rather than silently hashing it, and document that a database or backup leak exposes immediately usable credentials. Restrict database and backup access accordingly.
 
-When raw storage is an explicit requirement, lock the active session before the presented token, then revoke the old token, extend the session, and insert the replacement in one transaction:
+When raw storage is an explicit requirement, lock the session that owns the presented token, then revoke the old token, extend the session, and insert the replacement in one transaction. The lock must succeed for a revoked or expired token and return false only when no token row exists. A lock that succeeds only for a still-active token returns before reuse detection, so a replay never revokes the family.
 
 ```java
 @Transactional(noRollbackFor = InvalidRefreshTokenException.class)
 public RefreshTokenRotation rotate(String presentedToken) {
     Instant now = Instant.now();
-    if (!tokens.lockActiveSession(presentedToken, now)) {
+    if (!tokens.lockOwningSession(presentedToken)) {
         throw new InvalidRefreshTokenException();
     }
     RefreshToken current = tokens.findForUpdate(presentedToken)

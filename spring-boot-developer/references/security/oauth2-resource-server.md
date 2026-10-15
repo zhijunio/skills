@@ -49,7 +49,9 @@ class ResourceServerConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(authoritiesConverter())))
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(authoritiesConverter()))
+                        .authenticationEntryPoint(problemDetailEntryPoint())
+                        .accessDeniedHandler(problemDetailAccessDeniedHandler()))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(problemDetailEntryPoint())
                         .accessDeniedHandler(problemDetailAccessDeniedHandler()))
@@ -58,7 +60,7 @@ class ResourceServerConfig {
 }
 ```
 
-No `UserDetailsService`, no `PasswordEncoder`, no `AuthenticationProvider` - the token is the authentication. See [security-fundamentals.md](security-fundamentals.md) for the chain rules and the JSON 401/403 handlers.
+No `UserDetailsService`, no `PasswordEncoder`, no `AuthenticationProvider` - the token is the authentication. `BearerTokenAuthenticationFilter` calls the entry point set on `oauth2ResourceServer()` for invalid, malformed, and expired tokens. The access-denied handler on that DSL is registered with `ExceptionTranslationFilter` for bearer requests; leaving it unset keeps `BearerTokenAccessDeniedHandler`. Setting either handler only on `exceptionHandling()` does not replace those defaults. Keep the same handlers on `exceptionHandling()` for authorization failures outside bearer-token authentication. This chain matches only `/api/**`. When it is the only chain, every other path, including Actuator, is passed through with no security filters; add the Actuator chain from [security-fundamentals.md](security-fundamentals.md).
 
 ## Mapping claims to authorities
 

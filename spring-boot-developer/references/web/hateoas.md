@@ -110,8 +110,8 @@ Assert links, not just fields - an assembler that stops emitting `cancel` is a b
 assertThat(mockMvcTester.get().uri("/api/orders/{id}", id))
         .hasStatusOk()
         .bodyJson()
-        .hasPathSatisfying("$._links.self.href", href -> assertThat(href).asString().endsWith(id.toString()))
-        .hasPathSatisfying("$._links.cancel.href", Assert::isNotNull);
+        .hasPathSatisfying("$._links.self.href", href -> href.assertThat().asString().endsWith(id.toString()))
+        .hasPathSatisfying("$._links.cancel.href", href -> href.assertThat().isNotNull());
 ```
 
 Cover the negative too: a shipped order must **not** carry `cancel`.

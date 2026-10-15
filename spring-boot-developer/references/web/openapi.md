@@ -188,7 +188,8 @@ Swagger UI in production is an unnecessary attack surface and an interactive cli
                 <configOptions>
                     <delegatePattern>true</delegatePattern>
                     <skipDefaultInterface>true</skipDefaultInterface>
-                    <useSpringBoot3>true</useSpringBoot3>
+                    <useSpringBoot4>true</useSpringBoot4>
+                    <useJackson3>true</useJackson3>
                     <useTags>true</useTags>
                     <dateLibrary>java8</dateLibrary>
                     <openApiNullable>false</openApiNullable>
@@ -199,7 +200,7 @@ Swagger UI in production is an unnecessary attack surface and an interactive cli
 </plugin>
 ```
 
-- `useSpringBoot3=true` is still the flag for Jakarta / Spring 6+ generation despite the name. Without it you get `javax.*` imports that will not compile.
+- `useSpringBoot4=true` and `useJackson3=true` together target Boot 4. `useSpringBoot3` is the Boot 3 line; the generator turns it off when `useSpringBoot4` is set. Without `useJackson3`, generated code still imports Jackson 2 (`com.fasterxml.jackson.databind`) and does not compile on Boot 4. Use a generator release that provides both options.
 - `delegatePattern=true` generates an interface you implement, leaving the generated controller untouched.
 - `skipDefaultInterface=true` - otherwise the generated interface has default methods returning 501 and a missing implementation compiles silently.
 - Generate into `target/`, never into `src/`. Add it to `.gitignore` and let the build produce it.
@@ -263,7 +264,7 @@ The generator target follows the client transport and project needs, not whether
 - Agent adds `/v3/api-docs` to `permitAll` without thinking - that publishes the full API surface anonymously
 - Agent lets a `@JsonValue` value object document as an object - the schema then contradicts the payload
 - Agent assumes springdoc discovers Framework 7's API-version header automatically - declare the header explicitly or use a tested OpenAPI customiser, then inspect the generated spec
-- Agent omits `useSpringBoot3=true` - generates `javax.*` imports that do not compile
+- Agent sets `useSpringBoot3` for a Boot 4 project, or sets `useSpringBoot4` without `useJackson3` - generated code stays on Jackson 2 and does not compile
 - Agent omits `skipDefaultInterface=true` - a missing implementation compiles and returns 501 at runtime
 - Agent commits generated sources - generate into `target/` and gitignore them
 - Agent edits generated controllers - implement the delegate; edits are lost on the next build

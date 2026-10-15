@@ -132,7 +132,7 @@ For deep pagination use keyset pagination instead; see [spring-data-jpa.md](../p
 
 - Set `produces` / `consumes` only when the endpoint genuinely serves more than JSON, or you want a 415 rather than a confusing bind failure.
 - Long-running work: return **202** with a `Location` pointing at a status resource. Do not hold the request open.
-- CORS belongs in `WebMvcConfigurer` in `config/`, not scattered as `@CrossOrigin` on controllers.
+- CORS belongs in one place, not scattered as `@CrossOrigin` on controllers. With the security starter, a `WebMvcConfigurer` mapping is not applied unless the security chain calls `.cors()`. Use the `CorsConfigurationSource` bean and `.cors(Customizer.withDefaults())` from [security-fundamentals.md](../security/security-fundamentals.md). Without Spring Security, `WebMvcConfigurer.addCorsMappings` is enough.
 
 ## Gotchas
 
@@ -147,7 +147,7 @@ For deep pagination use keyset pagination instead; see [spring-data-jpa.md](../p
 - Agent returns 200 with an error object in the body - use the status code; see [error-handling.md](error-handling.md)
 - Agent wraps every response in `ResponseEntity` - return the payload directly unless you need a non-default status or a header
 - Agent nests resources three levels deep - flatten to a top-level resource
-- Agent sprinkles `@CrossOrigin` on controllers - configure CORS once in `WebMvcConfigurer`
+- Agent sprinkles `@CrossOrigin` on controllers, or configures CORS only in `WebMvcConfigurer` while a security chain is present - call `.cors()` on that chain; see [security-fundamentals.md](../security/security-fundamentals.md)
 - Agent parses the ID from a `String` path variable inside the handler - register a `Converter` and bind the value object
 
 ## Related

@@ -176,15 +176,19 @@ The exact values should be different per worktree. The defaults remain the usual
 
 ### Spring Boot configuration
 
-Import the root `.env` file directly from `src/main/resources/application.properties`, then use environment-backed defaults:
+Import the root `.env` file directly from `src/main/resources/application.yaml`, then use environment-backed defaults:
 
-```properties
-spring.config.import=optional:file:.env[.properties]
+```yaml
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/mydb}
+    username: ${SPRING_DATASOURCE_USERNAME:user}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
 
-server.port=${SPRING_BOOT_PORT:8080}
-spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/mydb}
-spring.datasource.username=${SPRING_DATASOURCE_USERNAME:user}
-spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:password}
+server:
+  port: ${SPRING_BOOT_PORT:8080}
 ```
 
 The `[.properties]` hint tells Spring Boot to parse the extensionless `.env` file as Java properties. With this in place, local development does not need to source `.env` first:

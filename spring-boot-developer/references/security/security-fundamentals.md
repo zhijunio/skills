@@ -23,7 +23,7 @@ class SecurityConfig {
 
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity http,
-            SecurityProblemDetailHandler problemDetailHandler) throws Exception {
+            SecurityProblemHandlers problemDetailHandler) throws Exception {
         return http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
@@ -67,6 +67,47 @@ SecurityFilterChain actuatorChain(HttpSecurity http) throws Exception {
 ```
 
 The first chain whose `securityMatcher` matches handles the request; the rest are never consulted. A chain with no matcher matches everything, so it must be last.
+
+### A browser session and a Bearer API in one application
+
+When the same application serves a browser session and a stateless API, put the API chain first and scope it to its API path. Disable CSRF and select `STATELESS` only in that chain. Keep a final browser chain with form login, the default session behavior, and CSRF enabled. Do not let the API chain claim browser paths or leave unrelated paths outside every intended chain.
+
+```java
+@Bean
+@Order(1)
+SecurityFilterChain apiChain(HttpSecurity http, OpaqueTokenIntrospector introspector) throws Exception {
+    return http
+            .securityMatcher("/api/**")
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .csrf(csrf -> csrf.disable())
+            .oauth2ResourceServer(resource -> resource.opaqueToken(token -> token.introspector(introspector)))
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .build();
+}
+
+@Bean
+@Order(2)
+SecurityFilterChain browserChain(HttpSecurity http) throws Exception {
+    return http
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .formLogin(Customizer.withDefaults())
+            .logout(Customizer.withDefaults())
+            .build(); // CSRF stays enabled; this chain uses the default session policy.
+}
+```
+
+The API chain is appropriate only when authentication comes from an explicitly supplied bearer header and it does not accept browser cookies. CORS is not CSRF protection: a browser session still needs CSRF tokens on state-changing requests even when CORS is configured.
+
+Authorize write scopes independently from read scopes. A user allowed to read a resource should not inherit write permission just because both HTTP methods share a path:
+
+```java
+.requestMatchers(HttpMethod.GET, "/api/records/**").hasAuthority("SCOPE_records:read")
+.requestMatchers(HttpMethod.POST, "/api/records/**").hasAuthority("SCOPE_records:write")
+```
+
+For an Authorization-header-only API, configure CORS with explicit origins and `allowCredentials(false)`. Reject wildcard origins in application configuration when the contract requires an allowlist. Set `allowCredentials(true)` only when cross-origin cookies are an intentional requirement, and then keep the origin list exact and CSRF protection in place.
+
+If a sample uses an in-memory account or a hard-coded token-to-authority introspector to avoid an external identity provider, isolate that fixture to a local or test profile, require credentials through environment configuration, and label it as non-production authentication. Do not present fixture token matching as validation by a trusted issuer.
 
 ## Use form login for browser sessions
 
@@ -166,15 +207,15 @@ Avoid `@PostAuthorize` where you can: it runs the method, then decides. On a rea
 
 Out of the box an unauthenticated API request gets an empty 401, or a redirect to a login page. Neither is usable by a client. And **`@RestControllerAdvice` cannot help** - security filters run before the `DispatcherServlet`, so nothing thrown there reaches your handler ([error-handling.md](../web/error-handling.md)).
 
-Use one handler for both filter-chain interfaces when they share the same response format. The same `SecurityProblemDetailHandler` can write ProblemDetail responses from authentication filters and logout handlers, avoiding a second response utility. Boot 4 applications can use Jackson 3's `JsonMapper`:
+Use one handler for both filter-chain interfaces when they share the same response format. The same `SecurityProblemHandlers` can write ProblemDetail responses from authentication filters and logout handlers, avoiding a second response utility. Boot 4 applications can use Jackson 3's `JsonMapper`:
 
 ```java
 @Component
-class SecurityProblemDetailHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
+class SecurityProblemHandlers implements AuthenticationEntryPoint, AccessDeniedHandler {
 
     private final JsonMapper jsonMapper;
 
-    SecurityProblemDetailHandler(JsonMapper jsonMapper) {
+    SecurityProblemHandlers(JsonMapper jsonMapper) {
         this.jsonMapper = jsonMapper;
     }
 
@@ -295,7 +336,7 @@ Boot sets sensible defaults - `X-Content-Type-Options`, `X-Frame-Options`, `Cach
         .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'")))
 ```
 
-CORS goes in one place, and **never `allowedOrigins("*")` with credentials** - the browser rejects the combination, and if you work around it you have disabled the same-origin policy:
+CORS goes in one place. For a Bearer API, use an explicit origin allowlist and do not enable credentials:
 
 ```java
 @Bean
@@ -304,7 +345,7 @@ CorsConfigurationSource corsConfigurationSource(WebProperties properties) {
     config.setAllowedOrigins(properties.allowedOrigins());   // explicit, from configuration
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-    config.setAllowCredentials(true);
+    config.setAllowCredentials(false);
     var source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/api/**", config);
     return source;
@@ -313,11 +354,11 @@ CorsConfigurationSource corsConfigurationSource(WebProperties properties) {
 
 Then `.cors(Customizer.withDefaults())` on the chain. Do not scatter `@CrossOrigin`.
 
-**CSRF**: disable it only for a stateless token API. Cookie-based session authentication needs it on.
+**CSRF**: disable it only for a stateless token API. Cookie-based session authentication needs it on. CORS does not replace CSRF; test that an unsafe browser request without a token fails and that a valid token succeeds.
 
 ## Actuator
 
-Actuator endpoints are not secured by default beyond what you configure, and several are dangerous. Give them their own chain (above) and expose deliberately - see [observability.md](../observability/observability.md).
+With the security starter and no custom chain, Boot authenticates every request, including Actuator. A custom chain that sets `securityMatcher` does not cover unmatched paths: `FilterChainProxy` sends those requests on with no security filters. Several Actuator endpoints are dangerous. Give them their own chain (above) and expose them deliberately - see [observability.md](../observability/observability.md).
 
 ## Testing
 
@@ -350,6 +391,8 @@ class OrderControllerSecurityTest {
 
 Requires the security test support on the classpath. Test the **negative** cases - a test suite that only proves the happy path passes just as well when the rules are missing entirely.
 
+For a single controller rule, a web slice with the production chain imported is usually enough. When the behavior crosses multiple chains or depends on resource-server filters, CORS preflight handling, session persistence, or a real token introspector, use a focused `@SpringBootTest` with `@AutoConfigureMockMvc` if the slice would require reconstructing most of the security context. Cover both sides of the boundary: browser POST without/with CSRF, Bearer POST without CSRF, allowed and rejected CORS origins, missing/invalid bearer 401, and insufficient scope or role 403. Keep configuration binding checks separate with `ApplicationContextRunner`.
+
 For `@PreAuthorize` on services, `@WithMockUser` works in a sliced `@SpringBootTest` too. See [testing-slices-web.md](../testing/testing-slices-web.md).
 
 ## Gotchas
@@ -363,7 +406,7 @@ For `@PreAuthorize` on services, `@WithMockUser` works in a sliced `@SpringBootT
 - Agent omits `securityMatcher` on one of several chains - it claims every request and the later chains never run
 - Agent puts `anyRequest()` before a specific matcher - first match wins; specific rules go first
 - Agent disables CSRF on a session-based application - that is a real vulnerability
-- Agent skips `exceptionHandling` - clients get empty 401/403 bodies, and advice cannot catch filter exceptions
+- Agent skips `exceptionHandling`, or on a resource-server chain sets it without the same handlers on `oauth2ResourceServer()` - invalid bearer tokens keep `BearerTokenAuthenticationEntryPoint`, and bearer authorization failures keep `BearerTokenAccessDeniedHandler`
 - Agent uses `hasAuthority('ADMIN')` for a role - roles carry the `ROLE_` prefix; use `hasRole('ADMIN')`
 - Agent uses `hasRole` for an OAuth2 scope - scopes are `hasAuthority('SCOPE_...')`
 - Agent writes long SpEL in `@PreAuthorize` - delegate to a named bean; SpEL is not refactor-safe

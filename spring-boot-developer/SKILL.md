@@ -48,6 +48,7 @@ The generator downloads a Boot 4.x project from Spring Initializr and applies th
 
 - **Options**: `--persistence jpa|mybatis-plus|none` (default `jpa`) and `--database postgresql|none` (default `postgresql`). `--database none` implies `--persistence none`. `--docker` requires Maven and PostgreSQL.
 - **Always generated**: Spotless formatting (applied once, so the first `verify` passes), a wrapper-based `Taskfile.yml` with `format`, `test`, and `verify`, an `.sdkmanrc` for the selected Java major, and `server.port=${SPRING_BOOT_PORT:8080}` so the port variable in `.env.sample` and Compose takes effect.
+- **When Docker image/build files are generated**: ensure the project has a root `.dockerignore` merged with the skill template, excluding build output, dependency directories, `.git`, and local secrets such as `.env`.
 - **With PostgreSQL**: a local `compose.yaml` and a Testcontainers configuration pinned to the same PostgreSQL image; Maven projects also run `*IT` tests through Failsafe.
 - **Not generated**: front-end, VS Code, and Dev Container files, unless their workflow is requested. The generator does not overwrite an existing target, install global tools, or initialize Git.
 

@@ -42,11 +42,16 @@ spring:
             provider: company
             client-id: ${OIDC_CLIENT_ID}
             client-secret: ${OIDC_CLIENT_SECRET}
-            scope: openid, profile, email
+            scope:
+              - openid
+              - profile
+              - email
         provider:
           company:
             issuer-uri: ${OIDC_ISSUER_URI}
 ```
+
+Write `scope` as a list. Boot splits a comma-separated string and does not trim it, so `openid, profile, email` registers the scopes ` profile` and ` email`.
 
 Keep the normal session and CSRF protections for a browser login:
 

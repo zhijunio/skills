@@ -7,7 +7,7 @@ An Agent Skill for creating and maintaining Spring Boot applications. Generate a
 - **Project generation** of Spring Boot 4.x projects from Spring Initializr; guides target Boot 4, and changes to existing Boot 3.5.x projects use the consolidated differences in the migration guide
 - **PostgreSQL and Docker support** with development and full-stack Compose configurations
 - **Selectable persistence** with JPA (default), MyBatis-Plus, or no persistence framework
-- **Backend guidance** for REST APIs, persistence, validation, security, configuration, testing, application architecture, and optional local BootUI diagnostics
+- **Backend guidance** for REST APIs, persistence, validation, security, configuration, testing, application architecture, and optional local BootUI diagnostics; security guidance covers both browser sessions and stateless Bearer APIs
 - **Frontend integration guides** for Vue, React, Next.js, Angular, and vanilla JavaScript
 - **Deployment guidance** for Docker, GraalVM Native Image, and Azure Container Apps
 - **Existing-project support** for implementation, debugging, version migration, and verification

@@ -126,10 +126,16 @@ async function addDockerAssets(projectDir, name, persistence) {
   let compose = (await readFile(join(assets, 'docker-compose.yml'), 'utf8')).replace('  spring-app:', `  ${name}:`)
   if (persistence !== 'jpa') compose = compose.replace(/^\s+SPRING_JPA_HIBERNATE_DDL_AUTO:.*\r?\n/m, '')
   await writeFile(join(projectDir, 'compose.full.yaml'), compose)
+  await ensureDockerignore(projectDir, [
+    '.git', '.env', '.env.*', '!*.env.sample', 'target', '**/target', 'frontend/node_modules', '**/node_modules', 'frontend/dist',
+  ])
+}
+
+async function ensureDockerignore(projectDir, additions = []) {
   const ignorePath = join(projectDir, '.dockerignore')
   const current = existsSync(ignorePath) ? await readFile(ignorePath, 'utf8') : ''
-  const additions = ['.git', '.env', '.env.*', '!*.env.sample', 'target', '**/target', 'frontend/node_modules', '**/node_modules', 'frontend/dist']
-  const merged = [...new Set([...current.split(/\r?\n/).filter(Boolean), ...additions])]
+  const template = await readFile(join(root, 'assets', 'dockerignore'), 'utf8')
+  const merged = [...new Set([...current.split(/\r?\n/).filter(Boolean), ...template.split(/\r?\n/).filter(Boolean), ...additions])]
   await writeFile(ignorePath, `${merged.join('\n')}\n`)
 }
 
@@ -179,22 +185,26 @@ async function addProjectSetupAssets(projectDir, packageName) {
     if (!existsSync(target)) await writeFile(target, await readFile(join(assets, sourceName)))
   }
 
-  const dockerignorePath = join(projectDir, '.dockerignore')
-  const currentDockerignore = existsSync(dockerignorePath) ? await readFile(dockerignorePath, 'utf8') : ''
-  const generatedDockerignore = await readFile(join(assets, 'dockerignore'), 'utf8')
-  const mergedDockerignore = [...new Set([...currentDockerignore.split(/\r?\n/).filter(Boolean), ...generatedDockerignore.split(/\r?\n/).filter(Boolean)])]
-  await writeFile(dockerignorePath, `${mergedDockerignore.join('\n')}\n`)
+  await ensureDockerignore(projectDir)
 
-  const propertiesPath = join(projectDir, 'src', 'main', 'resources', 'application.properties')
+  const resourcesDirectory = join(projectDir, 'src', 'main', 'resources')
+  const propertiesPath = join(resourcesDirectory, 'application.properties')
   if (existsSync(propertiesPath)) {
     const properties = await readFile(propertiesPath, 'utf8')
-    if (!/^server\.port\s*=/m.test(properties)) {
-      await writeFile(propertiesPath, `${properties.trimEnd()}\nserver.port=\${SPRING_BOOT_PORT:8080}\n`)
+    const yamlPath = join(resourcesDirectory, 'application.yaml')
+    const yamlLines = properties.split(/\r?\n/).flatMap((line) => {
+      const trimmed = line.trim()
+      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('!')) return trimmed ? [`# ${trimmed.slice(1).trim()}`] : []
+      const match = trimmed.match(/^([^=:\s]+)\s*[=:]\s*(.*)$/)
+      if (!match) return [`# Unconverted Spring Initializr property: ${trimmed}`]
+      return [`${JSON.stringify(match[1])}: ${JSON.stringify(match[2])}`]
+    })
+    if (!/^\s*["']?server\.port["']?\s*:/m.test(yamlLines.join('\n'))) {
+      yamlLines.push('server:', '  port: ${SPRING_BOOT_PORT:8080}')
     }
+    await writeFile(yamlPath, `${yamlLines.join('\n')}\n`)
+    await rm(propertiesPath)
   }
-
-  await mkdir(join(projectDir, '.github'), { recursive: true })
-  await writeFile(join(projectDir, '.github', 'lsp.json'), await readFile(join(assets, 'lsp.json')))
 
   const configDirectory = join(projectDir, 'src', 'main', 'java', ...packageName.split('.'), 'config')
   await mkdir(configDirectory, { recursive: true })
@@ -408,6 +418,7 @@ async function main() {
     }
     await writeFile(zipPath, new Uint8Array(await response.arrayBuffer()))
     await extract(zipPath, tempDir)
+    await rm(join(extracted, 'HELP.md'), { force: true })
     if (!existsSync(extracted)) throw new Error('Spring Initializr archive did not contain the requested project directory')
     await mkdir(options.outputdir, { recursive: true })
     await rename(extracted, options.projectDir)

@@ -20,6 +20,8 @@ Set up ignore rules, environment files, editor settings, and optional developmen
 
 ## Generator persistence options
 
+New projects use `application.yaml`; the generator converts Spring Initializr's generated properties to YAML and adds the `SPRING_BOOT_PORT` default there. For existing projects, preserve their established configuration format.
+
 The bundled generator separates the persistence layer from the database driver:
 
 | Option | Values | Default | Generated dependencies |
@@ -249,6 +251,8 @@ scripts/create-project text eol=lf
 ---
 
 ## `.dockerignore`
+
+Whenever project generation or implementation adds a `Dockerfile` or a Compose service with a build context, create or merge a root `.dockerignore` in the same change. Do not rely on a later Docker build to reveal that the file is missing. At minimum exclude build output, dependency directories, `.git`, and local secret files such as `.env`; keep required sample environment files included.
 
 Shrink Docker build context; speeds up builds and avoids leaking secrets.
 
@@ -562,7 +566,7 @@ gh auth token | docker login ghcr.io -u "$GHCR_OWNER" --password-stdin
   - `.dockerignore`
   - `Taskfile.yml` with wrapper-backed test, verify, and run tasks; Compose tasks appear when PostgreSQL is selected, Docker tasks when `--docker` is selected
   - `.sdkmanrc` matching the selected Java major with the Temurin distribution
-  - `server.port=${SPRING_BOOT_PORT:8080}` in `application.properties`, so the port variable used by `.env.sample` and the Compose files changes the port the app listens on
+  - `server.port: ${SPRING_BOOT_PORT:8080}` in `application.yaml`, so the port variable used by `.env.sample` and the Compose files changes the port the app listens on
 - Existing files are **not overwritten blindly**:
   - If `.gitignore` exists, we append with a marker `# === spring-boot-developer additions ===`.
   - For other dotfiles, we create them only if missing.

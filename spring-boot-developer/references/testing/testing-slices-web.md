@@ -61,6 +61,8 @@ Two things must be imported explicitly or the test is misleading:
 - **Your `SecurityConfig`.** The web slice does **not** pick it up. Without `@Import`, the test runs against Boot's default chain - usually a surprise 401, or worse, a green test that proves nothing about your actual rules. See [security fundamentals](../security/security-fundamentals.md).
 - **Any `Converter`** the controller relies on for path-variable binding, such as the value-object ID converters in [REST controllers](../web/rest-controllers.md).
 
+For one controller and one authorization chain, this slice is usually the fastest way to test status codes and the JSON contract. If the behavior under test crosses browser and API filter chains, CORS preflight, session CSRF, or OAuth2 resource-server filters, use a focused `@SpringBootTest` with `@AutoConfigureMockMvc` when recreating the real chain context in a slice would add substantial imports and property wiring. In either case, use the production security configuration and verify an allowed and a rejected request; do not let a default test chain stand in for the application chain.
+
 Name the controller - `@WebMvcTest(OrderController.class)` - rather than the bare annotation, which loads *every* controller and forces you to mock every collaborator in the application.
 
 ### `MockMvcTester`
