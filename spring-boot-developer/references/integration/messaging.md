@@ -86,7 +86,7 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
       acks: all
       properties:
         enable.idempotence: true
@@ -97,7 +97,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
-        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
         spring.json.trusted.packages: com.example.app.order.events
     listener:
       ack-mode: record
@@ -105,7 +105,7 @@ spring:
 
 Four of these are load-bearing:
 
-- **`spring.json.trusted.packages`** - never `*`. `JsonDeserializer` instantiates the class named in the message headers; an unrestricted list is a deserialisation gadget vector on a topic anyone can write to.
+- **`spring.json.trusted.packages`** - never `*`. `JacksonJsonDeserializer` instantiates the class named in the message headers; an unrestricted list is a deserialisation gadget vector on a topic anyone can write to. On Boot 4 use `JacksonJsonSerializer` and `JacksonJsonDeserializer`; `JsonSerializer` and `JsonDeserializer` still bind Jackson 2.
 - **`ErrorHandlingDeserializer`** wrapping the real one. Without it, a single unparseable message throws *before* the listener, so no error handler runs, the offset never advances, and the consumer loops on it forever. This is the classic poison-pill stall.
 - **`acks: all` + `enable.idempotence: true`** - otherwise a broker failover can silently lose or duplicate a published record.
 - **`enable-auto-commit: false`** - auto-commit acknowledges on a timer, so a crash mid-processing loses messages that were already marked consumed.
@@ -165,7 +165,7 @@ class OrderQueueConfig {
 
     @Bean
     MessageConverter jsonMessageConverter(JsonMapper jsonMapper) {
-        return new Jackson2JsonMessageConverter(jsonMapper);
+        return new JacksonJsonMessageConverter(jsonMapper);
     }
 }
 ```
@@ -306,6 +306,7 @@ class OrderEventIntegrationTest {
 - Agent publishes with no key and expects ordering - the key selects the partition; no key means no ordering
 - Agent ignores the `send` future - publish failures are silent
 - Agent sets `spring.json.trusted.packages=*` - a deserialisation gadget vector
+- Agent uses Kafka `JsonSerializer` or `JsonDeserializer`, or Rabbit `Jackson2JsonMessageConverter`, on Boot 4 - those bind Jackson 2; use `JacksonJsonSerializer`, `JacksonJsonDeserializer`, and `JacksonJsonMessageConverter`
 - Agent omits `ErrorHandlingDeserializer` - one poison message stalls the partition forever
 - Agent leaves `enable-auto-commit` on - offsets commit on a timer and a crash loses in-flight messages
 - Agent omits `acks: all` and idempotence - a failover can lose or duplicate records
