@@ -65,4 +65,4 @@ Test each supported locale and the fallback locale, including message parameters
 ## References
 
 - [Spring Boot: Internationalization](https://docs.spring.io/spring-boot/reference/features/internationalization.html)
-- [Unicode CLDR: Message Format](https://cldr.unicode.org/index/cldr-spec/message-formatting)
+- [Unicode MessageFormat 2.0](https://github.com/unicode-org/message-format-wg)
