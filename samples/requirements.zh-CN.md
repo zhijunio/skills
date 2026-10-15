@@ -99,7 +99,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 在访问凭据中包含可信认证上下文（`amr` 或等效信息）和认证时间。不得依据客户端请求字段或请求头判断保证等级。`auth_time` 只表示登录时间，重新认证和 step-up 不会更新已签发的令牌；下游服务不得用它判断本平台定义的近期认证或近期 MFA。
 - 定义 refresh token 的保存、轮换、撤销、缓存指令和密钥轮换行为。所有客户端的 refresh token 都在令牌响应体中返回，刷新时在请求体中提交，不使用 Cookie 交付。CORS 只允许已配置的前端 origin，仅 `POST /api/users/me/external-identities`（下发绑定事务 Cookie）允许携带凭据。
 - 原生 App 的外部登录使用系统浏览器完成授权（RFC 8252），不得使用内嵌 WebView，回调后经已声明的 App Link/Universal Link 把一次性兑换码交给 App，再调用 `/api/auth/token/exchange`。
-- **客户端接入约定**（写入 API 文档，后端无法强制）：访问令牌、待 MFA 事务句柄和受限访问令牌只保存在内存中。Web 前端的 refresh token 同样只保存在内存中，不得写入 `localStorage`、`sessionStorage` 或可被脚本读取的 Cookie，并部署严格的内容安全策略（CSP）以降低 XSS 风险；原生 App 将 refresh token 保存在系统安全存储（iOS Keychain、Android Keystore）中。
+- **客户端接入约定**（写入 API 文档，后端无法强制）：访问令牌、待 MFA 事务句柄和受限访问令牌只保存在内存中。Web 前端的 refresh token 存储方式由前端项目决定，前端应部署严格的内容安全策略（CSP）以降低 XSS 风险；原生 App 将 refresh token 保存在系统安全存储（iOS Keychain、Android Keystore）中。
 
 ### 4.5 管理与审计
 
