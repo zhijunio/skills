@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: sb4-jdbc-jwt-auth
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/jwt_demo}
+    username: ${DATABASE_USERNAME:jwt_demo}
+    password: ${DATABASE_PASSWORD:jwt_demo_local}
+  flyway:
+    enabled: true
+  mvc:
+    problemdetails:
+      enabled: true
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+
+server:
+  port: ${PORT:8080}
+
+app:
+  security:
+    maintenance-interval: ${AUTH_MAINTENANCE_INTERVAL:PT1H}
+  jwt:
+    public-key: ${JWT_PUBLIC_KEY:file:./.local/keys/public.pem}
+    private-key: ${JWT_PRIVATE_KEY:file:./.local/keys/private.pem}
+    key-id: ${JWT_KEY_ID:local-rsa-2026}
+    issuer: ${JWT_ISSUER:http://localhost:8080}
+    audience: ${JWT_AUDIENCE:sb4-jdbc-jwt-auth-api}
+    access-token-ttl: 15m
+    refresh-token-ttl: 30d

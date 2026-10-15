@@ -25,15 +25,17 @@ Prefer **RSA or EC** over a shared secret. With asymmetric keys the private key 
 
 ```java
 @Configuration
+@EnableConfigurationProperties(JwtProperties.class)
 class JwtKeyConfig {
 
     @Bean
-    JWKSource<SecurityContext> jwkSource(JwtKeyProperties properties) {
-        var rsaKey = new RSAKey.Builder(properties.publicKey())
-                .privateKey(properties.privateKey())
-                .keyID(properties.keyId())
-                .build();
-        return new ImmutableJWKSet<>(new JWKSet(rsaKey));
+    RSAKey jwtRsaKey(JwtProperties properties) {
+        return Jwks.loadRsaKey(properties);
+    }
+
+    @Bean
+    JWKSource<SecurityContext> jwkSource(RSAKey jwtRsaKey) {
+        return Jwks.source(jwtRsaKey);
     }
 
     @Bean
@@ -42,8 +44,19 @@ class JwtKeyConfig {
     }
 
     @Bean
-    JwtDecoder jwtDecoder(JwtKeyProperties properties) {
-        return NimbusJwtDecoder.withPublicKey(properties.publicKey()).build();
+    JwtDecoder jwtDecoder(RSAKey jwtRsaKey, JwtProperties properties,
+                          SessionJwtValidator sessionValidator) {
+        var decoder = NimbusJwtDecoder.withPublicKey(jwtRsaKey.toRSAPublicKey())
+                .signatureAlgorithm(SignatureAlgorithm.RS256)
+                .build();
+        OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience().contains(properties.audience())
+                ? OAuth2TokenValidatorResult.success()
+                : OAuth2TokenValidatorResult.failure(
+                        new OAuth2Error("invalid_token", "Required audience is missing", null));
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefaultWithIssuer(properties.issuer()),
+                audienceValidator, sessionValidator));
+        return decoder;
     }
 }
 ```
@@ -51,15 +64,130 @@ class JwtKeyConfig {
 ```java
 @Validated
 @ConfigurationProperties("app.jwt")
-record JwtKeyProperties(
-        @NotNull RSAPublicKey publicKey,
-        @NotNull RSAPrivateKey privateKey,
-        @NotBlank String keyId,
-        @NotNull Duration accessTokenTtl) {
+record JwtProperties(@NotNull Resource publicKey,
+                     @NotNull Resource privateKey,
+                     @NotBlank String keyId,
+                     @NotBlank String issuer,
+                     @NotBlank String audience,
+                     @NotNull Duration accessTokenTtl,
+                     @NotNull Duration refreshTokenTtl) {
 }
 ```
 
-Spring converts a PEM resource to `RSAPublicKey`/`RSAPrivateKey` directly, so the properties are file references:
+Use a small `Jwks` utility to read PKCS#8/X.509 PEM resources, verify that the configured public and private keys match, and create a signing source. Its public-set method strips the private key material; expose only that result from the JWKS endpoint:
+
+```java
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.core.io.Resource;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.Signature;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+
+public final class Jwks {
+
+    private Jwks() {
+    }
+
+    public static RSAKey loadRsaKey(JwtProperties properties) {
+        try {
+            RSAPublicKey publicKey = readPublicKey(properties.publicKey());
+            RSAPrivateKey privateKey = readPrivateKey(properties.privateKey());
+            verifyKeyPair(publicKey, privateKey);
+            return new RSAKey.Builder(publicKey)
+                    .privateKey(privateKey)
+                    .keyID(properties.keyId())
+                    .build();
+        } catch (Exception exception) {
+            throw new IllegalStateException("Unable to load RSA JWT keys", exception);
+        }
+    }
+
+    public static JWKSource<SecurityContext> source(RSAKey rsaKey) {
+        return new ImmutableJWKSet<>(new JWKSet(rsaKey));
+    }
+
+    public static Map<String, Object> publicSet(List<RSAKey> rsaKeys) {
+        return Map.of("keys", rsaKeys.stream()
+                .map(key -> key.toPublicJWK().toJSONObject())
+                .toList());
+    }
+
+    private static RSAPublicKey readPublicKey(Resource resource) throws Exception {
+        byte[] bytes = decodePem(resource, "-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----");
+        return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(bytes));
+    }
+
+    private static RSAPrivateKey readPrivateKey(Resource resource) throws Exception {
+        byte[] bytes = decodePem(resource, "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----");
+        return (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(bytes));
+    }
+
+    private static void verifyKeyPair(RSAPublicKey publicKey, RSAPrivateKey privateKey) throws Exception {
+        byte[] challenge = "jwt-key-pair-check".getBytes(StandardCharsets.UTF_8);
+        Signature signer = Signature.getInstance("SHA256withRSA");
+        signer.initSign(privateKey);
+        signer.update(challenge);
+
+        Signature verifier = Signature.getInstance("SHA256withRSA");
+        verifier.initVerify(publicKey);
+        verifier.update(challenge);
+        if (!verifier.verify(signer.sign())) {
+            throw new IllegalArgumentException("Configured RSA public and private keys do not match");
+        }
+    }
+
+    private static byte[] decodePem(Resource resource, String header, String footer) throws IOException {
+        String pem;
+        try (var input = resource.getInputStream()) {
+            pem = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        String encoded = pem.replace(header, "").replace(footer, "").replaceAll("\\s", "");
+        return Base64.getDecoder().decode(encoded);
+    }
+}
+```
+
+Serve the public set from a public endpoint. Never serialize the `RSAKey` that contains the private key. Supplying a list also allows a rotation window to publish the active and retiring public keys:
+
+```java
+import com.nimbusds.jose.jwk.RSAKey;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+class JwksController {
+
+    private final List<RSAKey> publishedKeys;
+
+    JwksController(List<RSAKey> publishedKeys) {
+        this.publishedKeys = publishedKeys;
+    }
+
+    @GetMapping(value = "/.well-known/jwks.json", produces = MediaType.APPLICATION_JSON_VALUE)
+    Map<String, Object> jwks() {
+        return Jwks.publicSet(publishedKeys);
+    }
+}
+```
+
+The properties are resource references:
 
 ```yaml
 app:
@@ -67,69 +195,87 @@ app:
     public-key: ${JWT_PUBLIC_KEY}     # classpath:/keys/public.pem in local dev
     private-key: ${JWT_PRIVATE_KEY}
     key-id: ${JWT_KEY_ID}
+    issuer: ${JWT_ISSUER}
+    audience: ${JWT_AUDIENCE}
     access-token-ttl: 15m
+    refresh-token-ttl: 30d
 ```
 
 Keys come from the environment or a secret manager - never the repository, never `application.yml`. See [configuration.md](../configuration/configuration.md).
 
-The `keyID` matters: it goes in the token header as `kid`, which is what lets you rotate. Publish both the old and new key in the JWKS during a rotation window so tokens signed with either still validate.
+The `keyID` matters: it goes in the token header as `kid`, which lets verifiers choose the matching public key. During rotation, sign new tokens with one active private key and publish both its public key and the retiring public key until all tokens signed by the old key have expired. Configure any local decoder to accept both keys during that window; the single-key decoder above is the starting configuration and needs a key-set-based validator for rollover. The `Jwks` loader shown here handles RSA; EC keys need an `ECKey` loader and a matching signature algorithm.
 
 For HMAC (a single application, no other verifiers), use `NimbusJwtEncoder(new ImmutableSecret<>(secretKey))` and `NimbusJwtDecoder.withSecretKey(secretKey)`. HS256 requires a key of at least 256 bits - a short secret throws at startup, which is the correct behaviour.
 
 ## Issuing the access token
 
-For a username/password login endpoint, authenticate the submitted credentials before issuing an access token. Let `AuthenticationManager` delegate password verification to `DaoAuthenticationProvider`; never mint a token from the request's username alone. A custom `AccountPrincipal` can expose the stable account ID and scopes required by the issuer:
+For username/password login, the filter converts and validates the request, then delegates credential verification to an `AuthenticationManager` backed by `DaoAuthenticationProvider`. The successful authentication handler reads the `SecurityUser` principal and asks `RefreshTokenService` to create a session and token pair. Do not issue a token directly from the submitted username:
 
 ```java
-@Service
-class LoginService {
+public class LoginAuthenticationFilter extends AuthenticationFilter {
 
-    private final AuthenticationManager authenticationManager;
-    private final AccessTokenIssuer accessTokenIssuer;
-
-    LoginService(AuthenticationManager authenticationManager, AccessTokenIssuer accessTokenIssuer) {
-        this.authenticationManager = authenticationManager;
-        this.accessTokenIssuer = accessTokenIssuer;
-    }
-
-    IssuedToken login(String username, String rawPassword) {
-        var authentication = authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken.unauthenticated(username, rawPassword));
-        var principal = (AccountPrincipal) authentication.getPrincipal();
-        return accessTokenIssuer.issue(principal);
+    public LoginAuthenticationFilter(AuthenticationManager authenticationManager,
+                                     ApiAuthenticationConverter converter,
+                                     RefreshTokenService refreshTokens,
+                                     JsonMapper jsonMapper) {
+        super(authenticationManager, converter);
+        setRequestMatcher(request -> "POST".equals(request.getMethod())
+                && "/api/auth/login".equals(request.getServletPath()));
+        setSuccessHandler((request, response, authentication) -> {
+            SecurityUser user = (SecurityUser) authentication.getPrincipal();
+            var tokens = refreshTokens.createForUser(user.id(),
+                    request.getHeader("User-Agent"), request.getRemoteAddr());
+            response.setStatus(HttpStatus.OK.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            jsonMapper.writeValue(response.getOutputStream(), tokens);
+        });
+        setFailureHandler((request, response, exception) ->
+                ProblemResponses.write(jsonMapper, response, HttpStatus.UNAUTHORIZED,
+                        "Authentication failed", "The email or password is incorrect."));
     }
 }
 ```
 
-The principal here is the custom `UserDetails` adapter described in [security fundamentals](security-fundamentals.md). Keep password matching and account-status checks in the authentication provider.
+`ApiAuthenticationConverter` deserializes and validates the login request with `JsonMapper` and Bean Validation, then returns an unauthenticated `UsernamePasswordAuthenticationToken`. The configured `DaoAuthenticationProvider` verifies the password and returns `SecurityUser`. The filter's failure handler maps authentication failures to a generic 401 response.
+
+### Put login, refresh and logout in the security flow when required
+
+For a small local-account API, a controller/service may handle login. When the requirement is to use Spring Security's authentication lifecycle and filters, build credential endpoints from Spring Security components:
+
+- Use `AuthenticationFilter` for login and refresh, with an `AuthenticationConverter`, `AuthenticationManager` and success/failure handlers.
+- Use an `AuthenticationProvider` for refresh-token validation and rotation. Keep token generation and persistence in a service.
+- Configure logout with Spring Security's logout filter and a `LogoutHandler` that revokes the refresh-token session.
+- Keep the resource-server `BearerTokenAuthenticationFilter` for access JWTs. Do not replace it with a hand-written `OncePerRequestFilter` that parses JWTs.
+
+This separates credential authentication from bearer-token validation while keeping login, refresh and logout in the filter chain. Do not add custom filters merely to move a simple endpoint without a security-flow requirement. Publish authentication outcomes through Spring Security's `AuthenticationEventPublisher`; publish session lifecycle events after the transaction commits. Never include credentials or tokens in events or logs.
 
 ```java
-@Service
-public class AccessTokenIssuer {
+@Component
+public class JwtTokenIssuer {
 
     private final JwtEncoder encoder;
-    private final JwtKeyProperties properties;
+    private final JwtProperties properties;
 
-    AccessTokenIssuer(JwtEncoder encoder, JwtKeyProperties properties) {
+    JwtTokenIssuer(JwtEncoder encoder, JwtProperties properties) {
         this.encoder = encoder;
         this.properties = properties;
     }
 
-    public IssuedToken issue(AccountPrincipal account) {
-        var now = Instant.now();
-        var expiresAt = now.plus(properties.accessTokenTtl());
-
+    public AccessToken issue(String userId, String sessionId) {
+        Instant issuedAt = Instant.now();
+        Instant expiresAt = issuedAt.plus(properties.accessTokenTtl());
         var claims = JwtClaimsSet.builder()
-                .issuer("https://api.example.com")
-                .subject(account.accountId().toString())
-                .issuedAt(now)
+                .issuer(properties.issuer())
+                .subject(userId)
+                .audience(List.of(properties.audience()))
+                .issuedAt(issuedAt)
                 .expiresAt(expiresAt)
-                .id(UUID.randomUUID().toString())          // jti, for revocation lists
-                .claim("scope", String.join(" ", account.scopes()))
+                .claim("sid", sessionId)
+                .claim("scope", "USER")
                 .build();
-
-        var token = encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-        return new IssuedToken(token, expiresAt);
+        var header = JwsHeader.with(SignatureAlgorithm.RS256).keyId(properties.keyId()).build();
+        String value = encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+        return new AccessToken(value, expiresAt);
     }
 }
 ```
@@ -138,7 +284,9 @@ public class AccessTokenIssuer {
 - **`subject` is the stable user id**, not the email. Emails change.
 - **Never put anything secret in the payload.** A JWT is signed, not encrypted - anyone holding it can read every claim.
 - **Keep it small.** The token travels on every request; a list of fifty permissions in it is a permanent bandwidth cost.
-- Include `jti` if you may ever need a revocation list.
+- Include `aud` and validate it alongside `iss` when the API has a defined audience.
+- Include a `sid` when access tokens belong to revocable sessions. The stable session ID lets the resource server check that the session remains active.
+- Include `jti` only when individual-token revocation or audit correlation is needed.
 
 ## Validating: no custom filter
 
@@ -146,65 +294,123 @@ Point the resource-server configuration at your decoder and Spring Security's `B
 
 ```java
 @Bean
-SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+SecurityFilterChain securityFilterChain(
+        HttpSecurity http,
+        @Qualifier("loginAuthenticationManager") AuthenticationManager loginManager,
+        @Qualifier("refreshAuthenticationManager") AuthenticationManager refreshManager,
+        ApiAuthenticationConverter converter,
+        RefreshTokenService refreshTokens,
+        RefreshTokenLogoutHandler logoutHandler,
+        ProblemDetailSecurityExceptionHandler securityExceptionHandler,
+        JsonMapper jsonMapper) throws Exception {
+    var loginFilter = new LoginAuthenticationFilter(loginManager, converter, refreshTokens, jsonMapper);
+    var refreshFilter = new RefreshAuthenticationFilter(refreshManager, converter, jsonMapper);
     return http
-            .securityMatcher("/api/**")
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh",
+                            "/api/auth/logout", "/.well-known/jwks.json", "/error").permitAll()
                     .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
             .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint(problemDetailEntryPoint())
-                    .accessDeniedHandler(problemDetailAccessDeniedHandler()))
+                    .authenticationEntryPoint(securityExceptionHandler)
+                    .accessDeniedHandler(securityExceptionHandler))
+            .logout(logout -> logout
+                    .logoutRequestMatcher(request -> "DELETE".equals(request.getMethod())
+                            && "/api/auth/logout".equals(request.getServletPath()))
+                    .addLogoutHandler(logoutHandler)
+                    .logoutSuccessHandler((request, response, authentication) -> {
+                        if (request.getAttribute(RefreshTokenLogoutHandler.INVALID_REQUEST_ATTRIBUTE) == null
+                                && !response.isCommitted()) {
+                            response.setStatus(HttpStatus.NO_CONTENT.value());
+                        }
+                    }))
+            .addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(refreshFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
 }
 ```
 
-Signature, expiry and issuer are validated for you; a bad token produces a 401 through the entry point rather than a 500 from inside a filter. Scope claims map to `SCOPE_*` authorities automatically - see [oauth2-resource-server.md](oauth2-resource-server.md) for custom claim mapping.
+This application-wide API chain is intentionally catch-all. Signature, expiry and issuer are validated by the decoder; `audienceValidator` checks the configured audience and `SessionJwtValidator` checks the `sid` against the session store. Invalid bearer tokens reach the configured entry point as 401 responses. Scope claims map to `SCOPE_*` authorities automatically - see [oauth2-resource-server.md](oauth2-resource-server.md) for custom claim mapping.
+
+### Immediate session revocation
+
+Short-lived self-contained JWTs remain usable until expiry after logout or session revocation. If the product requires immediate invalidation, include a `sid` claim and add an `OAuth2TokenValidator<Jwt>` that checks the session ID, subject ownership, expiry and revocation state against the session store on every bearer request. Revoke the session and its refresh tokens together. This adds a store lookup to each authenticated request; keep it uncached when revocation must take effect on the next request, and fail closed if the store cannot be checked.
+
+The validator performs the session lookup through a repository and rejects missing IDs as invalid tokens:
+
+```java
+@Override
+public OAuth2TokenValidatorResult validate(Jwt jwt) {
+    String sessionId = jwt.getClaimAsString("sid");
+    String userId = jwt.getSubject();
+    if (sessionId == null || sessionId.isBlank() || userId == null || userId.isBlank()) {
+        return OAuth2TokenValidatorResult.failure(INVALID_SESSION);
+    }
+    return sessions.isActive(sessionId, userId, Instant.now())
+            ? OAuth2TokenValidatorResult.success()
+            : OAuth2TokenValidatorResult.failure(INVALID_SESSION);
+}
+```
+
+When the product needs session management, keep one session row per login and link each rotated refresh-token row to it. Store metadata such as `user_agent`, `ip_address`, `created_at`, `last_refreshed_at`, `expires_at` and `revoked_at` at the session level. Treat IP and user-agent as untrusted audit/display metadata, not device identity. A refresh-token replay revokes the associated session and all tokens in that session.
 
 Reading the caller in a controller:
 
 ```java
 @GetMapping("/me")
-AccountResponse me(@AuthenticationPrincipal Jwt jwt) {
-    return accountService.getById(AccountId.of(jwt.getSubject()));
+public UserResponse me(Authentication authentication) {
+    String userId = authentication.getName();
+    return users.findById(userId)
+            .map(UserResponse::from)
+            .orElseThrow(() -> new IllegalStateException("Authenticated user no longer exists"));
 }
 ```
 
 ## Refresh tokens
 
-**A refresh token should not be a JWT.** It is long-lived, must be revocable, and must support reuse detection - all things a stateless signed token cannot do. Use an opaque random value, store its hash, and treat the row as the source of truth:
+**A refresh token should not be a JWT.** It is long-lived, must be revocable, and must support reuse detection - all things a stateless signed token cannot do. Use an opaque random value with at least 256 bits of entropy, rotate it on every use, and treat the database row as the source of truth.
+
+Hash the opaque value before storage by default. Because the value is high entropy, a fast cryptographic hash such as SHA-256 is appropriate; password hashing is not needed. If a requirement explicitly calls for storing the raw token, preserve that requirement rather than silently hashing it, and document that a database or backup leak exposes immediately usable credentials. Restrict database and backup access accordingly.
+
+When raw storage is an explicit requirement, lock the active session before the presented token, then revoke the old token, extend the session, and insert the replacement in one transaction:
 
 ```java
-@Transactional
-public TokenPair refresh(String presentedToken) {
-    var hash = sha256(presentedToken);
-    var stored = refreshTokens.findByTokenHash(hash)
-            .orElseThrow(() -> new InvalidRefreshTokenException());
-
-    if (stored.isRevoked()) {
-        // The token was already used. Either it was stolen and replayed, or the
-        // legitimate client replayed it. Assume compromise and kill the family.
-        refreshTokens.revokeFamily(stored.familyId());
-        throw new RefreshTokenReuseException();
+@Transactional(noRollbackFor = InvalidRefreshTokenException.class)
+public RefreshTokenRotation rotate(String presentedToken) {
+    Instant now = Instant.now();
+    if (!tokens.lockActiveSession(presentedToken, now)) {
+        throw new InvalidRefreshTokenException();
     }
-    if (stored.isExpired()) {
+    RefreshToken current = tokens.findForUpdate(presentedToken)
+            .orElseThrow(InvalidRefreshTokenException::new);
+
+    if (current.revokedAt() != null) {
+        tokens.revokeSession(current.sessionId(), now);
+        sessions.revoke(current.sessionId(), current.userId(), now);
+        events.publishEvent(new AuthLifecycleEvent("refresh-token-reuse-detected", current.userId(), now));
+        throw new InvalidRefreshTokenException();
+    }
+    if (!current.expiresAt().isAfter(now)) {
+        tokens.revoke(presentedToken, now);
         throw new InvalidRefreshTokenException();
     }
 
-    stored.revoke();                                            // rotate: single use
-    var next = RefreshToken.issue(stored.accountId(), stored.familyId());
-    refreshTokens.save(next);
-
-    return new TokenPair(accessTokenIssuer.issue(stored.account()), next.plaintext());
+    tokens.revoke(presentedToken, now);
+    String nextToken = newToken();
+    Instant nextExpiry = now.plus(properties.refreshTokenTtl());
+    sessions.touch(current.sessionId(), now, nextExpiry);
+    tokens.insert(nextToken, current.sessionId(), current.userId(), nextExpiry);
+    events.publishEvent(new AuthLifecycleEvent("refresh-token-rotated", current.userId(), now));
+    return new RefreshTokenRotation(current.userId(),
+            response(current.userId(), current.sessionId(), nextToken, nextExpiry));
 }
 ```
 
 - **Rotate on every use** and revoke the previous one.
 - **Reuse of a revoked token means compromise** - revoke the whole family, forcing re-authentication.
-- **Store only a hash.** A leaked database should not yield usable tokens.
+- **Choose and document storage.** Hash by default; raw storage requires an explicit requirement and documented database-leak impact.
 - Generate with `SecureRandom`, at least 256 bits, Base64-URL encoded.
 
 ## Where the client keeps tokens
@@ -221,13 +427,13 @@ For browser clients that refresh access tokens, coordinate concurrent 401 respon
 
 ## Logout and revocation
 
-A JWT stays valid until it expires. "Logout" means:
+A JWT stays valid until it expires unless the decoder checks session state. With the stateless TTL model, "logout" means:
 
 1. Revoke the refresh token (server-side, effective immediately).
 2. Discard the access token client-side.
 3. Accept that the access token remains technically valid until expiry - which is why the TTL is short.
 
-If you need immediate revocation, check a `jti` denylist in Redis on each request. That reintroduces the per-request lookup JWTs exist to avoid, so only do it where the requirement is real.
+A logout filter can call a `LogoutHandler` that revokes the session and its refresh tokens. The `sid` validator then rejects that access token on the next request. A `jti` denylist is another option when individual token revocation is required. Choose a per-request lookup only when the revocation requirement justifies its latency and availability cost.
 
 ## Testing
 
@@ -236,14 +442,16 @@ Do not generate real tokens in tests. Use the JWT post-processor:
 ```java
 @Test
 void allowsCallerWithScope() {
+    String userId = "user-42";
     mockMvc.perform(get("/api/orders")
-            .with(jwt().jwt(builder -> builder.subject(accountId.toString()))
+            .with(jwt().jwt(builder -> builder.subject(userId))
                        .authorities(new SimpleGrantedAuthority("SCOPE_orders:read"))))
             .andExpect(status().isOk());
 }
 ```
 
 Test that an **expired** token gives 401 and that a token missing the scope gives 403. Those are the paths that break silently.
+Also test that active sessions are accepted, while revoked, expired or subject-mismatched sessions are rejected; after revocation, the next request must fail. Unit-test the session validator and use a PostgreSQL integration test for its query and constraints.
 
 ## If on Boot 3.5.x
 
@@ -262,11 +470,11 @@ Starter name is `spring-boot-starter-oauth2-resource-server` (no `security-` pre
 - Agent uses the email as `subject` - use a stable id
 - Agent issues a JWT as the refresh token - it must be revocable; use an opaque stored value
 - Agent does not rotate refresh tokens - a leaked token is then valid until expiry
-- Agent stores refresh tokens in plaintext - store a hash
+- Agent stores a raw refresh token without an explicit requirement or explaining database-leak impact - hash it by default
 - Agent ignores refresh-token reuse - reuse means compromise; revoke the family
 - Agent accepts a refresh token at the bearer endpoint - separate the two token types
 - Agent suggests `localStorage` - one XSS is full account compromise
-- Agent claims logout invalidates the access token - it does not; only the refresh token is revoked
+- Agent claims logout invalidates access tokens without checking revocation state on bearer requests
 - Agent tests with real generated tokens - use `jwt()` post-processor; test 401 and 403 explicitly
 
 ## Related

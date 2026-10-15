@@ -86,13 +86,13 @@ This checklist covers Spring application concerns. Use the focused architecture 
 
 | # | Rule | Reference |
 | - | ---- | --------- |
-| 44 | Security 7 is lambda-DSL only. `securityMatcher` on every chain; `anyRequest()` last. | [security-fundamentals.md](security/security-fundamentals.md) |
-| 45 | `@EnableMethodSecurity` - without it `@PreAuthorize` is silently inert, which is a hole, not an inefficiency. | [security-fundamentals.md](security/security-fundamentals.md) |
+| 44 | Security 7 is lambda-DSL only. Scope each chain with `securityMatcher` unless it is intentionally catch-all; `anyRequest()` is last. | [security-fundamentals.md](security/security-fundamentals.md) |
+| 45 | Enable method security when features use `@PreAuthorize`; keep coarse URL rules in the chain and feature authorization with the feature. | [security-fundamentals.md](security/security-fundamentals.md) |
 | 46 | Configure `authenticationEntryPoint` and `accessDeniedHandler` - advice cannot catch filter exceptions. | [security-fundamentals.md](security/security-fundamentals.md) |
 | 47 | Authorize STOMP inbound commands and subscriptions, require CSRF for cookie-authenticated `CONNECT`, and bound connections and frames. | [websocket.md](web/websocket.md) |
-| 48 | Prefer an external IdP. If self-issuing, use Spring Security's own encoder/decoder - not a hand-written filter. | [jwt-authentication.md](security/jwt-authentication.md) |
-| 49 | Set `issuer-uri` **and** `audiences`; scopes are `hasAuthority('SCOPE_…')`, not `hasRole`. | [oauth2-resource-server.md](security/oauth2-resource-server.md) |
-| 50 | Refresh tokens are opaque, hashed, rotated on use, with reuse treated as compromise. | [jwt-authentication.md](security/jwt-authentication.md) |
+| 48 | Prefer an external IdP. If self-issuing, use Spring's JWT encoder/decoder and bearer filter; use `AuthenticationFilter` for credential endpoints when the flow requires it. | [jwt-authentication.md](security/jwt-authentication.md) |
+| 49 | Validate issuer and audience for JWTs; use `issuer-uri` and `audiences` for an external resource server. Scopes are `hasAuthority('SCOPE_…')`, not `hasRole`. | [jwt-authentication.md](security/jwt-authentication.md) · [oauth2-resource-server.md](security/oauth2-resource-server.md) |
+| 50 | Refresh tokens are opaque, high-entropy and rotated on use; detect reuse and revoke the session. Hash at rest by default; raw storage requires an explicit requirement and documented database-leak impact. | [jwt-authentication.md](security/jwt-authentication.md) |
 
 ## Configuration and operations
 
@@ -141,7 +141,7 @@ This checklist covers Spring application concerns. Use the focused architecture 
 | - | ---- | --------- |
 | 77 | Use resource-oriented paths; put filters, pagination and allowlisted sorting in query parameters. Keep credentials out of URLs. | [rest-controllers.md](web/rest-controllers.md) |
 | 78 | Define a scoped idempotency contract for retryable create operations; persist keys atomically and recheck authorization before replaying a response. | [api-idempotency.md](web/api-idempotency.md) |
-| 79 | Apply rate limits and hard resource bounds at the appropriate gateway and application layers; return a documented overload response. | [rate-limiting.md](integration/rate-limiting.md) |
+| 79 | Apply rate limits and hard resource bounds at the appropriate boundary in deployed systems; add application-level rate-limit code to a sample only when requested. Return a documented overload response when limits apply. | [rate-limiting.md](integration/rate-limiting.md) |
 | 80 | Treat database constraints as the final concurrency guard; translate constraint failures only after handling the failed transaction boundary. | [database-concurrency.md](persistence/database-concurrency.md) |
 | 81 | Derive tenant context from trusted identity and enforce it in every persistence, cache, storage and background-job path. | [multi-tenancy.md](persistence/multi-tenancy.md) |
 | 82 | CI promotes the same verified artifact digest; schema changes remain compatible across rollout and rollback windows. | [ci-cd-release.md](deployment/ci-cd-release.md) |

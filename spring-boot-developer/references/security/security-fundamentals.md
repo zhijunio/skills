@@ -22,15 +22,16 @@ Add `spring-boot-starter-security` only when the application needs authenticatio
 class SecurityConfig {
 
     @Bean
-    SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain apiFilterChain(HttpSecurity http,
+            ProblemDetailSecurityExceptionHandler securityExceptionHandler) throws Exception {
         return http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(problemDetailEntryPoint())
-                        .accessDeniedHandler(problemDetailAccessDeniedHandler()))
+                        .authenticationEntryPoint(securityExceptionHandler)
+                        .accessDeniedHandler(securityExceptionHandler))
                 .build();
     }
 
@@ -165,28 +166,36 @@ Avoid `@PostAuthorize` where you can: it runs the method, then decides. On a rea
 
 Out of the box an unauthenticated API request gets an empty 401, or a redirect to a login page. Neither is usable by a client. And **`@RestControllerAdvice` cannot help** - security filters run before the `DispatcherServlet`, so nothing thrown there reaches your handler ([error-handling.md](../web/error-handling.md)).
 
-Write the `ProblemDetail` from the entry points:
+Use one handler for both filter-chain interfaces when they share the same response format. Boot 4 applications can use Jackson 3's `JsonMapper`:
 
 ```java
-private AuthenticationEntryPoint problemDetailEntryPoint() {
-    return (request, response, ex) -> writeProblem(response, HttpStatus.UNAUTHORIZED,
-            "Unauthorized", "Authentication is required to access this resource.");
-}
+@Component
+class ProblemDetailSecurityExceptionHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 
-private AccessDeniedHandler problemDetailAccessDeniedHandler() {
-    return (request, response, ex) -> writeProblem(response, HttpStatus.FORBIDDEN,
-            "Forbidden", "You do not have permission to perform this action.");
-}
+    private final JsonMapper jsonMapper;
 
-private void writeProblem(HttpServletResponse response, HttpStatus status,
-                          String title, String detail) throws IOException {
-    var problem = ProblemDetail.forStatusAndDetail(status, detail);
-    problem.setTitle(title);
-    response.setStatus(status.value());
-    response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-    jsonMapper.writeValue(response.getOutputStream(), problem);
+    ProblemDetailSecurityExceptionHandler(JsonMapper jsonMapper) {
+        this.jsonMapper = jsonMapper;
+    }
+
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationException exception) throws IOException {
+        response.setHeader("WWW-Authenticate", "Bearer");
+        ProblemResponses.write(jsonMapper, response, HttpStatus.UNAUTHORIZED,
+                "Unauthorized", "Authentication is required to access this resource.");
+    }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                       AccessDeniedException exception) throws IOException {
+        ProblemResponses.write(jsonMapper, response, HttpStatus.FORBIDDEN,
+                "Forbidden", "You do not have permission to perform this action.");
+    }
 }
 ```
+
+`ProblemResponses.write` is a small shared helper that sets the status and `application/problem+json` content type, then serializes a Spring `ProblemDetail` with `JsonMapper`. Keep MVC failures in `GlobalExceptionHandler`; it does not replace these filter-chain handlers.
 
 Keep the messages generic. "No user with that email" tells an attacker which addresses are registered.
 
@@ -209,32 +218,54 @@ For username/password authentication, use a repository-backed `UserDetailsServic
 `UserDetailsService` looks up an account by username; it does not authenticate the submitted password. It returns a `UserDetails` principal containing the encoded password, granted authorities, and account status. `DaoAuthenticationProvider` compares the submitted password through the configured `PasswordEncoder` and creates the authenticated principal:
 
 ```java
-@Service
-class AccountDetailsService implements UserDetailsService {
+@Bean
+UserDetailsService userDetailsService(UserRepository users) {
+    return email -> users.findByEmail(email)
+            .map(user -> new SecurityUser(user.id(), user.email(), user.password()))
+            .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials"));
+}
+```
 
-    private final AccountRepository accounts;
+For example, a `SecurityUser` can carry the stable user ID needed after authentication:
 
-    AccountDetailsService(AccountRepository accounts) {
-        this.accounts = accounts;
+```java
+public record SecurityUser(String id, String email, String password) implements UserDetails {
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
-        var account = accounts.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials"));
+    public String getPassword() { return password; }
 
-        return User.withUsername(account.username())
-                .password(account.passwordHash())
-                .authorities(account.authorities())
-                .disabled(!account.enabled())
-                .build();
+    @Override
+    public String getUsername() { return email; }
+}
+```
+
+Use a custom `UserDetails` implementation when the authenticated principal must carry a stable account ID or other security-relevant state. Keep it as an adapter over the domain account; do not make the persistence entity implement `UserDetails` by default. Use a security-specific name such as `SecurityUser` or `UserPrincipal` so the adapter is not confused with the persisted `User` model.
+
+Use `GlobalExceptionHandler` for MVC validation and application errors. Configure `AuthenticationEntryPoint` and `AccessDeniedHandler` for filter-chain failures; they may share one Problem Details handler class. `@RestControllerAdvice` does not handle authentication failures raised before MVC dispatch.
+
+For example, keep MVC exception mapping in the advice and return Spring's `ProblemDetail` type:
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
+    ProblemDetail emailAlreadyRegistered() {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "An account with this email already exists.");
+        problem.setTitle("Email already registered");
+        problem.setType(URI.create("https://example.com/problems/email-already-registered"));
+        return problem;
     }
 }
 ```
 
-Use a custom `UserDetails` implementation when the authenticated principal must carry a stable account ID or other security-relevant state. Keep it as an adapter over the domain account; do not make the persistence entity implement `UserDetails` by default.
-
-Password recovery must not reveal whether an account exists. Generate a cryptographically random, single-use reset token, store only its hash and expiry, and invalidate it after use. Keep reset responses generic and rate-limit login and recovery endpoints at a shared boundary; do not trust `X-Forwarded-For` unless a trusted proxy has set it. See [rate limiting](../integration/rate-limiting.md).
+Password recovery must not reveal whether an account exists. Generate a cryptographically random, single-use reset token, store only its hash and expiry, and invalidate it after use. Keep reset responses generic. Deployed systems should apply rate limits at an appropriate shared boundary; minimal examples can state that deployment requirement without adding application-level rate-limit code unless requested. Do not trust `X-Forwarded-For` unless a trusted proxy has set it. See [rate limiting](../integration/rate-limiting.md).
 
 ## Headers, CORS and CSRF
 

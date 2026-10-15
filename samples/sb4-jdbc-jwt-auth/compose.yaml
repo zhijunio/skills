@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: jwt_demo
+      POSTGRES_USER: jwt_demo
+      POSTGRES_PASSWORD: jwt_demo_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - jwt_demo_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jwt_demo -d jwt_demo"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  jwt_demo_data:
