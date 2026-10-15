@@ -62,11 +62,11 @@ During development, Vite serves the UI and proxies API requests. In production, 
 
 ## 6. The setup files
 
-Review `.gitignore`, `.editorconfig`, `.gitattributes`, `.dockerignore`, `.env.sample`, `.devcontainer/`, and `.github/lsp.json`. Identify which files Spring Initializr created and which the skill generator added. Check that `.env` and build outputs are ignored.
+Review `.gitignore`, `.editorconfig`, `.gitattributes`, `.dockerignore`, `.env.sample`, and `.github/lsp.json`, plus `.devcontainer/` if you added it. Identify which files Spring Initializr created and which the skill generator added. Check that `.env` and build outputs are ignored.
 
 ## 7. Commits so far
 
-Inspect `git log --oneline` and `git status`. The initial application should have a clear baseline checkpoint. Do not continue until any unexplained changes are reviewed.
+Inspect `git log --oneline` and `git status`. The initial application should have the baseline checkpoint from chapter 02. Do not continue until any unexplained changes are reviewed.
 
 ---
 

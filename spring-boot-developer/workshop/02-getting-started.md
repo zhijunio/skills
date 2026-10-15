@@ -94,7 +94,9 @@ Press Ctrl+C in the terminal running the app. If you started PostgreSQL separate
 
 ## 9. Commit the checkpoint
 
-Review the generated diff, run `git status`, and commit only after you are satisfied with the changes. Use the repository's commit convention. This checkpoint gives you a safe point before the later workshop refinements.
+The generator does not initialize Git. If `git status` reports that the directory is not a repository, run `git init` in `inventory-app/` first; the generated `.gitignore` already excludes build outputs and `.env`.
+
+Review the generated files, run `git status`, and commit only after you are satisfied with the changes. Use the repository's commit convention. This checkpoint gives you a safe point before the later workshop refinements.
 
 ## 10. (Optional) Publish to GitHub
 
