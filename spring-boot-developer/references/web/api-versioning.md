@@ -53,7 +53,8 @@ spring:
         header: API-Version
         # path-segment: 1       # /api/v1.1/orders - index of the segment holding the version
         # query-parameter: version
-        # media-type-parameter: version
+        # media-type-parameter:   # media type -> parameter name
+        #   application/json: version
       supported: [1.0, 1.1, 1.2]
       default: 1.0
 ```
