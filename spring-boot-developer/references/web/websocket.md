@@ -89,10 +89,6 @@ Define a versioned message schema, maximum frame size, message validation, error
 
 Test message handlers and authorization at the inbound-channel boundary, including valid and invalid payloads, unauthorized destinations, and `CONNECT` CSRF behavior. Add an end-to-end test with an embedded server and STOMP client for handshake, subscription, publish and disconnect behavior. For raw handlers, test handshake/origin policy, concurrent sends, close cleanup and frame limits. At least one integration test should exercise the selected broker topology when using an external relay. Do not substitute mocked `SimpMessagingTemplate` calls for the protocol boundary test.
 
-## If on Spring Boot 3.5.x
-
-Boot 3.5 uses Spring Framework 6.2 and Spring Security 6.x; the MVC starter coordinate and core STOMP/WebSocket model are the same, but use the APIs managed by the project's Boot BOM. Boot 3.5 also has separate WebSocket support for WebFlux applications; that reactive configuration is outside this MVC reference. Verify exact Security configuration signatures against the Boot-managed Spring Security version rather than copying Security 7-only code.
-
 ## Gotchas
 
 - Agent chooses a simple broker for multiple replicas and assumes it broadcasts across the cluster.

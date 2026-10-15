@@ -58,10 +58,6 @@ Test each supported locale and the fallback locale, including message parameters
 - Agent changes stable API error codes when translating `ProblemDetail` - localize human text while preserving machine-readable identifiers.
 - Agent relies on the machine's locale in tests - set the locale explicitly.
 
-## If on Spring Boot 3.5.x
-
-The message-bundle and locale-resolution model described here is the same. Check the project's managed framework versions before customizing MVC locale resolvers or message-source configuration.
-
 ## Related
 
 - [thymeleaf.md](thymeleaf.md) · [validation.md](validation.md) · [error-handling.md](error-handling.md) · [configuration.md](../configuration/configuration.md)

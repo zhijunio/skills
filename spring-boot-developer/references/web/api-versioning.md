@@ -133,16 +133,6 @@ Prefer expanding the current version over minting a new one. When you must versi
 
 Run an OpenAPI compatibility diff in CI for public APIs and review intentional breaking changes. Add consumer contract tests for critical integrations; a schema diff cannot prove business semantics are unchanged. Preserve tolerant-reader behavior: clients should ignore unknown response fields, and servers should define how they handle unknown request fields rather than relying on inconsistent defaults. Document nullability, enum evolution, pagination and error changes as part of the contract.
 
-## If on Boot 3.5.x
-
-The `version` mapping attribute and `ApiVersionConfigurer` **do not exist** on Framework 6. Options, best first:
-
-1. **Do not version yet.** Expand compatibly for as long as you can.
-2. **Path prefix with separate controllers**: `/api/v1/orders`, `/api/v2/orders`. Explicit and testable. Keep the service layer version-free - controllers map their own version's payloads onto one shared command and result. The cost is a duplicated controller per version.
-3. **Header-based routing by hand** with a custom `RequestCondition`. Works, but it is the machinery Framework 7 replaced; avoid on new code.
-
-Whichever you pick, keep the version at the web boundary. A version that reaches a service or repository has escaped.
-
 ## Gotchas
 
 - Agent hand-rolls `/v1` and `/v2` controllers on Boot 4 - use the `version` mapping attribute
@@ -152,7 +142,6 @@ Whichever you pick, keep the version at the web boundary. A version that reaches
 - Agent invents `X-Sunset` or similar - use the standard `Deprecation` and `Sunset` fields (`StandardApiVersionDeprecationHandler` on supported Framework versions)
 - Agent duplicates all endpoints for one changed representation - version the mapping that changed
 - Agent leaks the version into the service layer - version at the web boundary only
-- Agent uses the Boot 4 `version` attribute on a 3.5.x project - it does not exist on Framework 6
 - Agent versions a purely additive change - adding an optional field does not need a new version
 - Agent forgets to configure the version on outbound clients - the server rejects the call as unversioned
 

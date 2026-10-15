@@ -4,7 +4,7 @@ Read this when adding application settings, selecting environment-specific value
 
 ## Version scope
 
-This guide covers the Spring Boot 4.x baseline and existing Boot 3.5.x applications. The patterns below apply to both unless a version note says otherwise. Preserve the project's current Boot line; see [version compatibility and migration](../spring-boot-migration.md) before applying version-specific changes.
+This guide covers Spring Boot 4.x. For an existing Boot 3.5.x application, see [version compatibility and migration](../spring-boot-migration.md).
 
 ## Bind related settings with `@ConfigurationProperties`
 
@@ -164,10 +164,6 @@ class OrderPropertiesTest {
 ```
 
 Add a failure case for missing or invalid required values. A validation annotation that is never tested can silently stop protecting the application. For test profile and context-cache choices, see [testing strategy](../testing/testing-strategy.md).
-
-## If the project uses Spring Boot 3.5.x
-
-Preserve its existing binding and validation setup. The external configuration model, profile files, relaxed binding, config trees, and `ApplicationContextRunner` are available on both supported lines. Check the project's managed validation starter and any changed property names against its exact Boot release; compare with the [Boot 3.5 external configuration reference](https://docs.spring.io/spring-boot/3.5/reference/features/external-config.html); do not copy Boot 4 starter coordinates into a 3.5.x build. See [version compatibility and migration](../spring-boot-migration.md).
 
 ## Gotchas
 

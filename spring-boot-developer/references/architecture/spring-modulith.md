@@ -62,7 +62,7 @@ com.example.app/
 </dependencies>
 ```
 
-Use **Modulith 2.x with Boot 4**, 1.4.x with Boot 3.5.x. Confirm the current patch version rather than copying the one above.
+Use **Modulith 2.x with Boot 4**. Confirm the current patch version rather than copying the one above.
 
 ## The verification test
 
@@ -213,10 +213,6 @@ class OrdersModuleTests {
 ```
 
 `@ApplicationModuleTest` boots only the module under test and fails if it touches another module's internals. `Scenario` handles the await for async event delivery - do not write `Thread.sleep` for this.
-
-## If on Boot 3.5.x
-
-Use Modulith **1.4.x**; 2.x targets Boot 4. Nested modules (1.3+), `@ApplicationModuleListener`, `@NamedInterface` and the event publication registry all exist on 1.4.x. Modulith 2.1's integration of module tests with Boot's slice-test support is 2.x only.
 
 ## Gotchas
 

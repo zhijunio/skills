@@ -176,11 +176,7 @@ public sealed interface PaymentMethod permits CardPayment, BankTransfer {}
 public class MoneySerializer extends ValueSerializer<Money> { … }
 ```
 
-`@JacksonComponent` (Boot 4; `@JsonComponent` on 3.5.x) registers it automatically. Before writing one, check whether `@JsonValue` on the type does the job - it usually does.
-
-## If on Boot 3.5.x
-
-Jackson 2 throughout. `com.fasterxml.jackson.databind.ObjectMapper`, `@JsonComponent`, `Jackson2ObjectMapperBuilderCustomizer`, and `spring.jackson.*` configures Jackson 2. Everything else in this file - records, `@JsonValue`, date handling, inclusion, unknown properties - is identical, and `JavaTimeModule` is registered by Boot, so you still should not add it.
+`@JacksonComponent` registers it automatically. Before writing one, check whether `@JsonValue` on the type does the job - it usually does.
 
 ## Gotchas
 

@@ -134,13 +134,6 @@ For deep pagination use keyset pagination instead; see [spring-data-jpa.md](../p
 - Long-running work: return **202** with a `Location` pointing at a status resource. Do not hold the request open.
 - CORS belongs in `WebMvcConfigurer` in `config/`, not scattered as `@CrossOrigin` on controllers.
 
-## If on Boot 3.5.x
-
-Controller code is unchanged. Two differences:
-
-- JSON is Jackson 2 (`com.fasterxml.jackson`) - see [json-and-jackson.md](json-and-jackson.md).
-- No native API versioning; see [api-versioning.md](api-versioning.md) for the 3.5.x approach.
-
 ## Gotchas
 
 - Agent returns an `@Entity` or `Page<Entity>` from a handler - map to response records; serialising an entity leaks the schema and triggers lazy loads outside the transaction

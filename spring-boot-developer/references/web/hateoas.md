@@ -116,10 +116,6 @@ assertThat(mockMvcTester.get().uri("/api/orders/{id}", id))
 
 Cover the negative too: a shipped order must **not** carry `cancel`.
 
-## If on Boot 3.5.x
-
-Spring HATEOAS is unchanged - `EntityModel`, `CollectionModel`, `PagedModel`, `RepresentationModelAssembler`, `PagedResourcesAssembler` and `linkTo`/`methodOn` behave identically. Only the JSON is produced by Jackson 2.
-
 ## Gotchas
 
 - Agent adds hypermedia to some endpoints and plain DTOs to others - adopt API-wide or not at all

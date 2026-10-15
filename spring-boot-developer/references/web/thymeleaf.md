@@ -80,10 +80,6 @@ Prefer `th:text` for output and a restrictive Content Security Policy for defens
 
 Use MVC slice tests to verify the route, selected view name, model attributes, form validation behavior, redirect, and status. For secured forms, include CSRF in valid POST tests and assert that a request without it is rejected. Add a rendered-template test when escaping, fragments, or message resolution are important to the feature; a controller-only test does not exercise template rendering. See [testing-slices-web.md](../testing/testing-slices-web.md) and [testing-rest-api.md](../testing/testing-rest-api.md) for the appropriate web test boundary.
 
-## If on Spring Boot 3.5.x
-
-The MVC controller and Thymeleaf patterns here are the same. Let the Boot dependency management select compatible Thymeleaf versions and check the version-specific build starter names in [spring-boot-migration.md](../spring-boot-migration.md). Boot 4 also provides a dedicated Thymeleaf test starter; add it only when the tests need its facilities.
-
 ## Gotchas
 
 - Agent returns a template name from `@RestController` - use `@Controller` for view rendering.

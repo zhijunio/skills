@@ -250,14 +250,6 @@ When a browser application consumes this API, an OpenAPI-generated TypeScript cl
 
 The generator target follows the client transport and project needs, not whether the frontend uses Vue, React, or another framework. A handwritten client should still consume the same documented contract and handle the same status and body semantics.
 
-## If on Boot 3.5.x
-
-**springdoc's major line is tied to the Spring generation**, so this is a real version constraint rather than a cosmetic one - a springdoc built for Spring Framework 6 will not work on Framework 7, and the reverse. Check springdoc's compatibility matrix for your Boot line; it is not BOM-managed, so nothing in the build will warn you.
-
-Everything else is the same. The generated spec is produced by Jackson 2 on 3.5.x, which does not change the schema. For spec-first, the OpenAPI Generator's Spring templates target a Spring generation too - verify the generated code compiles against your Boot version.
-
-Javadoc support uses the same Therapi runtime library and annotation processor on the springdoc 2.x line; continue to select the springdoc major version that matches the Boot line.
-
 ## Gotchas
 
 - Agent adopts spec-first for a single-team API - code-first with springdoc is less machinery and cannot drift

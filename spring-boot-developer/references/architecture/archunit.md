@@ -132,10 +132,6 @@ The first run records existing violations to a store; from then on the rule fail
 
 [Taikai](https://github.com/enofex/taikai) wraps ArchUnit with a fluent builder over a large catalogue of predefined Spring rules. It is a second third-party dependency, and the rules above cover most of what matters in maybe forty lines - so adopt it only if you want its breadth. Nothing else in this skill depends on it.
 
-## If on Boot 3.5.x
-
-ArchUnit is independent of Boot; every rule above works unchanged. The only Boot-related difference is package names inside your own application, and - if you write a rule against Jackson - `com.fasterxml.jackson` on 3.5.x rather than `tools.jackson`.
-
 ## Gotchas
 
 - Agent writes architecture rules without `because(...)` - the failure message then sends the next developer digging

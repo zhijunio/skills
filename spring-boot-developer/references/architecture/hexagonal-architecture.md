@@ -237,10 +237,6 @@ Use cases test against **hand-written fakes** of the out-ports, not Mockito - an
 
 The adapters still need real tests: the JPA adapter against Testcontainers ([testing-slices-persistence.md](../testing/testing-slices-persistence.md)), the gateway adapter against WireMock ([testing-integration.md](../testing/testing-integration.md)). The hexagon does not remove those, it isolates them.
 
-## If on Boot 3.5.x
-
-Nothing here is version-specific - it is a structural pattern using plain Java plus `@Service`, `@Repository` and `@Transactional`. The Boot 4 differences that apply are in the adapters: Jackson 3 in the web adapter, Testcontainers 2 in the adapter tests.
-
 ## Gotchas
 
 - Agent creates root-level `domain/`, `application/`, `infrastructure/` packages - that is layer-first relabelled; the hexagon goes inside a feature

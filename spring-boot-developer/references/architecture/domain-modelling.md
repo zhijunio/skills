@@ -286,10 +286,6 @@ The adapter is the only place that knows about minor units, lowercase currency c
 
 The adapter lives in infrastructure. The `PaymentPort` interface belongs to the domain - see [hexagonal-architecture.md](hexagonal-architecture.md).
 
-## If on Boot 3.5.x
-
-Version-agnostic. Aggregates, value objects, `@DomainEvents`/`@AfterDomainEventPublication`, `AbstractAggregateRoot`, specifications and `@TransactionalEventListener` all behave identically. The version-bound pieces are elsewhere: entity identity ([spring-data-jpa.md](../persistence/spring-data-jpa.md)) and Modulith's version ([spring-modulith.md](spring-modulith.md)).
-
 ## Gotchas
 
 - Agent builds aggregates for a CRUD feature - a service, a repository and a DTO is enough where there are no rules

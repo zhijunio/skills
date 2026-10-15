@@ -118,10 +118,6 @@ Without this split, `SecurityConfig` ends up listing every URL in the applicatio
 
 Keep `*Request`/`*Response` distinct from the domain - never bind a request payload straight onto an entity, and never return an entity as a response. See [rest-controllers.md](../web/rest-controllers.md).
 
-## If on Boot 3.5.x
-
-Layout is version-agnostic - packaging, visibility and the escalation ladder are the same. The only version-bound rung is Modulith itself: 1.4.x on Boot 3.5.x, 2.x on Boot 4 ([spring-modulith.md](spring-modulith.md)).
-
 ## Gotchas
 
 - Agent creates `controller/`, `service/`, `repository/` packages - package by feature; layer-first makes every type public and removes the only free boundary you have

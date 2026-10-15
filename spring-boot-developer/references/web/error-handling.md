@@ -209,10 +209,6 @@ Same applies to failures during request parsing before dispatch, and to anything
 
 Logging every 404 at `ERROR` turns the log into noise and hides real failures. Log the exception object, not `ex.getMessage()` - you lose the stack trace otherwise.
 
-## If on Boot 3.5.x
-
-`ProblemDetail`, `spring.mvc.problemdetails.enabled` and `ResponseEntityExceptionHandler` all work identically - `ProblemDetail` has been present since Boot 3.0. The only difference is that the JSON is produced by Jackson 2.
-
 ## Gotchas
 
 - Agent invents a `{ success, data, error }` envelope - use `ProblemDetail`; the status code carries the outcome

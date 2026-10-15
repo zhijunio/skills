@@ -44,10 +44,6 @@ Integration tests should cover first success, retry after a lost response, same-
 - Agent retries a remote side effect without a stable downstream key - the provider may perform it twice.
 - Agent claims the `Idempotency-Key` header is an RFC - verify the IETF document status; the referenced draft is expired.
 
-## If on Spring Boot 3.5.x
-
-Idempotency is an API and persistence design, not a Boot-specific feature. The same transaction and database constraints apply; confirm only version-specific framework APIs against the project's Boot line.
-
 ## Related
 
 - [rest-controllers.md](rest-controllers.md) · [database-concurrency.md](../persistence/database-concurrency.md) · [transactions.md](../persistence/transactions.md) · [messaging.md](../integration/messaging.md) · [resilience.md](../integration/resilience.md)

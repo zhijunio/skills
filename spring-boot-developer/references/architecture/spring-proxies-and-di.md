@@ -157,10 +157,6 @@ RecommendationClient recommendationClient() { … }
 
 Do not start threads, open connections or call remote services from a constructor or `@PostConstruct` - the context is not fully built, and a failure there turns into an obscure startup error. Use `ApplicationReadyEvent`.
 
-## If on Boot 3.5.x
-
-Version-agnostic. Constructor injection, proxying, the self-invocation trap, `@Configuration` semantics and the bean lifecycle are unchanged between the two lines - this file applies verbatim.
-
 ## Gotchas
 
 - Agent writes `@Autowired` on a field - constructor injection only; `final` fields and no half-built objects

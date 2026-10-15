@@ -105,10 +105,6 @@ Prefer `final` classes where possible. Spring imposes two exclusions:
 
 Bean *fields* stay `final` regardless - constructor injection makes that free.
 
-## If on Boot 3.5.x
-
-The record/bean split, Lombok replacements, `Optional` usage, `var`, and `final` exclusions are the same. Jackson 2 replaces Jackson 3 ([JSON and Jackson](../web/json-and-jackson.md)), and a record used as an `@Embeddable` **must** carry the annotation on 3.5.x, where Jakarta Persistence 3.2's implicit support does not exist ([Spring Data JPA](../persistence/spring-data-jpa.md)).
-
 ## Gotchas
 
 - Agent makes a JPA entity a record - impossible; entities need a no-arg constructor and mutable, non-final fields

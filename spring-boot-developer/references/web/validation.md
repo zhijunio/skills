@@ -213,10 +213,6 @@ ResponseEntity<?> update(@Validated(OnUpdate.class) @RequestBody SaveCustomerReq
 
 `@Validated(Group.class)`, not `@Valid`, which cannot take a group. Groups are worth it for genuine create/update asymmetry. Two separate request records are usually clearer.
 
-## If on Boot 3.5.x
-
-Identical. Both lines use Jakarta Validation (`jakarta.validation.*`); Boot 4 manages a newer version but the annotations, `@Validated` and the custom-constraint API are unchanged. `jakarta.validation` arrives with `spring-boot-starter-validation` on both - the web starter does not bring it transitively.
-
 ## Gotchas
 
 - Agent adds constraint annotations but omits `@Valid` on the parameter - nothing is validated
