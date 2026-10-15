@@ -141,7 +141,7 @@ Do not rely on tests running in a particular order.
 
 ## Docker-less environments
 
-Without Docker, a Testcontainers test hard-fails by default. How you handle that depends on how the container is declared:
+Without Docker, a Testcontainers test hard-fails by default. How you handle that depends on how the container is declared. On Boot 4, import `@DataJpaTest` from `org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest`. Boot 3.5.x uses `org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest`; do not carry the old package into a Boot 4 project.
 
 ```java
 // @Testcontainers + static @Container - JUnit skips the class instead of failing

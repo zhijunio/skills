@@ -99,7 +99,7 @@ class OrderServiceDatabaseTest {
 }
 ```
 
-The meta-annotation is written once and reused across the suite:
+The meta-annotation is written once and reused across the suite. On Boot 4, import `@EntityScan` from `org.springframework.boot.persistence.autoconfigure.EntityScan`, `@AutoConfigureDataJpa` from `org.springframework.boot.data.jpa.test.autoconfigure.AutoConfigureDataJpa`, `@AutoConfigureTestEntityManager` from `org.springframework.boot.jpa.test.autoconfigure.AutoConfigureTestEntityManager`, and `@AutoConfigureTestDatabase` from `org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase`. Boot 3.5.x uses `org.springframework.boot.autoconfigure.domain.EntityScan`, keeps the two JPA annotations in `org.springframework.boot.test.autoconfigure.orm.jpa`, and keeps `@AutoConfigureTestDatabase` in `org.springframework.boot.test.autoconfigure.jdbc`; do not carry those packages into a Boot 4 project.
 
 ```java
 @Target(ElementType.TYPE)

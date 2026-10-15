@@ -134,6 +134,8 @@ Match the server's strategy - see [api-versioning.md](../web/api-versioning.md).
 
 ## Testing
 
+On Boot 4, import the slice from `org.springframework.boot.restclient.test.autoconfigure.RestClientTest`. Boot 3.5.x uses `org.springframework.boot.test.autoconfigure.web.client.RestClientTest`; do not carry the old package into a Boot 4 project.
+
 ```java
 @RestClientTest(InventoryClient.class)
 class InventoryClientTest {

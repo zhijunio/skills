@@ -16,6 +16,8 @@ That last point is the decisive one. Use the deployed database family for behavi
 
 ## `@DataJpaTest`
 
+On Boot 4, import the slice from `org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest` and `TestEntityManager` from `org.springframework.boot.jpa.test.autoconfigure.TestEntityManager`. `@AutoConfigureTestDatabase` is `org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase`. Boot 3.5.x keeps the JPA types in `org.springframework.boot.test.autoconfigure.orm.jpa` and `@AutoConfigureTestDatabase` in `org.springframework.boot.test.autoconfigure.jdbc`; do not carry those packages into a Boot 4 project.
+
 ```java
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -84,6 +86,8 @@ Needs `spring.jpa.properties.hibernate.generate_statistics=true` in the test pro
 
 ## `@JdbcTest` - `JdbcClient` and `JdbcTemplate`
 
+On Boot 4, import the slice from `org.springframework.boot.jdbc.test.autoconfigure.JdbcTest`. Boot 3.5.x uses `org.springframework.boot.test.autoconfigure.jdbc.JdbcTest`; do not carry the old package into a Boot 4 project.
+
 Auto-configures a DataSource plus both clients. Same `replace = NONE` plus Testcontainers rule.
 
 ```java
@@ -109,6 +113,8 @@ class OrderSummaryQueryTest {
 ```
 
 ## `@DataJdbcTest` and `@JooqTest`
+
+On Boot 4, `@DataJdbcTest` is `org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest` and `@JooqTest` is `org.springframework.boot.jooq.test.autoconfigure.JooqTest`. Boot 3.5.x uses `org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest` and `org.springframework.boot.test.autoconfigure.jooq.JooqTest`; do not carry the old packages into a Boot 4 project.
 
 Same rule for Spring Data JDBC repositories and for jOOQ's `DSLContext`. jOOQ against H2 masks dialect-specific SQL just as thoroughly as JPA does.
 
