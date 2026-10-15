@@ -75,7 +75,7 @@ spring-boot-developer/
 ├── README.md
 ├── SKILL.md
 ├── versions.json
-├── scripts/                 # project generation, environment checks, doc sync
+├── scripts/                 # project generation, environment checks, doc sync, smoke test
 ├── assets/                  # Docker, Compose, editor, CI and project templates
 ├── references/              # grouped by architecture, web, persistence, testing, etc.
 └── workshop/                # prompt-driven CRUD workshop and appendices

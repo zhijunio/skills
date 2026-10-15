@@ -99,6 +99,16 @@ For an existing application, specify the requested behavior and relevant constra
 
 The supported version baselines and generator defaults are recorded in [`versions.json`](versions.json). Check the [version compatibility guide](references/spring-boot-migration.md) before changing those values.
 
+## Maintaining the Generator
+
+After changing `versions.json`, `scripts/create-project.mjs`, or the project setup assets, run the smoke test. It generates Maven, Gradle, MyBatis-Plus, no-database, and Docker projects, runs their full builds, and checks that invalid option combinations are rejected. It needs network access and a running Docker daemon.
+
+```bash
+node scripts/smoke-test.mjs
+```
+
+Run `node scripts/sync-versions-in-docs.mjs --check` to confirm the version tables in the guides still match `versions.json`.
+
 ## References
 
 - https://github.com/jdubois/dr-jskill
