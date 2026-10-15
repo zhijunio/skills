@@ -125,7 +125,7 @@ An interceptor reading `SecurityContextHolder` will find nothing on an `@Async` 
 
 ```java
 RestClient.builder()
-        .apiVersionInserter(ApiVersionInserter.fromHeader("API-Version").build())
+        .apiVersionInserter(ApiVersionInserter.useHeader("API-Version"))
         .defaultApiVersion("1.2")
         .build();
 ```

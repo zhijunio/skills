@@ -108,7 +108,7 @@ If you call a versioned API, configure the outbound side to match the server's s
 
 ```java
 RestClient.builder()
-        .apiVersionInserter(ApiVersionInserter.fromHeader("API-Version").build())
+        .apiVersionInserter(ApiVersionInserter.useHeader("API-Version"))
         .defaultApiVersion("1.2")
         .build();
 ```
