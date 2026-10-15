@@ -399,7 +399,7 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 ## 6. 核心数据概念
 
 - `User`：规范化登录标识、`displayName`、凭据状态、账户状态、邮箱验证状态、角色和生命周期时间。
-- `ExternalIdentity`：Provider registration/issuer 与不可变 subject；`(issuer, subject)` 唯一。无 issuer 的 OAuth 2.0 Provider 以不可复用的 `registrationId` 代替 issuer。
+- `ExternalIdentity`：所属用户、`registrationId`、issuer 与不可变 subject、安全展示信息和绑定时间；`(issuer, subject)` 唯一，`(userId, registrationId)` 唯一。无 issuer 的 OAuth 2.0 Provider 以不可复用的 `registrationId` 代替 issuer。
 - `UserCredential`：密码哈希及凭据元数据；不得序列化包含秘密的字段。
 - `Role`：命名的权限集合，用户可持有多个角色。权限至少包括用户管理、角色管理、MFA 配置、OAuth 配置、认证日志读取和审计日志读取；首版角色及其权限只由部署配置定义，不提供运行时定义或修改角色的接口；授权检查只依据权限，不依据角色名。系统内置一个不可删除的引导角色，包含全部管理权限，用于初始管理员引导。“有效管理员”指持有角色管理权限且账户已启用的用户。
 - `MfaFactor`：因子类型、注册/验证状态、加密秘密或凭据引用、密钥版本和时间。
@@ -408,7 +408,7 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 - `PendingAuthentication`：不完整登录的短时效状态，绑定用户、主因子、已完成及可用后续因子和尝试次数；每一步验证原子推进状态，全部必需因子完成后单次消费。
 - `OAuthTransaction`：OAuth 流程的短时效状态，包括授权请求（以 `state` 为键）、登录兑换码（绑定 `code_challenge`）、外部身份绑定请求（绑定发起用户和 `sid`）和重新认证事务（绑定 `sid` 与原 `(issuer, subject)`）；只保存秘密的校验值，设置过期时间并原子单次消费。
 - `OAuthClientRegistration`：`registrationId`、Provider 类型、协议端点与属性映射、展示字段、加密的 client secret 及其密钥版本、`trustEmailVerified`、`trustMfaClaims`、启用状态和时间戳。删除后保留 `registrationId` 与 issuer/Provider 的墓碑记录，用于拒绝复用。
-- `Session` / `RefreshCredential`：凭据校验值、凭据族、过期时间、轮换/撤销元数据和认证上下文。
+- `Session` / `RefreshCredential`：`sid`、用户、凭据校验值、凭据族、轮换/撤销元数据和认证上下文（`amr`）；主凭据来源（本地密码或 `registrationId` 与外部身份 ID）；最近认证时间和最近 MFA 时间；最近刷新时间和绝对过期时间；受限会话标记；设备摘要和掩码网络信息。
 - `AuthLog`：事件/结果、发生时间、适用的因子/Provider、请求关联 ID、可选的解析后 `userId` 和隐私安全的标识符/网络元数据。用于关联匿名失败尝试的标识符应为受控的掩码值或带密钥摘要，不保存原始邮箱；未知账户尝试必须能在没有这些 ID 的情况下表示。
 - `AuditLog`：操作、发生时间、操作者类型/ID；人为操作时记录 `actorUserId`；另含目标类型/ID、结果、请求关联 ID 和安全变更元数据。系统操作标识系统操作者。
 
@@ -424,7 +424,7 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 - 使用 `SecureRandom`；适用时以恒定时间比较秘密派生值。
 - 防止登录和恢复流程枚举账户。查询前规范化标识符，并按 IP 和不可逆标识符键限流。
 - 外部身份绑定要求稳定 Provider subject 和明确的已验证用户策略；不得仅按邮箱自动合并。
-- 测试 OAuth2/OIDC state、nonce、issuer、audience、回调、令牌存储、注销、刷新和重定向白名单。
+- 测试 OAuth2/OIDC state、nonce、issuer、audience、回调、兑换码与授权请求的存储、注销和重定向白名单。
 - API 不设置也不读取 Cookie，不创建 `HttpSession`：认证凭据只来自 `Authorization` Header 或请求体，因此不启用 CSRF 令牌机制；OAuth 流程的发起方由 `code_verifier` 或发起人的 bearer token 识别（见 4.3、5.5），不依赖浏览器 Cookie。CORS 不是授权机制。
 - 仅在受控代理会清除客户端自带转发头的情况下信任 forwarded headers；适用时阻止绕过代理的公网访问。
 - 生产密钥由密钥管理器/环境变量注入；示例配置只放占位值。启动时校验必需配置。
@@ -463,7 +463,8 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 - 测试 OAuth 回调失败（state、nonce、issuer、audience、签名、redirect）、账户绑定冲突、Provider 失败和本地注销语义，以及有活动因子或被强制 MFA 的用户经外部登录和 `token/exchange` 时仍须完成 MFA；测试 `code_verifier` 缺失或不符时兑换失败、`continue` 不在登记列表时拒绝发起、他人确认绑定请求时被拒绝，以及整个 OAuth 流程不创建 `HttpSession`；不要求每次构建都连接真实 Provider。
 - 测试每种 MFA 因子的成功和拒绝路径，包括钱包挑战重放、恢复码单次使用/尝试上限、WebAuthn 注册/断言策略及因子权限转换。
 - 测试密码长度（含超过 72 字节的多字节密码）、注册与登录两侧的 Unicode 规范化、阻止列表和历史密码哈希兼容；测试邮箱登录过滤器对未知账户、错误密码、停用/锁定账户返回一致响应且耗时不可区分，以及锁定计数、到期、锁定通知、用户解锁和管理员解锁。
-- 测试注册邮箱验证：待验证账户不能登录；确认验证须提交正确的注册密码；对待验证邮箱重复注册会使旧验证凭据失效；过期未验证账户被清除并释放邮箱。
+- 测试注册邮箱验证：待验证账户不能登录；确认验证须提交正确的注册密码；对待验证邮箱重复注册会使旧验证凭据失效；过期未验证账户被清除并释放邮箱；待验证账户发起密码重置时不发送邮件且不被激活。
+- 测试账户枚举防护与幂等：邮箱变更请求对已被占用的邮箱返回相同响应且不发送验证码；`token/revocation` 对有效、无效和已撤销凭据都返回 `204`；用户在同一 Provider 下重复绑定时返回 `409`。
 - 测试 refresh token 并发刷新：宽限窗口内的重复提交不撤销凭据族，窗口外重用则撤销；会话超过空闲超时或绝对有效期后不能再刷新。
 - 测试 Provider 动态管理：`trustEmailVerified` 关闭时不 JIT 建号、不作废待验证注册；禁用或删除 Provider 时撤销以其为主凭据的会话；删除后的 `registrationId` 不能复用于不同 issuer；配置变更在所有实例上生效。
 - 测试新地点/设备通知只使用解析后的最少必要摘要；User-Agent/IP 地理信息不能单独导致登录拒绝，日志中不得保存完整 User-Agent 或精确位置。
