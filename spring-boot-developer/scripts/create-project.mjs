@@ -284,19 +284,15 @@ async function renameContainerTest(projectDir) {
   }
 }
 
-async function normalizeTestcontainersConfiguration(projectDir, bootVersion) {
+async function normalizeTestcontainersConfiguration(projectDir) {
   const testsRoot = join(projectDir, 'src', 'test', 'java')
   if (!existsSync(testsRoot)) return
   const entries = await readFileList(testsRoot)
   for (const file of entries.filter((entry) => basename(entry) === 'TestcontainersConfiguration.java')) {
     let source = await readFile(file, 'utf8')
-    if (bootVersion.startsWith('4.')) {
-      // Testcontainers 2 made PostgreSQLContainer non-generic. Spring Initializr
-      // templates can still emit the old diamond/generic form, which fails compile.
-      source = source.replace(/PostgreSQLContainer\s*<\s*[^>]*\s*>/g, 'PostgreSQLContainer')
-    }
+    source = source.replace(/"postgres:latest"/, `"${versions.postgresql.image}"`)
     source = source.replace(/^(\s*)(?<!public )(class\s+TestcontainersConfiguration\b)/m, '$1public $2')
-    source = source.replace(/^(\s*)(?!public\s)(PostgreSQLContainer(?:<[^>]+>)?\s+postgresContainer\s*\()/m, '$1public $2')
+    source = source.replace(/^(\s*)(?!public\s)(PostgreSQLContainer\s+postgresContainer\s*\()/m, '$1public $2')
     await writeFile(file, source)
   }
 }
@@ -425,8 +421,8 @@ async function main() {
     if (options.build === 'maven') await ensureMavenSpotless(options.projectDir)
     else await ensureGradleSpotless(options.projectDir)
 
+    if (options.database === 'postgresql') await normalizeTestcontainersConfiguration(options.projectDir)
     if (options.database === 'postgresql' && options.build === 'maven') {
-      await normalizeTestcontainersConfiguration(options.projectDir, options.bootversion)
       await ensureMavenFailsafe(options.projectDir)
       await renameContainerTest(options.projectDir)
     }
