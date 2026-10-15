@@ -168,7 +168,7 @@ async function addDatabaseAssets(projectDir) {
   }
 }
 
-async function addProjectSetupAssets(projectDir, packageName, bootVersion) {
+async function addProjectSetupAssets(projectDir, packageName) {
   const assets = join(root, 'assets')
   const gitignorePath = join(projectDir, '.gitignore')
   const existingGitignore = existsSync(gitignorePath) ? await readFile(gitignorePath, 'utf8') : ''
@@ -190,13 +190,10 @@ async function addProjectSetupAssets(projectDir, packageName, bootVersion) {
   await mkdir(join(projectDir, '.github'), { recursive: true })
   await writeFile(join(projectDir, '.github', 'lsp.json'), await readFile(join(assets, 'lsp.json')))
 
-  if (bootVersion.startsWith('4.')) {
-    const packagePath = packageName.split('.').join('/')
-    const configDirectory = join(projectDir, 'src', 'main', 'java', packagePath, 'config')
-    await mkdir(configDirectory, { recursive: true })
-    const listener = (await readFile(join(assets, 'StartupInfoListener.java.tmpl'), 'utf8')).replaceAll('__PACKAGE__', packageName)
-    await writeFile(join(configDirectory, 'StartupInfoListener.java'), listener)
-  }
+  const configDirectory = join(projectDir, 'src', 'main', 'java', ...packageName.split('.'), 'config')
+  await mkdir(configDirectory, { recursive: true })
+  const listener = (await readFile(join(assets, 'StartupInfoListener.java.tmpl'), 'utf8')).replaceAll('__PACKAGE__', packageName)
+  await writeFile(join(configDirectory, 'StartupInfoListener.java'), listener)
 }
 
 async function addDeveloperToolingAssets(projectDir, javaVersion, build, database, docker) {
@@ -413,7 +410,7 @@ async function main() {
       await addMyBatisPlusDependency(options.projectDir, options.build)
     }
 
-    await addProjectSetupAssets(options.projectDir, options.packagename, options.bootversion)
+    await addProjectSetupAssets(options.projectDir, options.packagename)
     await addDeveloperToolingAssets(options.projectDir, options.java, options.build, options.database, options.docker)
 
     if (options.database === 'postgresql') await addDatabaseAssets(options.projectDir)
