@@ -30,7 +30,7 @@ The workflow includes [spec and plan templates](spec-skills/) and shared [review
 
 ## Runnable samples
 
-The [`samples/`](samples/README.md) directory contains runnable Spring Boot examples: a task API with PostgreSQL and Redis that requires an OIDC issuer, and a full-stack Vue product application.
+The [`samples/`](samples/README.md) directory catalogs runnable Spring Boot examples and [planned Spring Security samples](samples/ROADMAP.md).
 
 ## Reusable prompts
 

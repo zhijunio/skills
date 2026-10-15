@@ -207,6 +207,8 @@ class SecurityProblemDetailHandler implements AuthenticationEntryPoint, AccessDe
 
 Keep MVC failures in `GlobalExceptionHandler`; it does not replace these filter-chain handlers. Security responses should not expose credentials, account existence, or internal exception details.
 
+When the chain enables `oauth2ResourceServer().jwt()`, also set its `authenticationEntryPoint` and `accessDeniedHandler` in that DSL. The resource-server bearer filter has its own defaults, so setting only `exceptionHandling()` can leave invalid-token responses using a different body. Preserve the `WWW-Authenticate: Bearer` challenge on 401 responses and test missing, malformed, expired, and insufficient-scope tokens.
+
 ## Passwords
 
 ```java
@@ -372,7 +374,7 @@ Spring Security **6**, which is a real difference. The lambda DSL is the recomme
 
 ## Related
 
-- [jwt-authentication.md](jwt-authentication.md) · [oauth2-resource-server.md](oauth2-resource-server.md) · [rate limiting](../integration/rate-limiting.md) · [error-handling.md](../web/error-handling.md) · [observability.md](../observability/observability.md) · [spring-proxies-and-di.md](../architecture/spring-proxies-and-di.md) · [testing-slices-web.md](../testing/testing-slices-web.md)
+- [mfa.md](mfa.md) · [jwt-authentication.md](jwt-authentication.md) · [oauth2-resource-server.md](oauth2-resource-server.md) · [rate limiting](../integration/rate-limiting.md) · [error-handling.md](../web/error-handling.md) · [observability.md](../observability/observability.md) · [spring-proxies-and-di.md](../architecture/spring-proxies-and-di.md) · [testing-slices-web.md](../testing/testing-slices-web.md)
 
 ## References
 

@@ -149,6 +149,7 @@ This checklist covers Spring application concerns. Use the focused architecture 
 | 84 | Secrets have an owner, least-privilege scope, rotation and revocation procedure; CI does not expose them to untrusted code. | [configuration.md](configuration/configuration.md) |
 | 85 | Alerts have an owner, user impact, actionable runbook and SLO-aligned threshold; logs validate client-supplied correlation IDs. | [observability.md](observability/observability.md) |
 | 86 | External client tests exercise the network boundary; local substitutes cannot silently fall through to live providers. | [external-service-testing.md](testing/testing-external-service.md) |
+| 87 | Runtime-managed OAuth registrations are privileged configuration: allowlist endpoint hosts, protect and audit changes, encrypt stored secrets, and let database uniqueness constraints resolve create races. | [OAuth2 login and SSO](security/oauth2-login.md) · [database concurrency](persistence/database-concurrency.md) |
 
 ---
 

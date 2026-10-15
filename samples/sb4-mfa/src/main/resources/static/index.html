@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f4f0" />
+    <title>Spring MFA 验证实验室</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Spring MFA 首页">
+          <span class="brand-mark">M</span>
+          <span>Spring MFA <span class="muted">/ 验证实验室</span></span>
+        </a>
+        <div class="top-actions">
+          <span class="status"><i></i><span id="session-status">正在检查登录状态</span></span>
+          <button class="button button-quiet" id="logout-button" type="button" hidden>退出登录</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div>
+          <h1>确认身份，<br /><em>再继续。</em></h1>
+          <p class="hero-copy">先验证账户，再完成一种第二因子。两步都通过后，才可访问应用资源。</p>
+        </div>
+        <div class="hero-note">
+          <span class="note-number">说明</span>
+          <p>用户和 MFA 凭据仅保存在内存中。应用重启后，数据会清空。</p>
+          <span class="note-rule"></span>
+        </div>
+      </section>
+
+      <section class="login-panel panel" id="login-panel">
+        <div class="panel-heading">
+          <div><h2>验证账户密码</h2></div>
+          <span class="step">第 1 步 / 共 2 步</span>
+        </div>
+        <form id="login-form" class="login-form">
+          <label>用户名<input name="username" autocomplete="username" value="demo" required /></label>
+          <label>密码<input name="password" type="password" autocomplete="current-password" value="changeit" required /></label>
+          <button class="button button-primary" type="submit">登录 <span aria-hidden="true">↗</span></button>
+        </form>
+        <div class="or-line"><span>或使用通行密钥</span></div>
+        <button class="passkey-link passkey-button" id="passkey-login" type="button">使用通行密钥登录 <span>↗</span></button>
+        <p class="fine-print">示例账号已预填。请仅使用本地测试用的验证器或钱包。</p>
+      </section>
+
+      <section class="workspace" id="workspace" hidden>
+        <div class="mfa-pending panel" id="mfa-pending" role="status" hidden>
+          <span class="note-number">第 2 步</span>
+          <div><h2>再验证一种安全因子</h2><p>第一步已通过，第二步完成前受保护资源不会开放。示例账户可先用邮件验证码完成验证。</p></div>
+        </div>
+        <div class="section-heading">
+          <div><p class="eyebrow">第二步</p><h2>选择一种验证方式</h2></div>
+          <p class="section-description" id="factor-description">完成验证后即可访问应用资源。</p>
+        </div>
+
+        <div class="factor-grid">
+          <article class="factor-card">
+            <div class="card-top"><span class="factor-index">A</span><span class="factor-tag">基于时间的一次性密码</span></div>
+            <h3>验证器应用</h3>
+            <p>创建 TOTP 密钥，在验证器中添加后，先确认绑定，再验证新生成的 6 位验证码。</p>
+            <div class="card-actions" data-factor-setup>
+              <button class="button button-outline" id="totp-enroll" type="button">创建密钥</button>
+              <form class="inline-form" id="totp-confirm-form"><input name="code" inputmode="numeric" autocomplete="one-time-code" placeholder="输入 6 位验证码" maxlength="6" aria-label="用于确认绑定的 TOTP 验证码" required /><button class="button button-dark" type="submit">确认绑定</button></form>
+            </div>
+            <div class="card-actions">
+              <form class="inline-form" id="totp-verify-form"><input name="code" inputmode="numeric" autocomplete="one-time-code" placeholder="输入新验证码" maxlength="6" aria-label="TOTP 验证码" required /><button class="button button-dark" type="submit">验证</button></form>
+            </div>
+            <output class="result" id="totp-result" aria-live="polite"></output>
+          </article>
+
+          <article class="factor-card">
+            <div class="card-top"><span class="factor-index">B</span><span class="factor-tag">邮件一次性验证码</span></div>
+            <h3>邮件验证码</h3>
+            <p>验证码会发送到示例邮箱，开发环境下可在应用日志中查看。</p>
+            <div class="card-actions">
+              <button class="button button-outline" id="email-request" type="button">发送验证码</button>
+              <form class="inline-form" id="email-verify-form"><input name="code" inputmode="numeric" autocomplete="one-time-code" placeholder="输入 6 位验证码" maxlength="6" aria-label="邮件验证码" required /><button class="button button-dark" type="submit">验证</button></form>
+            </div>
+            <output class="result" id="email-result" aria-live="polite"></output>
+          </article>
+
+          <article class="factor-card factor-card-wide">
+            <div class="card-top"><span class="factor-index">C</span><span class="factor-tag">EIP-191 钱包签名</span></div>
+            <h3>钱包签名</h3>
+            <p>完成两步验证后可绑定钱包；登录时签署一次性挑战。应用不会接触私钥。</p>
+            <div class="wallet-enroll" data-factor-setup>
+              <input id="wallet-address" autocomplete="off" spellcheck="false" placeholder="0x 开头的钱包地址" aria-label="钱包地址" />
+              <button class="button button-outline" id="wallet-enroll" type="button">获取绑定挑战</button>
+              <button class="button button-dark" id="wallet-enroll-sign" type="button" disabled>在钱包中签名</button>
+            </div>
+            <div class="card-actions wallet-actions">
+              <button class="button button-outline" id="wallet-challenge" type="button">获取登录挑战</button>
+              <button class="button button-dark" id="wallet-sign" type="button" disabled>签名并验证</button>
+            </div>
+            <output class="result" id="wallet-result" aria-live="polite"></output>
+          </article>
+
+          <article class="factor-card factor-card-wide recovery-factor">
+            <div class="card-top"><span class="factor-index">D</span><span class="factor-tag">一次性备用验证方式</span></div>
+            <h3>12 词助记词</h3>
+            <p>创建应用专用的 12 词助记词。验证成功后立即失效；请离线保存，只能查看一次。</p>
+            <div class="card-actions" data-factor-setup>
+              <button class="button button-outline" id="recovery-phrase-enroll" type="button">生成备用助记词</button>
+            </div>
+            <form class="recovery-phrase-form" id="recovery-phrase-form">
+              <label for="recovery-phrase-input">输入完整的 12 个单词</label>
+              <textarea id="recovery-phrase-input" name="phrase" rows="3" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="按顺序输入 12 个英文单词" required></textarea>
+              <button class="button button-dark" type="submit">验证助记词</button>
+            </form>
+            <output class="result" id="recovery-phrase-result" aria-live="polite"></output>
+          </article>
+        </div>
+
+        <div class="passkey-strip panel" data-factor-setup>
+          <div class="passkey-icon">⌁</div>
+          <div><p class="eyebrow">WEBAUTHN / PASSKEY</p><h3>注册或使用通行密钥作为第一步</h3><p>使用浏览器和设备提供的生物识别或 PIN 完成第一步，之后仍需验证第二因子。</p></div>
+          <div class="passkey-actions"><button class="button button-outline" id="passkey-register" type="button">注册通行密钥 ↗</button><span class="text-link">注册需要先登录</span></div>
+        </div>
+
+        <section class="protected panel" id="protected-panel" hidden>
+          <div class="protected-copy"><p class="eyebrow">访问检查</p><h2>受保护资源</h2><p>需要密码或通行密钥作为第一步，再通过 TOTP、邮件验证码或钱包签名中的一种。</p></div>
+          <div class="protected-actions">
+            <button class="button button-outline" id="check-profile" type="button">查询个人信息</button>
+            <button class="button button-primary" id="check-security" type="button">查看安全设置（需近期验证）<span aria-hidden="true">↗</span></button>
+          </div>
+          <output class="access-result" id="access-result" aria-live="polite"></output>
+        </section>
+      </section>
+
+      <section class="recovery-note">
+        <span class="recovery-symbol">!</span>
+        <p><strong>请勿输入钱包助记词。</strong>此处生成的是本应用专用的一次性备用验证短语，不用于生成钱包或恢复钱包。钱包控制权请使用钱包签名验证。</p>
+      </section>
+
+      <footer><span>由 SPRING SECURITY 提供支持</span><span>仅限本地开发 <b>·</b> 不收集助记词</span></footer>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </body>
+</html>

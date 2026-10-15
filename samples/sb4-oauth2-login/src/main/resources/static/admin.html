@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OAuth 登录提供方管理</title>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <main class="shell">
+    <header><a href="/">← 返回登录页</a><span class="eyebrow">管理员控制台</span><h1>OAuth 登录提供方</h1><p>新增或维护 GitHub、Google、Dex 等 OAuth 2.0 / OIDC 客户端。</p></header>
+    <section id="loginPanel" class="card login-card">
+      <h2>管理员登录</h2><form id="loginForm" class="login-form"><label>用户名<input name="username" value="admin" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><button>登录</button></form>
+    </section>
+    <section id="manager" hidden>
+      <div class="toolbar"><span id="sessionLabel">已登录</span><button id="logoutButton" class="secondary">退出</button></div>
+      <div class="layout">
+        <section class="card"><div class="section-title"><div><span class="eyebrow">配置</span><h2 id="formTitle">添加提供方</h2></div><button id="resetButton" class="secondary">清空</button></div>
+          <form id="clientForm" class="fields">
+            <label>配置模板<select id="templateSelect"><option value="">选择模板以填充默认配置</option></select></label>
+            <label>Registration ID<input name="registrationId" placeholder="github" pattern="[a-z0-9][a-z0-9_-]{0,63}" required></label>
+            <label>显示名称<input name="clientName" placeholder="GitHub" required></label>
+            <label>协议类型<select name="providerType"><option value="OAUTH2">OAuth 2.0</option><option value="OIDC" selected>OpenID Connect</option></select></label>
+            <label>登录按钮文案<input name="loginButtonLabel" placeholder="默认使用显示名称"></label>
+            <label>按钮图标文字<input name="loginButtonIcon" maxlength="16" placeholder="例如 G、GH"><small>作为纯文本显示，不支持 HTML 或图片 URL。</small></label>
+            <label>Client ID<input name="clientId" required></label>
+            <label>Client Secret<input name="clientSecret" type="password" autocomplete="new-password"><small>更新时留空会保留现有密钥。</small></label>
+            <label>客户端认证方式<select name="clientAuthenticationMethod"><option value="client_secret_basic">client_secret_basic</option><option value="client_secret_post">client_secret_post</option><option value="none">none（公开客户端）</option></select></label>
+            <label>回调 URI<input name="redirectUri" value="{baseUrl}/login/oauth2/code/{registrationId}" required></label>
+            <label>Scopes<input name="scopes" value="openid profile email" required></label>
+            <label>授权端点<input name="authorizationUri" placeholder="https://idp.example.com/authorize" required></label>
+            <label>Token 端点<input name="tokenUri" placeholder="https://idp.example.com/token" required></label>
+            <label>用户信息端点<input name="userInfoUri" placeholder="OAuth 2.0 必填；OIDC 留空"></label>
+            <label>用户名属性<input name="userNameAttributeName" placeholder="OAuth 2.0 常用 sub"></label>
+            <label>Issuer URI<input name="issuerUri" placeholder="OIDC 必填"></label>
+            <label>JWK Set URI<input name="jwkSetUri" placeholder="OIDC 必填"></label>
+            <label>额外授权参数（JSON）<textarea name="authorizationParameters" rows="3">{}</textarea><small>例如 {"prompt":"consent"}；不得覆盖 OAuth 协议参数。</small></label>
+            <label>稳定用户标识属性<input name="subjectAttributeName" placeholder="默认使用 principal name / sub"></label>
+            <label>显示名称属性<input name="displayNameAttributeName" placeholder="默认依次读取 name、preferred_username 等"></label>
+            <label>邮箱属性<input name="emailAttributeName" placeholder="默认 email"></label>
+            <label class="check"><input name="enabled" type="checkbox" checked>启用此提供方</label>
+            <div class="actions"><button id="saveButton">创建提供方</button><button type="button" id="cancelButton" class="secondary" hidden>取消编辑</button></div>
+          </form>
+        </section>
+        <section class="card"><div class="section-title"><div><span class="eyebrow">数据库配置</span><h2>已配置提供方</h2></div><button id="reloadButton" class="secondary">刷新</button></div><div id="clientList" class="client-list"></div></section>
+      </div>
+      <section class="card user-card"><div class="section-title"><div><span class="eyebrow">用户管理</span><h2>本地用户与外部身份</h2></div><button id="usersReloadButton" class="secondary">刷新用户</button></div><p class="hint">停用账号后，其现有 JWT 会立即失效。管理员可强制解绑；移除唯一登录方式后，用户无法再通过该身份登录到原账号。</p><div id="usersList" class="user-list"></div></section>
+
+      <section class="card audit-card"><div class="section-title"><div><span class="eyebrow">操作记录</span><h2>最近变更</h2></div><button id="auditReloadButton" class="secondary">刷新记录</button></div><div id="auditList" class="audit-list"></div></section>
+    </section>
+    <div id="notice" role="status" aria-live="polite"></div>
+  </main>
+  <script src="/admin.js" defer></script>
+</body>
+</html>

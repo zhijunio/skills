@@ -148,6 +148,8 @@ Load the guide that matches the task. The focused guides contain implementation 
 ### Security
 
 - **Filter chains, authorization, passwords, CORS, and CSRF**: [Security fundamentals](references/security/security-fundamentals.md)
+- **Multi-factor authentication, WebAuthn/passkeys, staged JWT login, and recovery**: [MFA](references/security/mfa.md)
+- **External OAuth2/OIDC login, SAML SSO, account mapping, and provisioning**: [OAuth2 login and SSO](references/security/oauth2-login.md)
 - **Issuing JWTs for local accounts**: [JWT authentication](references/security/jwt-authentication.md)
 - **Validating tokens from an identity provider**: [OAuth2 resource server](references/security/oauth2-resource-server.md)
 

@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: sb4-jwt
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/jwt_demo}
+    username: ${DATABASE_USERNAME:jwt_demo}
+    password: ${DATABASE_PASSWORD:jwt_demo_local}
+  flyway:
+    enabled: true
+  config:
+    import: optional:file:.env[.properties]
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: ${PORT:8080}
+
+app:
+  jwt:
+    public-key: ${JWT_PUBLIC_KEY:file:.local/keys/public.pem}
+    private-key: ${JWT_PRIVATE_KEY:file:.local/keys/private.pem}
+    key-id: ${JWT_KEY_ID:local-rsa-key}
+    issuer: ${JWT_ISSUER:sb4-jwt-api}
+    audience: ${JWT_AUDIENCE:sb4-jwt-client}
+    access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:15m}

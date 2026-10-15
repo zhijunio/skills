@@ -6,6 +6,8 @@ If an identity provider is available - Keycloak, Auth0, Okta, Entra, Cognito - u
 
 Self-issuing means owning key management, rotation, revocation, refresh-token reuse detection and account recovery. It is the right answer for a self-contained application with local accounts and no IdP, and the wrong answer whenever an IdP is on the table.
 
+If login requires multiple factors, complete the MFA flow before issuing a normal access JWT. See [MFA](mfa.md) for browser/session and stateless REST flows, factor claims, and Boot 3.5 versus Boot 4 guidance.
+
 ## Use Spring Security's own JWT support
 
 Do **not** add a third-party JWT library and hand-write an `OncePerRequestFilter`. Spring Security already has an encoder, a decoder and a bearer-token filter. Using them removes the dependency, the custom filter, and the entire class of bugs that comes with parsing tokens by hand - expired-token exceptions escaping the filter as a 500, forgetting to clear the security context, accepting a refresh token as an access token.
@@ -97,6 +99,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Jwks {
+    private static final String KEY_PAIR_VERIFICATION_MESSAGE = "jwt-key-pair-check";
 
     private Jwks() {
     }
@@ -136,7 +139,7 @@ public final class Jwks {
     }
 
     private static void verifyKeyPair(RSAPublicKey publicKey, RSAPrivateKey privateKey) throws Exception {
-        byte[] challenge = "jwt-key-pair-check".getBytes(StandardCharsets.UTF_8);
+        byte[] challenge = KEY_PAIR_VERIFICATION_MESSAGE.getBytes(StandardCharsets.UTF_8);
         Signature signer = Signature.getInstance("SHA256withRSA");
         signer.initSign(privateKey);
         signer.update(challenge);
@@ -510,7 +513,7 @@ Starter name is `spring-boot-starter-oauth2-resource-server` (no `security-` pre
 
 ## Related
 
-- [security-fundamentals.md](security-fundamentals.md) · [oauth2-resource-server.md](oauth2-resource-server.md) · [configuration.md](../configuration/configuration.md) · [error-handling.md](../web/error-handling.md) · [caching.md](../persistence/caching.md)
+- [security-fundamentals.md](security-fundamentals.md) · [mfa.md](mfa.md) · [oauth2-resource-server.md](oauth2-resource-server.md) · [configuration.md](../configuration/configuration.md) · [error-handling.md](../web/error-handling.md) · [caching.md](../persistence/caching.md)
 
 ## References
 

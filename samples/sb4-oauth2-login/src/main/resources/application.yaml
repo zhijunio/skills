@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: sb4-oauth2-login
+  mvc:
+    problemdetails:
+      enabled: true
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/oauth2_demo}
+    username: ${SPRING_DATASOURCE_USERNAME:oauth2_demo}
+    password: ${SPRING_DATASOURCE_PASSWORD:oauth2_demo}
+  flyway:
+    enabled: true
+    validate-on-migrate: true
+    out-of-order: false
+    clean-disabled: true
+app:
+  jwt:
+    # Required: provide independent, random Base64-encoded key material.
+    secret: ${JWT_SECRET}
+    issuer: ${JWT_ISSUER:http://localhost:8080}
+    audience: ${JWT_AUDIENCE:sb4-oauth2-login-api}
+    access-token-ttl: 15m
+  security:
+    demo-password: ${DEMO_PASSWORD}
+    admin-password: ${ADMIN_PASSWORD}
+  oauth2:
+    # Required: separate 32-byte key generated with `openssl rand -base64 32`.
+    client-secret-encryption-key: ${OAUTH2_CLIENT_SECRET_ENCRYPTION_KEY}
+    allowed-hosts: ${OAUTH2_ALLOWED_HOSTS:localhost,127.0.0.1}
+server:
+  error:
+    include-message: never

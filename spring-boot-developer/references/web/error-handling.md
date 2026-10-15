@@ -64,6 +64,8 @@ Throw from the service or the domain object, never from the controller.
 
 ## The global handler
 
+Name the application-wide MVC advice `GlobalExceptionHandler`. Do not call it `ApiExceptionHandler`; the handler is the global MVC exception boundary, not an API-specific feature handler. Use a feature-scoped name such as `OrderExceptionHandler` only when the advice is deliberately limited to that feature.
+
 ```java
 @RestControllerAdvice
 class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
