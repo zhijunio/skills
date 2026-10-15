@@ -8,7 +8,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const versions = JSON.parse(await readFile(resolve(root, 'versions.json'), 'utf8'))
 const args = process.argv.slice(2)
 if (args.includes('--help') || args.includes('-h')) {
-  console.log(`Update version tables in references from versions.json.
+  console.log(`Update version tables and inline versions in references from versions.json.
 
 Usage:
   node scripts/sync-versions-in-docs.mjs [--check]
@@ -61,6 +61,16 @@ const tables = new Map([
     ['PostgreSQL', versions.postgresql.defaultMajor],
   ]],
 ])
+const inlineVersions = new Map([
+  ['frontend/spring-boot-integration.md', [
+    [/(<artifactId>frontend-maven-plugin<\/artifactId>\s*<version>)[^<]+/, versions.vue.mavenFrontendPlugin],
+    [/(<nodeVersion>v)[^<]+/, versions.node.default],
+    [/(<npmVersion>)[^<]+/, versions.node.npm],
+  ]],
+  ['tooling/project-setup.md', [
+    [/(`\.nvmrc` \/ `\.node-version`\*\*: set `)[^`]+/, versions.node.default],
+  ]],
+])
 
 function render(rows) {
   return [
@@ -71,10 +81,17 @@ function render(rows) {
 }
 
 let changed = []
-for (const [filename, rows] of tables) {
+for (const filename of new Set([...tables.keys(), ...inlineVersions.keys()])) {
   const path = resolve(root, 'references', filename)
   const original = await readFile(path, 'utf8')
-  const updated = original.replace(new RegExp(`${start}[\\s\\S]*?${end}`), `${start}\n${render(rows)}\n${end}`)
+  let updated = original
+  if (tables.has(filename)) {
+    updated = updated.replace(new RegExp(`${start}[\\s\\S]*?${end}`), `${start}\n${render(tables.get(filename))}\n${end}`)
+  }
+  for (const [pattern, version] of inlineVersions.get(filename) ?? []) {
+    if (!pattern.test(updated)) throw new Error(`Version pattern ${pattern} not found in references/${filename}`)
+    updated = updated.replace(pattern, `$1${version}`)
+  }
   if (updated === original) continue
   changed.push(filename)
   if (!checkOnly) await writeFile(path, updated)

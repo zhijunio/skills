@@ -36,7 +36,7 @@ These apply to every framework guide:
 
 ## Build the frontend with Maven
 
-Add the [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin) to `pom.xml`. Take the plugin, Node.js, and npm versions from `versions.json` (`vue.mavenFrontendPlugin`, `node.default`, `node.npm`). Replace `LINT_SCRIPT` and `TEST_COMMAND` with the values from the framework guide:
+Add the [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin) to `pom.xml`. The plugin, Node.js, and npm versions below are synced from `versions.json` (`vue.mavenFrontendPlugin`, `node.default`, `node.npm`) by `node scripts/sync-versions-in-docs.mjs`. Replace `LINT_SCRIPT` and `TEST_COMMAND` with the values from the framework guide:
 
 ```xml
 <plugin>

@@ -108,7 +108,7 @@ After changing `versions.json`, `scripts/create-project.mjs`, or the project set
 node scripts/smoke-test.mjs
 ```
 
-Run `node scripts/sync-versions-in-docs.mjs --check` to confirm the version tables in the guides still match `versions.json`.
+Run `node scripts/sync-versions-in-docs.mjs --check` to confirm the version tables and inline frontend build versions in the guides still match `versions.json`.
 
 ## References
 
