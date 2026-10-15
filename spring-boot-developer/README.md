@@ -59,6 +59,7 @@ Follow the [Spring Boot Full-Stack Workshop](workshop/README.md) to generate a b
 
 ### Frontend guides
 
+- [Frontend integration with Spring Boot](references/frontend/spring-boot-integration.md) (shared by the SPA guides below)
 - [Vue](references/frontend/vue.md)
 - [React](references/frontend/react.md)
 - [Next.js](references/frontend/nextjs.md)

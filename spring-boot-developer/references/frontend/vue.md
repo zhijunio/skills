@@ -3,15 +3,12 @@
 ## Contents
 - [Overview](#overview)
 - [Versions (managed via `versions.json`)](#versions-managed-via-versionsjson)
-- [Architecture](#architecture)
+- [Spring Boot integration](#spring-boot-integration)
 - [Project Structure](#project-structure)
 - [Setup Instructions](#setup-instructions)
-- [Development Workflow](#development-workflow)
 - [Vue.js Application Structure](#vuejs-application-structure)
-- [Spring Boot SPA Controller](#spring-boot-spa-controller)
 - [Best Practices](#best-practices)
-- [CORS Configuration for Development](#cors-configuration-for-development)
-- [Testing Your Application](#testing-your-application)
+- [Browser DevTools](#browser-devtools)
 - [References](#references)
 
 ## Overview
@@ -34,19 +31,17 @@ This guide covers creating front-end applications for Spring Boot using **Vue.js
 
 > Tip: `corepack enable` to use `pnpm`/`yarn` if preferred. Default instructions assume `npm`.
 
-## Architecture
+## Spring Boot integration
 
-**Development Mode:**
+The build, run, SPA-forwarding, and API client rules shared by all frameworks are in [Frontend integration with Spring Boot](spring-boot-integration.md). Vue.js supplies these values:
 
-1. Vite dev server runs on `VITE_PORT` with a default of 5173
-2. Proxies API calls to the Spring Boot backend on `SPRING_BOOT_PORT` with a default of 8080
-3. Fast HMR (Hot Module Replacement)
-
-**Production Mode:**
-
-1. Vue.js app built and minified by Vite
-2. Static assets copied to `src/main/resources/static`
-3. Served directly by Spring Boot
+| Setting | Vue.js |
+|---|---|
+| Dev server | `npm run dev` on `http://localhost:${VITE_PORT:-5173}` |
+| Proxy and build output | `vite.config.js` (`server.proxy`, `build.outDir`), writing to `../src/main/resources/static` |
+| Maven `LINT_SCRIPT` | `lint:check` |
+| Maven `TEST_COMMAND` | `run test:unit -- --run` |
+| `FRONTEND_DEV_ORIGIN`, only if CORS is needed | `http://localhost:5173` |
 
 ## Project Structure
 
@@ -224,100 +219,7 @@ export default mergeConfig(
 
 ### 3. Configure Maven for Frontend Build
 
-Add to your `pom.xml`:
-
-```xml
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-                <mainClass>${start-class}</mainClass>
-            </configuration>
-        </plugin>
-
-        <!-- Frontend Maven Plugin for Node/npm -->
-        <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>2.0.2</version>
-            <configuration>
-                <workingDirectory>frontend</workingDirectory>
-                <installDirectory>target</installDirectory>
-            </configuration>
-            <executions>
-                <!-- Install Node and npm -->
-                <execution>
-                    <id>install node and npm</id>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>install-node-and-npm</goal>
-                    </goals>
-                    <configuration>
-                        <nodeVersion>v24.21.0</nodeVersion>
-                        <npmVersion>11.20.0</npmVersion>
-                    </configuration>
-                </execution>
-
-                <!-- Install npm dependencies -->
-                <execution>
-                    <id>npm install</id>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <arguments>install</arguments>
-                    </configuration>
-                </execution>
-
-                <!-- Build frontend -->
-                <execution>
-                    <id>npm run build</id>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <arguments>run build</arguments>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
-```
-
-Bind all three executions to `generate-resources`. The Spring Boot `run` goal invokes Maven lifecycle phases before starting the application, so `./mvnw spring-boot:run` installs frontend dependencies and runs `npm run build` before Spring Boot serves `src/main/resources/static`.
-
-To make `./mvnw verify` a single source of truth for the whole application, add two more
-executions between `npm install` and `npm run build` so the front-end lint and unit tests fail
-the Maven build too:
-
-```xml
-<execution>
-    <id>npm run lint</id>
-    <phase>generate-resources</phase>
-    <goals>
-        <goal>npm</goal>
-    </goals>
-    <configuration>
-        <arguments>run lint:check</arguments>
-    </configuration>
-</execution>
-
-<execution>
-    <id>npm run test</id>
-    <phase>generate-resources</phase>
-    <goals>
-        <goal>npm</goal>
-    </goals>
-    <configuration>
-        <arguments>run test:unit -- --run</arguments>
-    </configuration>
-</execution>
-```
+Add the frontend-maven-plugin from [Build the frontend with Maven](spring-boot-integration.md#build-the-frontend-with-maven), using the lint and test values in the [integration table](#spring-boot-integration).
 
 ### 4. Update Frontend package.json Scripts
 
@@ -338,39 +240,6 @@ Edit `frontend/package.json`:
   }
 }
 ```
-
-## Development Workflow
-
-### Starting Development Environment
-
-**Terminal 1 - Spring Boot Backend:**
-```bash
-./mvnw spring-boot:run
-```
-
-**Terminal 2 - Vue.js Frontend (with hot reload):**
-```bash
-cd frontend
-npm run dev
-```
-
-Access the application at **http://localhost:${VITE_PORT:-5173}** (Vue.js dev server with hot reload).
-
-API calls to `/api/*` are automatically proxied to Spring Boot at `http://localhost:${SPRING_BOOT_PORT:-8080}`.
-
-### Production Build
-
-```bash
-# Build everything (frontend + backend)
-./mvnw clean package
-
-# Run the packaged application
-java -jar target/my-app.jar
-
-# Access at http://localhost:${SPRING_BOOT_PORT:-8080}
-```
-
-The frontend is built and bundled into the Spring Boot JAR automatically.
 
 ## Vue.js Application Structure
 
@@ -973,83 +842,6 @@ async function handleDelete() {
 </script>
 ```
 
-## Spring Boot SPA Controller
-
-To support Vue Router with HTML5 history mode, implement an `ErrorController` that forwards 404s for non-API paths to `index.html`. This lets `ResourceHttpRequestHandler` serve static files first, lets `@RestController` mappings win naturally, and only kicks in on unmapped paths — keeping proper JSON 404s for `/api/**` and `/actuator/**`:
-
-```java
-package com.example.demo.controller;
-
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.boot.webmvc.error.ErrorController;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-@Controller
-public class SpaController implements ErrorController {
-
-    /**
-     * When no controller matches, Spring dispatches to /error. For non-API
-     * 404s we forward to index.html so Vue Router can take over; API and
-     * actuator 404s propagate normally with their default error response.
-     */
-    @RequestMapping("/error")
-    public Object handleError(HttpServletRequest request,
-            HttpServletResponse response) {
-        Integer status = (Integer) request.getAttribute(
-                RequestDispatcher.ERROR_STATUS_CODE);
-        String path = (String) request.getAttribute(
-                RequestDispatcher.ERROR_REQUEST_URI);
-
-        if (status != null
-                && status == HttpStatus.NOT_FOUND.value()
-                && path != null
-                && !path.startsWith("/api/")
-                && !path.startsWith("/actuator/")) {
-            // The ERROR dispatch already set 404 on the response: reset it
-            // so the browser receives a normal 200 with the SPA shell.
-            response.setStatus(HttpStatus.OK.value());
-            return "forward:/index.html";
-        }
-        return ResponseEntity
-                .status(status != null ? status : 500)
-                .build();
-    }
-}
-```
-
-Treat a mutation and its follow-up list refresh as two outcomes. Once a create, update, or delete request succeeds, a later refresh failure must not be reported as though the mutation failed; the server may already have committed it. Preserve the successful mutation, store the refresh error for the page's retry notice, and let the user retry the read. Keep mutation errors attached to the form or action that initiated them. Initial loads and retries should also record errors in state without leaving rejected promises unhandled by the view.
-
-For concurrent requests, make loading state cover the user action that owns it. Avoid nested actions that clear a shared loading flag while an outer mutation is still running. Disable conflicting actions while a mutation is active, or track operation-specific state when independent actions should remain available.
-
-This approach ensures that refreshing the browser on any Vue.js route (e.g., `/items/123`) serves `index.html` so Vue Router can render the page, while typos under `/api/**` or `/actuator/**` still return a real 404.
-
-> **Testing the SPA forward:** `MockMvc` does **not** perform the servlet `ERROR` dispatch, so a `@WebMvcTest` against an unmapped path returns a raw 404 and never reaches `SpaController`. Test this behaviour in an integration test with a real embedded server instead:
->
-> ```java
-> @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-> @AutoConfigureRestTestClient
-> @Import(TestcontainersConfiguration.class)
-> class SpaControllerIT {
->
->     @Autowired
->     private RestTestClient restTestClient;
->
->     @Test
->     void shouldForwardDeepLinksToTheSinglePageApp() {
->         restTestClient.get().uri("/items/123")
->                 .exchange()
->                 .expectStatus().isOk()
->                 .expectBody(String.class).value(body -> assertThat(body).contains("<html"));
->     }
-> }
-> ```
-
-
 ## Best Practices
 
 ### 1. Component Organization
@@ -1068,11 +860,8 @@ This approach ensures that refreshing the browser on any Vue.js route (e.g., `/i
 
 ### 3. API Integration
 
-- Service Layer: Separate API calls into service files (e.g., `itemService.js`)
-- Error Handling: Preserve HTTP status and RFC 9457 fields (`type`, `title`, `detail`, and extensions); also handle empty, non-JSON, and malformed error bodies
-- Loading States: Track loading states in stores
-- TypeScript (Optional): Add TypeScript for better type safety; if OpenAPI client types are generated, keep wire types at the API boundary and map them to UI/domain state there
-- Wire Values: Keep large identifiers and exact decimal values as strings; represent `LocalDate` as `YYYY-MM-DD` and timestamps with an explicit offset. See [JSON and Jackson](../web/json-and-jackson.md) and [OpenAPI](../web/openapi.md)
+- Keep API calls in `services/` and call them from Pinia store actions; the store owns loading and error state.
+- Follow the [API client rules](spring-boot-integration.md#api-client-rules) for errors, wire values, mutations, and loading state.
 
 ### 4. Routing
 
@@ -1096,9 +885,6 @@ This approach ensures that refreshing the browser on any Vue.js route (e.g., `/i
   import { defineAsyncComponent } from 'vue'
   const Chart = defineAsyncComponent(() => import('./Chart.vue'))
   ```
-- **Production build** — always ship the bundle produced by `./mvnw package` (or `npm run build` during dev). Vite applies minification, tree shaking, and content-hashed filenames.
-- **Long-term asset caching** — content-hashed filenames mean `/assets/**` can be served with a 1-year `Cache-Control`. Configure this on the Spring side (see [static resource caching](../web/static-resources.md)).
-- **Keep `index.html` uncached** — it references the hashed asset filenames; caching it would pin clients to stale bundles.
 
 ### 7. Development Workflow
 
@@ -1109,77 +895,11 @@ This approach ensures that refreshing the browser on any Vue.js route (e.g., `/i
 
 ### 8. Security
 
-- CORS Configuration: Configure Spring Boot to allow Vite dev server during development
-- CSRF Protection: Ensure Spring Security CSRF tokens are properly handled
-- Input Validation: Validate user inputs on both client and server
 - Sanitization: Sanitize data before rendering (Vue does this automatically for text)
 
-## CORS Configuration for Development
+## Browser DevTools
 
-Add this to your Spring Boot application to allow the Vite dev server. The bean is only registered when the `dev` profile is active, so no CORS filter is created in production:
-
-```java
-package com.example.demo.config;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-
-@Configuration
-@Profile("dev")
-public class CorsConfig {
-
-    /**
-     * Allows the Vite dev server to call the
-     * Spring Boot API during development. In production the Vue.js app
-     * is served from the same origin, so no CORS configuration is
-     * registered.
-     */
-    @Bean
-    public CorsFilter corsFilter(@Value("${VITE_PORT:5173}") int vitePort) {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:" + vitePort));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
-        return new CorsFilter(source);
-    }
-}
-```
-
-Start Spring Boot with the `dev` profile active:
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-```
-
-## Testing Your Application
-
-### Development Testing
-1. Start Spring Boot backend: `./mvnw spring-boot:run`
-2. Start Vite dev server: `cd frontend && npm run dev`
-3. Navigate to `http://localhost:${VITE_PORT:-5173}`
-4. Make changes and see them instantly with hot reload
-
-### Production Testing
-1. Build: `./mvnw clean package`
-2. Run: `java -jar target/my-app.jar`
-3. Navigate to `http://localhost:${SPRING_BOOT_PORT:-8080}`
-4. All routes should work including direct navigation to `/items`, `/about`, etc.
-
-### Browser DevTools
-- **Vue DevTools Extension**: Install for inspecting Vue components and Pinia stores
-- **Console**: Check for errors and API responses
-- **Network Tab**: Monitor API calls to Spring Boot backend
-- **Performance Tab**: Profile Vue.js rendering and API calls
+Use Vue DevTools for components and Pinia stores, and the network tab to confirm that API calls go to relative `/api` URLs. For integration checks, see [Verify the integration](spring-boot-integration.md#verify-the-integration).
 
 ## References
 - [Vue.js 3 Documentation](https://vuejs.org/)

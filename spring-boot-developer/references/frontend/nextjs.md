@@ -86,7 +86,7 @@ For example, add a copy execution to `pom.xml`:
 
 Test direct navigation and refresh on nested routes against the packaged artifact. Static export emits route files rather than a single SPA entry point, so do not add a catch-all forward to `/` without checking it against those files. Keep API and asset paths out of any application-page fallback.
 
-The existing `frontend-maven-plugin` pattern in [React integration](react.md) can install Node/npm and run scripts, but use Next.js' `build` script and copy `out`; do not use the Vite `outDir` setup. For Gradle, wire `npm ci`, `npm run build`, and copying `out` into `processResources` with task dependencies so resource processing cannot run first.
+The `frontend-maven-plugin` pattern in [Build the frontend with Maven](spring-boot-integration.md#build-the-frontend-with-maven) can install Node/npm and run scripts, but use Next.js' `build` script and copy `out`; do not use the Vite `outDir` setup. For Gradle, wire `npm ci`, `npm run build`, and copying `out` into `processResources` with task dependencies so resource processing cannot run first.
 
 ## Node.js server deployment
 
@@ -105,4 +105,4 @@ When runtime rendering or other server features are required, deploy Next.js wit
 - [Next.js rewrites](https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites)
 - [Spring Boot static content and welcome pages](https://docs.spring.io/spring-boot/reference/web/servlet.html)
 - [Spring Boot static resources](../web/static-resources.md)
-- [Spring Boot React/Vite integration](react.md) for the frontend Maven plugin pattern
+- [Frontend integration with Spring Boot](spring-boot-integration.md) for the frontend Maven plugin pattern

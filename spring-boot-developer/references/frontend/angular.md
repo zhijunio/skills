@@ -3,15 +3,12 @@
 ## Contents
 - [Overview](#overview)
 - [Versions (managed via `versions.json`)](#versions-managed-via-versionsjson)
-- [Architecture](#architecture)
+- [Spring Boot integration](#spring-boot-integration)
 - [Project Structure](#project-structure)
 - [Setup Instructions](#setup-instructions)
-- [Development Workflow](#development-workflow)
 - [Angular Application Structure](#angular-application-structure)
-- [Spring Boot SPA Controller](#spring-boot-spa-controller)
 - [Best Practices](#best-practices)
-- [CORS Configuration for Development](#cors-configuration-for-development)
-- [Testing Your Application](#testing-your-application)
+- [Browser DevTools](#browser-devtools)
 - [References](#references)
 
 ## Overview
@@ -32,19 +29,17 @@ This guide covers creating front-end applications for Spring Boot using Angular 
 
 > Use `npx @angular/cli@latest` to scaffold; keep alignment with `engines` constraints. No OpenAPI client generation provided.
 
-## Architecture
+## Spring Boot integration
 
-**Development Mode:**
+The build, run, SPA-forwarding, and API client rules shared by all frameworks are in [Frontend integration with Spring Boot](spring-boot-integration.md). Angular supplies these values:
 
-1. Angular dev server runs on port 4200 with hot reload
-2. Proxies API calls to the Spring Boot backend on `SPRING_BOOT_PORT` with a default of 8080
-3. Fast incremental builds
-
-**Production Mode:**
-
-1. Angular app built and minified
-2. Static assets copied to `src/main/resources/static`
-3. Served directly by Spring Boot
+| Setting | Angular |
+|---|---|
+| Dev server | `npm start` on `http://localhost:4200` |
+| Proxy and build output | `angular.json` (`outputPath`) and `proxy.conf.cjs`, writing to `../src/main/resources/static` |
+| Maven `LINT_SCRIPT` | `lint` |
+| Maven `TEST_COMMAND` | `run test -- --watch=false --browsers=ChromeHeadless` |
+| `FRONTEND_DEV_ORIGIN`, only if CORS is needed | `http://localhost:4200` |
 
 ## Project Structure
 
@@ -180,100 +175,7 @@ module.exports = {
 
 ### 3. Configure Maven for Frontend Build
 
-Add to your `pom.xml`:
-
-```xml
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-                <mainClass>${start-class}</mainClass>
-            </configuration>
-        </plugin>
-
-        <!-- Frontend Maven Plugin for Node/npm -->
-        <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>2.0.2</version>
-            <configuration>
-                <workingDirectory>frontend</workingDirectory>
-                <installDirectory>target</installDirectory>
-            </configuration>
-            <executions>
-                <!-- Install Node and npm -->
-                <execution>
-                    <id>install node and npm</id>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>install-node-and-npm</goal>
-                    </goals>
-                    <configuration>
-                        <nodeVersion>v24.21.0</nodeVersion>
-                        <npmVersion>11.20.0</npmVersion>
-                    </configuration>
-                </execution>
-
-                <!-- Install npm dependencies -->
-                <execution>
-                    <id>npm install</id>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <arguments>install</arguments>
-                    </configuration>
-                </execution>
-
-                <!-- Build frontend -->
-                <execution>
-                    <id>npm run build</id>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <arguments>run build</arguments>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
-```
-
-Bind all three executions to `generate-resources`. The Spring Boot `run` goal invokes Maven lifecycle phases before starting the application, so `./mvnw spring-boot:run` installs frontend dependencies and runs `npm run build` before Spring Boot serves `src/main/resources/static`.
-
-To make `./mvnw verify` a single source of truth for the whole application, add two more
-executions between `npm install` and `npm run build` so the front-end lint and unit tests fail
-the Maven build too:
-
-```xml
-<execution>
-    <id>npm run lint</id>
-    <phase>generate-resources</phase>
-    <goals>
-        <goal>npm</goal>
-    </goals>
-    <configuration>
-        <arguments>run lint</arguments>
-    </configuration>
-</execution>
-
-<execution>
-    <id>npm run test</id>
-    <phase>generate-resources</phase>
-    <goals>
-        <goal>npm</goal>
-    </goals>
-    <configuration>
-        <arguments>run test -- --watch=false --browsers=ChromeHeadless</arguments>
-    </configuration>
-</execution>
-```
+Add the frontend-maven-plugin from [Build the frontend with Maven](spring-boot-integration.md#build-the-frontend-with-maven), using the lint and test values in the [integration table](#spring-boot-integration).
 
 ### 4. Update Frontend package.json Scripts
 
@@ -292,39 +194,6 @@ Edit `frontend/package.json`:
   }
 }
 ```
-
-## Development Workflow
-
-### Starting Development Environment
-
-**Terminal 1 - Spring Boot Backend:**
-```bash
-./mvnw spring-boot:run
-```
-
-**Terminal 2 - Angular Frontend (with hot reload):**
-```bash
-cd frontend
-npm start
-```
-
-Access the application at **http://localhost:4200** (Angular dev server with hot reload).
-
-API calls to `/api/*` are automatically proxied to Spring Boot at `http://localhost:${SPRING_BOOT_PORT:-8080}`.
-
-### Production Build
-
-```bash
-# Build everything (frontend + backend)
-./mvnw clean package
-
-# Run the packaged application
-java -jar target/my-app.jar
-
-# Access at http://localhost:${SPRING_BOOT_PORT:-8080}
-```
-
-The frontend is built and bundled into the Spring Boot JAR automatically.
 
 ## Angular Application Structure
 
@@ -838,79 +707,6 @@ bootstrapApplication(AppComponent, appConfig)
   .catch((err) => console.error(err));
 ```
 
-## Spring Boot SPA Controller
-
-To support Angular Router with HTML5 history mode, implement an `ErrorController` that forwards 404s for non-API paths to `index.html`. This lets `ResourceHttpRequestHandler` serve static files first, lets `@RestController` mappings win naturally, and only kicks in on unmapped paths — keeping proper JSON 404s for `/api/**` and `/actuator/**`:
-
-```java
-package com.example.demo.controller;
-
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.boot.webmvc.error.ErrorController;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-@Controller
-public class SpaController implements ErrorController {
-
-    /**
-     * When no controller matches, Spring dispatches to /error. For non-API
-     * 404s we forward to index.html so Angular Router can take over; API
-     * and actuator 404s propagate normally with their default error response.
-     */
-    @RequestMapping("/error")
-    public Object handleError(HttpServletRequest request,
-            HttpServletResponse response) {
-        Integer status = (Integer) request.getAttribute(
-                RequestDispatcher.ERROR_STATUS_CODE);
-        String path = (String) request.getAttribute(
-                RequestDispatcher.ERROR_REQUEST_URI);
-
-        if (status != null
-                && status == HttpStatus.NOT_FOUND.value()
-                && path != null
-                && !path.startsWith("/api/")
-                && !path.startsWith("/actuator/")) {
-            // The ERROR dispatch already set 404 on the response: reset it
-            // so the browser receives a normal 200 with the SPA shell.
-            response.setStatus(HttpStatus.OK.value());
-            return "forward:/index.html";
-        }
-        return ResponseEntity
-                .status(status != null ? status : 500)
-                .build();
-    }
-}
-```
-
-This approach ensures that refreshing the browser on any Angular route (e.g., `/items/123`) serves `index.html` so Angular Router can render the page, while typos under `/api/**` or `/actuator/**` still return a real 404.
-
-> **Testing the SPA forward:** `MockMvc` does **not** perform the servlet `ERROR` dispatch, so a `@WebMvcTest` against an unmapped path returns a raw 404 and never reaches `SpaController`. Test this behaviour in an integration test with a real embedded server instead:
->
-> ```java
-> @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-> @AutoConfigureRestTestClient
-> @Import(TestcontainersConfiguration.class)
-> class SpaControllerIT {
->
->     @Autowired
->     private RestTestClient restTestClient;
->
->     @Test
->     void shouldForwardDeepLinksToTheSinglePageApp() {
->         restTestClient.get().uri("/items/123")
->                 .exchange()
->                 .expectStatus().isOk()
->                 .expectBody(String.class).value(body -> assertThat(body).contains("<html"));
->     }
-> }
-> ```
-
-
 ## Best Practices
 
 ### 1. Component Organization
@@ -929,10 +725,9 @@ This approach ensures that refreshing the browser on any Angular route (e.g., `/
 
 ### 3. API Integration
 
-- HttpClient: Use Angular's HttpClient for API calls
-- Services: Separate API calls into injectable services
-- Error Handling: Implement consistent error handling with RxJS operators
-- Interceptors: Use HTTP interceptors for auth, errors, etc.
+- Use `HttpClient` in injectable services, and HTTP interceptors for cross-cutting concerns such as auth headers and error mapping.
+- Handle errors with RxJS operators in the service and expose the resulting state to components.
+- Follow the [API client rules](spring-boot-integration.md#api-client-rules) for errors, wire values, mutations, and loading state.
 
 ### 4. Routing
 
@@ -957,8 +752,6 @@ This approach ensures that refreshing the browser on any Angular route (e.g., `/
 - **OnPush change detection** — set `changeDetection: ChangeDetectionStrategy.OnPush` on components that render from immutable inputs or signals. Drastically cuts dirty-checking cost.
 - **`@for` with `track`** — always provide a `track` expression in `@for` (or `trackBy` with `*ngFor`) so Angular reuses DOM nodes.
 - **Signals over `async` pipes on hot paths** — signals skip the zone roundtrip and integrate cleanly with OnPush.
-- **Production build** — `./mvnw package` runs `ng build --configuration production`, which enables AOT, minification, tree shaking, and file hashing.
-- **Long-term asset caching** — hashed output is safe to cache for a year; configure `Cache-Control` on the Spring side (see [static resource caching](../web/static-resources.md)). Keep `index.html` uncached.
 
 ### 7. Development Workflow
 
@@ -969,76 +762,11 @@ This approach ensures that refreshing the browser on any Angular route (e.g., `/
 
 ### 8. Security
 
-- CORS Configuration: Configure Spring Boot for Angular dev server
-- CSRF Protection: Handle Spring Security CSRF tokens properly
-- Input Validation: Validate user inputs on both client and server
 - Sanitization: Angular sanitizes content automatically
 
-## CORS Configuration for Development
+## Browser DevTools
 
-Add this to your Spring Boot application to allow the Angular dev server. The bean is only registered when the `dev` profile is active, so no CORS filter is created in production:
-
-```java
-package com.example.demo.config;
-
-import java.util.List;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-
-@Configuration
-@Profile("dev")
-public class CorsConfig {
-
-    /**
-     * Allows the Angular dev server (http://localhost:4200) to call the
-     * Spring Boot API during development. In production the Angular app
-     * is served from the same origin, so no CORS configuration is
-     * registered.
-     */
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
-        return new CorsFilter(source);
-    }
-}
-```
-
-Start Spring Boot with the `dev` profile active:
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-```
-
-## Testing Your Application
-
-### Development Testing
-1. Start Spring Boot backend: `./mvnw spring-boot:run`
-2. Start Angular dev server: `cd frontend && npm start`
-3. Navigate to `http://localhost:4200`
-4. Make changes and see them instantly with hot reload
-
-### Production Testing
-1. Build: `./mvnw clean package`
-2. Run: `java -jar target/my-app.jar`
-3. Navigate to `http://localhost:${SPRING_BOOT_PORT:-8080}`
-4. All routes should work including direct navigation to `/items`, `/about`, etc.
-
-### Browser DevTools
-- **Angular DevTools Extension**: Install for inspecting Angular components and services
-- **Console**: Check for errors and API responses
-- **Network Tab**: Monitor API calls to Spring Boot backend
-- **Performance Tab**: Profile Angular rendering and API calls
+Use Angular DevTools for components and services, and the network tab to confirm that API calls go to relative `/api` URLs. For integration checks, see [Verify the integration](spring-boot-integration.md#verify-the-integration).
 
 ## References
 - [Angular Documentation](https://angular.io/)

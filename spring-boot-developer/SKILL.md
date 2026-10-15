@@ -192,7 +192,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 
 ### Frontend integration
 
-Choose the requested client. The guides cover scaffolding and API integration; packaging depends on whether the frontend is static or requires its own runtime:
+Choose the requested client. For a single-page application packaged into the jar, read the framework guide together with [Frontend integration with Spring Boot](references/frontend/spring-boot-integration.md), which covers the Maven build, SPA route forwarding, and API client rules shared by all of them. Next.js has its own packaging model:
 
 - [Vue](references/frontend/vue.md)
 - [React](references/frontend/react.md)
