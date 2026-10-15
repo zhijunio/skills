@@ -23,7 +23,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 4. **存储与运行环境：** 持久数据使用 PostgreSQL；共享短时效安全状态（限流计数、令牌撤销、挑战、待 MFA 事务和 `OAuthTransaction`）使用 Redis。迁移工具、部署拓扑和可用性目标在实施规划阶段确定，必须满足本文规定的持久性、原子性、过期、可用性和安全要求。
 5. **基础令牌能力：** JWT 是平台的基础能力，使用非对称签名签发和验证自身访问 JWT，并发布对应公钥 JWKS；具体要求见 4.4。
 6. **可选功能开关：** MFA 与 OAuth2 Client 可由部署配置决定是否提供。若部署提供 MFA 管理能力，管理员可通过受保护的管理 API 配置并运行时启用/停用 MFA；若部署未提供 MFA 能力，则不暴露因子 API 或 MFA 管理 API。OAuth2 Client 按部署配置启停。敏感操作可配置为要求近期 MFA；只有 MFA 运行时启用后该策略才可生效。启动或运行时停用 MFA 前，必须确认既不存在强制 MFA 的操作/用户策略，也不存在用户已激活的因子；否则拒绝启动或拒绝变更（运行时返回 `409`），不能静默降级认证要求，也不能让已自愿注册因子的用户退化为仅密码登录。如确需停用，须先经受审计的数据处理流程处置已激活因子并通知受影响用户。本条是 MFA 停用保护的唯一规范定义，其他章节引用本条。
-7. **MFA 能力：** 启用 MFA 后支持 TOTP、WebAuthn/passkey、钱包签名挑战和单次使用的恢复码。邮件/短信 OTP 可用于验证或恢复，但不得自动视为独立的高保证因子。邮箱同时是登录标识和密码重置渠道，控制邮箱即可同时重置密码并通过邮件 OTP，因此默认不得以“密码 + `EMAIL_OTP`”组合满足 MFA；例外须在因子策略中明确记录其保证等级。首版因子策略：主凭据加任一活动的 TOTP、Passkey 或钱包因子即满足 MFA；恢复码可完成登录 MFA，但不得用于高风险 step-up（见 5.4）；邮件/短信 OTP 不计入 MFA。
+7. **MFA 能力：** 启用 MFA 后支持 TOTP、WebAuthn/passkey、钱包签名挑战和单次使用的恢复码。邮件/短信验证码只用于联系方式验证和账户恢复，首版不作为登录或 step-up 因子：邮箱同时是登录标识和密码重置渠道，控制邮箱即可重置密码，邮件验证码不构成独立因子。首版因子策略：主凭据加任一活动的 TOTP、Passkey（上线条件见 5.4）或钱包因子即满足 MFA；恢复码可完成登录 MFA，但不得用于高风险 step-up（见 5.4）。
 8. **OAuth2 Client 能力：** 启用 OAuth2 Client 后支持 OIDC Provider 登录，Google 为首个配置 Provider。增加 Provider 时应复用协议处理，避免重复实现协议逻辑。首版只用外部 Provider 登录，不代表用户访问 Provider API，因此不保留 authorized-client 状态，也不处理委托访问的 consent 和 scope。
 9. **首版不自建 Authorization Server：** OAuth2 Client 登录不等同于签发 OAuth2 授权。Authorization Server 功能需单独进行产品和安全评审。
 10. **单租户：** 首版不支持多租户，数据模型和 API 不包含租户维度。
@@ -64,7 +64,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - TOTP 使用有界时间窗口验证，并拒绝重复使用已接受的时间步。
 - 在适合所选认证架构时使用 Spring Security 7 因子权限及选择性 MFA 授权规则。只有完成对应因子验证后才能授予该因子的权限标记。
 - 使用受支持的协议实现提供 WebAuthn/passkey 注册与断言流程。凭据必须在服务重启后保留；RP ID 与允许的 origin 由部署配置约束；当保证策略依赖用户验证时，必须要求用户验证。
-- 支持钱包持有证明因子：使用新生成、单次有效的签名挑战。挑战需绑定依赖方域名、目标操作、账户/会话、过期时间、nonce 和配置的网络/链；验证签名及钱包地址并防止重放。消息格式采用 EIP-4361（Sign-In with Ethereum）；若支持智能合约钱包，须按 EIP-1271 校验，不能只依赖从签名恢复地址。绝不索取或接收钱包助记词。首版只支持 EVM 链（EIP-4361），支持的链 ID 由部署配置明确列出。
+- 支持钱包持有证明因子：使用新生成、单次有效的签名挑战。挑战需绑定依赖方域名、目标操作、账户/会话、过期时间、nonce 和配置的网络/链；验证签名及钱包地址并防止重放。消息格式采用 EIP-4361（Sign-In with Ethereum）。绝不索取或接收钱包助记词。首版只支持 EVM 链上的外部账户（EOA）钱包，通过从签名恢复的地址验证，支持的链 ID 由部署配置明确列出；不支持智能合约钱包（EIP-1271 需调用链上合约，后续引入时须同时设计 RPC 依赖、可用性和出站控制）。
 - 定义因子丢失后的恢复及支持流程。不得仅凭邮件或短信访问权悄然绕过更强因子。
 - 明确因子生命周期 API：列出已注册因子但不返回秘密、开始注册、确认注册、验证待处理因子，以及近期认证后禁用或替换因子。完成持有证明前因子不得激活。
 - 主凭据验证后使用短时效的待 MFA 状态。该状态只允许因子发现、挑战、验证和取消操作；不得将其表示为完整认证会话，也不得签发完整权限令牌。所需因子和允许组合由服务端决定，客户端不能通过切换因子类型降低或跳过策略。
@@ -207,7 +207,7 @@ Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段�
 | `POST` | `/api/auth/registrations/verifications` | 使用验证凭据激活待验证账户 | 公开，需单次验证凭据；`204` | 请求体包含验证凭据和注册密码；原子消费；凭据无效、过期、已用或密码不符时返回相同的通用 `401`，并限制尝试次数；成功后不自动登录 |
 | `POST` | `/api/auth/email/login` | 通过 Spring Security 过滤器链验证邮箱和密码 | 完成时 `200`，需 MFA 时 `202`（`MFA_REQUIRED`），需先注册因子时 `202`（`MFA_ENROLLMENT_REQUIRED`，见 4.2） | JSON 字段为 `email`、`password`；无效凭据和锁定均返回相同 `401`；超限 `429`；所有必需因子完成前不得返回完整令牌/会话；不得由 Controller 处理 |
 | `GET` | `/api/auth/mfa/options` | 列出本次待处理登录允许的因子 | 使用 `Authorization: MFA` Header 中的待 MFA 凭据；`200` | 仅返回允许的因子类型、掩码目标提示和策略进度；因子资格由服务端确定，主凭据验证前不得泄露账户状态 |
-| `POST` | `/api/auth/mfa/challenge` | 请求配置的二次因子挑战 | 使用 `Authorization: MFA` Header 中的待 MFA 凭据；需经邮件/短信发送时 `202`，直接返回挑战载荷（如钱包）时 `200` | 请求指定允许的因子类型；通用发送结果只含重试时间，不泄露其他账户/联系方式是否存在；钱包挑战返回钱包客户端需要签署的载荷 |
+| `POST` | `/api/auth/mfa/challenge` | 请求配置的二次因子挑战 | 使用 `Authorization: MFA` Header 中的待 MFA 凭据；`200` 返回挑战载荷 | 请求指定允许的因子类型；钱包挑战返回钱包客户端需要签署的载荷；TOTP 和恢复码无需挑战 |
 | `POST` | `/api/auth/mfa/verify` | 验证待登录因子证明 | 使用 `Authorization: MFA` Header 中的待 MFA 凭据；完成时 `200`，仍需因子时 `202` | 请求体包含允许的因子类型和证明；拒绝无效、过期、重放或超过尝试次数的证明；原子消费 |
 | `POST` | `/api/auth/mfa/cancel` | 放弃待处理登录并使事务失效 | 待 MFA 事务凭据；`204` | 使事务句柄失效并清除未完成挑战；事务已过期时保持幂等 |
 | `POST` | `/api/auth/password-reset-requests` | 发起邮箱密码恢复请求 | 公开；通用 `202` | 请求使用 `email`；无论用户是否存在都返回相同响应；按 IP 和规范化邮箱限流；邮箱属于待验证账户时同样返回 `202` 但不发送重置邮件，重置不得激活待验证账户（用户应重发验证或重新注册，见 4.1） |
@@ -251,11 +251,11 @@ Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段�
 | `POST` | `/api/users/me/mfa/recovery-codes` | 签发新的恢复码集合 | 已有活动恢复码时需完整认证且近期 MFA；否则需近期认证，或为受限会话；`200` | 原子使旧码失效；明文只返回一次且禁止缓存 |
 | `DELETE` | `/api/users/me/mfa/recovery-codes` | 撤销当前恢复码集合 | 完整认证且近期 MFA；`204` | 活动因子策略要求恢复码时不得移除 |
 | `POST` | `/api/users/me/mfa/wallet/enrollment` | 开始注册钱包因子 | 完整认证且近期认证，或受限会话；已有因子时需近期 MFA；`200` 返回签名挑战 | 挑战单次、短时效，并绑定账户、origin/域名、操作和配置的链/网络 |
-| `POST` | `/api/users/me/mfa/wallet/enrollment/confirm` | 验证钱包签名并注册钱包 | 完整认证或受限会话；`201` 返回因子摘要 | 校验挑战、签名、签名对应地址（EOA 恢复地址或 EIP-1271 校验）、域名/origin、过期时间、链/网络和重放；证明成功前不激活；若无恢复码则同时创建，明文只返回一次且禁止缓存 |
-| `POST` | `/api/users/me/mfa/step-up/challenge` | 为敏感操作开始新的因子挑战 | 完整认证；需经邮件/短信发送时 `202`，直接返回挑战载荷时 `200`；均返回不透明挑战句柄 | 请求指定允许的业务操作和因子类型；绑定用户/会话/操作及过期时间；按因子渠道限流 |
+| `POST` | `/api/users/me/mfa/wallet/enrollment/confirm` | 验证钱包签名并注册钱包 | 完整认证或受限会话；`201` 返回因子摘要 | 校验挑战、签名、从签名恢复的 EOA 地址、域名/origin、过期时间、链/网络和重放；证明成功前不激活；若无恢复码则同时创建，明文只返回一次且禁止缓存 |
+| `POST` | `/api/users/me/mfa/step-up/challenge` | 为敏感操作开始新的因子挑战 | 完整认证；`200` 返回不透明挑战句柄及因子所需的挑战载荷 | 请求指定允许的业务操作和因子类型；绑定用户/会话/操作及过期时间；按用户和因子类型限流 |
 | `POST` | `/api/users/me/mfa/step-up/verify` | 验证待处理 step-up 操作的因子证明 | 完整认证；验证成功 `204` | 绑定发起会话和操作；拒绝过期/重放证明或用于其他操作的证明 |
 
-待登录时，`POST /api/auth/mfa/challenge` 请求选定因子的挑战，`POST /api/auth/mfa/verify` 提交因子类型和证明。共用登录验证流程覆盖 TOTP、恢复码、已验证邮箱/手机 OTP（若启用，且受第 2 节第 7 条限制）、钱包签名和 WebAuthn 断言。证明绑定待登录事务，不能用于注册因子、step-up 或其他操作。恢复码的使用必须审计并限流。已认证后的 step-up 使用独立的 `/api/users/me/mfa/step-up/challenge` 和 `/api/users/me/mfa/step-up/verify`，不使用待登录接口。
+待登录时，`POST /api/auth/mfa/challenge` 请求选定因子的挑战，`POST /api/auth/mfa/verify` 提交因子类型和证明。共用登录验证流程覆盖 TOTP、恢复码、钱包签名和 WebAuthn 断言。证明绑定待登录事务，不能用于注册因子、step-up 或其他操作。恢复码的使用必须审计并限流。已认证后的 step-up 使用独立的 `/api/users/me/mfa/step-up/challenge` 和 `/api/users/me/mfa/step-up/verify`，不使用待登录接口。
 
 待登录挑战请求示例：
 
@@ -268,7 +268,7 @@ POST /api/auth/mfa/challenge
 }
 ```
 
-MFA 事务凭据通过 `Authorization: MFA` Header 传递，不放入请求体。钱包挑战请求包含目标钱包地址和配置的链/网络；响应包含不透明 `challengeId`、需要签名的完整域名绑定消息和过期时间。邮箱/手机挑战只返回通用发送状态和重试时间。TOTP 和恢复码不需要先发送挑战。
+MFA 事务凭据通过 `Authorization: MFA` Header 传递，不放入请求体。钱包挑战请求包含目标钱包地址和配置的链/网络；响应包含不透明 `challengeId`、需要签名的完整域名绑定消息和过期时间。TOTP 和恢复码不需要先请求挑战。
 
 ```json
 POST /api/auth/mfa/verify
@@ -279,7 +279,7 @@ POST /api/auth/mfa/verify
 }
 ```
 
-TOTP 或恢复码的 `proof` 放提交的验证码/恢复码，而不是签名。使用稳定的因子类型值，例如 `TOTP`、`RECOVERY_CODE`、`EMAIL_OTP`、`PHONE_OTP`、`WALLET_SIGNATURE` 和 `WEBAUTHN`；服务端只接受已启用且策略允许的类型。包含验证码或签名的请求必须使用 TLS，不得记录日志；可能被缓存的相关响应应设为 no-store。服务端忽略客户端声称的因子成功状态或保证等级。绝不索取或接收钱包助记词或种子短语。
+TOTP 或恢复码的 `proof` 放提交的验证码/恢复码，而不是签名。使用稳定的因子类型值，首版为 `TOTP`、`RECOVERY_CODE`、`WALLET_SIGNATURE` 和 `WEBAUTHN`；服务端只接受已启用且策略允许的类型。包含验证码或签名的请求必须使用 TLS，不得记录日志；可能被缓存的相关响应应设为 no-store。服务端忽略客户端声称的因子成功状态或保证等级。绝不索取或接收钱包助记词或种子短语。
 
 Step-up 请求体指定允许的业务操作和符合条件的因子类型（钱包验证时也可包含钱包地址/链）。服务端返回不透明挑战句柄及因子所需的挑战载荷；验证绑定已认证会话和目标操作。不得将客户端任意提供的操作字符串用作授权策略。验证成功后更新会话的最近 MFA 时间；目标操作被策略标记为高风险时，另记录绑定该操作的短时效一次性 step-up 授权，由目标操作消费（见 4.4）。默认情况下，恢复码不得用于高风险 step-up；例外必须在因子策略中明确记录并审计。
 
@@ -295,10 +295,10 @@ WebAuthn/passkey 注册和断言使用 Spring Security 支持的端点与浏览�
 | `GET` | `/login/oauth2/code/{registrationId}` | 接收授权响应 | OAuth2 Client 已启用时由框架管理 | 校验 state/nonce/协议响应；不得另写冲突回调 Controller |
 | `GET` | `/api/users/me/external-identities` | 列出当前用户已绑定的外部身份 | OAuth2 Client 已启用且已认证；`200` | 返回身份 ID、registration ID 和安全展示信息，不返回 access/refresh token 或原始 subject |
 | `POST` | `/api/users/me/external-identity-binding-requests` | 开始将外部身份绑定到当前账户 | OAuth2 Client 已启用、已认证且通过适用的 step-up 策略；`202` 返回 `requestId`、授权跳转地址和过期时间 | 请求体包含 `registrationId` 和 `continue`；创建绑定到当前用户和会话的短时效绑定请求；客户端以顶层页面导航（原生 App 用系统浏览器）访问返回的地址，不通过 XHR 跟随重定向；新请求使该用户的旧请求失效；不得仅按邮箱自动绑定 |
-| `POST` | `/api/users/me/external-identity-binding-requests/{requestId}/confirm` | 确认回调完成的待确认绑定 | OAuth2 Client 已启用且已认证；`201` 返回已绑定身份摘要 | 请求体包含回调交给客户端的一次性绑定结果码；当前用户必须是发起该请求的用户，否则返回通用 `404` 并作废该请求；结果码短时效、只存校验值并原子消费；确认时原子校验 `(issuer, subject)` 未被其他账户绑定，冲突返回 `409`；通知并审计 |
+| `POST` | `/api/users/me/external-identity-binding-requests/{requestId}/confirm` | 确认回调完成的待确认绑定 | OAuth2 Client 已启用且已认证；`201` 返回已绑定身份摘要 | 请求体包含回调交给客户端的一次性绑定结果码；当前用户必须是发起该请求的用户，否则返回通用 `404` 并作废该请求；结果码短时效、只存校验值并原子消费；确认时原子校验 `(issuer, subject)` 未被其他账户绑定、当前用户在该 Provider 下尚未绑定身份，冲突返回 `409`；通知并审计 |
 | `DELETE` | `/api/users/me/external-identities/{identityId}` | 解绑外部身份 | OAuth2 Client 已启用、已认证且通过适用的 step-up 策略；`204` | 保留另一种可用登录方式；按策略审计和通知 |
 
-同一用户能否绑定同一 Provider 的多个身份由产品决定，解绑始终按身份 ID 进行。绑定事务与登录共用框架回调 `/login/oauth2/code/{registrationId}`，由自定义的授权请求解析器和成功处理器根据 state 关联的事务区分登录、绑定和重新认证，不得另写冲突的回调 Controller。为防止绑定 CSRF（攻击者把为自己账户发起的授权地址发给受害者，使受害者的外部身份被绑到攻击者账户），绑定回调不直接生效，只把 Provider 身份记入待确认绑定，并把 `requestId` 和一次性绑定结果码放在 URL 片段中交给 `continue` 指定的客户端；客户端以当前登录用户的 bearer token 调用确认接口，服务端核对确认人即发起人。受害者的客户端以受害者身份确认时与发起人不符，绑定被拒绝。
+每个用户在每个 Provider 下最多绑定一个外部身份，解绑按身份 ID 进行。绑定事务与登录共用框架回调 `/login/oauth2/code/{registrationId}`，由自定义的授权请求解析器和成功处理器根据 state 关联的事务区分登录、绑定和重新认证，不得另写冲突的回调 Controller。为防止绑定 CSRF（攻击者把为自己账户发起的授权地址发给受害者，使受害者的外部身份被绑到攻击者账户），绑定回调不直接生效，只把 Provider 身份记入待确认绑定，并把 `requestId` 和一次性绑定结果码放在 URL 片段中交给 `continue` 指定的客户端；客户端以当前登录用户的 bearer token 调用确认接口，服务端核对确认人即发起人。受害者的客户端以受害者身份确认时与发起人不符，绑定被拒绝。
 
 登录、绑定和重新认证的回调完成后，后端只能重定向到 `continue` 对应的已登记地址：Web 前端页面或已声明的 App Link/Universal Link；不得接受任意 return URL。一次性兑换码或绑定结果码放在 URL 片段中；登录时客户端携带 `code_verifier` 调用 `/api/auth/token/exchange` 兑换，绑定时调用确认接口；不得把 access/refresh token 放入 URL。失败时只在片段中返回通用错误码。已绑定身份列表是绑定的最终状态来源。
 
