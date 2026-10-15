@@ -38,7 +38,7 @@ The build, run, SPA-forwarding, and API client rules shared by all frameworks ar
 | Dev server | `npm start` on `http://localhost:4200` |
 | Proxy and build output | `angular.json` (`outputPath`) and `proxy.conf.cjs`, writing to `../src/main/resources/static` |
 | Maven `LINT_SCRIPT` | `lint` |
-| Maven `TEST_COMMAND` | `run test -- --watch=false --browsers=ChromeHeadless` |
+| Maven `TEST_COMMAND` | `run test -- --watch=false` |
 | `FRONTEND_DEV_ORIGIN`, only if CORS is needed | `http://localhost:4200` |
 
 ## Project Structure
@@ -758,7 +758,7 @@ bootstrapApplication(AppComponent, appConfig)
 - Hot Module Replacement: Angular CLI provides instant updates
 - Environment Files: Use environment files for configuration
 - TypeScript Strict Mode: Enable strict mode for better type safety
-- Testing: Use Jasmine and Karma for unit testing
+- Testing: `ng test` runs Vitest, the Angular CLI default for new projects; `--browsers` applies only to Karma or Vitest browser mode
 
 ### 8. Security
 
