@@ -94,7 +94,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 刷新时按当前账户状态、角色和 MFA 策略重新评估会话：账户已停用时拒绝刷新；会话的认证上下文不再满足策略强制的必需因子（例如管理员启用强制 MFA）时拒绝刷新并要求重新登录；角色从当前数据重新读取。账户停用会撤销全部会话并立即生效；不撤销会话的角色变更最长滞后访问 JWT 的有效期，须在文档中写明。
 - 用户自愿注册首个因子时，完成注册的当前会话视为已完成 MFA 并更新最近 MFA 时间；其他活动会话不因此被拒绝刷新，而是通过已验证渠道通知用户，并在通知和会话列表中提供一键撤销其他会话的入口。
 - **近期认证** 以服务端会话记录的最近认证时间为准，初始值为登录时间，窗口时长可配置。可通过 `POST /api/users/me/reauthentication` 刷新：有本地密码的用户提交密码；只有外部身份的用户提交已绑定身份的 `registrationId`，经 OIDC 重新认证（`prompt=login` 或 `max_age`，并校验返回的 `auth_time` 与原绑定的 `(issuer, subject)`）。重新认证回调只更新当前会话的认证时间，不建立新会话。
-- **近期 MFA** 以服务端会话记录的最近 MFA 时间为准，登录时完成的 MFA 和 `/api/users/me/mfa/step-up` 验证都会更新该时间；重新验证密码不满足近期 MFA。绑定具体操作的一次性 step-up 授权只用于策略明确标记的高风险操作。用户未注册任何活动因子时，要求近期 MFA 的操作返回 `403` 及机器可读错误码 `MFA_ENROLLMENT_REQUIRED`，提示先注册因子。
+- **近期 MFA** 以服务端会话记录的最近 MFA 时间为准，登录时完成的 MFA 和 `/api/users/me/mfa/step-up` 验证都会更新该时间；重新验证密码不满足近期 MFA。绑定具体操作的一次性 step-up 授权只用于策略明确标记的高风险操作。用户未注册任何活动因子时，要求近期 MFA 的操作返回 `403` 及机器可读错误码 `MFA_FACTOR_REQUIRED`，提示先注册因子；该错误码与登录时下发受限会话的 `MFA_ENROLLMENT_REQUIRED` 区分。
 - 对 bearer token 客户端，仅在所有必需因子通过后签发短时效访问令牌。
 - 在访问凭据中包含可信认证上下文（`amr` 或等效信息）和认证时间。不得依据客户端请求字段或请求头判断保证等级。`auth_time` 只表示登录时间，重新认证和 step-up 不会更新已签发的令牌；下游服务不得用它判断本平台定义的近期认证或近期 MFA。
 - 定义 refresh token 的保存、轮换、撤销、Cookie/Header 传输、缓存指令和密钥轮换行为。
@@ -174,6 +174,20 @@ Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段�
   "message": "需要进一步验证",
   "code": "MFA_REQUIRED",
   "data": { "transactionHandle": "opaque-one-time-value", "expiresIn": 300 }
+}
+```
+
+需先注册因子时返回 `202` 及 `MFA_ENROLLMENT_REQUIRED`（见 4.2）。bearer 客户端的 `data` 包含受限访问令牌、过期时间和允许调用的接口列表；Cookie/BFF 客户端通过 Cookie 建立受限会话，`data` 只包含过期时间和允许调用的接口列表。示例（bearer 客户端）：
+
+```json
+{
+  "message": "需要先注册多因素认证",
+  "code": "MFA_ENROLLMENT_REQUIRED",
+  "data": {
+    "restrictedAccessToken": "opaque-or-jwt-restricted-token",
+    "expiresIn": 900,
+    "allowedOperations": ["TOTP_ENROLLMENT", "WALLET_ENROLLMENT", "RECOVERY_CODES", "LOGOUT"]
+  }
 }
 ```
 
@@ -265,7 +279,7 @@ Step-up 请求体指定允许的业务操作和符合条件的因子类型（钱
 
 WebAuthn/passkey 注册和断言使用 Spring Security 支持的端点与浏览器流程。在标准 Servlet 支持下，应将以下端点记录为框架管理的协议操作：注册选项 `POST /webauthn/register/options`、注册凭据 `POST /webauthn/register`、认证选项 `POST /webauthn/authenticate/options`、断言 `POST /login/webauthn`。注册要求已认证且近期认证（或处于受限会话），已有因子时还需近期 MFA。在待登录流程中用作 MFA 因子时，认证选项和断言必须绑定到该事务。Spring Security 默认将 ceremony 选项保存在 `HttpSession`，`/login/webauthn` 成功后会建立完整认证，并且不会自动执行近期认证规则。因此，用于 bearer 客户端或待 MFA 事务时，必须自定义选项存储（绑定事务句柄）和成功处理（只记录因子证明，不建立完整会话或签发令牌），并为注册端点追加近期认证/近期 MFA 授权规则；未完成这些定制前，首版仅在浏览器会话/BFF 模式提供 Passkey。Cookie/会话客户端保留 CSRF 保护，并按环境配置 RP ID、允许的 origin、用户验证策略和凭据持久性。只有框架验证完整 WebAuthn ceremony 后才视为因子通过。如果框架版本或定制改变这些端点，应在生成的 OpenAPI 文档中公布实际路径和请求结构。参见 [Spring Security Passkeys 文档](https://docs.spring.io/spring-security/reference/servlet/authentication/passkeys.html)。
 
-因子发现、挑战请求/验证和取消待登录都必须通过安全预认证 Cookie 或 `Authorization: MFA` Header 携带待 MFA 凭据。取消使用 `/api/auth/mfa/cancel`。因子证明无效时返回通用 `401`，待登录事务/挑战过期返回 `410 Gone`，因子状态转换冲突返回 `409`，超出次数限制返回带重试时间的 `429`；响应不得泄露用户/因子是否存在。待 MFA 状态不能访问资料、会话、因子管理、管理接口或普通应用资源。注销当前会话使用 `DELETE /api/users/me/sessions/current`，要求完整认证，不能代替取消待处理事务。对应 Spring Security 因子权限只能在因子证明完成协议验证后授予。
+因子发现、挑战请求/验证和取消待登录都必须通过安全预认证 Cookie 或 `Authorization: MFA` Header 携带待 MFA 凭据。取消使用 `/api/auth/mfa/cancel`。因子证明无效时返回通用 `401`，待登录事务/挑战过期返回 `410 Gone`，因子状态转换冲突返回 `409`，超出次数限制返回带重试时间的 `429`；响应不得泄露用户/因子是否存在。待 MFA 状态不能访问资料、会话、因子管理、管理接口或普通应用资源。注销当前会话使用 `DELETE /api/users/me/sessions/current`，要求完整认证或受限会话，不能代替取消待处理事务。对应 Spring Security 因子权限只能在因子证明完成协议验证后授予。
 
 ### 5.5 OAuth2/OIDC 登录、身份和 Provider 管理
 
