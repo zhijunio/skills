@@ -63,7 +63,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 记录因子注册、移除、替换、恢复码重置和恢复使用事件；通过已验证渠道通知用户安全敏感的因子变更。MFA 启用时，可按操作配置 step-up 要求；策略要求近期 MFA 的操作必须验证对应因子后才能继续。
 - TOTP 使用有界时间窗口验证，并拒绝重复使用已接受的时间步。
 - 在适合所选认证架构时使用 Spring Security 7 因子权限及选择性 MFA 授权规则。只有完成对应因子验证后才能授予该因子的权限标记。
-- Passkey 的注册、待登录验证和 step-up 都走本服务接口（见 5.4），内部使用 Spring Security 的 `WebAuthnRelyingPartyOperations` 校验 ceremony；不暴露框架的 `/webauthn/*` 与 `/login/webauthn` 端点，Passkey 凭据只保存在 `MfaFactor` 模型中。凭据必须在服务重启后保留；RP ID 与允许的 origin 由部署配置约束；计入 MFA 的 Passkey 必须要求用户验证。
+- Passkey 的注册、待登录验证和 step-up 都走本服务接口（见 5.4），内部使用 Spring Security 的 `WebAuthnRelyingPartyOperations` 校验 ceremony；不暴露框架的 `/webauthn/*` 与 `/login/webauthn` 端点，Passkey 凭据只保存在 `MfaFactor` 模型中。凭据必须在服务重启后保留；RP ID 与允许的 origin 由部署配置约束；计入 MFA 的 Passkey 在注册和断言时都必须要求用户验证，断言中的用户验证标志不为真则拒绝。
 - 支持钱包持有证明因子：使用新生成、单次有效的签名挑战。挑战需绑定依赖方域名、目标操作、账户/会话、过期时间、nonce 和配置的网络/链；验证签名及钱包地址并防止重放。消息格式采用 EIP-4361（Sign-In with Ethereum）。绝不索取或接收钱包助记词。首版只支持 EVM 链上的外部账户（EOA）钱包，通过从签名恢复的地址验证，支持的链 ID 由部署配置明确列出；不支持智能合约钱包（EIP-1271 需调用链上合约，后续引入时须同时设计 RPC 依赖、可用性和出站控制）。
 - 定义因子丢失后的恢复及支持流程。不得仅凭邮箱访问权悄然绕过更强因子。
 - 明确因子生命周期 API：列出已注册因子但不返回秘密、开始注册、确认注册、验证待处理因子，以及近期认证后禁用或替换因子。完成持有证明前因子不得激活。
@@ -79,7 +79,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 外部登录只完成主凭据验证，之后与密码登录一样按 MFA 策略处理：用户有活动因子或被强制 MFA 时，回调签发的一次性兑换码在 `POST /api/auth/token/exchange` 时返回待 MFA 响应而非令牌。默认不信任 Provider 声明的 MFA；仅当该 Provider 配置 `trustMfaClaims: true`（默认 `false`）且其返回的 `amr` 表明已完成 MFA 时，才可视为满足 MFA，并在认证日志中记录。
 - 首次外部登录的开通（JIT）策略：仅当该 Provider 配置 `trustEmailVerified: true`（默认 `false`，只应对确实验证邮箱所有权的 Provider 开启）、Provider 返回 `email_verified=true` 且本地没有同邮箱的已激活账户时，才创建本地账户，并将其邮箱标记为已验证；未开启的 Provider 只能登录已绑定的账户，不 JIT 建号，也不作废待验证注册；本地已有同邮箱的已激活账户时不合并，返回机器可读错误码，提示用户先用原方式登录再绑定（该用户已向 Provider 证明控制此邮箱，告知账户存在可以接受）；同邮箱只有待验证账户时，将其视为不存在，创建账户并作废该待验证注册，防止抢先注册。绑定外部身份到已有账户前，用户必须先完成本地认证和近期认证检查。
 - 支持列出、绑定和解绑身份。除非用户先添加其他凭据，否则不能解绑最后一种可用登录方式。可用登录方式指用户当前能独立完成登录的凭据：已设置且所属邮箱已验证的本地密码，或所属 Provider 已启用的外部身份；临时锁定不影响其计数。
-- Provider token 不下发给客户端，首版也不在登录完成后保留。OAuth 回调后签发短时效、单次有效的不透明兑换码；只保存兑换码校验值并以原子方式消费。兑换码须绑定发起登录的客户端：客户端发起登录时生成随机 `code_verifier`，只提交其 S256 摘要 `code_challenge`，兑换时提交 `code_verifier` 由服务端核对，防止攻击者把自己账户的回调或兑换码交给受害者完成登录（登录 CSRF），也防止 App Link 被拦截后兑换码被冒用。
+- Provider token 不下发给客户端，首版也不在登录完成后保留。OAuth 回调后签发单次有效的不透明兑换码，最长 60 秒；只保存兑换码校验值并以原子方式消费。兑换码须绑定发起登录的客户端：客户端发起登录时生成随机 `code_verifier`，只提交其 S256 摘要 `code_challenge`，兑换时提交 `code_verifier` 由服务端核对，防止攻击者把自己账户的回调或兑换码交给受害者完成登录（登录 CSRF），也防止 App Link 被拦截后兑换码被冒用。
 - API 无状态，框架默认依赖 `HttpSession` 的 OAuth2 Login 组件须定制：授权请求存放在共享状态中，以 `state` 为键、短时效、单次消费（自定义 `AuthorizationRequestRepository`）；自定义 `OAuth2AuthorizationRequestResolver` 接收 `continue` 和 `code_challenge` 参数，以及绑定或重新认证事务的标识；成功处理器只签发兑换码或推进对应事务，不建立会话。框架默认会把含 Provider token 的 `OAuth2AuthorizedClient` 存入 `OAuth2AuthorizedClientRepository`，须替换为不做任何存储的实现，确保回调完成后不留存 Provider token。`continue` 只接受部署配置登记的跳回目标 ID（例如 `web`、`ios`、`android`），不接受任意 URL。
 - 后续若需委托访问 Provider API，再安全保留 authorized-client 状态，并使用 `OAuth2AuthorizedClientManager` 处理支持的授权授予和令牌刷新，不自行实现刷新协议。
 - 首版不支持服务间 Client Credentials（见第 10 节第 5 条）；后续引入时须限制 scope 和外连目标，不提供通用令牌签发接口。
@@ -92,7 +92,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 - JWT 是平台基础能力，不受 MFA 或 OAuth2 Client 开关控制。平台使用非对称私钥签发短时效访问 JWT，并作为 Resource Server 按固定算法允许列表校验签名、公钥版本、issuer、audience、过期时间、令牌用途和撤销状态；拒绝对称签名算法、`none` 和令牌自行指定的未允许算法。私钥须由密钥管理器或等效安全设施保护，JWT 头部的 `kid` 只用于在受信任的密钥集合中选择密钥；`/.well-known/jwks.json` 只发布对应公钥。访问 JWT 包含 `sid` 声明，关联服务端会话记录；撤销检查、近期认证、近期 MFA 和当前会话识别都以 `sid` 查找该记录。首版访问 JWT 的 `aud` 只是本服务，只被本服务 API 接受；JWKS 供本服务各实例验签和密钥轮换使用。其他服务若只凭 JWKS 验签，就无法执行撤销检查，因此不得接受这些令牌。首版不支持下游服务消费；后续出现下游服务时，再评估令牌内省接口或“撤销最多滞后一个访问令牌有效期并限定该有效期上限”的方案，并为各下游服务定义 `aud`。
 - 显示用户活动会话的创建时间、最近使用时间、设备标签，以及适用时经过掩码处理的 IP/位置数据。
-- 时效由部署配置定义，并有上限：访问令牌有效期不超过 15 分钟；会话空闲超时不超过 24 小时，超过该时间未刷新即失效；会话绝对有效期不超过 30 天，从登录起算，刷新不得延长，到期须重新登录。超过上限的配置拒绝启动。
+- 时效由部署配置定义，并有上限：访问令牌有效期不超过 15 分钟；会话空闲超时不超过 24 小时，超过该时间未刷新即失效；会话绝对有效期不超过 30 天，从登录起算，刷新不得延长，到期须重新登录。待 MFA 事务最长 5 分钟，外部登录兑换码和绑定结果码最长 60 秒，一次性 step-up 授权最长 5 分钟。超过上述上限的配置拒绝启动。
 - 支持撤销单个或所有会话。撤销一个用户的全部会话，或除当前会话外的全部会话时（密码重置、修改密码、邮箱变更确认、管理员停用、删除或撤销会话），须同时原子作废该用户未完成的 `PendingAuthentication` 和 `OAuthTransaction`，防止已走到 MFA 步骤的攻击者在凭据变更后仍完成登录。刷新凭据每次使用时轮换；重用已撤销凭据时撤销整个凭据族。为并发刷新定义宽限窗口，上限为数秒：窗口内同一旧凭据的重复提交不触发凭据族撤销，并会拿到同一次轮换出的新凭据，因此窗口越长，旧凭据被冒用的机会越大；窗口外的重用才视为凭据泄露。若窗口内需返回同一轮换结果，该结果只能在窗口期内加密保存，不得保存明文。
 - 刷新时按当前账户状态、角色和 MFA 策略重新评估会话：账户已停用时拒绝刷新；会话的认证上下文不再满足策略强制的必需因子（例如管理员启用强制 MFA）时拒绝刷新并要求重新登录。用恢复码完成登录的会话可以按空闲超时和绝对有效期刷新；刷新不更新最近 MFA 时间，也不改变 MFA 满足来源；角色从当前数据重新读取。账户停用会撤销全部会话并立即生效；不撤销会话的角色变更最长滞后访问 JWT 的有效期，须在文档中写明。
 - 用户自愿注册首个因子时，完成注册的当前会话视为已完成 MFA 并更新最近 MFA 时间；其他活动会话不因此被拒绝刷新，而是通过已验证渠道通知用户，并在通知和会话列表中提供一键撤销其他会话的入口。
@@ -172,7 +172,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段名：`access_token`、`token_type`、`expires_in`（秒），以及启用时的 `refresh_token`；扩展字段必须有文档，并返回 `Cache-Control: no-store` 和 `Pragma: no-cache`。这些字段并不意味着本服务是 OAuth2 Authorization Server。
 
-待 MFA 登录响应不是令牌响应。客户端只获得短时效事务句柄、过期时间和允许的下一步操作。句柄是不透明 bearer secret，客户端只在内存中保存；不得写入日志或 Referer。客户端在 `/api/auth/mfa/*` 请求中通过 `Authorization: MFA <transaction-handle>` 传递，绝不放在 URL 中。所有必需因子通过后返回令牌响应。示例：
+待 MFA 登录响应不是令牌响应。客户端只获得事务句柄、过期时间和允许的下一步操作。事务句柄最长 5 分钟。句柄是不透明 bearer secret，客户端只在内存中保存；不得写入日志或 Referer。客户端在 `/api/auth/mfa/*` 请求中通过 `Authorization: MFA <transaction-handle>` 传递，绝不放在 URL 中。所有必需因子通过后返回令牌响应。示例：
 
 ```json
 {
@@ -279,9 +279,9 @@ POST /api/auth/mfa/verify
 
 TOTP 或恢复码的 `proof` 放提交的验证码/恢复码，而不是签名。使用稳定的因子类型值，首版为 `TOTP`、`RECOVERY_CODE`、`WALLET_SIGNATURE` 和 `WEBAUTHN`；服务端只接受已启用且策略允许的类型。包含验证码或签名的请求必须使用 TLS，不得记录日志；可能被缓存的相关响应应设为 no-store。服务端忽略客户端声称的因子成功状态或保证等级。绝不索取或接收钱包助记词或种子短语。
 
-Step-up 请求体指定允许的业务操作和符合条件的因子类型（钱包验证时提交 `factorId`）。服务端返回不透明挑战句柄及因子所需的挑战载荷；验证绑定已认证会话和目标操作。不得将客户端任意提供的操作字符串用作授权策略。验证成功后更新会话的最近 MFA 时间；目标操作被策略标记为高风险时，另记录绑定该操作和目标的短时效一次性 step-up 授权，只能被操作与目标都一致的请求消费；同一会话的多项授权互不覆盖（见 4.4）。默认情况下，恢复码不得用于高风险 step-up；例外必须在因子策略中明确记录并审计。
+Step-up 请求体指定允许的业务操作和符合条件的因子类型（钱包验证时提交 `factorId`）。服务端返回不透明挑战句柄及因子所需的挑战载荷；验证绑定已认证会话和目标操作。不得将客户端任意提供的操作字符串用作授权策略。验证成功后更新会话的最近 MFA 时间；目标操作被策略标记为高风险时，另记录绑定该操作和目标的一次性 step-up 授权，最长 5 分钟，只能被操作与目标都一致的请求消费；同一会话的多项授权互不覆盖（见 4.4）。默认情况下，恢复码不得用于高风险 step-up；例外必须在因子策略中明确记录并审计。
 
-Passkey 不暴露框架端点。注册使用上面的 `passkey/enrollment` 与 `enrollment/confirm`；待登录验证使用 `/api/auth/mfa/challenge` 与 `/api/auth/mfa/verify`；step-up 使用 `/api/users/me/mfa/step-up/challenge` 与 `step-up/verify`。三处的 challenge 都返回 ceremony 选项，verify 或 confirm 提交断言，内部调用 `WebAuthnRelyingPartyOperations` 完成协议校验，因此只注册了 Passkey 的用户也能完成 step-up。选项以 challenge 为键存在 Redis 中，并绑定创建它的 `sid` 或待 MFA 事务，短时效、单次消费，不使用 `HttpSession`；确认或验证时会话或事务不一致则拒绝。按环境配置 RP ID（Web 前端与 API 共用的可注册域名）、允许的 origin（Web 前端 origin，以及原生 App 的 origin，如 Android 的 `android:apk-key-hash:…`；iOS 需在 RP ID 域名上声明关联域）、用户验证策略和凭据持久性。参见 [Spring Security Passkeys 文档](https://docs.spring.io/spring-security/reference/servlet/authentication/passkeys.html)。
+Passkey 不暴露框架端点。注册使用上面的 `passkey/enrollment` 与 `enrollment/confirm`；待登录验证使用 `/api/auth/mfa/challenge` 与 `/api/auth/mfa/verify`；step-up 使用 `/api/users/me/mfa/step-up/challenge` 与 `step-up/verify`。三处的 challenge 都返回 ceremony 选项，verify 或 confirm 提交断言，内部调用 `WebAuthnRelyingPartyOperations` 完成协议校验，因此只注册了 Passkey 的用户也能完成 step-up。选项以 challenge 为键存在 Redis 中，并绑定创建它的 `sid` 或待 MFA 事务，短时效、单次消费，不使用 `HttpSession`；确认或验证时会话或事务不一致则拒绝。按环境配置 RP ID（Web 前端与 API 共用的可注册域名）、允许的 origin（Web 前端 origin，以及原生 App 的 origin，如 Android 的 `android:apk-key-hash:…`；iOS 需在 RP ID 域名上声明关联域）、凭据持久性。注册选项和断言选项都要求用户验证，断言中该标志不为真则拒绝。参见 [Spring Security Passkeys 文档](https://docs.spring.io/spring-security/reference/servlet/authentication/passkeys.html)。
 
 因子发现、挑战请求/验证和取消待登录都必须通过 `Authorization: MFA` Header 携带待 MFA 凭据。取消使用 `/api/auth/mfa/cancel`。因子证明无效时返回通用 `401`，待登录事务/挑战过期返回 `410 Gone`，因子状态转换冲突返回 `409`，超出次数限制返回带重试时间的 `429`；响应不得泄露用户/因子是否存在。待 MFA 状态不能访问资料、会话、因子管理、管理接口或普通应用资源。注销当前会话使用 `DELETE /api/users/me/sessions/current`，要求完整认证或受限会话，不能代替取消待处理事务。对应 Spring Security 因子权限只能在因子证明完成协议验证后授予。
 
@@ -296,7 +296,7 @@ Passkey 不暴露框架端点。注册使用上面的 `passkey/enrollment` 与 `
 | `POST` | `/api/users/me/external-identity-binding-requests/{requestId}/confirm` | 确认回调完成的待确认绑定 | OAuth2 Client 已启用且已认证；`201` 返回已绑定身份摘要 | 请求体包含回调交给客户端的一次性绑定结果码；当前用户必须是发起该请求的用户，否则返回通用 `404` 并作废该请求；结果码短时效、只存校验值并原子消费；确认时原子校验 `(issuer, subject)` 未被其他账户绑定、当前用户在该 Provider 下尚未绑定身份，冲突返回 `409`；通知并审计 |
 | `DELETE` | `/api/users/me/external-identities/{identityId}` | 解绑外部身份 | OAuth2 Client 已启用、已认证，本次会话的 MFA 满足来源须是 TOTP、Passkey 或钱包（见 4.4），并按策略执行 step-up；`204` | 保留另一种可用登录方式；按策略审计和通知 |
 
-每个用户在每个 Provider 下最多绑定一个外部身份，解绑按身份 ID 进行。绑定事务与登录共用框架回调 `/login/oauth2/code/{registrationId}`，由自定义的授权请求解析器和成功处理器根据 state 关联的事务区分登录、绑定和重新认证，不得另写冲突的回调 Controller。为防止绑定 CSRF（攻击者把为自己账户发起的授权地址发给受害者，使受害者的外部身份被绑到攻击者账户），绑定回调不直接生效，只把 Provider 身份记入待确认绑定，并把 `requestId` 和一次性绑定结果码放在 URL 片段中交给 `continue` 指定的客户端；客户端以当前登录用户的 bearer token 调用确认接口，服务端核对确认人即发起人。受害者的客户端以受害者身份确认时与发起人不符，绑定被拒绝。
+每个用户在每个 Provider 下最多绑定一个外部身份，解绑按身份 ID 进行。绑定事务与登录共用框架回调 `/login/oauth2/code/{registrationId}`，由自定义的授权请求解析器和成功处理器根据 state 关联的事务区分登录、绑定和重新认证，不得另写冲突的回调 Controller。为防止绑定 CSRF（攻击者把为自己账户发起的授权地址发给受害者，使受害者的外部身份被绑到攻击者账户），绑定回调不直接生效，只把 Provider 身份记入待确认绑定，并把 `requestId` 和一次性绑定结果码放在 URL 片段中交给 `continue` 指定的客户端，结果码最长 60 秒；客户端以当前登录用户的 bearer token 调用确认接口，服务端核对确认人即发起人。受害者的客户端以受害者身份确认时与发起人不符，绑定被拒绝。
 
 登录、绑定和重新认证的回调完成后，后端只能重定向到 `continue` 对应的已登记地址：Web 前端页面或已声明的 App Link/Universal Link；不得接受任意 return URL。一次性兑换码或绑定结果码放在 URL 片段中；登录时客户端携带 `code_verifier` 调用 `/api/auth/token/exchange` 兑换，绑定时调用确认接口；不得把 access/refresh token 放入 URL。失败时只在片段中返回通用错误码。已绑定身份列表是绑定的最终状态来源。
 
@@ -464,7 +464,7 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 - 测试密码长度（含超过 72 字节的多字节密码）、注册与登录两侧的 Unicode 规范化、阻止列表和历史密码哈希兼容；测试邮箱登录过滤器对未知账户、错误密码、停用/锁定账户返回一致响应且耗时不可区分，以及锁定计数、到期、锁定通知、用户解锁和管理员解锁。
 - 测试注册邮箱验证：待验证账户不能登录；确认验证须提交正确的注册密码；对待验证邮箱重复注册不覆盖已有记录，先完成验证者激活并作废其余记录；重发验证不使已发出的凭据失效；过期未验证账户被清除并释放邮箱；待验证账户发起密码重置时不发送邮件且不被激活。
 - 测试账户枚举防护与幂等：邮箱变更请求对已被占用的邮箱返回相同响应且不发送验证码；`token/revocation` 对有效、无效和已撤销凭据都返回 `204`；用户在同一 Provider 下重复绑定时返回 `409`。
-- 测试 refresh token 并发刷新：宽限窗口内的重复提交不撤销凭据族，窗口外重用则撤销；会话超过空闲超时或绝对有效期后不能再刷新；空闲超时、绝对有效期、近期认证和近期 MFA 窗口超过上限的配置拒绝启动。
+- 测试 refresh token 并发刷新：宽限窗口内的重复提交不撤销凭据族，窗口外重用则撤销；会话超过空闲超时或绝对有效期后不能再刷新；空闲超时、绝对有效期、近期认证和近期 MFA 窗口，以及待 MFA 事务、兑换码、绑定结果码和 step-up 授权的有效期超过上限时，配置拒绝启动；未要求用户验证的 Passkey 断言不能完成 MFA。
 - 测试 Provider 动态管理：`trustEmailVerified` 关闭时不 JIT 建号、不作废待验证注册；禁用或删除 Provider 时撤销以其为主凭据的会话；删除后的 `registrationId` 不能复用于不同 issuer；配置变更在所有实例上生效。
 - 测试新地点/设备通知只使用解析后的最少必要摘要；User-Agent/IP 地理信息不能单独导致登录拒绝，日志中不得保存完整 User-Agent 或精确位置。
 - 测试 MFA 管理 API 的授权、配置审计、启停状态及停用保护：存在强制 MFA 策略或用户已激活因子时必须拒绝停用，运行时停用后不得通过登录流程或因子 API 绕过策略。
