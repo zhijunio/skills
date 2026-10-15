@@ -30,10 +30,6 @@ Use isolated test data and services. Do not point CI at production databases, ma
 
 The pipeline should leave inspectable evidence: source revision, test and scan results, artifact digest, migration outcome, deployment status and rollback decision. Test the packaged artifact with a startup smoke check; test migration paths against the production database engine. For high-risk releases, rehearse rollback and backup restoration rather than treating a successful deploy as proof of recoverability.
 
-## If on Spring Boot 3.5.x
-
-The release practices are Boot-line independent. Keep the Java runtime, Boot plugin/parent, dependency BOM and container image aligned with the project's supported Boot line; use its managed versions rather than pinning framework dependencies independently. See [spring-boot-migration.md](../spring-boot-migration.md).
-
 ## Gotchas
 
 - Agent builds a new artifact for each environment - promote the same digest that passed verification.

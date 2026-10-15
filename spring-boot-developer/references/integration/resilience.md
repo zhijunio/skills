@@ -149,33 +149,6 @@ The standard option is Spring Cloud Circuit Breaker with Resilience4j - an added
 
 Add a circuit breaker when a genuinely optional dependency fails often enough that failing fast is materially better than failing slowly. Not by default.
 
-## If on Boot 3.5.x
-
-Core resilience is Framework 7, so **none of it exists** on 3.5.x. Use Spring Retry:
-
-```xml
-<dependency>
-    <groupId>org.springframework.retry</groupId>
-    <artifactId>spring-retry</artifactId>
-</dependency>
-```
-
-```java
-@EnableRetry     // not @EnableResilientMethods
-
-@Retryable(retryFor = ConnectException.class,
-           maxAttempts = 4,                                   // total, not retries
-           backoff = @Backoff(delay = 200, multiplier = 2.0, maxDelay = 2000, random = true))
-public StockLevel stockFor(ProductId productId) { … }
-
-@Recover
-public StockLevel fallback(ConnectException e, ProductId productId) {
-    return StockLevel.unknown();
-}
-```
-
-Spring Retry also needs `spring-boot-starter-aspectj` (`-aop` on 3.5.x). On upgrade: translate `maxAttempts` to `maxRetries` minus one, flatten `@Backoff`, and replace `@Recover` with a `try`/`catch` at the caller.
-
 ## Gotchas
 
 - Agent adds `spring-retry` on Boot 4 for basic retry - it is in the core framework

@@ -253,9 +253,7 @@ Observation.createNotStarted("order.fulfilment", observationRegistry)
 
 The low/high cardinality split is the API enforcing the tag rule above: low-cardinality keys become metric tags, high-cardinality ones stay on the span.
 
-## If on Boot 3.5.x
-
-Actuator, health groups, probes, Micrometer, tracing and the Observation API are the same. Structured logging is Boot 3.4+, so it is available on 3.5.x too. Boot 4 updated its OpenTelemetry support, and Spring Batch 6 dropped Micrometer's global static registry - a Batch application on Boot 4 needs an `ObservationRegistry` bean wired to the `MeterRegistry` ([spring-batch.md](../integration/spring-batch.md)).
+Spring Batch 6 dropped Micrometer's global static registry - a Batch application needs an `ObservationRegistry` bean wired to the `MeterRegistry` ([spring-batch.md](../integration/spring-batch.md)).
 
 ## Gotchas
 

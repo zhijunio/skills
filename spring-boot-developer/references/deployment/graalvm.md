@@ -8,7 +8,7 @@ Native Image uses build-time static analysis. Code reached only through reflecti
 
 Spring AOT also fixes parts of the application at build time. Bean definitions selected by profiles and conditional properties cannot be changed freely at runtime. Review the [Spring Boot native-image restrictions](https://docs.spring.io/spring-boot/4.1/reference/packaging/native-image/introducing-graalvm-native-images.html) before designing deployment-specific behavior.
 
-Use a GraalVM version compatible with the project's Spring Boot and Java versions. Boot 3.5 supports GraalVM 22.3 or later; Boot 4 requires GraalVM 25 or later. This skill's Boot 4 baseline uses GraalVM 25. Keep the Native Build Tools plugin aligned with the framework line and check the exact release requirements. See [version compatibility and migration](../spring-boot-migration.md).
+Use a GraalVM version compatible with the project's Spring Boot and Java versions. Boot 4 requires GraalVM 25 or later. This skill's Boot 4 baseline uses GraalVM 25. Keep the Native Build Tools plugin aligned with the framework line and check the exact release requirements. See [version compatibility and migration](../spring-boot-migration.md).
 
 ## Build a native image
 
@@ -81,10 +81,6 @@ This checks generated AOT code, but it does not replace running the native execu
 
 Native tests can take several minutes and consume substantial memory. Run them when native compatibility is part of the change or in a suitable CI job. See [testing strategy](../testing/testing-strategy.md) and [Testing GraalVM Native Images](https://docs.spring.io/spring-boot/4.1/how-to/native-image/testing-native-applications.html).
 
-## If the project uses Spring Boot 3.5.x
-
-Boot 3.5 supports Spring AOT and GraalVM Native Image. Keep its managed plugin and toolchain versions, and follow the Boot 3.5 native-image instructions rather than copying Boot 4 dependency or plugin settings. Native restrictions around closed-world analysis still apply; check the exact framework release and third-party library metadata.
-
 ## Gotchas
 
 - Native Image is selected only for a headline startup claim; measure startup, memory, throughput, image size, and build time against the JVM image.
@@ -104,8 +100,5 @@ Boot 3.5 supports Spring AOT and GraalVM Native Image. Keep its managed plugin a
 - [Spring Boot: Introducing GraalVM Native Images](https://docs.spring.io/spring-boot/4.1/reference/packaging/native-image/introducing-graalvm-native-images.html)
 - [Developing Your First GraalVM Native Application](https://docs.spring.io/spring-boot/4.1/how-to/native-image/developing-your-first-application.html)
 - [Testing GraalVM Native Images](https://docs.spring.io/spring-boot/4.1/how-to/native-image/testing-native-applications.html)
-- [Spring Boot 3.5: Introducing GraalVM Native Images](https://docs.spring.io/spring-boot/3.5/reference/packaging/native-image/introducing-graalvm-native-images.html)
-- [Spring Boot 3.5: Developing a Native Application](https://docs.spring.io/spring-boot/3.5/how-to/native-image/developing-your-first-application.html)
-- [Spring Boot 3.5 system requirements](https://docs.spring.io/spring-boot/3.5/system-requirements.html)
 - [Spring Boot 4.1 system requirements](https://docs.spring.io/spring-boot/system-requirements.html)
 - [GraalVM Native Image Reachability Metadata](https://www.graalvm.org/latest/reference-manual/native-image/metadata/)

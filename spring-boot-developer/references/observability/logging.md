@@ -56,10 +56,6 @@ Use `logback-spring.xml` for conditional appenders or logging behavior that cann
 
 Async appenders can reduce logging I/O on request threads, but queue saturation can drop events and shutdown can lose buffered messages. Measure before enabling them and choose an explicit loss and shutdown policy.
 
-## If the project uses Spring Boot 3.5.x
-
-Structured logging is available from Boot 3.4, so it is supported in 3.5.x. Keep logging dependencies and configuration aligned with the project's Boot-managed versions; do not add a second logging implementation alongside the default without a migration plan.
-
 ## Gotchas
 
 - Agent concatenates values into log messages - use SLF4J placeholders.
@@ -77,6 +73,5 @@ Structured logging is available from Boot 3.4, so it is supported in 3.5.x. Keep
 ## References
 
 - [Spring Boot 4.1 logging](https://docs.spring.io/spring-boot/4.1/reference/features/logging.html)
-- [Spring Boot 3.5 logging](https://docs.spring.io/spring-boot/3.5/reference/features/logging.html)
 - [SLF4J manual](https://www.slf4j.org/manual.html)
 - [Logback documentation](https://logback.qos.ch/documentation.html)

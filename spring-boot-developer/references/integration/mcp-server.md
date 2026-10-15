@@ -182,10 +182,6 @@ Assert the **failure** paths especially - a tool that throws instead of returnin
 
 For an end-to-end check, run the server and drive it with an MCP client. Keep that out of the normal build.
 
-## If on Boot 3.5.x
-
-Use Spring AI **1.x** and its MCP starters. The transport model is the same, but 1.x used Spring AI's `@Tool`/`@ToolParam` with a `MethodToolCallbackProvider` rather than the native `@McpTool`/`@McpToolParam` annotations, and remote transport was configured as SSE rather than `protocol: STREAMABLE`. Check the Spring AI 1.x reference for the exact shapes - do not port the 2.0 annotations backwards.
-
 ## Gotchas
 
 - Agent generates Python MCP code for a Java project - use the Spring AI starter

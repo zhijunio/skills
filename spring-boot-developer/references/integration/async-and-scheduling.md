@@ -289,10 +289,6 @@ void sendsConfirmationAsynchronously() {
 
 Disable scheduling in tests so jobs do not fire unpredictably - `spring.task.scheduling.enabled=false` in `application-test.yml`, and test the method directly by calling it. On Boot 4, context pausing freezes `@Scheduled` tasks in cached contexts between tests ([testing-strategy.md](../testing/testing-strategy.md)).
 
-## If on Boot 3.5.x
-
-`@Async`, `@Scheduled`, the executor and scheduler properties, and graceful shutdown are all identical. `spring.threads.virtual.enabled` exists from Boot 3.2 on Java 21+, so virtual threads are available there too - the JDK version matters more than the Boot version for pinning behaviour, and for whether `StructuredTaskScope` and `ScopedValue` exist at all. Structured concurrency is a Java 25 question, not a Boot 4 one: a Boot 3.5.x service on Java 25 can use it, and a Boot 4 service on Java 21 cannot.
-
 ## Gotchas
 
 - Agent calls an `@Async` method on `this` - it runs synchronously; no warning

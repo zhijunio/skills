@@ -287,10 +287,6 @@ dependencies {
 
 Type-safe, refactorable, and one place to look. Do not add versions for anything the Boot BOM manages - a catalog entry with an explicit version silently overrides it, which is exactly the failure the BOM exists to prevent.
 
-## If on Boot 3.5.x
-
-Structure is identical. The differences are the same as Maven's: starter names, Flyway arriving transitively, `spring-boot-starter-test` rather than per-technology `-test` starters, and Testcontainers 1.x coordinates ([testcontainers.md](../testing/testcontainers.md)).
-
 ## Gotchas
 
 - Agent omits `useJUnitPlatform()` - every test is silently skipped and the build passes

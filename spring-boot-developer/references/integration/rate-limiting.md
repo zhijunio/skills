@@ -39,10 +39,6 @@ Test the boundary and status/body/headers, burst and refill behavior, authentica
 - Agent tags metrics with raw IPs or account IDs - use route templates and bounded policy labels.
 - Agent fails all reads when Redis limiter state is unavailable - define a route-specific failure policy.
 
-## If on Spring Boot 3.5.x
-
-The HTTP semantics and resource bounds are not Boot-specific. Spring Framework's `@ConcurrencyLimit` availability differs by Framework line; use [resilience.md](resilience.md) and the project's Boot-managed Framework version. Rate limiting itself generally belongs in a gateway or a dedicated limiter rather than assuming a built-in Boot annotation.
-
 ## Related
 
 - [resilience.md](resilience.md) · [security-fundamentals.md](../security/security-fundamentals.md) · [rest-controllers.md](../web/rest-controllers.md) · [configuration.md](../configuration/configuration.md) · [observability.md](../observability/observability.md) · [file-storage.md](file-storage.md)

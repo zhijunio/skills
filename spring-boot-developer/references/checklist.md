@@ -129,7 +129,7 @@ This checklist covers Spring application concerns. Use the focused architecture 
 
 | # | Rule | Reference |
 | - | ---- | --------- |
-| 72 | Pair the versions: Spring AI 2.0 with Boot 4, 1.x with Boot 3.5. | [spring-ai.md](integration/spring-ai.md) |
+| 72 | Use Spring AI 2.0 with Boot 4; 1.x does not resolve on Boot 4. | [spring-ai.md](integration/spring-ai.md) |
 | 73 | Scope the conversation id per user or session - a shared one leaks history between users. | [spring-ai.md](integration/spring-ai.md) |
 | 74 | Never concatenate user input into a prompt. Never execute or render model output unescaped. | [spring-ai.md](integration/spring-ai.md) |
 | 75 | `log-prompt: false` in production, and never tag a metric with prompt content. | [ai-observability.md](observability/ai-observability.md) |

@@ -211,12 +211,6 @@ Treat `MaxRAMPercentage` as a starting value and measure it under the actual mem
 
 For Actuator probes and safe operational endpoints, see [observability](../observability/observability.md). For build profiles and supported Maven/Gradle behavior, see [Maven](../tooling/maven.md) and [Gradle](../tooling/gradle.md).
 
-## If the project uses Spring Boot 3.5.x
-
-The standard and AOT Dockerfile image structure works with Boot 3.5.x and 4.x. The bundled templates use Java 25, which both lines support, and `jarmode=tools`, available since Boot 3.3. Build with the project's matching Spring Boot Maven plugin and AOT profile; preserve its existing build-tool and image choices when they differ from the template. The generator's `--docker` scaffold remains Maven-oriented.
-
-Native Image toolchains have a different version floor: Boot 3.5 supports GraalVM 22.3 or later, while Boot 4 requires GraalVM 25 or later. The bundled [`Dockerfile-native`](../../assets/Dockerfile-native) defaults to GraalVM 25; select another `GRAALVM_VERSION` only when it is compatible with the target Boot release, Java version, and Native Build Tools plugin.
-
 ## Gotchas
 
 - A Dockerfile is added before checking buildpacks; use buildpacks unless the project needs custom image behavior.
@@ -239,9 +233,6 @@ Native Image toolchains have a different version floor: Boot 3.5 supports GraalV
 - [Spring Boot Docker Compose support](https://docs.spring.io/spring-boot/4.1/reference/features/dev-services.html#features.dev-services.docker-compose)
 - [Apache Kafka Docker guide](https://kafka.apache.org/42/getting-started/docker/)
 - [Dex getting started](https://dexidp.io/docs/getting-started/) · [Dex local connector](https://dexidp.io/docs/connectors/local/)
-- [Spring Boot 3.5 Cloud Native Buildpacks](https://docs.spring.io/spring-boot/3.5/reference/packaging/container-images/cloud-native-buildpacks.html)
-- [Spring Boot 3.5 Efficient Container Images](https://docs.spring.io/spring-boot/3.5/reference/packaging/container-images/efficient-images.html)
-- [Spring Boot 3.5 Docker Compose support](https://docs.spring.io/spring-boot/3.5/reference/features/dev-services.html#features.dev-services.docker-compose)
 - [Docker documentation](https://docs.docker.com/)
 - [Docker Compose documentation](https://docs.docker.com/compose/)
 - [Google Distroless](https://github.com/GoogleContainerTools/distroless)

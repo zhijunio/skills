@@ -300,10 +300,6 @@ class OrderEventIntegrationTest {
 
 `@ServiceConnection` wires the broker with no property registration ([testcontainers.md](../testing/testcontainers.md)). Messaging is asynchronous, so **await an assertion - never `Thread.sleep`.** Test the DLT path too: publish something unparseable and assert it lands there.
 
-## If on Boot 3.5.x
-
-Spring Kafka and Spring AMQP work the same, with two differences: the Rabbit JSON converter takes a Jackson 2 `ObjectMapper` rather than a `JsonMapper`, and Testcontainers uses 1.x coordinates. `@ServiceConnection` supports Kafka and RabbitMQ on both lines.
-
 ## Gotchas
 
 - Agent uses a broker to decouple two classes in one application - use an in-process event

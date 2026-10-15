@@ -166,26 +166,6 @@ Escalate to WireMock only when you need a real socket: testing actual timeouts, 
 
 Always test the error translation, not just the happy path.
 
-## If on Boot 3.5.x
-
-`@HttpExchange` and `RestClient` exist, but `@ImportHttpServices` and the `spring.http.serviceclient.*` groups **do not** - those are Boot 4. Build the proxy explicitly:
-
-```java
-@Bean
-InventoryClient inventoryClient(RestClient.Builder builder, InventoryProperties properties) {
-    var restClient = builder
-            .baseUrl(properties.baseUrl())
-            .requestFactory(timeoutFactory())
-            .build();
-    return HttpServiceProxyFactory
-            .builderFor(RestClientAdapter.create(restClient))
-            .build()
-            .createClient(InventoryClient.class);
-}
-```
-
-One factory per external service. Everything else - timeouts, status handlers, interceptors, `@RestClientTest` - is identical.
-
 ## Gotchas
 
 - Agent sets no timeouts - the default is effectively infinite and one slow dependency stops your application

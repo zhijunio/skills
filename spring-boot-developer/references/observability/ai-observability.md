@@ -240,10 +240,6 @@ Consider sampling AI calls at a higher rate than general traffic: they are compa
 
 A runaway loop calling a model can spend a lot of money quickly. A spend alert is not a nice-to-have.
 
-## If on Boot 3.5.x
-
-Actuator, Micrometer, the GenAI metric conventions and tracing work the same. The advisor API differs: Spring AI 1.x has its own advisor interfaces, and the `CallAroundAdvisor` → `CallAdvisor` rename happened at 1.0 GA - so pre-GA 1.x code and post-GA 1.x code differ from each other as well as from 2.0. Check the reference for your exact Spring AI version.
-
 ## Gotchas
 
 - Agent enables `log-prompt` in production - prompts carry user data and internal context into the log store

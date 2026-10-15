@@ -305,10 +305,6 @@ my-app/
 - `mvn dependency:tree` when a version surprises you; `mvn dependency:analyze` finds declared-unused and used-undeclared dependencies.
 - Add `dependency-check` or your platform's scanner to CI. A dependency with a known CVE is the most likely security problem in a typical Spring application.
 
-## If on Boot 3.5.x
-
-Same structure. The differences are starter names (`-web`, `-aop`, `-oauth2-*` without the `security-` prefix), Flyway arriving transitively so no explicit starter is needed, `spring-boot-starter-test` rather than the per-technology `-test` starters, and optional dependencies being included in the repackaged jar by default.
-
 ## Gotchas
 
 - Agent declares a version for a BOM-managed dependency - the BOM decides; overriding causes runtime `NoSuchMethodError`

@@ -236,10 +236,6 @@ Do not call a real model in tests. It is slow, costs money, and is non-determini
 
 Keep an end-to-end test against the real provider if you need one, tagged and excluded from the normal build.
 
-## If on Boot 3.5.x
-
-Use **Spring AI 1.x**. The `ChatClient` fluent API, prompt templates, structured output, RAG and streaming are broadly the same, but 2.0 made several breaking changes - flattened `chat.options.*` properties, the removal of `ChatMemory.DEFAULT_CONVERSATION_ID`, the `spring-ai-advisors-vector-store` rename, builder-only advisor construction, and the removal of `PromptChatMemoryAdvisor`. Check the Spring AI 1.x reference for the version you are on rather than assuming the 2.0 shapes above.
-
 ## Gotchas
 
 - Agent uses Spring AI 1.x on Boot 4, or 2.0 on Boot 3.5 - the lines are not interchangeable

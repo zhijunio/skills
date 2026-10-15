@@ -93,10 +93,6 @@ A short list of named commands beats a wiki page. [Task](https://taskfile.dev/) 
 - Boot's failure analyzers turn common startup failures into readable messages. Read the whole message before scrolling to the stack trace; the answer is usually in it.
 - `spring.jpa.hibernate.ddl-auto=validate` locally as well, so schema drift fails at startup rather than at the first query.
 
-## If on Boot 3.5.x
-
-Docker Compose support (3.1+), devtools and profiles behave identically. The build differences are covered in [Boot versions](../spring-boot-migration.md).
-
 ## Gotchas
 
 - Agent seeds development data in a Flyway migration - it reaches production and cannot be changed

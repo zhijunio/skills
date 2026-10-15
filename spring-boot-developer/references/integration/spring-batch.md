@@ -245,6 +245,8 @@ JobExecutionListener exportCompletionListener() {
 
 Always handle the failure branch. A batch job that fails silently at 2am is discovered by whoever needs the output.
 
+Batch 6 dropped Micrometer's global static registry, so a job needs an `ObservationRegistry` bean wired to the `MeterRegistry` for metrics to appear ([observability.md](../observability/observability.md)).
+
 ## Fault tolerance
 
 ```java
@@ -282,17 +284,6 @@ class OrderExportJobTest {
 ```
 
 Test a step in isolation with `launchStep("exportStep", params)`. Test the **restart** path too: fail a job mid-way, relaunch with the same parameters, assert it resumes rather than reprocessing. That is the feature you added the JDBC repository for, and it is the one nobody tests.
-
-## If on Boot 3.5.x
-
-Spring Batch **5**, and the differences are exactly the four rules at the top, inverted:
-
-- The job repository is JDBC-backed by default - no `-batch-jdbc` starter exists or is needed.
-- Inject `JobLauncher` to launch and `JobExplorer` to query; `JobOperator` does not combine them.
-- `chunk(500, transactionManager)` is the correct form.
-- The sequence is `BATCH_JOB_SEQ`.
-
-`@EnableBatchProcessing` should still be omitted, `@StepScope` is still required, `Chunk` is still the writer signature, and the reader rules are unchanged. Batch 6 also dropped Micrometer's global static registry, so a Boot 4 job needs an `ObservationRegistry` bean wired to the `MeterRegistry` for metrics to appear ([observability.md](../observability/observability.md)).
 
 ## Gotchas
 
