@@ -44,7 +44,8 @@ const builds = [
       ['docker', 'compose', '-f', 'compose.full.yaml', 'config', '-q'],
       ['docker', 'compose', '-f', 'compose.full.yaml', 'up', '-d', '--build', '--wait'],
     ],
-    health: 'http://localhost:8080/actuator/health',
+    env: { SPRING_BOOT_PORT: '18080' },
+    health: 'http://localhost:18080/actuator/health',
     cleanup: [['docker', 'compose', '-f', 'compose.full.yaml', 'down', '-v', '--rmi', 'local']],
   },
 ]
@@ -56,8 +57,8 @@ const rejections = [
   { name: 'docker-with-gradle', options: ['--docker', '--build', 'gradle'] },
 ]
 
-function run(command, commandArgs, cwd) {
-  const result = spawnSync(command, commandArgs, { cwd, encoding: 'utf8', shell: windows })
+function run(command, commandArgs, cwd, env) {
+  const result = spawnSync(command, commandArgs, { cwd, encoding: 'utf8', shell: windows, env: { ...process.env, ...env } })
   return { ok: result.status === 0, output: `${result.stdout ?? ''}${result.stderr ?? ''}` }
 }
 
@@ -95,7 +96,7 @@ try {
     report(!result.ok && result.output.includes('Project generation failed'), `rejects ${name}`, result.output || 'generation unexpectedly succeeded')
   }
 
-  for (const { name, options, commands, health, cleanup = [] } of builds) {
+  for (const { name, options, commands, env, health, cleanup = [] } of builds) {
     const generated = generate(name, options, workDir)
     if (!generated.ok) {
       report(false, `${name}: generate`, generated.output)
@@ -103,17 +104,17 @@ try {
     }
     let ok = true
     for (const [command, ...commandArgs] of commands) {
-      const result = run(command, commandArgs, join(workDir, name))
+      const result = run(command, commandArgs, join(workDir, name), env)
       report(result.ok, `${name}: ${[command, ...commandArgs].join(' ')}`, result.output)
       ok = result.ok
       if (!ok) break
     }
     if (ok && health) {
       const status = await waitForHealth(health)
-      const logs = status === 200 ? '' : run('docker', ['compose', '-f', 'compose.full.yaml', 'logs', '--tail', '40'], join(workDir, name)).output
+      const logs = status === 200 ? '' : run('docker', ['compose', '-f', 'compose.full.yaml', 'logs', '--tail', '40'], join(workDir, name), env).output
       report(status === 200, `${name}: GET ${health}`, `last status: ${status}\n${logs}`)
     }
-    for (const [command, ...commandArgs] of cleanup) run(command, commandArgs, join(workDir, name))
+    for (const [command, ...commandArgs] of cleanup) run(command, commandArgs, join(workDir, name), env)
   }
 } finally {
   if (args.includes('--keep')) console.log(`Projects kept in ${workDir}`)
