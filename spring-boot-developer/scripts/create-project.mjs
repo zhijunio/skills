@@ -185,6 +185,14 @@ async function addProjectSetupAssets(projectDir, packageName) {
   const mergedDockerignore = [...new Set([...currentDockerignore.split(/\r?\n/).filter(Boolean), ...generatedDockerignore.split(/\r?\n/).filter(Boolean)])]
   await writeFile(dockerignorePath, `${mergedDockerignore.join('\n')}\n`)
 
+  const propertiesPath = join(projectDir, 'src', 'main', 'resources', 'application.properties')
+  if (existsSync(propertiesPath)) {
+    const properties = await readFile(propertiesPath, 'utf8')
+    if (!/^server\.port\s*=/m.test(properties)) {
+      await writeFile(propertiesPath, `${properties.trimEnd()}\nserver.port=\${SPRING_BOOT_PORT:8080}\n`)
+    }
+  }
+
   await mkdir(join(projectDir, '.github'), { recursive: true })
   await writeFile(join(projectDir, '.github', 'lsp.json'), await readFile(join(assets, 'lsp.json')))
 
