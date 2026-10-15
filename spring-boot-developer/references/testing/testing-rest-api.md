@@ -120,12 +120,6 @@ Generating a real token per test is slow and couples the suite to the auth imple
 
 Assert the negative cases here: unauthenticated is 401, wrong role is 403. These are the paths that silently break when a `securityMatcher` changes.
 
-## If on Boot 3.5.x
-
-`RestTestClient` does not exist - it is Spring Framework 7. Use `WebTestClient` (same fluent shape, so the tests translate closely) or `TestRestTemplate`. On Boot 4 `TestRestTemplate` additionally requires `@AutoConfigureTestRestTemplate`. Both live in the new `spring-boot-resttestclient` module on 4.x.
-
-Everything else - `RANDOM_PORT`, `@Import`, Testcontainers, `@Sql` - is unchanged, apart from the Jackson 2 mapper type and the Testcontainers coordinates.
-
 ## Gotchas
 
 - Agent writes end-to-end tests for every validation rule - they belong in a web slice; this layer stays thin

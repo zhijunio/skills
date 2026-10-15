@@ -71,12 +71,6 @@ Tests must not depend on execution order or on each other's leftovers.
 
 Spring recommends running most tests on the JVM and using native tests for code paths likely to differ under native compilation. Native test support and mock compatibility depend on the selected Spring, Mockito, and GraalVM versions; verify the project toolchain before excluding mock-based tests. See [GraalVM Native Image](../deployment/graalvm.md).
 
-## If on Boot 3.5.x
-
-- Context caching and its cache key work identically.
-- **4.x only: context pausing** (Spring Framework 7) pauses eligible lifecycle components in inactive cached contexts and resumes them when the context is reused. See the [Spring Framework context pausing reference](https://docs.spring.io/spring-framework/reference/testing/testcontext-framework/ctx-management/context-pausing.html).
-- Mock beans are `@MockitoBean` / `@MockitoSpyBean` on both lines. `@MockBean` is deprecated on 3.5.x and **removed** on 4.x.
-
 ## Gotchas
 
 - Agent writes only unit tests - they pass while the application is broken; nothing exercises mapping, serialization or configuration

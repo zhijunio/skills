@@ -152,10 +152,6 @@ Collapse near-identical cases rather than copy-pasting methods. `@EnumSource(Ord
 - Private methods via reflection. If a private method needs its own test, it wants to be a class of its own
 - Simple derived Spring Data queries - that is Spring Data's responsibility ([testing-slices-persistence.md](testing-slices-persistence.md))
 
-## If on Boot 3.5.x
-
-Version-agnostic. The only difference is JUnit 5 on 3.5.x versus JUnit 6 on 4.x, which changes none of the code above. Mockito and AssertJ arrive transitively via the test starter on both lines.
-
 > **Native image:** Mockito does not work in a GraalVM native image, so `@Mock`-based tests cannot run under `nativeTest`. See [testing-strategy.md](testing-strategy.md).
 
 ## Gotchas

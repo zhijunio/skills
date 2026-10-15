@@ -171,10 +171,6 @@ class OrderIntegrationTest extends BaseIntegrationTest { … }
 - Prefer `-alpine` images where the project offers one.
 - Use `.withInitScript(...)` for schema setup only when Flyway is not already doing it - running both means two sources of truth for the schema.
 
-## If on Boot 3.5.x
-
-`@ServiceConnection` (3.1+) and `DynamicPropertyRegistrar` (3.4+) both exist and behave identically. The difference is the coordinates and class packages in the table at the top - Testcontainers 1.x rather than 2.x.
-
 ## Gotchas
 
 - Agent uses Testcontainers 1.x coordinates on Boot 4 - `testcontainers-postgresql`, and the class moved to `org.testcontainers.postgresql`

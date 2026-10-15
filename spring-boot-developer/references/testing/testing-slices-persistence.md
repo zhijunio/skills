@@ -122,13 +122,6 @@ With the real database and `spring.jpa.hibernate.ddl-auto=validate`, a persisten
 
 For a destructive or data-transforming migration, test the data explicitly: seed the old shape, migrate, assert the new one.
 
-## If on Boot 3.5.x
-
-Slice annotations, `@AutoConfigureTestDatabase`, `@ServiceConnection`, `JdbcClient` and `TestEntityManager` are identical. Two differences:
-
-- **Testcontainers coordinates**: 1.x on 3.5.x versus 2.x on 4.x - see [testcontainers.md](testcontainers.md).
-- **jOOQ**: the managed major version differs between the two BOMs; check `spring-boot-dependencies` rather than pinning it yourself.
-
 ## Gotchas
 
 - Agent uses the default H2 for a persistence slice - dialect-specific SQL diverges silently, and your Flyway migrations never run

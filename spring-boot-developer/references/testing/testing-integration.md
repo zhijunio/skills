@@ -184,14 +184,6 @@ void reservesInventoryOnOrderPlaced() {
 
 `Thread.sleep` is either flaky or slow, usually both. See [testing-strategy.md](testing-strategy.md) for isolation and bounded test execution.
 
-## If on Boot 3.5.x
-
-- `@SpringBootTest` including `classes = …`, `RANDOM_PORT`, `@ServiceConnection` and WireMock behave identically.
-- **REST test client**: `RestTestClient` and `@AutoConfigureRestTestClient` are Boot 4 (Spring Framework 7). On 3.5.x use `WebTestClient` or `TestRestTemplate`.
-- **Test auto-configure annotations moved packages in Boot 4** as part of the modular restructuring, so the imports in a custom slice like `@EnableDatabaseTest` differ. For example `@AutoConfigureDataJpa` is `org.springframework.boot.data.jpa.test.autoconfigure` on 4.x and `org.springframework.boot.test.autoconfigure.orm.jpa` on 3.5.x; `@EntityScan` is `org.springframework.boot.persistence.autoconfigure` on 4.x and `org.springframework.boot.autoconfigure.domain` on 3.5.x. Let the IDE resolve them.
-- Testcontainers coordinates differ ([testcontainers.md](testcontainers.md)).
-- 4.x only: context pausing, and improved `@TestConfiguration` bean-override ergonomics.
-
 ## Gotchas
 
 - Agent uses full `@SpringBootTest` for every test - use `classes = { … }` plus a slice
@@ -205,7 +197,6 @@ void reservesInventoryOnOrderPlaced() {
 - Agent uses `Thread.sleep` for asynchronous assertions - use Awaitility
 - Agent expects a `RANDOM_PORT` test to roll back - the request runs on another thread
 - Agent uses `@MockBean` - removed in Boot 4
-- Agent copies Boot 4 test-autoconfigure imports into a 3.5.x project - the packages differ
 
 ## Related
 

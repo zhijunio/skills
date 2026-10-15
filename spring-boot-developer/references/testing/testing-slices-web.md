@@ -15,7 +15,7 @@ Slices for the non-persistence layers. Each loads only its layer's beans, so it 
 </dependency>
 ```
 
-On Boot 4, `spring-boot-starter-webmvc-test` includes the general test starter and MVC test support; do not add `spring-boot-starter-test` separately. Add `spring-boot-starter-security-test` when using security test annotations such as `@WithMockUser`. On Boot 3.5.x, use `spring-boot-starter-test` for MVC test support and `org.springframework.security:spring-security-test` for security test annotations; do not add the Boot 4 MVC test starter.
+On Boot 4, `spring-boot-starter-webmvc-test` includes the general test starter and MVC test support; do not add `spring-boot-starter-test` separately. Add `spring-boot-starter-security-test` when using security test annotations such as `@WithMockUser`.
 
 ## `@WebMvcTest` - controllers in isolation
 
@@ -172,13 +172,6 @@ class InventoryClientTest {
 Reach for this first. `MockRestServiceServer` only intercepts Spring's `RestClient`/`RestTemplate` - for `WebClient`, an HTTP-interface client, a third-party SDK, or when you need a real port for timeouts or TLS, escalate to WireMock ([testing-integration.md](testing-integration.md)).
 
 Test the **error translation**, not just the happy path. That is where the bug is.
-
-## If on Boot 3.5.x
-
-`@WebMvcTest`, `@JsonTest`, `@RestClientTest`, `MockRestServiceServer`, `JacksonTester`, `MockMvcTester` (3.4+) and `@WithMockUser` are all identical. Two differences:
-
-- The test starter is `spring-boot-starter-test`, not `spring-boot-starter-webmvc-test`.
-- `@JsonTest` uses Jackson 2 (`com.fasterxml.jackson`) rather than Jackson 3 (`tools.jackson`). The DTO assertions are unchanged; only the mapper underneath differs.
 
 ## Gotchas
 

@@ -50,12 +50,6 @@ configuration silently use real endpoints. Avoid logging full request/response b
 personal data. If parallel tests share one substitute, isolate scenarios by unique IDs and ensure cleanup cannot delete
 another test's data.
 
-## If on Spring Boot 3.5.x
-
-The boundary-testing principles are the same. Boot-managed client and test APIs differ by Boot line;
-follow [HTTP clients](../integration/http-clients.md) and the project's managed test dependencies rather than copying a Boot 4
-snippet into a 3.5.x build.
-
 ## Gotchas
 
 - Agent mocks the client internals and assumes the HTTP contract is verified - test through a local server at the
