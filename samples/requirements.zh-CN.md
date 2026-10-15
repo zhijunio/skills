@@ -203,8 +203,8 @@ Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段�
 | `GET` | `/api/users/me/sessions` | 列出活动会话 | 已认证；分页 `200` | 返回安全的设备摘要、创建/最近使用/过期时间和当前会话标记；IP 掩码显示 |
 | `DELETE` | `/api/users/me/sessions/{sessionId}` | 撤销属于当前用户的单个会话，包括当前会话 | 已认证；`204` | 校验归属；撤销当前会话即完成注销；重复撤销保持幂等，不得泄露其他用户的会话是否存在 |
 | `DELETE` | `/api/users/me/sessions` | 撤销当前用户全部会话 | 已认证；`204` | 执行近期认证/MFA 策略；明确当前会话也会被撤销 |
-| `GET` | `/api/users/me/auth-events` | 列出当前用户自己的认证历史 | 已认证；分页 `200` | 只提供用户自助查询视图；包含可用时的粗略地点/设备摘要，不含其他用户或特权运维信息；遵循保留期限和分页上限 |
-| `GET` | `/api/users/me/audit-events` | 列出与当前用户账户相关的操作审计记录 | 已认证；分页 `200` | 仅包含当前用户作为操作者或受影响用户且获准查看的账户相关记录；仅返回安全投影；排除其他用户数据和特权调查详情 |
+| `GET` | `/api/users/me/auth-logs` | 列出当前用户自己的认证历史 | 已认证；分页 `200` | 只提供用户自助查询视图；包含可用时的粗略地点/设备摘要，不含其他用户或特权运维信息；遵循保留期限和分页上限 |
+| `GET` | `/api/users/me/audit-logs` | 列出与当前用户账户相关的操作审计记录 | 已认证；分页 `200` | 仅包含当前用户作为操作者或受影响用户且获准查看的账户相关记录；仅返回安全投影；排除其他用户数据和特权调查详情 |
 
 ### 5.4 MFA、钱包、恢复码与 Passkey
 
@@ -320,7 +320,7 @@ Provider 注册管理是可选高级功能，仅在 OAuth2 Client 已启用且�
 
 `POST /api/oauth2-clients/{registrationId}/connectivity-tests` 返回 registration ID、端点是否有响应、测试时间和各端点结果/状态。不得发送客户端凭据、跟随重定向或声称连通性证明了凭据、scope、身份映射或完整登录流程有效。不得返回 Provider 响应正文或含敏感查询参数的 URL。
 
-OAuth Client 配置变更通过 `GET /api/audit-events` 使用相同的安全操作审计视图返回，必要时按资源类型/ID 筛选。不得创建独立的 OAuth Client 审计日志。`GET /api/oauth2-client-templates` 只返回非敏感初始值；启用前运维人员仍需审核模板配置。
+OAuth Client 配置变更通过 `GET /api/audit-logs` 使用相同的安全操作审计视图返回，必要时按资源类型/ID 筛选。不得创建独立的 OAuth Client 审计日志。`GET /api/oauth2-client-templates` 只返回非敏感初始值；启用前运维人员仍需审核模板配置。
 
 对 bearer-token 客户端，OAuth 登录回调可签发短时效、单次使用兑换码。`POST /api/auth/oauth2/exchange` 消费该码并返回本地令牌响应；兑换码绑定已完成的 Provider 登录，仅保存校验值，不得记录日志或放入 URL（可信回调交接所必需的短暂传输除外）。若浏览器使用服务端会话，除非客户端流程确有需要，否则不签发此代码。
 
@@ -336,11 +336,11 @@ OAuth Client 配置变更通过 `GET /api/audit-events` 使用相同的安全操
 | `DELETE` | `/api/users/{userId}/authentication-lock` | 管理员清除用户临时登录锁定 | 用户管理权限；按敏感操作策略执行 step-up/MFA；`204` | 要求原因并记录操作审计；不得清除账户停用状态 |
 | `GET` | `/api/mfa-settings` | 查看部署所提供的 MFA 运行状态和策略 | MFA 管理能力已部署且具备 MFA 配置权限；`200` | 只返回运行开关、允许的因子及策略摘要，不返回用户因子秘密 |
 | `PATCH` | `/api/mfa-settings` | 修改 MFA 配置并启用或停用 MFA | MFA 管理能力已部署且具备 MFA 配置权限；`204` | 校验因子/step-up 策略；停用须满足第 2 节第 6 条，否则返回 `409`；要求管理员近期重新认证（MFA 已启用时须完成 MFA step-up），审计变更并通知运维 |
-| `GET` | `/api/auth-events` | 搜索跨用户认证事件，包括无法解析用户的失败尝试 | 专门认证日志权限；分页 `200` | 可按时间、结果、因子/Provider、关联 ID 或已知用户 ID 筛选；不要求 user/tenant ID；不暴露原始标识符或秘密输入 |
-| `GET` | `/api/audit-events` | 搜索跨用户和管理操作的操作审计事件 | 专门审计读取权限；分页 `200` | 可按时间、操作、操作者、目标、适用的租户/范围和结果筛选；审计日志查询本身也需审计；限制导出量 |
+| `GET` | `/api/auth-logs` | 搜索跨用户认证事件，包括无法解析用户的失败尝试 | 专门认证日志权限；分页 `200` | 可按时间、结果、因子/Provider、关联 ID 或已知用户 ID 筛选；不要求 user/tenant ID；不暴露原始标识符或秘密输入 |
+| `GET` | `/api/audit-logs` | 搜索跨用户和管理操作的操作审计事件 | 专门审计读取权限；分页 `200` | 可按时间、操作、操作者、目标、适用的租户/范围和结果筛选；审计日志查询本身也需审计；限制导出量 |
 | `GET` | `/.well-known/jwks.json` | 发布 JWT 校验所需的公钥 | 公开；标准 JWKS 文档 | JWT 基础能力的一部分，始终启用；仅发布公钥；轮换时支持新旧密钥重叠 |
 
-管理操作沿用其他 API 的资源路径；权限由明确授权决定，不由路径名称决定。`/api/users` 和 `/api/users/{userId}` 要求用户管理权限，`/api/users/me` 及其子资源用于用户自助；用户 ID 不得使用保留字面值 `me`。`/api/auth-events` 和 `/api/audit-events` 要求各自专属的读取权限，提供跨用户查询。认证事件查询与操作审计查询分开，因为认证失败可能无法解析用户或租户，而操作审计需标识操作者及受影响的范围/目标。`/api/users/me/auth-events` 提供当前用户自己的认证历史；`/api/users/me/audit-events` 只提供用户获准查看的本人账户相关操作审计安全投影。OAuth Client 配置变更属于操作审计，并显示在 `/api/audit-events` 中；不得引入第三类日志模型或重复记录。
+管理操作沿用其他 API 的资源路径；权限由明确授权决定，不由路径名称决定。`/api/users` 和 `/api/users/{userId}` 要求用户管理权限，`/api/users/me` 及其子资源用于用户自助；用户 ID 不得使用保留字面值 `me`。`/api/auth-logs` 和 `/api/audit-logs` 要求各自专属的读取权限，提供跨用户查询。认证事件查询与操作审计查询分开，因为认证失败可能无法解析用户或租户，而操作审计需标识操作者及受影响的范围/目标。`/api/users/me/auth-logs` 提供当前用户自己的认证历史；`/api/users/me/audit-logs` 只提供用户获准查看的本人账户相关操作审计安全投影。OAuth Client 配置变更属于操作审计，并显示在 `/api/audit-logs` 中；不得引入第三类日志模型或重复记录。
 
 ### 5.7 授权、限流与错误矩阵
 
