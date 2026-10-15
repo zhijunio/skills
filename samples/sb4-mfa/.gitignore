@@ -60,6 +60,9 @@ frontend/.eslintcache
 /src/main/resources/static/*.js
 /src/main/resources/static/*.css
 /src/main/resources/static/*.map
+# These are the sample's source assets, not generated frontend build output.
+!/src/main/resources/static/*.js
+!/src/main/resources/static/*.css
 # Testcontainers / Docker
 .testcontainers.properties
 **/.testcontainers/*
