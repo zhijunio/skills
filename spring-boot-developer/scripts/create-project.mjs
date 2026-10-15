@@ -91,8 +91,16 @@ function assertOptions(options) {
   if (existsSync(options.projectDir)) throw new Error(`Target already exists: ${options.projectDir}`)
 }
 
-function run(command, args) {
-  execFileSync(command, args, { stdio: 'inherit' })
+function run(command, args, options = {}) {
+  execFileSync(command, args, { stdio: 'inherit', ...options })
+}
+
+function applyFormatting(projectDir, build) {
+  const windows = process.platform === 'win32'
+  const wrapper = build === 'maven' ? (windows ? 'mvnw.cmd' : './mvnw') : (windows ? 'gradlew.bat' : './gradlew')
+  const task = build === 'maven' ? ['-q', 'spotless:apply'] : ['-q', 'spotlessApply']
+  console.log('Applying Spotless formatting to generated sources…')
+  run(wrapper, task, { cwd: projectDir, shell: windows })
 }
 
 async function extract(zipPath, destination) {
@@ -419,6 +427,7 @@ async function main() {
     }
     if (options.build === 'gradle') await ensureGradlePluginRepositories(options.projectDir)
     if (options.docker) await addDockerAssets(options.projectDir, options.name, options.java, options.persistence)
+    applyFormatting(options.projectDir, options.build)
     console.log(`\nProject created: ${options.projectDir}`)
     console.log(`Next: cd ${options.projectDir}`)
     console.log(options.build === 'maven' ? 'Then: ./mvnw spring-boot:run' : 'Then: ./gradlew bootRun')
