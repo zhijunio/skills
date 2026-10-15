@@ -44,7 +44,12 @@ node scripts/create-project.mjs \
   --output-dir /absolute/path/to/workspace
 ```
 
-The generator defaults to JPA persistence and PostgreSQL. Select `--persistence jpa|mybatis-plus|none` and `--database postgresql|none`; MyBatis-Plus uses `mybatis-plus-spring-boot4-starter`. Generated projects include Spotless Java formatting, applied once after generation so the first `verify` passes, a wrapper-based `Taskfile.yml` with `format`, `test`, and `verify` tasks, and an `.sdkmanrc` for the selected Java major. PostgreSQL/Testcontainers Maven projects also receive Failsafe-bound `*IT` integration tests. Front-end, VS Code, and Dev Container files are optional and are not generated unless their workflow is requested. The generator uses Spring Initializr, then applies this skill's project setup assets. It does not overwrite an existing target, install global tools, or initialize Git. Docker generation requires PostgreSQL and Maven; the generator rejects Gradle with `--docker`. Check `--help` for all supported arguments and the actual version choices in `versions.json`.
+The generator downloads a Boot 4.x project from Spring Initializr and applies this skill's setup assets. Check `--help` for all arguments and `versions.json` for version choices.
+
+- **Options**: `--persistence jpa|mybatis-plus|none` (default `jpa`) and `--database postgresql|none` (default `postgresql`). `--database none` implies `--persistence none`. `--docker` requires Maven and PostgreSQL.
+- **Always generated**: Spotless formatting (applied once, so the first `verify` passes), a wrapper-based `Taskfile.yml` with `format`, `test`, and `verify`, and an `.sdkmanrc` for the selected Java major.
+- **With PostgreSQL**: a local `compose.yaml` and a Testcontainers configuration pinned to the same PostgreSQL image; Maven projects also run `*IT` tests through Failsafe.
+- **Not generated**: front-end, VS Code, and Dev Container files, unless their workflow is requested. The generator does not overwrite an existing target, install global tools, or initialize Git.
 
 For changes to generated project defaults or repository files, read [project setup](references/tooling/project-setup.md). For local PostgreSQL and Compose workflows, read [local development](references/tooling/local-development.md).
 
