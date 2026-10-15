@@ -19,7 +19,7 @@ docker build -t inventory-api:local .
 docker run --rm -p 8080:8080 inventory-api:local
 ```
 
-The template copies the project context after resolving Maven dependencies. The `frontend/` directory is optional; `.dockerignore` keeps local dependency and build outputs out of that context. Keep the runtime base compatible with the build image's libc, Java version, and native dependencies. Read the Dockerfile comments before changing its `jlink` module list or runtime flags.
+The template copies the project context after resolving Maven dependencies. The `frontend/` directory is optional; `.dockerignore` keeps local dependency and build outputs out of that context. The build and `jlink` runtime always use JDK 25, whose `jlink` options and `-XX:+UseCompactObjectHeaders` flag older JDKs reject; a project targeting Java 17 or 21 still compiles with its own `release` and runs on that runtime. Keep the runtime base compatible with the build image's libc, Java version, and native dependencies. Read the Dockerfile comments before changing its `jlink` module list or runtime flags.
 
 Spring Boot layered jars keep rarely changing dependencies separate from application classes. When writing your own Dockerfile, extract and copy layers in their declared order: `dependencies`, `spring-boot-loader`, `snapshot-dependencies`, then `application`. This lets Docker reuse dependency layers when only application code changes. See [efficient container images](https://docs.spring.io/spring-boot/4.1/reference/packaging/container-images/efficient-images.html).
 

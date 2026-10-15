@@ -120,11 +120,9 @@ async function extract(zipPath, destination) {
   }
 }
 
-async function addDockerAssets(projectDir, name, javaVersion, persistence) {
+async function addDockerAssets(projectDir, name, persistence) {
   const assets = join(root, 'assets')
-  const dockerfile = (await readFile(join(assets, 'Dockerfile'), 'utf8'))
-    .replace('eclipse-temurin:25-jdk-noble', `eclipse-temurin:${javaVersion}-jdk-noble`)
-  await writeFile(join(projectDir, 'Dockerfile'), dockerfile)
+  await writeFile(join(projectDir, 'Dockerfile'), await readFile(join(assets, 'Dockerfile')))
   let compose = (await readFile(join(assets, 'docker-compose.yml'), 'utf8')).replace('  spring-app:', `  ${name}:`)
   if (persistence !== 'jpa') compose = compose.replace(/^\s+SPRING_JPA_HIBERNATE_DDL_AUTO:.*\r?\n/m, '')
   await writeFile(join(projectDir, 'compose.full.yaml'), compose)
@@ -424,7 +422,7 @@ async function main() {
       await renameContainerTest(options.projectDir)
     }
     if (options.build === 'gradle') await ensureGradlePluginRepositories(options.projectDir)
-    if (options.docker) await addDockerAssets(options.projectDir, options.name, options.java, options.persistence)
+    if (options.docker) await addDockerAssets(options.projectDir, options.name, options.persistence)
     applyFormatting(options.projectDir, options.build)
     console.log(`\nProject created: ${options.projectDir}`)
     console.log(`Next: cd ${options.projectDir}`)
