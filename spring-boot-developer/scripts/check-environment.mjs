@@ -8,6 +8,24 @@ import { fileURLToPath } from 'node:url'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const versions = JSON.parse(await readFile(resolve(root, 'versions.json'), 'utf8'))
 const args = new Set(process.argv.slice(2))
+if (args.has('--help') || args.has('-h')) {
+  console.log(`Check local tools against the versions.json baseline.
+
+Usage:
+  node scripts/check-environment.mjs [--frontend] [--docker] [--gradle]
+
+Options:
+  --frontend   Require Node.js and npm
+  --docker     Require Docker
+  --gradle     Require a global Gradle installation
+  --help       Show this help`)
+  process.exit(0)
+}
+const unknown = [...args].filter((arg) => !['--frontend', '--docker', '--gradle'].includes(arg))
+if (unknown.length > 0) {
+  console.error(`Unknown option: ${unknown.join(', ')}`)
+  process.exit(1)
+}
 const needNode = args.has('--frontend')
 const needDocker = args.has('--docker')
 const needGradle = args.has('--gradle')

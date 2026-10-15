@@ -22,7 +22,7 @@ Options:
   --group-id <id>               Java group id (default: com.example)
   --package-name <name>         Java package (default: <group-id>.<project-name>)
   --build <maven|gradle>         Build tool (default: maven)
-  --java <version>              Java version (default: ${versions.java.default})
+  --java <version>              Java major version (default: ${versions.java.default})
   --boot-version <version>      Exact Spring Boot version (default: ${versions.springBoot.default})
   --persistence <jpa|mybatis-plus|none> Persistence layer (default: jpa, or none with --database none)
   --database <postgresql|none>   Database driver and local Compose setup (default: postgresql)
@@ -82,7 +82,7 @@ function assertOptions(options) {
   if (!/^[A-Za-z_][\w]*(\.[A-Za-z_][\w]*)*$/.test(options.packagename)) throw new Error('--package-name must be a valid Java package')
   options.java ??= versions.java.default
   options.bootversion ??= versions.springBoot.default
-  if (!/^\d+(\.\d+){0,2}$/.test(options.java)) throw new Error('--java must be a numeric Java version')
+  if (!/^\d+$/.test(options.java)) throw new Error('--java must be a Java major version, such as 21')
   if (!/^\d+\.\d+\.\d+$/.test(options.bootversion)) throw new Error('--boot-version must be an exact stable version, such as 4.1.1')
   const [bootMajor] = options.bootversion.split('.')
   const maxJava = versions.java.maximumBySpringBootMajor[bootMajor]

@@ -6,7 +6,24 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const versions = JSON.parse(await readFile(resolve(root, 'versions.json'), 'utf8'))
-const checkOnly = process.argv.includes('--check')
+const args = process.argv.slice(2)
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(`Update version tables in references from versions.json.
+
+Usage:
+  node scripts/sync-versions-in-docs.mjs [--check]
+
+Options:
+  --check   Report outdated tables without writing files
+  --help    Show this help`)
+  process.exit(0)
+}
+const unknown = args.filter((arg) => arg !== '--check')
+if (unknown.length > 0) {
+  console.error(`Unknown option: ${unknown.join(', ')}`)
+  process.exit(1)
+}
+const checkOnly = args.includes('--check')
 const start = '<!-- versions:start -->'
 const end = '<!-- versions:end -->'
 const frontendRows = (frameworkRows) => [
