@@ -73,7 +73,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 ### 4.3 OAuth2/OIDC Client 与外部身份
 
-- 使用 Spring Security OAuth2 Login 执行授权码登录。Provider 注册属性放在外部配置中；client secret 不得提交到代码仓库。
+- 使用 Spring Security OAuth2 Login 执行授权码登录。Provider 注册信息由管理员通过 `/api/oauth2-clients` 动态管理并保存在 PostgreSQL 中，以自定义 `ClientRegistrationRepository` 提供给框架；变更须在所有实例上及时生效（例如经 Redis 通知失效本地缓存）。client secret 不得提交到代码仓库，须使用受管理且可轮换的密钥加密存储。
 - 使用稳定的 `(issuer, subject)` 作为 OIDC 身份键。邮箱是资料字段，不能单独用于自动合并账户。
 - 使用 Spring Security 的协议处理验证 Provider 回调的 state、nonce、issuer、签名、audience、过期时间、redirect URI 和预期注册信息。
 - 外部登录只完成主凭据验证，之后与密码登录一样按 MFA 策略处理：用户有活动因子或被强制 MFA 时，回调签发的一次性兑换码在 `POST /api/auth/token/exchange` 时返回待 MFA 响应而非令牌。默认不信任 Provider 声明的 MFA；仅当策略显式信任某 Provider 且其返回的 `amr` 表明已完成 MFA 时，才可视为满足 MFA，并在认证日志中记录。
@@ -85,12 +85,12 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 仅在确有命名集成需求时支持服务间 Client Credentials。限制 scope 和外连目标，不提供通用令牌签发接口。
 - 注销只清除本地会话。首版不发起 Provider OIDC logout（RP 发起注销依赖浏览器重定向，与 XHR 注销接口不兼容），须在 API 文档中说明本地注销不会结束 Provider 会话。
 - 提供公开且精简的已启用登录 Provider 列表供登录页面展示；不得包含密钥、私有端点信息或未经筛选的配置。
-- 决定上游 Provider 注册信息由部署配置管理还是由管理员动态管理。若支持动态管理，需提供受限的创建/更新/禁用/删除操作、密钥只写语义、变更审计和配置校验。运行时配置端点必须使用严格 HTTPS/主机白名单及网络出站控制以防 SSRF；连通性检查不能证明登录配置有效。
+- Provider 动态管理提供受限的创建/更新/禁用/删除操作、密钥只写语义、变更审计和配置校验。运行时配置端点必须使用严格 HTTPS/主机白名单及网络出站控制以防 SSRF；连通性检查不能证明登录配置有效。
 - Provider 模板只能作为可选安全默认值。模板不代表凭据或端点已验证；Provider 配置仍需依据其当前文档审核。
 
 ### 4.4 会话与访问令牌
 
-- JWT 是平台基础能力，不受 MFA 或 OAuth2 Client 开关控制。平台使用非对称私钥签发短时效访问 JWT，并作为 Resource Server 按固定算法允许列表校验签名、公钥版本、issuer、audience、过期时间、令牌用途和撤销状态；拒绝对称签名算法、`none` 和令牌自行指定的未允许算法。私钥须由密钥管理器或等效安全设施保护，JWT 头部的 `kid` 只用于在受信任的密钥集合中选择密钥；`/.well-known/jwks.json` 只发布对应公钥。访问 JWT 包含 `sid` 声明，关联服务端会话记录；撤销检查、近期认证、近期 MFA 和当前会话识别都以 `sid` 查找该记录。首版访问 JWT 的 `aud` 只是本服务，只被本服务 API 接受；JWKS 供本服务各实例验签和密钥轮换使用。其他服务若只凭 JWKS 验签，就无法执行撤销检查，因此不得接受这些令牌，下游消费见第 11 节第 1 条。
+- JWT 是平台基础能力，不受 MFA 或 OAuth2 Client 开关控制。平台使用非对称私钥签发短时效访问 JWT，并作为 Resource Server 按固定算法允许列表校验签名、公钥版本、issuer、audience、过期时间、令牌用途和撤销状态；拒绝对称签名算法、`none` 和令牌自行指定的未允许算法。私钥须由密钥管理器或等效安全设施保护，JWT 头部的 `kid` 只用于在受信任的密钥集合中选择密钥；`/.well-known/jwks.json` 只发布对应公钥。访问 JWT 包含 `sid` 声明，关联服务端会话记录；撤销检查、近期认证、近期 MFA 和当前会话识别都以 `sid` 查找该记录。首版访问 JWT 的 `aud` 只是本服务，只被本服务 API 接受；JWKS 供本服务各实例验签和密钥轮换使用。其他服务若只凭 JWKS 验签，就无法执行撤销检查，因此不得接受这些令牌。首版不支持下游服务消费；后续出现下游服务时，再评估令牌内省接口或“撤销最多滞后一个访问令牌有效期并限定该有效期上限”的方案，并为各下游服务定义 `aud`。
 - 显示用户活动会话的创建时间、最近使用时间、设备标签，以及适用时经过掩码处理的 IP/位置数据。
 - 支持撤销单个或所有会话。刷新凭据每次使用时轮换；重用已撤销凭据时撤销整个凭据族。为并发刷新定义有界的短暂宽限窗口：窗口内同一旧凭据的重复提交不触发凭据族撤销，窗口外的重用才视为凭据泄露。若窗口内需返回同一轮换结果，该结果只能在窗口期内加密保存，不得保存明文。
 - 刷新时按当前账户状态、角色和 MFA 策略重新评估会话：账户已停用时拒绝刷新；会话的认证上下文不再满足策略强制的必需因子（例如管理员启用强制 MFA）时拒绝刷新并要求重新登录；角色从当前数据重新读取。账户停用会撤销全部会话并立即生效；不撤销会话的角色变更最长滞后访问 JWT 的有效期，须在文档中写明。
@@ -301,7 +301,7 @@ WebAuthn/passkey 注册和断言使用 Spring Security 支持的端点与浏览�
 
 登录、绑定和重新认证的回调完成后，后端只能重定向到 `continue` 对应的已登记地址：Web 前端页面或已声明的 App Link/Universal Link；不得接受任意 return URL。一次性兑换码或绑定结果码放在 URL 片段中；登录时客户端携带 `code_verifier` 调用 `/api/auth/token/exchange` 兑换，绑定时调用确认接口；不得把 access/refresh token 放入 URL。失败时只在片段中返回通用错误码。已绑定身份列表是绑定的最终状态来源。
 
-Provider 注册管理是可选高级功能，仅在 OAuth2 Client 已启用且选择动态管理时提供。除非运维确实需要运行时修改，否则优先由部署配置管理。若启用，所有接口要求专门的 OAuth 配置权限，并按敏感操作策略要求 step-up/MFA；密钥只写不读，变更必须审计。
+Provider 注册管理接口在 OAuth2 Client 已启用时提供。所有接口要求专门的 OAuth 配置权限，并按敏感操作策略要求 step-up/MFA；密钥只写不读，变更必须审计。
 
 | 方法 | 路径 | 用途 | 访问与成功响应 | 重要错误/规则 |
 |---|---|---|---|---|
@@ -347,7 +347,7 @@ Provider 注册管理是可选高级功能，仅在 OAuth2 Client 已启用且�
 
 创建操作返回 `201 Created`、`Location` Header 和安全的 Provider 配置表示。列表/详情/更新响应可包含 registration/provider 标识、客户端名称、按钮展示信息、client ID、启用状态、scope、协议端点、用户属性映射及 `clientSecretConfigured`；绝不返回 client secret。更新时，只有在明确启用并记录行为后，省略或留空密钥才可保留现有密钥；清除密钥需单独明确操作或字段。不得记录包含密钥的请求体。
 
-`GET /api/auth/login-providers` 是供登录页发现可用登录选项的公开接口，仅在标准响应 envelope 中返回已启用的外部 OAuth 2.0/OIDC Provider，例如 `data` 为 `[{"registrationId":"google-workspace","providerType":"oidc","clientName":"Company login","loginButtonLabel":"Continue with Company","loginButtonIcon":"company"}]`。这些展示字段与管理配置表示中的对应安全字段使用相同名称。它不列出本地登录方式或 MFA 因子。启用动态管理时，Provider 注册配置由独立的 `/api/oauth2-clients` 接口管理。不得返回 client ID、secret、token URI、user-info URI、JWK URI、scope 或授权参数。
+`GET /api/auth/login-providers` 是供登录页发现可用登录选项的公开接口，仅在标准响应 envelope 中返回已启用的外部 OAuth 2.0/OIDC Provider，例如 `data` 为 `[{"registrationId":"google-workspace","providerType":"oidc","clientName":"Company login","loginButtonLabel":"Continue with Company","loginButtonIcon":"company"}]`。这些展示字段与管理配置表示中的对应安全字段使用相同名称。它不列出本地登录方式或 MFA 因子。Provider 注册配置由独立的 `/api/oauth2-clients` 接口管理。不得返回 client ID、secret、token URI、user-info URI、JWK URI、scope 或授权参数。
 
 `POST /api/oauth2-clients/{registrationId}/connectivity-tests` 返回 registration ID、端点是否有响应、测试时间和各端点结果/状态。不得发送客户端凭据、跟随重定向或声称连通性证明了凭据、scope、身份映射或完整登录流程有效。不得返回 Provider 响应正文或含敏感查询参数的 URL。
 
@@ -355,7 +355,7 @@ OAuth Client 配置变更通过 `GET /api/audit-logs` 使用相同的安全操�
 
 OAuth 登录回调签发短时效、单次使用兑换码。`POST /api/auth/token/exchange` 核对 `code_verifier` 后消费该码并返回本地令牌响应；兑换码绑定已完成的 Provider 登录和发起时的 `code_challenge`，仅保存校验值，不得记录日志；除回调交接时放在 URL 片段中外，不得出现在 URL 中。
 
-动态端点配置可能导致 SSRF 风险。主机白名单、DNS/IP 校验、阻止重定向、超时和网络出站控制必须组合使用；单独的 URL 白名单不足以形成完整网络边界。若 Provider 配置静态管理，则省略这些管理接口。
+动态端点配置可能导致 SSRF 风险。主机白名单、DNS/IP 校验、阻止重定向、超时和网络出站控制必须组合使用；单独的 URL 白名单不足以形成完整网络边界。
 
 ### 5.6 管理资源与公钥发现
 
@@ -483,15 +483,11 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 1. **基础能力：** Boot 4.1.1、依赖与配置、所选存储/共享状态集成、JWT 签发/校验/JWKS、API/错误契约、健康指标、测试流水线、CI 和编码规范。
 2. **本地身份：** 注册、密码登录、账户锁定、按标识符/IP 限流、邮箱验证、密码恢复/修改、会话/refresh-token 策略。
 3. **可选 MFA：** 启用时实现分阶段登录、Security 7 因子权限集成、TOTP、WebAuthn/passkey、钱包签名、恢复码、按操作配置 step-up、重放/竞争测试；验证关闭开关时不会留下半启用流程或降级强制 MFA 策略。
-4. **可选 OAuth2/OIDC Client：** 启用时实现 Provider 注册、框架管理登录/回调、用户映射、安全本地开通、绑定/解绑、本地会话/令牌交接、集成 Provider 测试；关闭时不暴露 Provider 能力。
+4. **可选 OAuth2/OIDC Client：** 启用时实现 Provider 注册动态管理接口、框架管理登录/回调、用户映射、安全本地开通、绑定/解绑、本地会话/令牌交接、集成 Provider 测试；关闭时不暴露 Provider 能力。
 5. **OAuth2 Client 使用：** 首版不实施（见第 2 节第 8 条）。出现已确认需求时再增加委托 Provider API 调用或服务 Client Credentials，并定义 consent、authorized-client 生命周期和 scope。
-6. **加固与发布：** 反滥用、分布式状态故障测试、数据生命周期、密钥轮换、部署手册、OpenAPI 对齐和发布评审。只有产品选择动态 Provider 管理时才增加对应能力。
+6. **加固与发布：** 反滥用、分布式状态故障测试、数据生命周期、密钥轮换、部署手册、OpenAPI 对齐和发布评审。
 
-## 11. 实施前待决策事项
-
-1. 是否允许其他服务消费本平台签发的访问令牌？若允许，需定义撤销如何传达给下游（令牌内省接口，或接受最多一个访问令牌有效期的撤销滞后并限定该有效期上限），以及各下游服务的 `aud`。
-
-## 12. 官方框架参考
+## 11. 官方框架参考
 
 - [Spring Boot 4.1.1 OAuth2 配置](https://docs.spring.io/spring-boot/reference/security/oauth2.html)
 - [Spring Boot 4.1.1 Security 自动配置](https://docs.spring.io/spring-boot/reference/web/spring-security.html)
