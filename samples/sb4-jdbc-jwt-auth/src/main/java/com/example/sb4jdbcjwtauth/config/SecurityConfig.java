@@ -1,11 +1,14 @@
 package com.example.sb4jdbcjwtauth.config;
 
 import com.example.sb4jdbcjwtauth.auth.ApiAuthenticationConverter;
+import com.example.sb4jdbcjwtauth.auth.LoginAuthenticationFailureHandler;
 import com.example.sb4jdbcjwtauth.auth.LoginAuthenticationFilter;
+import com.example.sb4jdbcjwtauth.auth.LoginAuthenticationSuccessHandler;
+import com.example.sb4jdbcjwtauth.auth.RefreshAuthenticationFailureHandler;
 import com.example.sb4jdbcjwtauth.auth.RefreshAuthenticationFilter;
+import com.example.sb4jdbcjwtauth.auth.RefreshAuthenticationSuccessHandler;
 import com.example.sb4jdbcjwtauth.auth.RefreshTokenAuthenticationProvider;
 import com.example.sb4jdbcjwtauth.auth.RefreshTokenLogoutHandler;
-import com.example.sb4jdbcjwtauth.auth.RefreshTokenService;
 import com.example.sb4jdbcjwtauth.user.UserRepository;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -42,7 +45,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 @EnableConfigurationProperties(JwtProperties.class)
@@ -123,14 +125,16 @@ public class SecurityConfig {
             @Qualifier("loginAuthenticationManager") AuthenticationManager loginAuthenticationManager,
             @Qualifier("refreshAuthenticationManager") AuthenticationManager refreshAuthenticationManager,
             ApiAuthenticationConverter authenticationConverter,
-            RefreshTokenService refreshTokenService,
             RefreshTokenLogoutHandler refreshTokenLogoutHandler,
-            ProblemDetailSecurityExceptionHandler securityExceptionHandler,
-            JsonMapper jsonMapper) throws Exception {
+            SecurityProblemDetailHandler problemDetailHandler,
+            LoginAuthenticationSuccessHandler loginSuccessHandler,
+            LoginAuthenticationFailureHandler loginFailureHandler,
+            RefreshAuthenticationSuccessHandler refreshSuccessHandler,
+            RefreshAuthenticationFailureHandler refreshFailureHandler) throws Exception {
         var loginAuthenticationFilter = new LoginAuthenticationFilter(loginAuthenticationManager,
-                authenticationConverter, refreshTokenService, jsonMapper);
+                authenticationConverter, loginSuccessHandler, loginFailureHandler);
         var refreshAuthenticationFilter = new RefreshAuthenticationFilter(refreshAuthenticationManager,
-                authenticationConverter, jsonMapper);
+                authenticationConverter, refreshSuccessHandler, refreshFailureHandler);
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -139,8 +143,8 @@ public class SecurityConfig {
                                 "/api/auth/logout", "/.well-known/jwks.json", "/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(securityExceptionHandler)
-                        .accessDeniedHandler(securityExceptionHandler))
+                        .authenticationEntryPoint(problemDetailHandler)
+                        .accessDeniedHandler(problemDetailHandler))
                 .logout(logout -> logout
                         .logoutRequestMatcher(requestMatcher("DELETE", "/api/auth/logout"))
                         .addLogoutHandler(refreshTokenLogoutHandler)

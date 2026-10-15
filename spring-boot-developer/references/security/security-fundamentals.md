@@ -23,15 +23,15 @@ class SecurityConfig {
 
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity http,
-            ProblemDetailSecurityExceptionHandler securityExceptionHandler) throws Exception {
+            SecurityProblemDetailHandler problemDetailHandler) throws Exception {
         return http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(securityExceptionHandler)
-                        .accessDeniedHandler(securityExceptionHandler))
+                        .authenticationEntryPoint(problemDetailHandler)
+                        .accessDeniedHandler(problemDetailHandler))
                 .build();
     }
 
@@ -166,15 +166,15 @@ Avoid `@PostAuthorize` where you can: it runs the method, then decides. On a rea
 
 Out of the box an unauthenticated API request gets an empty 401, or a redirect to a login page. Neither is usable by a client. And **`@RestControllerAdvice` cannot help** - security filters run before the `DispatcherServlet`, so nothing thrown there reaches your handler ([error-handling.md](../web/error-handling.md)).
 
-Use one handler for both filter-chain interfaces when they share the same response format. Boot 4 applications can use Jackson 3's `JsonMapper`:
+Use one handler for both filter-chain interfaces when they share the same response format. The same `SecurityProblemDetailHandler` can write ProblemDetail responses from authentication filters and logout handlers, avoiding a second response utility. Boot 4 applications can use Jackson 3's `JsonMapper`:
 
 ```java
 @Component
-class ProblemDetailSecurityExceptionHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
+class SecurityProblemDetailHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 
     private final JsonMapper jsonMapper;
 
-    ProblemDetailSecurityExceptionHandler(JsonMapper jsonMapper) {
+    SecurityProblemDetailHandler(JsonMapper jsonMapper) {
         this.jsonMapper = jsonMapper;
     }
 
@@ -182,22 +182,30 @@ class ProblemDetailSecurityExceptionHandler implements AuthenticationEntryPoint,
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException exception) throws IOException {
         response.setHeader("WWW-Authenticate", "Bearer");
-        ProblemResponses.write(jsonMapper, response, HttpStatus.UNAUTHORIZED,
-                "Unauthorized", "Authentication is required to access this resource.");
+        write(response, HttpStatus.UNAUTHORIZED,
+                "unauthorized", "Authentication required", "A valid bearer token is required.");
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException exception) throws IOException {
-        ProblemResponses.write(jsonMapper, response, HttpStatus.FORBIDDEN,
-                "Forbidden", "You do not have permission to perform this action.");
+        write(response, HttpStatus.FORBIDDEN, "forbidden",
+                "Access denied", "You do not have permission to access this resource.");
+    }
+
+    public void write(HttpServletResponse response, HttpStatus status, String type, String title, String detail)
+            throws IOException {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
+        problem.setType(URI.create("https://example.com/problems/" + type));
+        problem.setTitle(title);
+        response.setStatus(status.value());
+        response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+        jsonMapper.writeValue(response.getOutputStream(), problem);
     }
 }
 ```
 
-`ProblemResponses.write` is a small shared helper that sets the status and `application/problem+json` content type, then serializes a Spring `ProblemDetail` with `JsonMapper`. Keep MVC failures in `GlobalExceptionHandler`; it does not replace these filter-chain handlers.
-
-Keep the messages generic. "No user with that email" tells an attacker which addresses are registered.
+Keep MVC failures in `GlobalExceptionHandler`; it does not replace these filter-chain handlers. Security responses should not expose credentials, account existence, or internal exception details.
 
 ## Passwords
 

@@ -32,7 +32,7 @@ Run the unit tests with `./mvnw test` (Docker is not required for these tests).
 
 ## API
 
-Register an account (passwords must contain at least 12 characters and no more than 72 UTF-8 bytes):
+Register an account (passwords must contain at least 12 characters):
 
 ```bash
 curl -i http://localhost:8080/api/auth/register \

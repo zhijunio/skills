@@ -144,7 +144,8 @@ class TaskApiIntegrationTest {
                 .headers(headers -> headers.setBearerAuth("read-only-token"))
                 .exchange().expectStatus().isForbidden()
                 .expectHeader().contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                .expectBody().jsonPath("$.title").isEqualTo("Forbidden");
+                .expectBody().jsonPath("$.title").isEqualTo("Forbidden")
+                .jsonPath("$.type").isEqualTo("https://example.com/problems/forbidden");
     }
 
     @Test

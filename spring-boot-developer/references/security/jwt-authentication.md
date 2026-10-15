@@ -209,32 +209,59 @@ For HMAC (a single application, no other verifiers), use `NimbusJwtEncoder(new I
 
 ## Issuing the access token
 
-For username/password login, the filter converts and validates the request, then delegates credential verification to an `AuthenticationManager` backed by `DaoAuthenticationProvider`. The successful authentication handler reads the `SecurityUser` principal and asks `RefreshTokenService` to create a session and token pair. Do not issue a token directly from the submitted username:
+For username/password login, the filter converts and validates the request, then delegates credential verification to an `AuthenticationManager` backed by `DaoAuthenticationProvider`. Keep the filter focused on request matching and wiring. Put response behavior in injectable `AuthenticationSuccessHandler` and `AuthenticationFailureHandler` classes when it may grow or needs independent testing. The success handler reads the authenticated `SecurityUser` principal and asks `RefreshTokenService` to create a session and token pair. Do not issue a token directly from the submitted username:
 
 ```java
 public class LoginAuthenticationFilter extends AuthenticationFilter {
 
     public LoginAuthenticationFilter(AuthenticationManager authenticationManager,
                                      ApiAuthenticationConverter converter,
-                                     RefreshTokenService refreshTokens,
-                                     JsonMapper jsonMapper) {
+                                     LoginAuthenticationSuccessHandler successHandler,
+                                     LoginAuthenticationFailureHandler failureHandler) {
         super(authenticationManager, converter);
         setRequestMatcher(request -> "POST".equals(request.getMethod())
                 && "/api/auth/login".equals(request.getServletPath()));
-        setSuccessHandler((request, response, authentication) -> {
-            SecurityUser user = (SecurityUser) authentication.getPrincipal();
-            var tokens = refreshTokens.createForUser(user.id(),
-                    request.getHeader("User-Agent"), request.getRemoteAddr());
-            response.setStatus(HttpStatus.OK.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            jsonMapper.writeValue(response.getOutputStream(), tokens);
-        });
-        setFailureHandler((request, response, exception) ->
-                ProblemResponses.write(jsonMapper, response, HttpStatus.UNAUTHORIZED,
-                        "Authentication failed", "The email or password is incorrect."));
+        setSuccessHandler(successHandler);
+        setFailureHandler(failureHandler);
     }
 }
 ```
+
+An API success handler must stop after writing its response. `AuthenticationSuccessHandler`'s default overload that receives a `FilterChain` delegates to the three-argument method and then continues the chain. Override that overload in the concrete handler and do not call `chain.doFilter`:
+
+```java
+@Component
+public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+    private final RefreshTokenService refreshTokens;
+    private final JsonMapper jsonMapper;
+
+    public LoginAuthenticationSuccessHandler(RefreshTokenService refreshTokens, JsonMapper jsonMapper) {
+        this.refreshTokens = refreshTokens;
+        this.jsonMapper = jsonMapper;
+    }
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException {
+        SecurityUser user = (SecurityUser) authentication.getPrincipal();
+        var tokens = refreshTokens.createForUser(user.id(),
+                request.getHeader("User-Agent"), request.getRemoteAddr());
+        response.setStatus(HttpStatus.OK.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        jsonMapper.writeValue(response.getOutputStream(), tokens);
+    }
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        FilterChain chain, Authentication authentication)
+            throws IOException, ServletException {
+        onAuthenticationSuccess(request, response, authentication);
+    }
+}
+```
+
+Implement the failure handler separately as well when its response contract or observability behavior may expand. Keep credentials and internal exception messages out of the response.
 
 `ApiAuthenticationConverter` deserializes and validates the login request with `JsonMapper` and Bean Validation, then returns an unauthenticated `UsernamePasswordAuthenticationToken`. The configured `DaoAuthenticationProvider` verifies the password and returns `SecurityUser`. The filter's failure handler maps authentication failures to a generic 401 response.
 
@@ -299,12 +326,16 @@ SecurityFilterChain securityFilterChain(
         @Qualifier("loginAuthenticationManager") AuthenticationManager loginManager,
         @Qualifier("refreshAuthenticationManager") AuthenticationManager refreshManager,
         ApiAuthenticationConverter converter,
-        RefreshTokenService refreshTokens,
         RefreshTokenLogoutHandler logoutHandler,
-        ProblemDetailSecurityExceptionHandler securityExceptionHandler,
-        JsonMapper jsonMapper) throws Exception {
-    var loginFilter = new LoginAuthenticationFilter(loginManager, converter, refreshTokens, jsonMapper);
-    var refreshFilter = new RefreshAuthenticationFilter(refreshManager, converter, jsonMapper);
+        SecurityProblemDetailHandler problemDetailHandler,
+        LoginAuthenticationSuccessHandler loginSuccessHandler,
+        LoginAuthenticationFailureHandler loginFailureHandler,
+        RefreshAuthenticationSuccessHandler refreshSuccessHandler,
+        RefreshAuthenticationFailureHandler refreshFailureHandler) throws Exception {
+    var loginFilter = new LoginAuthenticationFilter(
+            loginManager, converter, loginSuccessHandler, loginFailureHandler);
+    var refreshFilter = new RefreshAuthenticationFilter(
+            refreshManager, converter, refreshSuccessHandler, refreshFailureHandler);
     return http
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -314,8 +345,8 @@ SecurityFilterChain securityFilterChain(
                     .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
             .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint(securityExceptionHandler)
-                    .accessDeniedHandler(securityExceptionHandler))
+                    .authenticationEntryPoint(problemDetailHandler)
+                    .accessDeniedHandler(problemDetailHandler))
             .logout(logout -> logout
                     .logoutRequestMatcher(request -> "DELETE".equals(request.getMethod())
                             && "/api/auth/logout".equals(request.getServletPath()))

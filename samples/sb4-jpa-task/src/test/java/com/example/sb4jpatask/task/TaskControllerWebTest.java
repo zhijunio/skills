@@ -1,6 +1,6 @@
 package com.example.sb4jpatask.task;
 
-import com.example.sb4jpatask.config.ApiExceptionHandler;
+import com.example.sb4jpatask.config.GlobalExceptionHandler;
 import com.example.sb4jpatask.config.ApiVersionConfig;
 import com.example.sb4jpatask.config.SecurityConfig;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import static org.mockito.BDDMockito.given;
         "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://identity.example.test/issuer",
         "spring.security.oauth2.resourceserver.jwt.audiences=https://api.example.test"
 }, controllers = TaskController.class)
-@Import({ApiExceptionHandler.class, TaskExceptionHandler.class, ApiVersionConfig.class, SecurityConfig.class})
+@Import({GlobalExceptionHandler.class, TaskExceptionHandler.class, ApiVersionConfig.class, SecurityConfig.class})
 class TaskControllerWebTest {
 
     @Autowired

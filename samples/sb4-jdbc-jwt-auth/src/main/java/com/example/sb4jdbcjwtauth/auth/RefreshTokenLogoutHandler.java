@@ -1,6 +1,6 @@
 package com.example.sb4jdbcjwtauth.auth;
 
-import com.example.sb4jdbcjwtauth.config.ProblemResponses;
+import com.example.sb4jdbcjwtauth.config.SecurityProblemDetailHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validator;
@@ -19,12 +19,15 @@ public class RefreshTokenLogoutHandler implements LogoutHandler {
     public static final String INVALID_REQUEST_ATTRIBUTE = RefreshTokenLogoutHandler.class.getName() + ".INVALID_REQUEST";
 
     private final JsonMapper jsonMapper;
+    private final SecurityProblemDetailHandler problemDetailHandler;
     private final Validator validator;
     private final RefreshTokenService refreshTokens;
 
-    public RefreshTokenLogoutHandler(JsonMapper jsonMapper, Validator validator,
+    public RefreshTokenLogoutHandler(JsonMapper jsonMapper,
+                                     SecurityProblemDetailHandler problemDetailHandler, Validator validator,
                                      RefreshTokenService refreshTokens) {
         this.jsonMapper = jsonMapper;
+        this.problemDetailHandler = problemDetailHandler;
         this.validator = validator;
         this.refreshTokens = refreshTokens;
     }
@@ -48,7 +51,7 @@ public class RefreshTokenLogoutHandler implements LogoutHandler {
     private void writeInvalidRequest(HttpServletRequest request, HttpServletResponse response) {
         request.setAttribute(INVALID_REQUEST_ATTRIBUTE, Boolean.TRUE);
         try {
-            ProblemResponses.write(jsonMapper, response, HttpStatus.BAD_REQUEST,
+            problemDetailHandler.write(response, HttpStatus.BAD_REQUEST,
                     "Invalid logout request", "A valid refreshToken is required.");
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
