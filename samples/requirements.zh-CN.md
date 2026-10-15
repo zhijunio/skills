@@ -369,6 +369,8 @@ OAuth 登录回调签发短时效、单次使用兑换码。`POST /api/auth/toke
 | `DELETE` | `/api/users/{userId}/sessions` | 撤销指定用户全部会话（安全事件响应） | 用户管理权限；按敏感操作策略执行 step-up/MFA；`204` | 原子撤销会话和 refresh 凭据；要求原因并记录操作审计；通知用户 |
 | `GET` | `/api/users/{userId}/mfa/factors` | 查看指定用户的已注册因子 | 用户管理权限；`200` | 字段与本人因子列表一致，不返回任何秘密；查询本身记录操作审计 |
 | `DELETE` | `/api/users/{userId}/mfa/factors` | 在支持恢复流程中清除用户全部因子 | 用户管理权限；近期 MFA；`204` | 仅用于已记录的支持恢复流程（如因子丢失、强制 MFA 宽限期过期）；要求原因和身份核验记录；同时作废恢复码并撤销该用户全部会话；被强制 MFA 的用户重新获得注册宽限期；通过已验证渠道通知用户；记录操作审计 |
+| `GET` | `/api/users/{userId}/external-identities` | 查看指定用户已绑定的外部身份 | OAuth2 Client 已启用且具备用户管理权限；`200` | 字段与本人外部身份列表一致，不返回 Provider token 或原始 subject；查询本身记录操作审计 |
+| `DELETE` | `/api/users/{userId}/external-identities/{identityId}` | 在支持流程中解绑指定用户的外部身份 | OAuth2 Client 已启用且具备用户管理权限；按敏感操作策略执行 step-up/MFA；`204` | 用于用户丢失外部账户等支持流程；校验身份归属该用户；解绑后用户须仍有其他可用登录方式，否则返回 `409`；要求原因和身份核验记录；撤销以该身份建立的会话；通知用户并记录操作审计 |
 | `DELETE` | `/api/users/{userId}/authentication-lock` | 管理员清除用户临时登录锁定 | 用户管理权限；按敏感操作策略执行 step-up/MFA；`204` | 要求原因并记录操作审计；不得清除账户停用状态 |
 | `GET` | `/api/roles` | 列出部署配置定义的角色及其权限 | 角色管理权限；`200` | 只读；角色由部署配置定义，不提供创建或修改接口 |
 | `GET` | `/api/mfa-settings` | 查看部署所提供的 MFA 运行状态和策略 | MFA 管理能力已部署且具备 MFA 配置权限；`200` | 只返回运行开关、允许的因子及策略摘要，不返回用户因子秘密 |
