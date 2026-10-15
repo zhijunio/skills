@@ -19,9 +19,9 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 1. **身份服务职责：** 服务认证自身用户，并接受选定的外部身份 Provider。首版不作为 OAuth2 Authorization Server。如果产品需要向第三方客户端签发标准 OAuth2/OIDC 令牌，应作为独立范围评估 Spring Authorization Server。
 2. **API 风格：** 首版采用 JSON REST API，路径使用不带版本号的 `/api/...`。引入破坏性变更前，需单独确定并记录 API 版本兼容策略。
-3. **客户端支持：** 由产品选择并记录浏览器、原生/移动端和服务端客户端接入模式。浏览器不得持有 Provider access token 或 client secret。
+3. **客户端支持：** 本服务是前后端分离架构中的后端，只提供 JSON API，不渲染页面，也不提供 BFF 或基于服务端会话 Cookie 的登录。首版客户端为独立部署的 Web 前端（SPA）和原生/移动端 App，两者都通过 `Authorization: Bearer` 携带本平台签发的访问令牌；令牌交付与存储见 4.4。Web 前端与 API 须部署在同一站点（同一可注册域名，例如 `app.example.com` 与 `api.example.com`），以便浏览器接受 refresh token Cookie。客户端不得持有 Provider access token 或 client secret。
 4. **存储与运行环境：** 在实施规划阶段选择存储、缓存、迁移和共享状态技术。所选方案必须满足本文规定的持久性、原子性、过期、可用性和安全要求。
-5. **基础令牌能力：** JWT 是平台的基础能力，使用非对称签名签发和验证自身访问 JWT，并发布对应公钥 JWKS；具体要求见 4.4。是否由浏览器 BFF 代为持有令牌属于客户端接入方式。
+5. **基础令牌能力：** JWT 是平台的基础能力，使用非对称签名签发和验证自身访问 JWT，并发布对应公钥 JWKS；具体要求见 4.4。
 6. **可选功能开关：** MFA 与 OAuth2 Client 可由部署配置决定是否提供。若部署提供 MFA 管理能力，管理员可通过受保护的管理 API 配置并运行时启用/停用 MFA；若部署未提供 MFA 能力，则不暴露因子 API 或 MFA 管理 API。OAuth2 Client 按部署配置启停。敏感操作可配置为要求近期 MFA；只有 MFA 运行时启用后该策略才可生效。启动或运行时停用 MFA 前，必须确认既不存在强制 MFA 的操作/用户策略，也不存在用户已激活的因子；否则拒绝启动或拒绝变更（运行时返回 `409`），不能静默降级认证要求，也不能让已自愿注册因子的用户退化为仅密码登录。如确需停用，须先经受审计的数据处理流程处置已激活因子并通知受影响用户。本条是 MFA 停用保护的唯一规范定义，其他章节引用本条。
 7. **MFA 能力：** 启用 MFA 后支持 TOTP、WebAuthn/passkey、钱包签名挑战和单次使用的恢复码。邮件/短信 OTP 可用于验证或恢复，但不得自动视为独立的高保证因子。邮箱同时是登录标识和密码重置渠道，控制邮箱即可同时重置密码并通过邮件 OTP，因此默认不得以“密码 + `EMAIL_OTP`”组合满足 MFA；例外须在因子策略中明确记录其保证等级。
 8. **OAuth2 Client 能力：** 启用 OAuth2 Client 后支持 OIDC Provider 登录，Google 为首个配置 Provider。增加 Provider 时应复用协议处理，避免重复实现协议逻辑。
@@ -67,7 +67,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 定义因子丢失后的恢复及支持流程。不得仅凭邮件或短信访问权悄然绕过更强因子。
 - 明确因子生命周期 API：列出已注册因子但不返回秘密、开始注册、确认注册、验证待处理因子，以及近期认证后禁用或替换因子。完成持有证明前因子不得激活。
 - 主凭据验证后使用短时效的待 MFA 状态。该状态只允许因子发现、挑战、验证和取消操作；不得将其表示为完整认证会话，也不得签发完整权限令牌。所需因子和允许组合由服务端决定，客户端不能通过切换因子类型降低或跳过策略。
-- 对敏感用户安全操作可配置近期 MFA 要求。管理员启用 MFA 且某操作被策略标记为必需 MFA 时，用户必须先完成 MFA；停用保护见第 2 节第 6 条。对用户强制 MFA 的策略必须配置注册宽限期：宽限期内，尚无活动因子的用户完成主凭据验证后只获得受限会话，仅允许注册首个因子和签发恢复码，不得访问其他资源或签发完整令牌；宽限期结束后仍未注册的用户须经支持恢复流程处理，管理员在该流程中清除用户因子时为其重新开启宽限期。受限会话的下发方式：登录、`token/exchange` 和 MFA 验证接口返回 `202` 及错误码 `MFA_ENROLLMENT_REQUIRED`；bearer 客户端获得用途标记为仅限注册因子的受限访问令牌，只被 5.7 列出的接口接受，不签发 refresh token；Cookie/BFF 客户端获得同样受限的服务端会话。注册首个因子后，客户端须重新登录以获得完整会话。MFA 关闭时不能将强制 MFA 视为已满足，也不能允许绕过检查。普通资料读取不得静默延长 MFA 时间窗口。
+- 对敏感用户安全操作可配置近期 MFA 要求。管理员启用 MFA 且某操作被策略标记为必需 MFA 时，用户必须先完成 MFA；停用保护见第 2 节第 6 条。对用户强制 MFA 的策略必须配置注册宽限期：宽限期内，尚无活动因子的用户完成主凭据验证后只获得受限会话，仅允许注册首个因子和签发恢复码，不得访问其他资源或签发完整令牌；宽限期结束后仍未注册的用户须经支持恢复流程处理，管理员在该流程中清除用户因子时为其重新开启宽限期。受限会话的下发方式：登录、`token/exchange` 和 MFA 验证接口返回 `202` 及错误码 `MFA_ENROLLMENT_REQUIRED`；客户端获得用途标记为仅限注册因子的受限访问令牌，只被 5.7 列出的接口接受，不签发 refresh token。注册首个因子后，客户端须重新登录以获得完整会话。MFA 关闭时不能将强制 MFA 视为已满足，也不能允许绕过检查。普通资料读取不得静默延长 MFA 时间窗口。
 - 仅为已配置因子提供挑战发送和验证接口。按账户、目标地址和 IP 限流，并以原子方式消费成功挑战。
 
 ### 4.3 OAuth2/OIDC Client 与外部身份
@@ -75,7 +75,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 使用 Spring Security OAuth2 Login 执行授权码登录。Provider 注册属性放在外部配置中；client secret 不得提交到代码仓库。
 - 使用稳定的 `(issuer, subject)` 作为 OIDC 身份键。邮箱是资料字段，不能单独用于自动合并账户。
 - 使用 Spring Security 的协议处理验证 Provider 回调的 state、nonce、issuer、签名、audience、过期时间、redirect URI 和预期注册信息。
-- 外部登录只完成主凭据验证，之后与密码登录一样按 MFA 策略处理：用户有活动因子或被强制 MFA 时进入待 MFA 状态，浏览器回调只建立预认证状态而非完整会话，`POST /api/auth/token/exchange` 返回待 MFA 响应而非令牌。默认不信任 Provider 声明的 MFA；仅当策略显式信任某 Provider 且其返回的 `amr` 表明已完成 MFA 时，才可视为满足 MFA，并在认证日志中记录。
+- 外部登录只完成主凭据验证，之后与密码登录一样按 MFA 策略处理：用户有活动因子或被强制 MFA 时，回调签发的一次性兑换码在 `POST /api/auth/token/exchange` 时返回待 MFA 响应而非令牌。默认不信任 Provider 声明的 MFA；仅当策略显式信任某 Provider 且其返回的 `amr` 表明已完成 MFA 时，才可视为满足 MFA，并在认证日志中记录。
 - 仅按已记录的开通策略，在首次登录时创建本地账户。绑定外部身份到已有账户前，用户必须先完成本地认证和近期认证检查。
 - 支持列出、绑定和解绑身份。除非用户先添加其他凭据，否则不能解绑最后一种可用登录方式。可用登录方式指用户当前能独立完成登录的凭据：已设置且所属邮箱已验证的本地密码，或所属 Provider 已启用的外部身份；临时锁定不影响其计数。
 - Provider token 保存在服务端。如果客户端在 OAuth 回调后需要本地 API 凭据，则签发短时效、单次有效的不透明兑换码；只保存兑换码校验值并以原子方式消费。
@@ -88,7 +88,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 ### 4.4 会话与访问令牌
 
-- JWT 是平台基础能力，不受 MFA 或 OAuth2 Client 开关控制。平台使用非对称私钥签发短时效访问 JWT，并作为 Resource Server 按固定算法允许列表校验签名、公钥版本、issuer、audience、过期时间、令牌用途和撤销状态；拒绝对称签名算法、`none` 和令牌自行指定的未允许算法。私钥须由密钥管理器或等效安全设施保护，JWT 头部的 `kid` 只用于在受信任的密钥集合中选择密钥；`/.well-known/jwks.json` 只发布对应公钥。浏览器 BFF 可在服务端持有 JWT，不得将其暴露给浏览器 JavaScript。
+- JWT 是平台基础能力，不受 MFA 或 OAuth2 Client 开关控制。平台使用非对称私钥签发短时效访问 JWT，并作为 Resource Server 按固定算法允许列表校验签名、公钥版本、issuer、audience、过期时间、令牌用途和撤销状态；拒绝对称签名算法、`none` 和令牌自行指定的未允许算法。私钥须由密钥管理器或等效安全设施保护，JWT 头部的 `kid` 只用于在受信任的密钥集合中选择密钥；`/.well-known/jwks.json` 只发布对应公钥。
 - 显示用户活动会话的创建时间、最近使用时间、设备标签，以及适用时经过掩码处理的 IP/位置数据。
 - 支持撤销单个或所有会话。刷新凭据每次使用时轮换；重用已撤销凭据时撤销整个凭据族。为并发刷新定义有界的短暂宽限窗口：窗口内同一旧凭据的重复提交不触发凭据族撤销，窗口外的重用才视为凭据泄露。若窗口内需返回同一轮换结果，该结果只能在窗口期内加密保存，不得保存明文。
 - 刷新时按当前账户状态、角色和 MFA 策略重新评估会话：账户已停用时拒绝刷新；会话的认证上下文不再满足策略强制的必需因子（例如管理员启用强制 MFA）时拒绝刷新并要求重新登录；角色从当前数据重新读取。账户停用会撤销全部会话并立即生效；不撤销会话的角色变更最长滞后访问 JWT 的有效期，须在文档中写明。
@@ -97,7 +97,10 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - **近期 MFA** 以服务端会话记录的最近 MFA 时间为准，登录时完成的 MFA 和 `/api/users/me/mfa/step-up` 验证都会更新该时间；重新验证密码不满足近期 MFA。绑定具体操作的一次性 step-up 授权只用于策略明确标记的高风险操作。用户未注册任何活动因子时，要求近期 MFA 的操作返回 `403` 及机器可读错误码 `MFA_FACTOR_REQUIRED`，提示先注册因子；该错误码与登录时下发受限会话的 `MFA_ENROLLMENT_REQUIRED` 区分。
 - 对 bearer token 客户端，仅在所有必需因子通过后签发短时效访问令牌。
 - 在访问凭据中包含可信认证上下文（`amr` 或等效信息）和认证时间。不得依据客户端请求字段或请求头判断保证等级。`auth_time` 只表示登录时间，重新认证和 step-up 不会更新已签发的令牌；下游服务不得用它判断本平台定义的近期认证或近期 MFA。
-- 定义 refresh token 的保存、轮换、撤销、Cookie/Header 传输、缓存指令和密钥轮换行为。
+- 定义 refresh token 的保存、轮换、撤销、Cookie/Header 传输、缓存指令和密钥轮换行为。首版按客户端类型交付：
+  - **Web 前端：** 后端通过 `HttpOnly`、`Secure`、`SameSite=Strict` 且 `Path` 限定为 `/api/auth/token` 的 Cookie 下发 refresh token，不在响应体中返回；前端刷新访问令牌时携带该 Cookie 调用刷新接口。CORS 只允许已配置的前端 origin，仅 `/api/auth/token/*` 和 `POST /api/users/me/external-identities`（下发绑定事务 Cookie）允许携带凭据。
+  - **原生/移动端：** refresh token 在响应体中返回，刷新时在请求体中提交。外部登录使用系统浏览器完成授权（RFC 8252），不得使用内嵌 WebView，回调后经已声明的 App Link/Universal Link 把一次性兑换码交给 App，再调用 `/api/auth/token/exchange`。客户端通过请求头 `X-Client-Type: native` 声明类型，后端据此选择 refresh token 的交付方式；该声明不影响授权或保证等级。
+  - **客户端接入约定**（写入 API 文档，后端无法强制）：访问令牌、待 MFA 事务句柄和受限访问令牌只保存在内存中，Web 前端不得写入 `localStorage`、`sessionStorage` 或可被脚本读取的 Cookie，并部署严格的内容安全策略（CSP）以降低 XSS 风险；原生 App 将 refresh token 保存在系统安全存储（iOS Keychain、Android Keystore）中。
 
 ### 4.5 管理与审计
 
@@ -165,9 +168,9 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 列表 API 使用稳定且有文档说明的分页契约，限制 `page` 和 `size`，采用确定性排序并列出允许排序字段。分页对象包含 `content`、`page`、`size`、`totalElements`、`totalPages` 和 `last`；除非客户端兼容要求有明确理由，不要在分页结果外再套一层自定义 envelope。
 
-Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段名：`access_token`、`token_type`、`expires_in`（秒），以及启用时的 `refresh_token`；扩展字段必须有文档，并返回 `Cache-Control: no-store` 和 `Pragma: no-cache`。这些字段并不意味着本服务是 OAuth2 Authorization Server。BFF 模式下，登录建立安全的服务端会话，不向浏览器 JavaScript 返回令牌。
+Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段名：`access_token`、`token_type`、`expires_in`（秒），以及启用时的 `refresh_token`；扩展字段必须有文档，并返回 `Cache-Control: no-store` 和 `Pragma: no-cache`。这些字段并不意味着本服务是 OAuth2 Authorization Server。按 4.4，Web 前端的 `refresh_token` 通过 Cookie 下发，不出现在响应体中。
 
-待 MFA 登录响应不是令牌响应。非浏览器客户端只获得短时效事务句柄、过期时间和允许的下一步操作；浏览器可使用受 `Secure`、`HttpOnly`、`SameSite` 保护的预认证 Cookie。句柄是不透明 bearer secret，原生客户端只在内存中保存；不得写入日志或 Referer。非浏览器客户端在 `/api/auth/mfa/*` 请求中通过 `Authorization: MFA <transaction-handle>` 传递，绝不放在 URL 中。Cookie 客户端继续启用 CSRF 保护。最终成功登录响应根据所选客户端模式返回。示例：
+待 MFA 登录响应不是令牌响应。客户端只获得短时效事务句柄、过期时间和允许的下一步操作。句柄是不透明 bearer secret，客户端只在内存中保存；不得写入日志或 Referer。客户端在 `/api/auth/mfa/*` 请求中通过 `Authorization: MFA <transaction-handle>` 传递，绝不放在 URL 中。所有必需因子通过后返回令牌响应。示例：
 
 ```json
 {
@@ -177,7 +180,7 @@ Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段�
 }
 ```
 
-需先注册因子时返回 `202` 及 `MFA_ENROLLMENT_REQUIRED`（见 4.2）。bearer 客户端的 `data` 包含受限访问令牌、过期时间和允许调用的接口列表；Cookie/BFF 客户端通过 Cookie 建立受限会话，`data` 只包含过期时间和允许调用的接口列表。示例（bearer 客户端）：
+需先注册因子时返回 `202` 及 `MFA_ENROLLMENT_REQUIRED`（见 4.2）。`data` 包含受限访问令牌、过期时间和允许执行的操作列表。示例：
 
 ```json
 {
@@ -191,7 +194,7 @@ Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段�
 }
 ```
 
-`POST /api/auth/mfa/verify` 通过预认证 Cookie 或 `Authorization: MFA` Header 接收事务凭据，并通过请求体接收因子类型和证明。所有必需因子通过后返回最终登录结果（`200`）；若仍需验证其他因子，则返回有文档说明的下一步响应（`202`）。挑战证明不得放在查询参数中。
+`POST /api/auth/mfa/verify` 通过 `Authorization: MFA` Header 接收事务凭据，并通过请求体接收因子类型和证明。所有必需因子通过后返回最终登录结果（`200`）；若仍需验证其他因子，则返回有文档说明的下一步响应（`202`）。挑战证明不得放在查询参数中。
 
 ### 5.2 认证与恢复
 
@@ -201,10 +204,10 @@ Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段�
 | `POST` | `/api/auth/registrations/verification-requests` | 重新发送注册邮箱验证凭据 | 公开；通用 `202` | 请求使用 `email`；无论邮箱是否存在或是否已验证都返回相同响应；新凭据使旧凭据失效；按 IP 和规范化邮箱限流 |
 | `POST` | `/api/auth/registrations/verifications` | 使用验证凭据激活待验证账户 | 公开，需单次验证凭据；`204` | 请求体包含验证凭据和注册密码；原子消费；凭据无效、过期、已用或密码不符时返回相同的通用 `401`，并限制尝试次数；成功后不自动登录 |
 | `POST` | `/api/auth/email/login` | 通过 Spring Security 过滤器链验证邮箱和密码 | 完成时 `200`，需 MFA 时 `202`（`MFA_REQUIRED`），需先注册因子时 `202`（`MFA_ENROLLMENT_REQUIRED`，见 4.2） | JSON 字段为 `email`、`password`；无效凭据和锁定均返回相同 `401`；超限 `429`；所有必需因子完成前不得返回完整令牌/会话；不得由 Controller 处理 |
-| `GET` | `/api/auth/mfa/options` | 列出本次待处理登录允许的因子 | 使用 Cookie/Header 中的待 MFA 凭据；`200` | 仅返回允许的因子类型、掩码目标提示和策略进度；因子资格由服务端确定，主凭据验证前不得泄露账户状态 |
-| `POST` | `/api/auth/mfa/challenge` | 请求配置的二次因子挑战 | 使用 Cookie/Header 中的待 MFA 凭据；需经邮件/短信发送时 `202`，直接返回挑战载荷（如钱包）时 `200` | 请求指定允许的因子类型；通用发送结果只含重试时间，不泄露其他账户/联系方式是否存在；钱包挑战返回钱包客户端需要签署的载荷 |
-| `POST` | `/api/auth/mfa/verify` | 验证待登录因子证明 | 使用 Cookie/Header 中的待 MFA 凭据；完成时 `200`，仍需因子时 `202` | 请求体包含允许的因子类型和证明；拒绝无效、过期、重放或超过尝试次数的证明；原子消费 |
-| `POST` | `/api/auth/mfa/cancel` | 放弃待处理登录并使事务失效 | 待 MFA 事务凭据；`204` | 清除预认证会话/Cookie 和未完成挑战；事务已过期时保持幂等 |
+| `GET` | `/api/auth/mfa/options` | 列出本次待处理登录允许的因子 | 使用 `Authorization: MFA` Header 中的待 MFA 凭据；`200` | 仅返回允许的因子类型、掩码目标提示和策略进度；因子资格由服务端确定，主凭据验证前不得泄露账户状态 |
+| `POST` | `/api/auth/mfa/challenge` | 请求配置的二次因子挑战 | 使用 `Authorization: MFA` Header 中的待 MFA 凭据；需经邮件/短信发送时 `202`，直接返回挑战载荷（如钱包）时 `200` | 请求指定允许的因子类型；通用发送结果只含重试时间，不泄露其他账户/联系方式是否存在；钱包挑战返回钱包客户端需要签署的载荷 |
+| `POST` | `/api/auth/mfa/verify` | 验证待登录因子证明 | 使用 `Authorization: MFA` Header 中的待 MFA 凭据；完成时 `200`，仍需因子时 `202` | 请求体包含允许的因子类型和证明；拒绝无效、过期、重放或超过尝试次数的证明；原子消费 |
+| `POST` | `/api/auth/mfa/cancel` | 放弃待处理登录并使事务失效 | 待 MFA 事务凭据；`204` | 使事务句柄失效并清除未完成挑战；事务已过期时保持幂等 |
 | `POST` | `/api/auth/password-reset-requests` | 发起邮箱密码恢复请求 | 公开；通用 `202` | 请求使用 `email`；无论用户是否存在都返回相同响应；按 IP 和规范化邮箱限流 |
 | `POST` | `/api/auth/password-resets` | 使用重置凭据创建密码重置结果 | 公开，需单次重置凭据；`204` | 拒绝无效/过期/重放凭据；成功后撤销现有会话 |
 | `POST` | `/api/auth/unlock-requests` | 向已验证邮箱发送解锁挑战 | 公开；通用 `202` | 请求使用 `email`；按用户/IP 限流；无论邮箱或锁定状态如何均返回相同响应 |
@@ -262,7 +265,7 @@ POST /api/auth/mfa/challenge
 }
 ```
 
-MFA 事务凭据通过预认证 Cookie 或 `Authorization: MFA` Header 传递，不放入请求体。钱包挑战请求包含目标钱包地址和配置的链/网络；响应包含不透明 `challengeId`、需要签名的完整域名绑定消息和过期时间。邮箱/手机挑战只返回通用发送状态和重试时间。TOTP 和恢复码不需要先发送挑战。
+MFA 事务凭据通过 `Authorization: MFA` Header 传递，不放入请求体。钱包挑战请求包含目标钱包地址和配置的链/网络；响应包含不透明 `challengeId`、需要签名的完整域名绑定消息和过期时间。邮箱/手机挑战只返回通用发送状态和重试时间。TOTP 和恢复码不需要先发送挑战。
 
 ```json
 POST /api/auth/mfa/verify
@@ -277,9 +280,9 @@ TOTP 或恢复码的 `proof` 放提交的验证码/恢复码，而不是签名�
 
 Step-up 请求体指定允许的业务操作和符合条件的因子类型（钱包验证时也可包含钱包地址/链）。服务端返回不透明挑战句柄及因子所需的挑战载荷；验证绑定已认证会话和目标操作。不得将客户端任意提供的操作字符串用作授权策略。验证成功后更新会话的最近 MFA 时间；目标操作被策略标记为高风险时，另记录绑定该操作的短时效一次性 step-up 授权，由目标操作消费（见 4.4）。默认情况下，恢复码不得用于高风险 step-up；例外必须在因子策略中明确记录并审计。
 
-WebAuthn/passkey 注册和断言使用 Spring Security 支持的端点与浏览器流程。在标准 Servlet 支持下，应将以下端点记录为框架管理的协议操作：注册选项 `POST /webauthn/register/options`、注册凭据 `POST /webauthn/register`、认证选项 `POST /webauthn/authenticate/options`、断言 `POST /login/webauthn`。注册要求已认证且近期认证（或处于受限会话），已有因子时还需近期 MFA。在待登录流程中用作 MFA 因子时，认证选项和断言必须绑定到该事务。Spring Security 默认将 ceremony 选项保存在 `HttpSession`，`/login/webauthn` 成功后会建立完整认证，并且不会自动执行近期认证规则。因此，用于 bearer 客户端或待 MFA 事务时，必须自定义选项存储（绑定事务句柄）和成功处理（只记录因子证明，不建立完整会话或签发令牌），并为注册端点追加近期认证/近期 MFA 授权规则；未完成这些定制前，首版仅在浏览器会话/BFF 模式提供 Passkey。Cookie/会话客户端保留 CSRF 保护，并按环境配置 RP ID、允许的 origin、用户验证策略和凭据持久性。只有框架验证完整 WebAuthn ceremony 后才视为因子通过。如果框架版本或定制改变这些端点，应在生成的 OpenAPI 文档中公布实际路径和请求结构。参见 [Spring Security Passkeys 文档](https://docs.spring.io/spring-security/reference/servlet/authentication/passkeys.html)。
+WebAuthn/passkey 注册和断言使用 Spring Security 支持的端点与浏览器流程。在标准 Servlet 支持下，应将以下端点记录为框架管理的协议操作：注册选项 `POST /webauthn/register/options`、注册凭据 `POST /webauthn/register`、认证选项 `POST /webauthn/authenticate/options`、断言 `POST /login/webauthn`。注册要求已认证且近期认证（或处于受限会话），已有因子时还需近期 MFA。在待登录流程中用作 MFA 因子时，认证选项和断言必须绑定到该事务。Spring Security 默认将 ceremony 选项保存在 `HttpSession`，`/login/webauthn` 成功后会建立完整认证，并且不会自动执行近期认证规则。因此，用于 bearer 客户端或待 MFA 事务时，必须自定义选项存储（绑定事务句柄）和成功处理（只记录因子证明，不建立完整会话或签发令牌），并为注册端点追加近期认证/近期 MFA 授权规则；本服务只服务 bearer 客户端，因此 Passkey 只能在完成上述定制并通过测试后提供；未完成时 Passkey 延后到后续版本，不得以默认会话行为上线。按环境配置 RP ID（Web 前端与 API 共用的可注册域名）、允许的 origin（Web 前端 origin 及原生 App 的关联域）、用户验证策略和凭据持久性。只有框架验证完整 WebAuthn ceremony 后才视为因子通过。如果框架版本或定制改变这些端点，应在生成的 OpenAPI 文档中公布实际路径和请求结构。参见 [Spring Security Passkeys 文档](https://docs.spring.io/spring-security/reference/servlet/authentication/passkeys.html)。
 
-因子发现、挑战请求/验证和取消待登录都必须通过安全预认证 Cookie 或 `Authorization: MFA` Header 携带待 MFA 凭据。取消使用 `/api/auth/mfa/cancel`。因子证明无效时返回通用 `401`，待登录事务/挑战过期返回 `410 Gone`，因子状态转换冲突返回 `409`，超出次数限制返回带重试时间的 `429`；响应不得泄露用户/因子是否存在。待 MFA 状态不能访问资料、会话、因子管理、管理接口或普通应用资源。注销当前会话使用 `DELETE /api/users/me/sessions/current`，要求完整认证或受限会话，不能代替取消待处理事务。对应 Spring Security 因子权限只能在因子证明完成协议验证后授予。
+因子发现、挑战请求/验证和取消待登录都必须通过 `Authorization: MFA` Header 携带待 MFA 凭据。取消使用 `/api/auth/mfa/cancel`。因子证明无效时返回通用 `401`，待登录事务/挑战过期返回 `410 Gone`，因子状态转换冲突返回 `409`，超出次数限制返回带重试时间的 `429`；响应不得泄露用户/因子是否存在。待 MFA 状态不能访问资料、会话、因子管理、管理接口或普通应用资源。注销当前会话使用 `DELETE /api/users/me/sessions/current`，要求完整认证或受限会话，不能代替取消待处理事务。对应 Spring Security 因子权限只能在因子证明完成协议验证后授予。
 
 ### 5.5 OAuth2/OIDC 登录、身份和 Provider 管理
 
@@ -291,9 +294,9 @@ WebAuthn/passkey 注册和断言使用 Spring Security 支持的端点与浏览�
 | `POST` | `/api/users/me/external-identities` | 开始将外部身份绑定到当前账户 | OAuth2 Client 已启用、已认证且通过适用的 step-up 策略；`202` 返回授权跳转地址 | 请求体包含 `registrationId`；创建绑定到当前用户、一次性 state 和过期时间的绑定事务；客户端以顶层页面导航访问返回的地址，不通过 XHR 跟随重定向；不得仅按邮箱自动绑定 |
 | `DELETE` | `/api/users/me/external-identities/{identityId}` | 解绑外部身份 | OAuth2 Client 已启用、已认证且通过适用的 step-up 策略；`204` | 保留另一种可用登录方式；按策略审计和通知 |
 
-同一用户能否绑定同一 Provider 的多个身份由产品决定，解绑始终按身份 ID 进行。绑定事务与登录共用框架回调 `/login/oauth2/code/{registrationId}`，由自定义的授权请求解析器和成功处理器根据 state 关联的事务区分绑定与登录，不得另写冲突的回调 Controller。为防止绑定 CSRF（攻击者把为自己账户发起的授权地址发给受害者，使受害者的外部身份被绑到攻击者账户），发起绑定时须设置绑定到该事务的 `HttpOnly`、`Secure` 浏览器 Cookie，回调时校验该 Cookie；无法校验时，回调只能创建待确认绑定，须由发起绑定的已认证客户端再次确认后才生效。
+同一用户能否绑定同一 Provider 的多个身份由产品决定，解绑始终按身份 ID 进行。绑定事务与登录共用框架回调 `/login/oauth2/code/{registrationId}`，由自定义的授权请求解析器和成功处理器根据 state 关联的事务区分绑定与登录，不得另写冲突的回调 Controller。为防止绑定 CSRF（攻击者把为自己账户发起的授权地址发给受害者，使受害者的外部身份被绑到攻击者账户），发起绑定时须设置绑定到该事务的 `HttpOnly`、`Secure`、`SameSite=Lax` 浏览器 Cookie（回调来自 Provider 的跨站顶层跳转，`Strict` 不会被携带），回调时校验该 Cookie；原生 App 经系统浏览器授权时无法设置该 Cookie，以及其他无法校验的情况下，回调只能创建待确认绑定，须由发起绑定的已认证客户端再次确认后才生效。
 
-浏览器登录和身份绑定完成后，只能跳转到已配置并列入白名单的前端继续地址；不得接受任意 return URL。BFF 客户端建立服务端会话并返回通用成功/失败结果。Bearer token 客户端只能通过可信交接获得短时效单次兑换码，再调用 `/api/auth/token/exchange` 兑换；不得把 access/refresh token 放入 URL。身份绑定完成后返回安全结果，已绑定身份列表是最终状态来源。
+浏览器登录和身份绑定完成后，只能跳转到已配置并列入白名单的前端继续地址；不得接受任意 return URL。登录回调成功后，后端重定向到前端继续地址（Web）或已声明的 App Link/Universal Link（原生），一次性兑换码放在 URL 片段中；客户端再调用 `/api/auth/token/exchange` 兑换；不得把 access/refresh token 放入 URL。身份绑定完成后返回安全结果，已绑定身份列表是最终状态来源。
 
 Provider 注册管理是可选高级功能，仅在 OAuth2 Client 已启用且选择动态管理时提供。除非运维确实需要运行时修改，否则优先由部署配置管理。若启用，所有接口要求专门的 OAuth 配置权限，并按敏感操作策略要求 step-up/MFA；密钥只写不读，变更必须审计。
 
@@ -347,7 +350,7 @@ Provider 注册管理是可选高级功能，仅在 OAuth2 Client 已启用且�
 
 OAuth Client 配置变更通过 `GET /api/audit-logs` 使用相同的安全操作审计视图返回，必要时按资源类型/ID 筛选。不得创建独立的 OAuth Client 审计日志。`GET /api/oauth2-client-templates` 只返回非敏感初始值；启用前运维人员仍需审核模板配置。
 
-对 bearer-token 客户端，OAuth 登录回调可签发短时效、单次使用兑换码。`POST /api/auth/token/exchange` 消费该码并返回本地令牌响应；兑换码绑定已完成的 Provider 登录，仅保存校验值，不得记录日志或放入 URL（可信回调交接所必需的短暂传输除外）。若浏览器使用服务端会话，除非客户端流程确有需要，否则不签发此代码。
+OAuth 登录回调签发短时效、单次使用兑换码。`POST /api/auth/token/exchange` 消费该码并返回本地令牌响应；兑换码绑定已完成的 Provider 登录，仅保存校验值，不得记录日志；除回调交接时放在 URL 片段中外，不得出现在 URL 中。
 
 动态端点配置可能导致 SSRF 风险。主机白名单、DNS/IP 校验、阻止重定向、超时和网络出站控制必须组合使用；单独的 URL 白名单不足以形成完整网络边界。若 Provider 配置静态管理，则省略这些管理接口。
 
@@ -357,7 +360,7 @@ OAuth Client 配置变更通过 `GET /api/audit-logs` 使用相同的安全操�
 |---|---|---|---|---|
 | `GET` | `/api/users` | 按查询条件和状态搜索用户 | 用户管理权限；分页 `200` | 限制分页大小；稳定排序；尽量减少 PII；普通用户不得枚举此集合 |
 | `GET` | `/api/users/{userId}` | 查看管理员用用户信息投影 | 用户管理权限；`200` | 只返回支持/管理工作需要的字段，包括当前角色；`/api/users/me` 保留为自助接口 |
-| `DELETE` | `/api/users/{userId}` | 软删除账户 | 用户管理权限；按敏感操作策略执行 step-up/MFA；`204` | 原子撤销全部会话和 refresh 凭据；禁止删除最后一个有效管理员；要求原因并记录操作审计；通知用户；邮箱和外部身份的释放规则见第 11 节第 7 条 |
+| `DELETE` | `/api/users/{userId}` | 软删除账户 | 用户管理权限；按敏感操作策略执行 step-up/MFA；`204` | 原子撤销全部会话和 refresh 凭据；禁止删除最后一个有效管理员；要求原因并记录操作审计；通知用户；邮箱和外部身份的释放规则见第 11 节第 6 条 |
 | `GET` | `/api/users/{userId}/sessions` | 查看指定用户的活动会话 | 用户管理权限；分页 `200` | 字段与本人会话列表一致，IP 掩码显示；查询本身记录操作审计 |
 | `PATCH` | `/api/users/{userId}/status` | 禁用或重新启用账户 | 用户管理权限；按敏感操作策略执行 step-up/MFA；`204` | 与登录失败锁定分开处理；停用时原子撤销该用户全部会话和 refresh 凭据；审计操作者/原因；禁止禁用最后一个有效管理员 |
 | `PUT` | `/api/users/{userId}/roles` | 替换用户角色集合 | 角色管理权限；按敏感操作策略执行 step-up/MFA；`204` | 不得修改自己的角色；授予的角色所含权限必须是操作者自身已持有权限的子集；不得移除最后一个有效管理员；只接受已定义的角色值；变更按 4.4 在刷新时生效，需立即生效时撤销受影响会话；记录操作者、原因和变更前后角色的操作审计 |
@@ -415,7 +418,7 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 - 防止登录和恢复流程枚举账户。查询前规范化标识符，并按 IP 和不可逆标识符键限流。
 - 外部身份绑定要求稳定 Provider subject 和明确的已验证用户策略；不得仅按邮箱自动合并。
 - 测试 OAuth2/OIDC state、nonce、issuer、audience、回调、令牌存储、注销、刷新和重定向白名单。
-- Cookie 使用 `HttpOnly`、`Secure` 和明确的 `SameSite` 策略。基于 Cookie 的状态变更接口保留 CSRF 保护，Cookie/BFF 模式下的登录接口也须防登录 CSRF，CSRF 令牌通过 Spring Security `CookieCsrfTokenRepository` 以 `XSRF-TOKEN` Cookie 下发，客户端在请求头中回传，不另设获取令牌的接口；仅接受 `Authorization` Header 凭据的 bearer 接口可不启用 CSRF，但同一接口不得同时接受 Cookie 凭据。CORS 不是授权机制。
+- Cookie 使用 `HttpOnly`、`Secure` 和明确的 `SameSite` 策略。只接受 `Authorization` Header 凭据的 bearer 接口不启用 CSRF，且不得同时接受 Cookie 凭据。唯一接受 Cookie 凭据的接口是 `/api/auth/token/refresh`（Web 前端的 refresh token），以 Cookie 提交时必须校验 CSRF 令牌：令牌通过 Spring Security `CookieCsrfTokenRepository` 以 `XSRF-TOKEN` Cookie 下发（`Domain` 设为共享的可注册域名，供前端读取），客户端在请求头中回传，不另设获取令牌的接口；原生客户端在请求体中提交时不使用 Cookie。外部身份绑定的事务 Cookie 只用于回调时关联事务，不是认证凭据。CORS 不是授权机制。
 - 仅在受控代理会清除客户端自带转发头的情况下信任 forwarded headers；适用时阻止绕过代理的公网访问。
 - 生产密钥由密钥管理器/环境变量注入；示例配置只放占位值。启动时校验必需配置。
 - JWT 私钥不得发布到 JWKS 或客户端；密钥轮换使用 `kid` 区分密钥，并在验证端保留足够的新旧公钥重叠期。不得因轮换而提前使仍有效的令牌全部失效，除非执行了明确的紧急撤销流程。
@@ -480,14 +483,13 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 
 ## 11. 实施前待决策事项
 
-1. 需要哪些客户端接入模式：浏览器服务端会话/BFF、浏览器 bearer token、原生/移动端，或多种模式？分别定义 token/session 交付和存储方式。
-2. 服务只为自有一方应用签发令牌，还是成为标准 OAuth2/OIDC Authorization Server？若是后者，需扩展范围并在功能实现前评估 Spring Authorization Server。
-3. 首版允许哪些因子组合，各组合可宣称何种保证等级？明确钱包协议/链及恢复码的恢复/支持策略。
-4. 社交登录是否采用即时开通（JIT）？账户创建和绑定信任哪些声明？重复邮箱如何处理？
-5. 服务将代表用户访问哪些外部 Provider API？这决定 authorized-client 保留、consent、scope 和 refresh-token 策略。
-6. 哪种存储与共享状态技术、拓扑和故障目标能满足持久性、原子性、过期、可用性及一致性要求？
-7. 目标部署适用哪些限流、保留周期、用户数据导出/删除义务和审计保留期限？账户软删除后原邮箱能否重新注册、已绑定的 `(issuer, subject)` 是否释放？
-8. 个人数据导出目前只有功能要求，尚未定义请求、状态查询和安全下载 API；确定是否提供自助 API 及其近期认证、过期和审计规则。自助 API 不提供用户停用或删除功能。
+1. 服务只为自有一方应用签发令牌，还是成为标准 OAuth2/OIDC Authorization Server？若是后者，需扩展范围并在功能实现前评估 Spring Authorization Server。
+2. 首版允许哪些因子组合，各组合可宣称何种保证等级？明确钱包协议/链及恢复码的恢复/支持策略。
+3. 社交登录是否采用即时开通（JIT）？账户创建和绑定信任哪些声明？重复邮箱如何处理？
+4. 服务将代表用户访问哪些外部 Provider API？这决定 authorized-client 保留、consent、scope 和 refresh-token 策略。
+5. 哪种存储与共享状态技术、拓扑和故障目标能满足持久性、原子性、过期、可用性及一致性要求？
+6. 目标部署适用哪些限流、保留周期、用户数据导出/删除义务和审计保留期限？账户软删除后原邮箱能否重新注册、已绑定的 `(issuer, subject)` 是否释放？
+7. 个人数据导出目前只有功能要求，尚未定义请求、状态查询和安全下载 API；确定是否提供自助 API 及其近期认证、过期和审计规则。自助 API 不提供用户停用或删除功能。
 
 ## 12. 官方框架参考
 
