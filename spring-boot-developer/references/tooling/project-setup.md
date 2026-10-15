@@ -27,7 +27,7 @@ The bundled generator separates the persistence layer from the database driver:
 | `--persistence` | `jpa`, `mybatis-plus`, `none` | `jpa` | Adds Spring Data JPA, the Boot-major-specific MyBatis-Plus starter, or no ORM starter |
 | `--database` | `postgresql`, `none` | `postgresql` | Adds the PostgreSQL driver and Spring Boot Docker Compose/Testcontainers support, or no database dependencies |
 
-`--persistence mybatis-plus` uses `mybatis-plus-spring-boot4-starter` for Boot 4 and `mybatis-plus-spring-boot3-starter` for Boot 3.5. The starter version is pinned in `versions.json`. `--database none` is for applications without a database; it defaults `--persistence` to `none`, and the generator rejects `--persistence jpa` or `mybatis-plus` without a database because the application would fail to start without a driver. Docker generation requires Maven and `--database postgresql`.
+The generator creates Boot 4.x projects only; Spring Initializr no longer offers Boot 3.5.x, so `--boot-version 3.5.x` is rejected before the request. `--persistence mybatis-plus` uses `mybatis-plus-spring-boot4-starter`. The starter version is pinned in `versions.json`. `--database none` is for applications without a database; it defaults `--persistence` to `none`, and the generator rejects `--persistence jpa` or `mybatis-plus` without a database because the application would fail to start without a driver. Docker generation requires Maven and `--database postgresql`.
 
 Examples:
 

@@ -85,6 +85,9 @@ function assertOptions(options) {
   if (!/^\d+$/.test(options.java)) throw new Error('--java must be a Java major version, such as 21')
   if (!/^\d+\.\d+\.\d+$/.test(options.bootversion)) throw new Error('--boot-version must be an exact stable version, such as 4.1.1')
   const [bootMajor] = options.bootversion.split('.')
+  if (Number(bootMajor) < 4) {
+    throw new Error('Spring Initializr only generates Spring Boot 4.x projects; Boot 3.5.x is supported for existing projects only')
+  }
   const maxJava = versions.java.maximumBySpringBootMajor[bootMajor]
   if (!maxJava) throw new Error(`No compatibility baseline is recorded for Spring Boot ${bootMajor}.x`)
   if (Number(options.java) < Number(versions.java.minimum) || Number(options.java) > Number(maxJava)) {
@@ -132,10 +135,8 @@ async function addDockerAssets(projectDir, name, javaVersion, persistence) {
   await writeFile(ignorePath, `${merged.join('\n')}\n`)
 }
 
-async function addMyBatisPlusDependency(projectDir, build, bootVersion) {
-  const artifact = Number(bootVersion.split('.')[0]) >= 4
-    ? 'mybatis-plus-spring-boot4-starter'
-    : 'mybatis-plus-spring-boot3-starter'
+async function addMyBatisPlusDependency(projectDir, build) {
+  const artifact = 'mybatis-plus-spring-boot4-starter'
   if (build === 'maven') {
     const pomPath = join(projectDir, 'pom.xml')
     let pom = await readFile(pomPath, 'utf8')
@@ -413,7 +414,7 @@ async function main() {
     await rename(extracted, options.projectDir)
 
     if (options.persistence === 'mybatis-plus') {
-      await addMyBatisPlusDependency(options.projectDir, options.build, options.bootversion)
+      await addMyBatisPlusDependency(options.projectDir, options.build)
     }
 
     await addProjectSetupAssets(options.projectDir, options.packagename, options.bootversion)
