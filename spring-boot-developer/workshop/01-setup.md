@@ -24,7 +24,7 @@ npm --version
 
 ### 1.2 Java
 
-The generator defaults are listed in [`versions.json`](../versions.json). Install a compatible JDK; Spring Boot 4 and 3.5 projects have different upper version bounds.
+The generator defaults are listed in [`versions.json`](../versions.json). Install a JDK within the Java range recorded there for Spring Boot 4.
 
 **Verify:**
 

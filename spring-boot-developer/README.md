@@ -4,7 +4,7 @@ An Agent Skill for creating and maintaining Spring Boot applications. Generate a
 
 ## What This Skill Provides
 
-- **Project generation** from Spring Initializr with Spring Boot 4.x as the default and support for existing Boot 3.5.x projects
+- **Project generation** of Spring Boot 4.x projects from Spring Initializr; guides target Boot 4, and changes to existing Boot 3.5.x projects use the consolidated differences in the migration guide
 - **PostgreSQL and Docker support** with development and full-stack Compose configurations
 - **Selectable persistence** with JPA (default), MyBatis-Plus, or no persistence framework
 - **Backend guidance** for REST APIs, persistence, validation, security, configuration, testing, application architecture, and optional local BootUI diagnostics

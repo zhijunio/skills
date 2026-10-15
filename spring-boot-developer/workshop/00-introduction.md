@@ -23,7 +23,7 @@ An Agent Skill is a portable set of instructions, scripts, and references that g
 
 `spring-boot-developer` helps an agent create and maintain Spring Boot applications. It includes a project generator, environment checker, setup assets, references for Spring Boot development, frontend integration guides, and deployment guidance. The generator uses Spring Initializr for the backend; the agent then follows the skill's guides to implement the requested behavior.
 
-The skill defaults new projects to Spring Boot 4.x and supports existing Boot 3.5.x projects. Existing project versions take precedence. See the [version compatibility guide](../references/spring-boot-migration.md).
+The skill creates Spring Boot 4.x projects. Existing Boot 3.5.x projects keep their version and use the differences collected in the version compatibility guide. See the [version compatibility guide](../references/spring-boot-migration.md).
 
 ## 3. How this differs from Spring Initializr
 
@@ -47,7 +47,7 @@ By the end, you will be able to generate a Spring Boot application from a prompt
 
 ## 6. Supported project baselines
 
-New projects default to Spring Boot 4.x. The skill also provides guidance for existing Spring Boot 3.5.x projects. A project's current build files and conventions take precedence over generator defaults. See the [version compatibility guide](../references/spring-boot-migration.md).
+New projects use Spring Boot 4.x. A project's current build files and conventions take precedence over generator defaults. See the [version compatibility guide](../references/spring-boot-migration.md).
 
 ---
 
