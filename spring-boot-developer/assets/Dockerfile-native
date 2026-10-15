@@ -21,9 +21,8 @@
 #   docker build -f Dockerfile-native -t my-spring-app-native .
 #   docker run --rm -e SPRING_BOOT_PORT=8080 -p 8080:8080 my-spring-app-native
 
-# Boot 4 requires GraalVM 25 or later. Boot 3.5 projects may select a compatible
-# GraalVM release through this build argument; keep it aligned with Java and the
-# project's Native Build Tools plugin.
+# Boot 4 requires GraalVM 25 or later; keep this aligned with the project's Java
+# version and Native Build Tools plugin.
 ARG GRAALVM_VERSION=25
 FROM ghcr.io/graalvm/graalvm-community:${GRAALVM_VERSION} AS build
 

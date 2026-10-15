@@ -1,8 +1,7 @@
 # syntax=docker/dockerfile:1
 #
 # Multi-stage JVM Dockerfile for a Spring Boot application.
-# Supports Spring Boot 3.5.x and 4.x when built with the project's matching Maven
-# plugin. Java 25 is supported by both lines; `jarmode=tools` requires Boot 3.3+.
+# Targets Spring Boot 4.x; builds and runs on JDK 25.
 #
 # This image is deliberately small and low-CVE:
 #   1. The repackaged Spring Boot jar is exploded into its layers

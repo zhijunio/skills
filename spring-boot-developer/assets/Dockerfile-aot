@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 #
 # Multi-stage JVM + AOT Dockerfile for a Spring Boot application.
-# The image/layering approach supports Boot 3.5.x and 4.x. Keep the AOT Maven
-# profile and plugin versions aligned with the project's Spring Boot line.
+# Targets Spring Boot 4.x. Keep the AOT Maven profile and plugin versions aligned
+# with the project's Spring Boot version.
 #
 # This image adds Spring AOT on top of the standard JVM image (Dockerfile) for the
 # fastest JVM-based startup without GraalVM or CRaC:
