@@ -19,7 +19,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 1. **身份服务职责：** 服务认证自身用户，并接受选定的外部身份 Provider。首版不作为 OAuth2 Authorization Server。如果产品需要向第三方客户端签发标准 OAuth2/OIDC 令牌，应作为独立范围评估 Spring Authorization Server。
 2. **API 风格：** 首版采用 JSON REST API，路径使用不带版本号的 `/api/...`。引入破坏性变更前，需单独确定并记录 API 版本兼容策略。
-3. **客户端支持：** 本服务是前后端分离架构中的后端，只提供 JSON API，不渲染页面，也不提供 BFF 或基于服务端会话 Cookie 的登录。首版客户端为独立部署的 Web 前端（SPA）和原生/移动端 App，两者都通过 `Authorization: Bearer` 携带本平台签发的访问令牌；令牌交付与存储见 4.4。Web 前端与 API 须部署在同一站点（同一可注册域名，例如 `app.example.com` 与 `api.example.com`），以便浏览器接受 refresh token Cookie。客户端不得持有 Provider access token 或 client secret。
+3. **客户端支持：** 本服务是前后端分离架构中的后端，只提供 JSON API，不渲染页面，也不提供 BFF 或基于服务端会话 Cookie 的登录。首版客户端为独立部署的 Web 前端（SPA）和原生/移动端 App，两者都通过 `Authorization: Bearer` 携带本平台签发的访问令牌；令牌交付与存储见 4.4。Web 前端与 API 须部署在同一站点（同一可注册域名，例如 `app.example.com` 与 `api.example.com`），以免浏览器把外部身份绑定的事务 Cookie（见 5.5）当作第三方 Cookie 拦截。客户端不得持有 Provider access token 或 client secret。
 4. **存储与运行环境：** 在实施规划阶段选择存储、缓存、迁移和共享状态技术。所选方案必须满足本文规定的持久性、原子性、过期、可用性和安全要求。
 5. **基础令牌能力：** JWT 是平台的基础能力，使用非对称签名签发和验证自身访问 JWT，并发布对应公钥 JWKS；具体要求见 4.4。
 6. **可选功能开关：** MFA 与 OAuth2 Client 可由部署配置决定是否提供。若部署提供 MFA 管理能力，管理员可通过受保护的管理 API 配置并运行时启用/停用 MFA；若部署未提供 MFA 能力，则不暴露因子 API 或 MFA 管理 API。OAuth2 Client 按部署配置启停。敏感操作可配置为要求近期 MFA；只有 MFA 运行时启用后该策略才可生效。启动或运行时停用 MFA 前，必须确认既不存在强制 MFA 的操作/用户策略，也不存在用户已激活的因子；否则拒绝启动或拒绝变更（运行时返回 `409`），不能静默降级认证要求，也不能让已自愿注册因子的用户退化为仅密码登录。如确需停用，须先经受审计的数据处理流程处置已激活因子并通知受影响用户。本条是 MFA 停用保护的唯一规范定义，其他章节引用本条。
@@ -97,10 +97,9 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - **近期 MFA** 以服务端会话记录的最近 MFA 时间为准，登录时完成的 MFA 和 `/api/users/me/mfa/step-up` 验证都会更新该时间；重新验证密码不满足近期 MFA。绑定具体操作的一次性 step-up 授权只用于策略明确标记的高风险操作。用户未注册任何活动因子时，要求近期 MFA 的操作返回 `403` 及机器可读错误码 `MFA_FACTOR_REQUIRED`，提示先注册因子；该错误码与登录时下发受限会话的 `MFA_ENROLLMENT_REQUIRED` 区分。
 - 对 bearer token 客户端，仅在所有必需因子通过后签发短时效访问令牌。
 - 在访问凭据中包含可信认证上下文（`amr` 或等效信息）和认证时间。不得依据客户端请求字段或请求头判断保证等级。`auth_time` 只表示登录时间，重新认证和 step-up 不会更新已签发的令牌；下游服务不得用它判断本平台定义的近期认证或近期 MFA。
-- 定义 refresh token 的保存、轮换、撤销、Cookie/Header 传输、缓存指令和密钥轮换行为。首版按客户端类型交付：
-  - **Web 前端：** 后端通过 `HttpOnly`、`Secure`、`SameSite=Strict` 且 `Path` 限定为 `/api/auth/token` 的 Cookie 下发 refresh token，不在响应体中返回；前端刷新访问令牌时携带该 Cookie 调用刷新接口。CORS 只允许已配置的前端 origin，仅 `/api/auth/token/*` 和 `POST /api/users/me/external-identities`（下发绑定事务 Cookie）允许携带凭据。
-  - **原生/移动端：** refresh token 在响应体中返回，刷新时在请求体中提交。外部登录使用系统浏览器完成授权（RFC 8252），不得使用内嵌 WebView，回调后经已声明的 App Link/Universal Link 把一次性兑换码交给 App，再调用 `/api/auth/token/exchange`。客户端通过请求头 `X-Client-Type: native` 声明类型，后端据此选择 refresh token 的交付方式；该声明不影响授权或保证等级。
-  - **客户端接入约定**（写入 API 文档，后端无法强制）：访问令牌、待 MFA 事务句柄和受限访问令牌只保存在内存中，Web 前端不得写入 `localStorage`、`sessionStorage` 或可被脚本读取的 Cookie，并部署严格的内容安全策略（CSP）以降低 XSS 风险；原生 App 将 refresh token 保存在系统安全存储（iOS Keychain、Android Keystore）中。
+- 定义 refresh token 的保存、轮换、撤销、缓存指令和密钥轮换行为。所有客户端的 refresh token 都在令牌响应体中返回，刷新时在请求体中提交，不使用 Cookie 交付。CORS 只允许已配置的前端 origin，仅 `POST /api/users/me/external-identities`（下发绑定事务 Cookie）允许携带凭据。
+- 原生 App 的外部登录使用系统浏览器完成授权（RFC 8252），不得使用内嵌 WebView，回调后经已声明的 App Link/Universal Link 把一次性兑换码交给 App，再调用 `/api/auth/token/exchange`。
+- **客户端接入约定**（写入 API 文档，后端无法强制）：访问令牌、待 MFA 事务句柄和受限访问令牌只保存在内存中。Web 前端的 refresh token 同样只保存在内存中，不得写入 `localStorage`、`sessionStorage` 或可被脚本读取的 Cookie，并部署严格的内容安全策略（CSP）以降低 XSS 风险；原生 App 将 refresh token 保存在系统安全存储（iOS Keychain、Android Keystore）中。
 
 ### 4.5 管理与审计
 
@@ -168,7 +167,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 列表 API 使用稳定且有文档说明的分页契约，限制 `page` 和 `size`，采用确定性排序并列出允许排序字段。分页对象包含 `content`、`page`、`size`、`totalElements`、`totalPages` 和 `last`；除非客户端兼容要求有明确理由，不要在分页结果外再套一层自定义 envelope。
 
-Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段名：`access_token`、`token_type`、`expires_in`（秒），以及启用时的 `refresh_token`；扩展字段必须有文档，并返回 `Cache-Control: no-store` 和 `Pragma: no-cache`。这些字段并不意味着本服务是 OAuth2 Authorization Server。按 4.4，Web 前端的 `refresh_token` 通过 Cookie 下发，不出现在响应体中。
+Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段名：`access_token`、`token_type`、`expires_in`（秒），以及启用时的 `refresh_token`；扩展字段必须有文档，并返回 `Cache-Control: no-store` 和 `Pragma: no-cache`。这些字段并不意味着本服务是 OAuth2 Authorization Server。
 
 待 MFA 登录响应不是令牌响应。客户端只获得短时效事务句柄、过期时间和允许的下一步操作。句柄是不透明 bearer secret，客户端只在内存中保存；不得写入日志或 Referer。客户端在 `/api/auth/mfa/*` 请求中通过 `Authorization: MFA <transaction-handle>` 传递，绝不放在 URL 中。所有必需因子通过后返回令牌响应。示例：
 
@@ -418,7 +417,7 @@ OpenAPI 必须记录请求/响应 schema、状态码、安全方案、限流行�
 - 防止登录和恢复流程枚举账户。查询前规范化标识符，并按 IP 和不可逆标识符键限流。
 - 外部身份绑定要求稳定 Provider subject 和明确的已验证用户策略；不得仅按邮箱自动合并。
 - 测试 OAuth2/OIDC state、nonce、issuer、audience、回调、令牌存储、注销、刷新和重定向白名单。
-- Cookie 使用 `HttpOnly`、`Secure` 和明确的 `SameSite` 策略。只接受 `Authorization` Header 凭据的 bearer 接口不启用 CSRF，且不得同时接受 Cookie 凭据。唯一接受 Cookie 凭据的接口是 `/api/auth/token/refresh`（Web 前端的 refresh token），以 Cookie 提交时必须校验 CSRF 令牌：令牌通过 Spring Security `CookieCsrfTokenRepository` 以 `XSRF-TOKEN` Cookie 下发（`Domain` 设为共享的可注册域名，供前端读取），客户端在请求头中回传，不另设获取令牌的接口；原生客户端在请求体中提交时不使用 Cookie。外部身份绑定的事务 Cookie 只用于回调时关联事务，不是认证凭据。CORS 不是授权机制。
+- Cookie 使用 `HttpOnly`、`Secure` 和明确的 `SameSite` 策略。任何接口都不接受 Cookie 作为认证凭据：认证凭据只来自 `Authorization` Header 或请求体，因此 API 不启用 CSRF 令牌机制。外部身份绑定的事务 Cookie 只用于回调时关联事务，不是认证凭据。CORS 不是授权机制。
 - 仅在受控代理会清除客户端自带转发头的情况下信任 forwarded headers；适用时阻止绕过代理的公网访问。
 - 生产密钥由密钥管理器/环境变量注入；示例配置只放占位值。启动时校验必需配置。
 - JWT 私钥不得发布到 JWKS 或客户端；密钥轮换使用 `kid` 区分密钥，并在验证端保留足够的新旧公钥重叠期。不得因轮换而提前使仍有效的令牌全部失效，除非执行了明确的紧急撤销流程。
