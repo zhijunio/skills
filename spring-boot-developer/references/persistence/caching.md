@@ -159,6 +159,7 @@ Deserialising back to the real type requires type information in the payload. Sc
 enable it globally:
 
 ```java
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 @Bean
 RedisCacheConfiguration cacheConfiguration() {
@@ -184,8 +185,8 @@ With *unrestricted* default typing, you have a remote code execution vector. The
 On Boot 4 this is `GenericJacksonJsonRedisSerializer` (Jackson 3).
 
 A simpler alternative that avoids the whole question: serialise each cache to a **known type** with
-`Jackson2JsonRedisSerializer<>(ProductResponse.class)` per cache. More configuration, no polymorphic typing, no
-validator to get wrong.
+`JacksonJsonRedisSerializer<>(ProductResponse.class)` per cache. More configuration, no polymorphic typing, no
+validator to get wrong. `Jackson2JsonRedisSerializer` is the Jackson 2 class.
 
 ### Connection settings
 
@@ -328,7 +329,7 @@ saves both.
 - Agent uses Java serialization for Redis values - brittle and a deserialisation gadget vector; use JSON
 - Agent enables Jackson default typing without a `PolymorphicTypeValidator` - remote code execution vector
 - Agent omits default typing entirely - cached values return as `LinkedHashMap` and throw `ClassCastException`
-- Agent uses `GenericJackson2JsonRedisSerializer` on Boot 4 - that is the Jackson 2 class
+- Agent uses `GenericJackson2JsonRedisSerializer` or `Jackson2JsonRedisSerializer` on Boot 4 - those are the Jackson 2 classes; use `GenericJacksonJsonRedisSerializer` or `JacksonJsonRedisSerializer`
 - Agent declares its own `RedisCacheManager` bean - use `RedisCacheManagerBuilderCustomizer` or Boot's defaults are lost
 - Agent calls a `@Cacheable` method on `this` - proxy bypassed, nothing is cached
 - Agent puts `@Cacheable` and `@CachePut` on the same method - they contradict each other
