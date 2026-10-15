@@ -212,6 +212,12 @@ For HMAC (a single application, no other verifiers), use `NimbusJwtEncoder(new I
 
 ## Issuing the access token
 
+### Token response contract
+
+For token endpoints, use the OAuth 2.0 token response field names and meanings: `access_token`, `token_type` (normally `Bearer`), and `expires_in` as the access token lifetime in seconds. Include `refresh_token` when the application supports refresh tokens. Send `Cache-Control: no-store` and `Pragma: no-cache` on token responses so clients and intermediaries do not store credentials.
+
+Application-specific metadata such as `session_id` or `refresh_expires_in` may be added as documented extension fields. Omit refresh-token fields when refresh tokens are not supported. A custom username/password login endpoint that returns this shape is not, by itself, a complete OAuth 2.0 authorization server; use Spring Authorization Server or an external identity provider when OAuth client interoperability or authorization-server flows are required.
+
 For username/password login, the filter converts and validates the request, then delegates credential verification to an `AuthenticationManager` backed by `DaoAuthenticationProvider`. Keep the filter focused on request matching and wiring. Put response behavior in injectable `AuthenticationSuccessHandler` and `AuthenticationFailureHandler` classes when it may grow or needs independent testing. The success handler reads the authenticated `SecurityUser` principal and asks `RefreshTokenService` to create a session and token pair. Do not issue a token directly from the submitted username:
 
 ```java
@@ -252,6 +258,8 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
                 request.getHeader("User-Agent"), request.getRemoteAddr());
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
+        response.setHeader(HttpHeaders.PRAGMA, "no-cache");
         jsonMapper.writeValue(response.getOutputStream(), tokens);
     }
 

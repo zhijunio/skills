@@ -222,6 +222,14 @@ PasswordEncoder passwordEncoder() {
 - Never write your own hashing. BCrypt, SCrypt and Argon2 are the options the factory already knows.
 - Compare with `passwordEncoder.matches(raw, stored)`, never with `equals`.
 - On a failed login, do the hash comparison anyway against a dummy value. Returning early on "no such user" leaks which accounts exist through response timing.
+- For configurable password strength rules, a small custom Bean Validation constraint such as `@ValidPassword` can keep request DTOs declarative; leave blank/null handling to `@NotBlank`/`@NotNull`, and report policy failures as client validation errors. Keep this validator deterministic and local.
+- For known-breach checks, use Spring Security's `CompromisedPasswordChecker` (for example, `HaveIBeenPwnedRestApiPasswordChecker`) on plaintext before storing the encoded password. Apply it during registration and password changes; when manually configuring `DaoAuthenticationProvider`, set its checker so the submitted plaintext is checked after a successful password match. Keep passwordless authentication unaffected, set outbound timeouts, never log or transmit the raw password, and define whether checker outages fail closed with a service-unavailable response. Do not put this network call in a Bean Validation constraint.
+
+```java
+public record RegistrationRequest(@NotBlank String username, @NotBlank @ValidPassword String password) {}
+```
+
+The custom constraint validator should delegate only to local rules such as configured length and strength checks. Keep it out of login DTOs when existing passwords should still be accepted for authentication, and perform the breach-service check in the application service for registration and password changes.
 
 For username/password authentication, use a repository-backed `UserDetailsService` with `DaoAuthenticationProvider`; keep the persisted account model separate from Spring Security's `UserDetails` adapter. In-memory users are for local development or tests only. Register accounts with the configured `PasswordEncoder`, assign the least privilege by default, and enforce username/email uniqueness with a database constraint rather than a check-then-insert alone.
 

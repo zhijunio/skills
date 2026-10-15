@@ -15,8 +15,9 @@ Use this skill for Spring Boot project creation and implementation. It includes 
 4. **Read the focused guide for the task.** Use the reference map below to select only the relevant guidance. Where a guide has version-specific notes, keep Boot 4 / Spring Framework 7 / Jackson 3 usage distinct from Boot 3.5 / Spring Framework 6 / Jackson 2 usage.
 5. **Follow the project's dependency management.** Prefer the Spring Boot parent or BOM. Check compatibility before overriding managed versions or adding third-party libraries.
 6. **Keep boundaries clear.** Organize new code by business feature where practical. Use request and response DTOs at HTTP boundaries; do not expose persistence entities as API representations.
-7. **Avoid unnecessary infrastructure.** Add authentication, messaging, caching, cloud services, or other optional systems only when the request requires them. Follow existing project conventions when they already define the choice.
-8. **Verify implementation changes.** Use the project's wrapper and established checks. Compile and run relevant tests after code changes; validate Compose configuration after container changes. Report the commands run and their actual results, including checks not run.
+7. **Use OAuth 2.0 token response conventions for bearer-token endpoints.** Use `access_token`, `token_type`, and `expires_in` (seconds), include `refresh_token` when supported, and prevent caching with `Cache-Control: no-store` and `Pragma: no-cache`. Treat additional fields as documented extensions; matching this response shape alone does not make a custom login endpoint a complete OAuth 2.0 authorization server. See [JWT authentication](references/security/jwt-authentication.md).
+8. **Avoid unnecessary infrastructure.** Add authentication, messaging, caching, cloud services, or other optional systems only when the request requires them. Follow existing project conventions when they already define the choice.
+9. **Verify implementation changes.** Use the project's wrapper and established checks. Compile and run relevant tests after code changes; validate Compose configuration after container changes. Report the commands run and their actual results, including checks not run.
 
 ## Version and Environment Discovery
 
@@ -150,7 +151,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 - **Filter chains, authorization, passwords, CORS, and CSRF**: [Security fundamentals](references/security/security-fundamentals.md)
 - **Multi-factor authentication, WebAuthn/passkeys, staged JWT login, and recovery**: [MFA](references/security/mfa.md)
 - **External OAuth2/OIDC login, SAML SSO, account mapping, and provisioning**: [OAuth2 login and SSO](references/security/oauth2-login.md)
-- **Issuing JWTs for local accounts**: [JWT authentication](references/security/jwt-authentication.md)
+- **Issuing JWTs for local accounts and token response conventions**: [JWT authentication](references/security/jwt-authentication.md)
 - **Validating tokens from an identity provider**: [OAuth2 resource server](references/security/oauth2-resource-server.md)
 
 ### Testing
