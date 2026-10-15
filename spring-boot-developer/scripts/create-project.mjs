@@ -24,7 +24,7 @@ Options:
   --build <maven|gradle>         Build tool (default: maven)
   --java <version>              Java version (default: ${versions.java.default})
   --boot-version <version>      Exact Spring Boot version (default: ${versions.springBoot.default})
-  --persistence <jpa|mybatis-plus|none> Persistence layer (default: jpa)
+  --persistence <jpa|mybatis-plus|none> Persistence layer (default: jpa, or none with --database none)
   --database <postgresql|none>   Database driver and local Compose setup (default: postgresql)
   --docker                      Add Dockerfile and full-stack Compose overlay
   --output-dir <path>           Parent directory (default: current directory)
@@ -37,7 +37,7 @@ Examples:
 }
 
 function parseArgs(args) {
-  const options = { build: 'maven', persistence: 'jpa', database: 'postgresql', outputDir: process.cwd() }
+  const options = { build: 'maven', database: 'postgresql', outputDir: process.cwd() }
   const values = new Set(['--name', '--group-id', '--package-name', '--build', '--java', '--boot-version', '--persistence', '--database', '--output-dir'])
   for (let i = 0; i < args.length; i += 1) {
     const key = args[i]
@@ -61,8 +61,12 @@ function assertOptions(options) {
     throw new Error('--name must be a plain project name, not a path')
   }
   if (!['maven', 'gradle'].includes(options.build)) throw new Error('--build must be maven or gradle')
-  if (!['jpa', 'mybatis-plus', 'none'].includes(options.persistence)) throw new Error('--persistence must be jpa, mybatis-plus, or none')
   if (!['none', 'postgresql'].includes(options.database)) throw new Error('--database must be none or postgresql')
+  options.persistence ??= options.database === 'none' ? 'none' : 'jpa'
+  if (!['jpa', 'mybatis-plus', 'none'].includes(options.persistence)) throw new Error('--persistence must be jpa, mybatis-plus, or none')
+  if (options.persistence !== 'none' && options.database === 'none') {
+    throw new Error(`--persistence ${options.persistence} needs a database driver; pass --database postgresql or --persistence none`)
+  }
   if (options.docker && options.database !== 'postgresql') {
     throw new Error('--docker currently adds the PostgreSQL-backed full-stack Compose overlay; also pass --database postgresql')
   }
