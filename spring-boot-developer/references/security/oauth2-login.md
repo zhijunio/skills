@@ -28,7 +28,7 @@ Before coding, establish:
 
 ## OIDC login with Spring Security
 
-Use Spring Boot's OAuth2 client support and Spring Security's `oauth2Login()` filter flow. Boot 4 uses `spring-boot-starter-security-oauth2-client`; Boot 3.5 uses `spring-boot-starter-oauth2-client`.
+Use Spring Boot's OAuth2 client support and Spring Security's `oauth2Login()` filter flow. Use `spring-boot-starter-security-oauth2-client`.
 
 Configure credentials outside committed files. With an OIDC issuer that supports discovery, start with `issuer-uri`:
 
@@ -148,7 +148,7 @@ spring:
 http.saml2Login(Customizer.withDefaults());
 ```
 
-Use Boot's SAML starter on Boot 4 (`spring-boot-starter-security-saml2`) or `spring-security-saml2-service-provider` on Boot 3.5, and follow the Boot version's build guide for the required Shibboleth repository.
+Use Boot's SAML starter (`spring-boot-starter-security-saml2`) and follow Boot's build guide for the required Shibboleth repository.
 
 For each SAML deployment, verify at minimum:
 
@@ -236,7 +236,6 @@ Unit-test claim mapping separately; use a local IdP for redirect URI, nonce/stat
 - [Spring Security OAuth 2.0 Test Support](https://docs.spring.io/spring-security/reference/servlet/test/mockmvc/oauth2.html)
 - [Spring Boot OAuth2](https://docs.spring.io/spring-boot/reference/security/oauth2.html)
 - [Spring Boot SAML 2.0](https://docs.spring.io/spring-boot/reference/security/saml2.html)
-- [Spring Boot 3.5 Security](https://docs.spring.io/spring-boot/3.5/reference/web/spring-security.html)
 - [Spring Authorization Server](https://docs.spring.io/spring-authorization-server/reference/)
 - [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html)
 - [OAuth 2.0 Security Best Current Practice (RFC 9700)](https://www.rfc-editor.org/rfc/rfc9700.html)

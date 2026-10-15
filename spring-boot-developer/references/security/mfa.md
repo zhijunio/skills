@@ -6,11 +6,9 @@ First establish the application's authentication shape:
 
 | Application | MFA state | Typical completion |
 |---|---|---|
-| Browser with a server-side session | Spring Security session and authentication flow | Spring Security's built-in MFA support on Security 7, or application-specific orchestration on Security 6.5 |
+| Browser with a server-side session | Spring Security session and authentication flow | Spring Security 7's built-in MFA support |
 | Stateless REST API that issues its own JWTs | Short-lived, server-controlled pending-MFA transaction | Issue the normal access JWT only after every required factor succeeds |
 | API that accepts tokens from an identity provider | The identity provider's authentication result | Validate trusted issuer claims and map the agreed assurance result to local authorization |
-
-Do not mix the version-specific APIs below. Spring Boot 4 manages Spring Security 7; Spring Boot 3.5 manages Spring Security 6.5. Check the application's build file and managed dependency versions before copying a configuration.
 
 ## Spring Security 7
 
@@ -45,14 +43,6 @@ Spring Security's `oneTimeTokenLogin()` is One-Time Token (OTT) login. It can de
 Spring Security 7 also provides factor-issued-at information for rules that require recent authentication. Use a freshness requirement for sensitive operations such as changing MFA settings, rotating credentials, or performing high-impact actions; do not treat an old factor proof as indefinitely fresh.
 
 For an application-owned two-step browser flow, keep the primary login mechanisms and the application's second-factor verification separate. For example, an application may accept password or passkey as its primary step, then verify TOTP, email, or another enrolled factor in application code. In that design, configure `@EnableMultiFactorAuthentication(authorities = {})` when global built-in requirements would incorrectly require both password and WebAuthn, grant the second-factor authority only after successful verification, and apply the application's factor-combination policy to protected routes. A label such as "primary" describes the application's flow; it does not prove that two credentials belong to distinct factor categories. Treat Spring's WebAuthn authority as evidence of the WebAuthn authentication mechanism, and evaluate user verification separately when the assurance policy depends on it.
-
-## Spring Boot 3.5 and Spring Security 6.5
-
-Spring Security 6.5 does not provide the Security 7 MFA authorization APIs: `FactorGrantedAuthority`, `@EnableMultiFactorAuthentication`, and `AuthorizationManagerFactories.multiFactor()` are unavailable. Implement the factor orchestration and authorization policy with the application's existing `AuthenticationManager` / `AuthenticationProvider` flow and explicit authorities, or upgrade to a compatible Boot 4 / Security 7 line when the built-in MFA model is required.
-
-Use distinct application authorities such as `FACTOR_PASSWORD`, `FACTOR_WEBAUTHN`, and `FACTOR_TOTP` only after the corresponding factor was actually verified. Define an authorization rule that checks the required combination; do not infer MFA from a role, a request parameter, or a client-provided claim.
-
-Security 6.5 includes WebAuthn/passkey support and `oneTimeTokenLogin()`. WebAuthn uses the `webAuthn` DSL and the `webauthn4j-core` dependency; follow the Security 6.5 documentation for the compatible dependency version and persistence setup. OTT remains different from TOTP. TOTP verification and a REST API's staged JWT login require application-specific handling.
 
 For a browser session flow, the application may keep an authenticated-but-incomplete MFA transaction in server-side state, but it must not treat that state as fully authenticated for protected routes. For a stateless API, use a separate pending-MFA transaction as described below.
 
@@ -123,11 +113,10 @@ Test the complete authentication and authorization contract, not just a successf
 - Factor enrollment, removal, recovery, and step-up paths require the intended recent authentication and produce the expected notifications or audit events.
 - Every alternate login and recovery path enforces the same assurance policy.
 
-For Boot 3.5, test the custom factor authorities and authorization rule directly. For Boot 4 / Security 7, also test the configured factor requirements and selective-MFA rules. See [testing strategy](../testing/testing-strategy.md), [integration testing](../testing/testing-integration.md), and [REST API testing](../testing/testing-rest-api.md).
+Test the configured factor requirements and selective-MFA rules. See [testing strategy](../testing/testing-strategy.md), [integration testing](../testing/testing-integration.md), and [REST API testing](../testing/testing-rest-api.md).
 
 ## Gotchas
 
-- Agent copies `@EnableMultiFactorAuthentication` into a Boot 3.5 / Security 6.5 project - use the 6.5 custom-orchestration path or move the project to a compatible Security 7 line.
 - Agent treats `oneTimeTokenLogin()` as TOTP - OTT and time-based OTP are different mechanisms.
 - Agent issues a full access JWT after only the password step - keep the user in pending MFA state until all required factors succeed.
 - Agent trusts a client-supplied `amr`, role, header, or request field - derive authorities only from verified server-side authentication or trusted signed token claims.
@@ -143,8 +132,8 @@ For Boot 3.5, test the custom factor authorities and authorization rule directly
 ## References
 
 - [Spring Security: Multi-Factor Authentication](https://docs.spring.io/spring-security/reference/servlet/authentication/mfa.html)
-- [Spring Security 6.5: Passkeys](https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/passkeys.html)
-- [Spring Security 6.5: One-Time Token Login](https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/onetimetoken.html)
+- [Spring Security: Passkeys](https://docs.spring.io/spring-security/reference/servlet/authentication/passkeys.html)
+- [Spring Security: One-Time Token Login](https://docs.spring.io/spring-security/reference/servlet/authentication/onetimetoken.html)
 - [Spring Security: JWT Resource Server](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
 - [OWASP: Multifactor Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html)
 - [RFC 8176: Authentication Method Reference Values](https://www.rfc-editor.org/rfc/rfc8176.html)

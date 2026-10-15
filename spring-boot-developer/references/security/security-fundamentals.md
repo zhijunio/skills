@@ -352,12 +352,6 @@ Requires the security test support on the classpath. Test the **negative** cases
 
 For `@PreAuthorize` on services, `@WithMockUser` works in a sliced `@SpringBootTest` too. See [testing-slices-web.md](../testing/testing-slices-web.md).
 
-## If on Boot 3.5.x
-
-Spring Security **6**, which is a real difference. The lambda DSL is the recommended style and works identically, but the removed APIs in the table above still *exist* on 6 (deprecated), so 3.5.x code may compile with `.and()` and `antMatchers()`. Write the lambda form on both lines and the upgrade is free.
-
-`DaoAuthenticationProvider` still has the `setUserDetailsService` setter on 6. `ProblemDetail`, `@EnableMethodSecurity` and `@WithMockUser` are unchanged.
-
 ## Gotchas
 
 - Agent writes `http.csrf().disable().and()...` - removed in Security 7; lambda DSL only

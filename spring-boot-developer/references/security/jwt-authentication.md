@@ -6,7 +6,7 @@ If an identity provider is available - Keycloak, Auth0, Okta, Entra, Cognito - u
 
 Self-issuing means owning key management, rotation, revocation, refresh-token reuse detection and account recovery. It is the right answer for a self-contained application with local accounts and no IdP, and the wrong answer whenever an IdP is on the table.
 
-If login requires multiple factors, complete the MFA flow before issuing a normal access JWT. See [MFA](mfa.md) for browser/session and stateless REST flows, factor claims, and Boot 3.5 versus Boot 4 guidance.
+If login requires multiple factors, complete the MFA flow before issuing a normal access JWT. See [MFA](mfa.md) for browser/session and stateless REST flows and factor claims.
 
 ## Use Spring Security's own JWT support
 
@@ -19,7 +19,7 @@ Do **not** add a third-party JWT library and hand-write an `OncePerRequestFilter
 </dependency>
 ```
 
-That name is Boot 4; on 3.5.x it is `spring-boot-starter-oauth2-resource-server`. It brings the Nimbus JOSE support that `JwtEncoder` and `JwtDecoder` need.
+It brings the Nimbus JOSE support that `JwtEncoder` and `JwtDecoder` need.
 
 ## Keys
 
@@ -494,10 +494,6 @@ void allowsCallerWithScope() {
 
 Test that an **expired** token gives 401 and that a token missing the scope gives 403. Those are the paths that break silently.
 Also test that active sessions are accepted, while revoked, expired or subject-mismatched sessions are rejected; after revocation, the next request must fail. Unit-test the session validator and use a PostgreSQL integration test for its query and constraints.
-
-## If on Boot 3.5.x
-
-Starter name is `spring-boot-starter-oauth2-resource-server` (no `security-` prefix). `JwtEncoder`, `NimbusJwtEncoder`, `JwtDecoder`, `JwtClaimsSet` and `oauth2ResourceServer(…)` are all present in Spring Security 6 and behave identically. The DSL removals in [security-fundamentals.md](security-fundamentals.md) are the only real difference.
 
 ## Gotchas
 

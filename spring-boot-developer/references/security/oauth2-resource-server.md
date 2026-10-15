@@ -11,7 +11,7 @@ Your API validates tokens issued by someone else - Keycloak, Auth0, Okta, Entra 
 </dependency>
 ```
 
-Boot 4 name. On 3.5.x it is `spring-boot-starter-oauth2-resource-server` - the `security-` prefix was added in the Boot 4 starter rename ([spring-boot-migration.md](../spring-boot-migration.md)).
+The `security-` prefix is the Boot 4 starter name; the unprefixed name is deprecated ([spring-boot-migration.md](../spring-boot-migration.md)).
 
 ## Configuration
 
@@ -202,10 +202,6 @@ void mapsKeycloakRealmRoles() {                        // test the converter dir
 ```
 
 The converter is the part with real logic in it, so test it as a unit. For a full end-to-end check against a real provider, run Keycloak in a Testcontainer - see [testing-integration.md](../testing/testing-integration.md).
-
-## If on Boot 3.5.x
-
-Starter is `spring-boot-starter-oauth2-resource-server`. All configuration properties, `JwtAuthenticationConverter`, `JwtGrantedAuthoritiesConverter`, `JwtIssuerAuthenticationManagerResolver` and the `jwt()` test post-processor are identical on Spring Security 6. Only the DSL removals in [security-fundamentals.md](security-fundamentals.md) differ.
 
 ## Gotchas
 
