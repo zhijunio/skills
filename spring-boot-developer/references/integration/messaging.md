@@ -126,10 +126,10 @@ DefaultErrorHandler kafkaErrorHandler(KafkaTemplate<String, Object> template) {
 
 Retry the transient, dead-letter the rest. A malformed payload will never succeed, so retrying it just blocks the partition - every message behind it waits.
 
-For long backoffs use `@RetryableTopic`, which retries via separate delay topics instead of blocking the consumer thread:
+For long backoffs use `@RetryableTopic`, which retries via separate delay topics instead of blocking the consumer thread. The attribute is `backOff`, and `@BackOff` is `org.springframework.kafka.annotation.BackOff`:
 
 ```java
-@RetryableTopic(attempts = "4", backoff = @Backoff(delay = 1000, multiplier = 2.0),
+@RetryableTopic(attempts = "4", backOff = @BackOff(delay = 1000, multiplier = 2.0),
                 dltTopicSuffix = ".DLT")
 @KafkaListener(topics = "orders.placed", groupId = "inventory-service")
 void on(OrderPlaced event) { … }
