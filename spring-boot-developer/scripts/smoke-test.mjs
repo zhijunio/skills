@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 if (args.includes('--help') || args.includes('-h')) {
-  console.log(`Generate projects with create-project.mjs and run their builds.
+  console.log(`Generate projects with create-project.mjs, run their builds, and start the Docker project.
 
 Requires network access to start.spring.io and a running Docker daemon.
 
@@ -38,8 +38,14 @@ const builds = [
   { name: 'maven-nodb', options: ['--database', 'none'], commands: [[mvnw, '-q', '-B', 'verify']] },
   {
     name: 'maven-docker',
-    options: ['--docker'],
-    commands: [[mvnw, '-q', '-B', 'verify'], ['docker', 'compose', '-f', 'compose.full.yaml', 'config', '-q']],
+    options: ['--docker', '--java', '21'],
+    commands: [
+      [mvnw, '-q', '-B', 'verify'],
+      ['docker', 'compose', '-f', 'compose.full.yaml', 'config', '-q'],
+      ['docker', 'compose', '-f', 'compose.full.yaml', 'up', '-d', '--build', '--wait'],
+    ],
+    health: 'http://localhost:8080/actuator/health',
+    cleanup: [['docker', 'compose', '-f', 'compose.full.yaml', 'down', '-v', '--rmi', 'local']],
   },
 ]
 
@@ -53,6 +59,19 @@ const rejections = [
 function run(command, commandArgs, cwd) {
   const result = spawnSync(command, commandArgs, { cwd, encoding: 'utf8', shell: windows })
   return { ok: result.status === 0, output: `${result.stdout ?? ''}${result.stderr ?? ''}` }
+}
+
+async function waitForHealth(url, timeoutMs = 120_000) {
+  const deadline = Date.now() + timeoutMs
+  let status = 'no response'
+  while (Date.now() < deadline) {
+    try {
+      status = (await fetch(url, { signal: AbortSignal.timeout(5_000) })).status
+      if (status === 200) return status
+    } catch {}
+    await new Promise((done) => setTimeout(done, 2_000))
+  }
+  return status
 }
 
 function generate(name, options, outputDir) {
@@ -76,17 +95,25 @@ try {
     report(!result.ok && result.output.includes('Project generation failed'), `rejects ${name}`, result.output || 'generation unexpectedly succeeded')
   }
 
-  for (const { name, options, commands } of builds) {
+  for (const { name, options, commands, health, cleanup = [] } of builds) {
     const generated = generate(name, options, workDir)
     if (!generated.ok) {
       report(false, `${name}: generate`, generated.output)
       continue
     }
+    let ok = true
     for (const [command, ...commandArgs] of commands) {
       const result = run(command, commandArgs, join(workDir, name))
       report(result.ok, `${name}: ${[command, ...commandArgs].join(' ')}`, result.output)
-      if (!result.ok) break
+      ok = result.ok
+      if (!ok) break
     }
+    if (ok && health) {
+      const status = await waitForHealth(health)
+      const logs = status === 200 ? '' : run('docker', ['compose', '-f', 'compose.full.yaml', 'logs', '--tail', '40'], join(workDir, name)).output
+      report(status === 200, `${name}: GET ${health}`, `last status: ${status}\n${logs}`)
+    }
+    for (const [command, ...commandArgs] of cleanup) run(command, commandArgs, join(workDir, name))
   }
 } finally {
   if (args.includes('--keep')) console.log(`Projects kept in ${workDir}`)

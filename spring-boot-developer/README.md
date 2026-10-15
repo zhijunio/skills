@@ -102,7 +102,7 @@ The supported version baselines and generator defaults are recorded in [`version
 
 ## Maintaining the Generator
 
-After changing `versions.json`, `scripts/create-project.mjs`, or the project setup assets, run the smoke test. It generates Maven, Gradle, MyBatis-Plus, no-database, and Docker projects, runs their full builds, and checks that invalid option combinations are rejected. It needs network access and a running Docker daemon.
+After changing `versions.json`, `scripts/create-project.mjs`, or the project setup assets, run the smoke test. It generates Maven, Gradle, MyBatis-Plus, no-database, and Docker projects, runs their full builds, starts the Docker project's Compose stack with Java 21 bytecode and probes its health endpoint, and checks that invalid option combinations are rejected. It needs network access and a running Docker daemon.
 
 ```bash
 node scripts/smoke-test.mjs
