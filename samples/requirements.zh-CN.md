@@ -34,7 +34,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - **未认证访客：** 注册、登录、发起密码恢复或开始已启用的外部登录。
 - **已认证用户：** 管理个人资料、已验证联系方式、会话、MFA 因子、恢复码和已绑定外部身份。
 - **管理员：** 搜索和管理账户、查看安全审计记录、执行范围受限的管理操作。
-- **运维人员：** 配置 Provider 凭据、邮件/短信发送、存储与共享状态服务、日志、健康检查和部署策略；默认不拥有面向用户的管理员权限。
+- **运维人员：** 配置邮件/短信发送、存储与共享状态服务、日志、健康检查和部署策略；默认不拥有面向用户的管理员权限。
 
 ## 4. 功能需求
 
@@ -76,13 +76,13 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 使用 Spring Security OAuth2 Login 执行授权码登录。Provider 注册信息由管理员通过 `/api/oauth2-clients` 动态管理并保存在 PostgreSQL 中，以自定义 `ClientRegistrationRepository` 提供给框架；变更须在所有实例上及时生效（例如经 Redis 通知失效本地缓存）。client secret 不得提交到代码仓库，须使用受管理且可轮换的密钥加密存储。
 - 使用稳定的 `(issuer, subject)` 作为 OIDC 身份键。邮箱是资料字段，不能单独用于自动合并账户。
 - 使用 Spring Security 的协议处理验证 Provider 回调的 state、nonce、issuer、签名、audience、过期时间、redirect URI 和预期注册信息。
-- 外部登录只完成主凭据验证，之后与密码登录一样按 MFA 策略处理：用户有活动因子或被强制 MFA 时，回调签发的一次性兑换码在 `POST /api/auth/token/exchange` 时返回待 MFA 响应而非令牌。默认不信任 Provider 声明的 MFA；仅当策略显式信任某 Provider 且其返回的 `amr` 表明已完成 MFA 时，才可视为满足 MFA，并在认证日志中记录。
-- 首次外部登录的开通（JIT）策略：仅当 Provider 返回 `email_verified=true` 且本地没有同邮箱的已激活账户时，才创建本地账户；本地已有同邮箱的已激活账户时不合并，返回机器可读错误码，提示用户先用原方式登录再绑定（该用户已向 Provider 证明控制此邮箱，告知账户存在可以接受）；同邮箱只有待验证账户时，将其视为不存在，创建账户并作废该待验证注册，防止抢先注册。绑定外部身份到已有账户前，用户必须先完成本地认证和近期认证检查。
+- 外部登录只完成主凭据验证，之后与密码登录一样按 MFA 策略处理：用户有活动因子或被强制 MFA 时，回调签发的一次性兑换码在 `POST /api/auth/token/exchange` 时返回待 MFA 响应而非令牌。默认不信任 Provider 声明的 MFA；仅当该 Provider 配置 `trustMfaClaims: true`（默认 `false`）且其返回的 `amr` 表明已完成 MFA 时，才可视为满足 MFA，并在认证日志中记录。
+- 首次外部登录的开通（JIT）策略：仅当该 Provider 配置 `trustEmailVerified: true`（默认 `false`，只应对确实验证邮箱所有权的 Provider 开启）、Provider 返回 `email_verified=true` 且本地没有同邮箱的已激活账户时，才创建本地账户；未开启的 Provider 只能登录已绑定的账户，不 JIT 建号，也不作废待验证注册；本地已有同邮箱的已激活账户时不合并，返回机器可读错误码，提示用户先用原方式登录再绑定（该用户已向 Provider 证明控制此邮箱，告知账户存在可以接受）；同邮箱只有待验证账户时，将其视为不存在，创建账户并作废该待验证注册，防止抢先注册。绑定外部身份到已有账户前，用户必须先完成本地认证和近期认证检查。
 - 支持列出、绑定和解绑身份。除非用户先添加其他凭据，否则不能解绑最后一种可用登录方式。可用登录方式指用户当前能独立完成登录的凭据：已设置且所属邮箱已验证的本地密码，或所属 Provider 已启用的外部身份；临时锁定不影响其计数。
 - Provider token 不下发给客户端，首版也不在登录完成后保留。OAuth 回调后签发短时效、单次有效的不透明兑换码；只保存兑换码校验值并以原子方式消费。兑换码须绑定发起登录的客户端：客户端发起登录时生成随机 `code_verifier`，只提交其 S256 摘要 `code_challenge`，兑换时提交 `code_verifier` 由服务端核对，防止攻击者把自己账户的回调或兑换码交给受害者完成登录（登录 CSRF），也防止 App Link 被拦截后兑换码被冒用。
 - API 无状态，框架默认依赖 `HttpSession` 的 OAuth2 Login 组件须定制：授权请求存放在共享状态中，以 `state` 为键、短时效、单次消费（自定义 `AuthorizationRequestRepository`）；自定义 `OAuth2AuthorizationRequestResolver` 接收 `continue` 和 `code_challenge` 参数，以及绑定或重新认证事务的标识；成功处理器只签发兑换码或推进对应事务，不建立会话。`continue` 只接受部署配置登记的跳回目标 ID（例如 `web`、`ios`、`android`），不接受任意 URL。
 - 后续若需委托访问 Provider API，再安全保留 authorized-client 状态，并使用 `OAuth2AuthorizedClientManager` 处理支持的授权授予和令牌刷新，不自行实现刷新协议。
-- 仅在确有命名集成需求时支持服务间 Client Credentials。限制 scope 和外连目标，不提供通用令牌签发接口。
+- 首版不支持服务间 Client Credentials（见第 10 节第 5 条）；后续引入时须限制 scope 和外连目标，不提供通用令牌签发接口。
 - 注销只清除本地会话。首版不发起 Provider OIDC logout（RP 发起注销依赖浏览器重定向，与 XHR 注销接口不兼容），须在 API 文档中说明本地注销不会结束 Provider 会话。
 - 提供公开且精简的已启用登录 Provider 列表供登录页面展示；不得包含密钥、私有端点信息或未经筛选的配置。
 - Provider 动态管理提供受限的创建/更新/禁用/删除操作、密钥只写语义、变更审计和配置校验。运行时配置端点必须使用严格 HTTPS/主机白名单及网络出站控制以防 SSRF；连通性检查不能证明登录配置有效。
@@ -309,8 +309,8 @@ Provider 注册管理接口在 OAuth2 Client 已启用时提供。所有接口�
 | `GET` | `/api/oauth2-clients/{registrationId}` | 查看单个受管理的 Provider 注册 | OAuth 配置权限；`200` | 返回安全的管理视图；不得返回 client secret |
 | `GET` | `/api/oauth2-client-templates` | 列出安全配置模板 | OAuth 配置权限；`200` | 模板仅为配置参考，不代表 Provider 元数据已验证 |
 | `POST` | `/api/oauth2-clients` | 创建 Provider 注册 | OAuth 配置权限；`201` | 校验协议、scope、认证方法、HTTPS 和严格主机白名单；记录审计 |
-| `PUT` | `/api/oauth2-clients/{registrationId}` | 替换 Provider 配置 | OAuth 配置权限；`200` | 明确密钥保留语义；不得变更已有注册的 issuer 或 Provider；设置 `enabled: false` 时执行与删除相同的最后登录方式检查；校验并审计 |
-| `DELETE` | `/api/oauth2-clients/{registrationId}` | 删除 Provider 配置 | OAuth 配置权限；`204` | 禁用通过 `PUT` 设置 `enabled: false` 完成；存在已绑定身份且其中有用户没有其他可用登录方式时返回 `409`；记录审计 |
+| `PUT` | `/api/oauth2-clients/{registrationId}` | 替换 Provider 配置 | OAuth 配置权限；`200` | 明确密钥保留语义；不得变更已有注册的 issuer 或 Provider；设置 `enabled: false` 时执行与删除相同的最后登录方式检查，并撤销以该 Provider 为主凭据建立的会话；开启 `trustEmailVerified` 或 `trustMfaClaims` 须单独审计；校验并审计 |
+| `DELETE` | `/api/oauth2-clients/{registrationId}` | 删除 Provider 配置 | OAuth 配置权限；`204` | 禁用通过 `PUT` 设置 `enabled: false` 完成；存在已绑定身份且其中有用户没有其他可用登录方式时返回 `409`；删除时一并删除该 Provider 的已绑定外部身份、撤销以其为主凭据的会话，并通知受影响用户；记录审计 |
 | `POST` | `/api/oauth2-clients/{registrationId}/connectivity-tests` | 执行受限配置诊断 | OAuth 配置权限；`200` | 不发送 client secret；限制超时、不跟随重定向；要求主机白名单和出站控制；连通性不代表登录成功 |
 
 #### OAuth Client 配置表示
@@ -337,11 +337,13 @@ Provider 注册管理接口在 OAuth2 Client 已启用时提供。所有接口�
   "subjectAttributeName": "sub",
   "displayNameAttributeName": "name",
   "emailAttributeName": "email",
+  "trustEmailVerified": false,
+  "trustMfaClaims": false,
   "enabled": true
 }
 ```
 
-对于不适用 issuer/JWK Set URI 的 OAuth 2.0 Provider，可不提供 `issuerUri` 和 `jwkSetUri`；需提供 user-info 配置和稳定 subject 映射。OIDC 必须提供 issuer 和协议要求的 scope/元数据。客户端认证方法必须来自明确的允许列表。额外授权参数数量和长度需受限，并禁止覆盖协议保留字段，例如 `state`、`nonce`、`redirect_uri`、`client_id`、`response_type` 和 `code_challenge`。
+对于不适用 issuer/JWK Set URI 的 OAuth 2.0 Provider，可不提供 `issuerUri` 和 `jwkSetUri`；需提供 user-info 配置和稳定 subject 映射。OIDC 必须提供 issuer 和协议要求的 scope/元数据。客户端认证方法必须来自明确的允许列表。额外授权参数数量和长度需受限，并禁止覆盖协议保留字段，例如 `state`、`nonce`、`redirect_uri`、`client_id`、`response_type` 和 `code_challenge`；重新认证时以其要求的 `prompt=login` 或 `max_age` 覆盖配置中的同名参数。`loginButtonIcon` 只接受部署配置允许的图标标识，不接受 URL 或标记文本。
 
 `registrationId` 必须遵循明确、稳定的格式，并在 Provider 注册间唯一；删除后不得复用于不同的 issuer 或 Provider，以免新 Provider 下相同的 subject 登录旧用户账户。Redirect URI 由服务端按 `{baseUrl}/login/oauth2/code/{registrationId}` 生成，在响应中只读返回；请求中提交的值与生成值不一致时拒绝。
 
@@ -351,7 +353,7 @@ Provider 注册管理接口在 OAuth2 Client 已启用时提供。所有接口�
 
 `POST /api/oauth2-clients/{registrationId}/connectivity-tests` 返回 registration ID、端点是否有响应、测试时间和各端点结果/状态。不得发送客户端凭据、跟随重定向或声称连通性证明了凭据、scope、身份映射或完整登录流程有效。不得返回 Provider 响应正文或含敏感查询参数的 URL。
 
-OAuth Client 配置变更通过 `GET /api/audit-logs` 使用相同的安全操作审计视图返回，必要时按资源类型/ID 筛选。不得创建独立的 OAuth Client 审计日志。`GET /api/oauth2-client-templates` 只返回非敏感初始值；启用前运维人员仍需审核模板配置。
+OAuth Client 配置变更通过 `GET /api/audit-logs` 使用相同的安全操作审计视图返回，必要时按资源类型/ID 筛选。不得创建独立的 OAuth Client 审计日志。`GET /api/oauth2-client-templates` 只返回非敏感初始值；启用前具备 OAuth 配置权限的管理员仍需审核模板配置。
 
 OAuth 登录回调签发短时效、单次使用兑换码。`POST /api/auth/token/exchange` 核对 `code_verifier` 后消费该码并返回本地令牌响应；兑换码绑定已完成的 Provider 登录和发起时的 `code_challenge`，仅保存校验值，不得记录日志；除回调交接时放在 URL 片段中外，不得出现在 URL 中。
 
