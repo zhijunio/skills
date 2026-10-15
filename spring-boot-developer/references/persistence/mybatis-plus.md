@@ -10,20 +10,12 @@ Use MyBatis-Plus when the feature benefits from explicit SQL, mapper interfaces,
 
 ## Match the starter to Spring Boot
 
-Use the artifact for the project's Boot line and keep all MyBatis-Plus modules on one release. The official guide currently documents `3.5.17`; Boot 4 support starts with `3.5.13`.
+Use the Boot 4 artifact and keep all MyBatis-Plus modules on one release. The official guide currently documents `3.5.17`; Boot 4 support starts with `3.5.13`.
 
 ```xml
-<!-- Spring Boot 4.x -->
 <dependency>
     <groupId>com.baomidou</groupId>
     <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
-    <version>${mybatis-plus.version}</version>
-</dependency>
-
-<!-- Spring Boot 3.5.x: use this artifact instead -->
-<dependency>
-    <groupId>com.baomidou</groupId>
-    <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
     <version>${mybatis-plus.version}</version>
 </dependency>
 ```
@@ -150,13 +142,9 @@ For multi-tenant data, derive tenant identity from authenticated server-side con
 
 Test custom SQL, result mappings, plugin behavior, optimistic locking, tenant isolation, and pagination with Testcontainers using the same database family as production. MyBatis-Plus documents `@MybatisPlusTest` in `mybatis-plus-boot-starter-test`; keep its version aligned with MyBatis-Plus and verify compatibility with the project's Boot line. Make sure the slice does not replace the Testcontainers `DataSource` with embedded H2. Assert SQL-visible behavior and affected-row outcomes; do not spend tests re-proving `BaseMapper` CRUD. See the official [testing guide](https://baomidou.com/en/getting-started/test/), [testing-slices-persistence.md](../testing/testing-slices-persistence.md), and [testcontainers.md](../testing/testcontainers.md).
 
-## If on Boot 3.5.x
-
-Use `mybatis-plus-spring-boot3-starter` and its matching test starter. Boot 4 uses the distinct `mybatis-plus-spring-boot4-starter`; do not substitute one artifact for the other. MyBatis-Plus's Boot 4 support begins at 3.5.13. Resolve the current compatible release and its dependency constraints from the official [installation guide](https://baomidou.com/en/getting-started/install/) before upgrading.
-
 ## Gotchas
 
-- Adding the Boot 2 artifact `mybatis-plus-boot-starter` to Boot 3.5 or 4 instead of the Boot-specific starter.
+- Adding the Boot 2 artifact `mybatis-plus-boot-starter` to Boot 4 instead of `mybatis-plus-spring-boot4-starter`.
 - Adding MyBatis or MyBatis-Spring dependencies beside the MyBatis-Plus starter and creating version conflicts.
 - Treating `BaseMapper` convenience CRUD as a domain repository or returning persistence models from controllers.
 - Sending a Wrapper, raw sort expression, or SQL fragment from a client.

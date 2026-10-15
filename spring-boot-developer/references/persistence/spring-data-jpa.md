@@ -15,7 +15,6 @@ Boot 4 manages **Jakarta Persistence 3.2** and **Hibernate ORM 7**. Import `jaka
 - [Pagination](#pagination)
 - [Batch writes](#batch-writes)
 - [Configuration](#configuration)
-- [If on Boot 3.5.x](#if-on-boot-35x)
 - [Gotchas](#gotchas)
 - [Related](#related)
 
@@ -140,7 +139,7 @@ public record OrderId(UUID value) {
 }
 ```
 
-`orderRepository.findById(customerId)` is now a compile error rather than a silent runtime miss. On Jakarta Persistence 3.2 a record may be an embeddable without `@Embeddable`, but keep the annotation - it is explicit and it still works on 3.5.x.
+`orderRepository.findById(customerId)` is now a compile error rather than a silent runtime miss. On Jakarta Persistence 3.2 a record may be an embeddable without `@Embeddable`, but keep the annotation - it is explicit.
 
 For the wire, add `@JsonValue`/`@JsonCreator` ([json-and-jackson.md](../web/json-and-jackson.md)) and a `Converter` for path variables ([rest-controllers.md](../web/rest-controllers.md)).
 
@@ -457,13 +456,6 @@ spring:
 | `show-sql: false` | Use `logging.level.org.hibernate.SQL=DEBUG` when you need it - `show-sql` writes to stdout unformatted |
 
 HikariCP defaults are a reasonable starting point. Tune pool size and timeouts from measured workload and the database's connection budget across all application replicas; a large per-instance pool can exhaust PostgreSQL connections.
-
-## If on Boot 3.5.x
-
-- Hibernate **6.x**, Jakarta Persistence **3.1**. Everything above works.
-- A record used as an `@Embeddable` **must** carry the `@Embeddable` annotation; 3.2's implicit support is Boot 4 only. Keep the annotation and both lines work.
-- `@UuidGenerator` with `Style.VERSION_7` requires Hibernate 6.6+. On older 6.x, generate the value in the factory as shown - which is what the recommended approach does anyway.
-- `Limit` as a query parameter requires Spring Data 3.2+ (Boot 3.2+).
 
 ## Gotchas
 

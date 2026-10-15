@@ -192,10 +192,6 @@ Migrations run against a real database in tests, so they are covered by the same
 
 For a destructive migration, test the **data**, not just the schema: seed the old shape, migrate, assert the new shape.
 
-## If on Boot 3.5.x
-
-Flyway arrives transitively with the JDBC and JPA starters, so `spring-boot-starter-flyway` is not needed - though `flyway-database-postgresql` still is on Flyway 10+. Everything else is identical.
-
 ## Gotchas
 
 - Agent adds `spring-boot-starter-data-jpa` and expects migrations to run on Boot 4 - add `spring-boot-starter-flyway` explicitly

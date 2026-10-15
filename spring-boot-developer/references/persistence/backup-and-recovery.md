@@ -38,12 +38,6 @@ Keep test restores isolated from production integrations: disable outbound email
 and use distinct credentials and endpoints. Apply production-grade access control to restored data; masking may be
 required before broader testing. Record the exercise result, data point, duration, gaps and owner for remediation.
 
-## Boot 3.5 and Boot 4
-
-Backup and restore are database/platform responsibilities, not a Spring Boot feature. Keep Boot's migration tooling
-for schema evolution, but use the database provider's supported backup and point-in-time recovery mechanism. Verify
-restore behavior against the exact database engine and version used in production.
-
 ## Gotchas
 
 - Agent equates a green backup job with recoverability; restore and validate on a schedule.

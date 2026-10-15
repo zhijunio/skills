@@ -181,7 +181,7 @@ RedisCacheConfiguration cacheConfiguration() {
 Without default typing, a cached object comes back as a `LinkedHashMap` and throws `ClassCastException` on first use.
 With *unrestricted* default typing, you have a remote code execution vector. The validator is the point.
 
-On Boot 4 this is `GenericJacksonJsonRedisSerializer` (Jackson 3). On 3.5.x it is `GenericJackson2JsonRedisSerializer`.
+On Boot 4 this is `GenericJacksonJsonRedisSerializer` (Jackson 3).
 
 A simpler alternative that avoids the whole question: serialise each cache to a **known type** with
 `Jackson2JsonRedisSerializer<>(ProductResponse.class)` per cache. More configuration, no polymorphic typing, no
@@ -318,13 +318,6 @@ FilterRegistrationBean<ShallowEtagHeaderFilter> etagFilter() {
 It still executes the handler, so it saves bandwidth rather than work.
 `ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofMinutes(5)))` on genuinely public, stable resources
 saves both.
-
-## If on Boot 3.5.x
-
-The abstraction, all four annotations, `sync = true`, Caffeine and the Redis properties are identical. The differences
-are Jackson 2: `GenericJackson2JsonRedisSerializer` rather than `GenericJacksonJsonRedisSerializer`, and `ObjectMapper`
-rather than `JsonMapper`. Spring Session keys also moved - `spring.session.redis.*` on 3.5.x became
-`spring.session.data.redis.*`.
 
 ## Gotchas
 

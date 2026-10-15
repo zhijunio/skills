@@ -201,10 +201,6 @@ public class PlaceOrderSaga {
 
 The saga method itself is **not** `@Transactional` - it spans network calls. Each compensating action must be idempotent, because it may run after a partial failure or be retried.
 
-## If on Boot 3.5.x
-
-Everything here is identical. The one difference is retry: core `@Retryable` and `@EnableResilientMethods` are Framework 7, so on 3.5.x that is the separate Spring Retry project with different attribute names - see [resilience.md](../integration/resilience.md).
-
 ## Gotchas
 
 - Agent puts `@Transactional` on a controller - it belongs on the service

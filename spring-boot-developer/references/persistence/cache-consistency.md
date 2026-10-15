@@ -76,12 +76,6 @@ see [testcontainers.md](../testing/testcontainers.md) and [transactions.md](tran
 - Agent tests only annotations with mocks - verify real serialization and invalidation boundaries when they are part of
   the guarantee.
 
-## If on Spring Boot 3.5.x
-
-The transaction/cache ordering principles are unchanged. Redis serializer class names differ between Boot 3.5 (Jackson
-2) and Boot 4 (Jackson 3); follow [caching.md](caching.md) and [spring-boot-migration.md](../spring-boot-migration.md) for the selected
-version line.
-
 ## Related
 
 - [caching.md](caching.md) · [transactions.md](transactions.md) · [messaging.md](../integration/messaging.md) · [resilience.md](../integration/resilience.md) · [testcontainers.md](../testing/testcontainers.md)

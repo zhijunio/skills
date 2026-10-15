@@ -68,10 +68,6 @@ Keep production schema changes in versioned migration files. Do not use ORM star
 
 Keep application behavior in the application layer. Do not introduce custom stored functions or procedures, triggers, database extensions, or other engine-specific programmable objects: they couple behavior to a database engine and complicate local setup, migration, rollback, and testing. Prefer application code and portable SQL. If a legacy schema already contains such an object, document its engine/version dependency, manage its DDL through versioned migrations, and verify upgrade, rollback, backup, and restore paths against that engine.
 
-## If on Boot 3.5.x
-
-The relational design and SQL principles in this guide are independent of the Boot line. Provider behavior, SQL generation, and supported Java mappings depend on the managed Spring Data / Hibernate / MyBatis and JDBC driver versions; verify generated SQL against the exact production database and dependency versions. Boot 4 changes some persistence starter and library versions; see [spring-boot-migration.md](../spring-boot-migration.md), [spring-data-jpa.md](spring-data-jpa.md), and [mybatis-plus.md](mybatis-plus.md).
-
 ## Gotchas
 
 - Agent validates uniqueness with `SELECT` and inserts afterward - enforce uniqueness with a database constraint and translate a conflict.

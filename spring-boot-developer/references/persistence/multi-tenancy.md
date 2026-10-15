@@ -42,10 +42,6 @@ Tenant-aware background jobs must enumerate or claim tenant work explicitly, app
 
 Integration tests should create at least two tenants and prove that reads, updates, deletes, uniqueness, pagination, exports, caches, idempotency replay and async processing cannot cross the boundary. Include missing context, forged tenant input, revoked membership, and connection-pool reuse. Test against the production database engine when relying on row-level security, constraints or vendor-specific behavior.
 
-## If on Spring Boot 3.5.x
-
-Tenant isolation is an application and database design, not a Boot-specific feature. Use the project's Boot-managed Spring Security and persistence APIs; do not copy Boot 4-specific APIs from adjacent references without checking availability.
-
 ## Gotchas
 
 - Agent accepts a request `tenantId` as authorization - resolve tenant membership from trusted identity.

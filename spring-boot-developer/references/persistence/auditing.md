@@ -123,11 +123,6 @@ slice, both against the real database engine
 - Agent stores full payloads or credentials in audit columns - retain only the minimum safe metadata.
 - Agent mixes auditing with optimistic locking - keep `@Version` for concurrency detection.
 
-## If on Spring Boot 3.5.x
-
-The Spring Data auditing annotations and `AuditorAware` contract remain the same. Keep `@EnableJpaAuditing` in one
-configuration location and check the managed Spring Data version before relying on provider-specific extensions.
-
 ## Related
 
 - [spring-data-jpa.md](spring-data-jpa.md) · [security-fundamentals.md](../security/security-fundamentals.md) · [async-and-scheduling.md](../integration/async-and-scheduling.md) · [transactions.md](transactions.md)
