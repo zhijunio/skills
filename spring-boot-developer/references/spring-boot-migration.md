@@ -27,10 +27,10 @@ These are framework minimums, not project recommendations. The generator's selec
 |---|---|---|---|
 | **4.1.x** | Current | Spring Framework 7 | The default target for new projects |
 | 4.0.x | Maintenance | Spring Framework 7 | |
-| 3.5.x | Final 3.x line | Spring Framework 6 | The realistic upgrade source; still widely deployed |
+| 3.5.x | Final 3.x line; OSS support ended 2026-06-30, commercial support until 2032-06-30 | Spring Framework 6 | Existing projects and upgrade source only; Spring Initializr no longer generates it |
 | ≤ 3.4 | Out of scope here | | Upgrade to 3.5.x first, then to 4.x |
 
-For a new project, target the current 4.x line. Do not start a new project on 3.5.x.
+For a new project, target the current 4.x line. Do not start a new project on 3.5.x. The topic guides describe Boot 4 only; for work inside a 3.5.x project, see [Working in an existing Boot 3.5.x project](#working-in-an-existing-boot-35x-project).
 
 **Pin nothing that Boot manages.** The parent or the imported BOM sets versions for Hibernate, Jackson, Testcontainers, JUnit, Micrometer and several hundred more. Declaring your own version for any of them is how you get a runtime `NoSuchMethodError`. Add versions only for libraries Boot does not manage.
 
@@ -145,6 +145,65 @@ Read [testing-strategy.md](testing/testing-strategy.md) and [testcontainers.md](
 
 Getting a pairing wrong is the most common cause of an unresolvable dependency graph. Spring AI 1.x on Boot 4, or 2.0 on Boot 3.5, will not work.
 
+## Working in an existing Boot 3.5.x project
+
+The topic guides describe Boot 4. In a 3.5.x project, use a topic guide for the design and patterns, then translate its Boot 4 code with the compatibility index above read in reverse (old starter names, Jackson 2, Security 6, Testcontainers 1, JUnit 5) and the topic differences below. Keep the project on 3.5.x unless the task is the upgrade.
+
+Topics not listed here need nothing beyond the index: architecture, domain modelling, proxies, transactions, validation, error handling, HATEOAS, internationalization, idempotency, database concurrency, schema and SQL, auditing, multi-tenancy, backup, logging, observability, async and scheduling, WebSocket, Thymeleaf, CI/CD, local development, and ArchUnit.
+
+| Topic | Boot 3.5.x difference |
+|---|---|
+| JPA | Hibernate 6.x and Jakarta Persistence 3.1. A record used as an `@Embeddable` **must** carry the annotation. `@UuidGenerator(style = VERSION_7)` needs Hibernate 6.6+ |
+| Flyway | Arrives with the JDBC/JPA starters, so no `spring-boot-starter-flyway`. `flyway-database-postgresql` is still required on Flyway 10+ |
+| MyBatis-Plus | `mybatis-plus-spring-boot3-starter` and its matching test starter; never substitute the Boot 4 artifact |
+| Jackson | Boot registers `JavaTimeModule` itself, so still do not add it |
+| Redis cache and session | `GenericJackson2JsonRedisSerializer` with an `ObjectMapper`. Spring Session properties are `spring.session.redis.*` (Boot 4: `spring.session.data.redis.*`) |
+| Messaging | The Rabbit JSON message converter takes a Jackson 2 `ObjectMapper` |
+| Spring Batch 5 | The job repository is JDBC-backed by default, with no `-batch-jdbc` starter. Launch with `JobLauncher`, query with `JobExplorer`. Use `chunk(n, transactionManager)`. The sequence is `BATCH_JOB_SEQ` |
+| HTTP clients | No `@ImportHttpServices` or `spring.http.serviceclient.*`; build each proxy with `HttpServiceProxyFactory` (below) |
+| Resilience | No core `@Retryable`, `@ConcurrencyLimit`, or `@EnableResilientMethods`; use Spring Retry (below) |
+| API versioning | No `version` mapping attribute or `ApiVersionConfigurer`. Prefer not versioning yet; otherwise use path-prefixed controllers (`/api/v1/...`) that map onto one version-free service |
+| OpenAPI | Use the springdoc 2.x line built for Spring Framework 6. springdoc is not BOM-managed, so the build will not warn about a mismatch |
+| Security 6 | APIs removed in Security 7 still exist as deprecated; write the lambda DSL anyway. `DaoAuthenticationProvider.setUserDetailsService` exists. OAuth2 starters lack the `security-` prefix; SAML uses `spring-security-saml2-service-provider` |
+| MFA on Security 6.5 | `FactorGrantedAuthority`, `@EnableMultiFactorAuthentication`, and `AuthorizationManagerFactories.multiFactor()` do not exist. Orchestrate factors in the existing `AuthenticationProvider` flow, grant authorities such as `FACTOR_PASSWORD` or `FACTOR_TOTP` only after that factor is verified, authorize on the required combination, and test those authorities directly. WebAuthn (`webAuthn` DSL with `webauthn4j-core`) and `oneTimeTokenLogin()` are available |
+| Testing | `spring-boot-starter-test` instead of per-technology test starters. No `RestTestClient`; use `WebTestClient` or `TestRestTemplate` (no `@AutoConfigureTestRestTemplate` needed). `@MockBean` is deprecated; use `@MockitoBean`. No context pausing. Test auto-configure packages differ: `@WebMvcTest` is in `org.springframework.boot.test.autoconfigure.web.servlet`, `@AutoConfigureDataJpa` in `org.springframework.boot.test.autoconfigure.orm.jpa`, `@EntityScan` in `org.springframework.boot.autoconfigure.domain` |
+| Testcontainers 1.x | `org.testcontainers:postgresql` and `org.testcontainers.containers.PostgreSQLContainer<>` |
+| Maven packaging | Optional dependencies are included in the repackaged jar |
+| Spring AI 1.x and MCP | 2.0 flattened `chat.options.*`, removed `ChatMemory.DEFAULT_CONVERSATION_ID` and `PromptChatMemoryAdvisor`, renamed `spring-ai-advisors-vector-store`, and made advisors builder-only; check the 1.x reference instead of porting 2.0 shapes. MCP tools use `@Tool`/`@ToolParam` with a `MethodToolCallbackProvider`, and remote transport is SSE. `CallAroundAdvisor` became `CallAdvisor` at 1.0 GA |
+| Spring Modulith 1.4.x | Integration of module tests with Boot slice tests is 2.1+ only |
+| Native image and Docker | GraalVM 22.3+. The bundled Dockerfiles work (Java 25, `jarmode=tools` since Boot 3.3) |
+| BootUI | Not supported; BootUI 2.x targets Boot 4 only |
+
+HTTP service proxy without `@ImportHttpServices`, one factory per external service:
+
+```java
+@Bean
+InventoryClient inventoryClient(RestClient.Builder builder, InventoryProperties properties) {
+    var restClient = builder.baseUrl(properties.baseUrl()).requestFactory(timeoutFactory()).build();
+    return HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient))
+            .build()
+            .createClient(InventoryClient.class);
+}
+```
+
+Spring Retry instead of core resilience; it needs `org.springframework.retry:spring-retry` and `spring-boot-starter-aop`:
+
+```java
+@EnableRetry
+
+@Retryable(retryFor = ConnectException.class,
+           maxAttempts = 4,                                   // total attempts, not retries
+           backoff = @Backoff(delay = 200, multiplier = 2.0, maxDelay = 2000, random = true))
+public StockLevel stockFor(ProductId productId) { … }
+
+@Recover
+public StockLevel fallback(ConnectException e, ProductId productId) {
+    return StockLevel.unknown();
+}
+```
+
+When upgrading this code to core resilience, translate `maxAttempts` to `maxRetries` minus one, flatten `@Backoff`, and replace `@Recover` with a `try`/`catch` at the caller.
+
 ## Running the migration
 
 Upgrade **3.4 → 3.5 → 4.0** in separate steps. If the target is a later 4.x release, first complete and verify the 4.0 migration, then update to the selected 4.x release. Skipping 3.5 conflates unrelated breakage.
@@ -180,7 +239,7 @@ Check the recipe catalogue before running - some Boot 4 recipes ship in a Commun
 - Agent mixes ecosystem versions (Spring AI 1.x on Boot 4, Modulith 1.x on Boot 4) - see the pairing table
 - Agent migrates 3.4 straight to 4.0 - go via 3.5 so the breakage is separable
 - Agent adds `spring-boot-starter-test` next to `spring-boot-starter-webmvc-test` - the `-test` starters are self-contained on Boot 4
-- Agent writes Boot 4 code for a 3.5.x project without checking the build file - the `version` mapping attribute, `@ImportHttpServices` and core `@Retryable` do not exist there
+- Agent writes Boot 4 code for a 3.5.x project without checking the build file - the `version` mapping attribute, `@ImportHttpServices` and core `@Retryable` do not exist there; translate topic-guide code with [Working in an existing Boot 3.5.x project](#working-in-an-existing-boot-35x-project)
 - Agent adds `spring-boot-starter-classic` to make an upgrade compile - it is a transitional aid, not a destination
 
 ## Related

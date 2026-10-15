@@ -12,7 +12,7 @@ Use this skill for Spring Boot project creation and implementation. It includes 
 1. **Determine the versions before giving version-sensitive guidance.** Read the build configuration and establish the exact Spring Boot version, Java version, and build tool. Do not infer them from the installed JDK or from another project.
 2. **Preserve existing project choices.** For existing projects, keep the detected Boot line, build tool, package structure, API contract, and migration strategy unless the requested change requires an update. Do not silently upgrade dependencies or migrate Boot 3.5.x to 4.x.
 3. **Use Boot 4.x for new projects by default.** Boot 3.5.x is supported for existing projects and realistic upgrades; the generator cannot create 3.5.x projects because Spring Initializr no longer offers them. Consult [Spring Boot version compatibility and migration](references/spring-boot-migration.md) before changing versions, starters, or APIs.
-4. **Read the focused guide for the task.** Use the reference map below to select only the relevant guidance. Where a guide has version-specific notes, keep Boot 4 / Spring Framework 7 / Jackson 3 usage distinct from Boot 3.5 / Spring Framework 6 / Jackson 2 usage.
+4. **Read the focused guide for the task.** Use the reference map below to select only the relevant guidance. The topic guides describe Boot 4 / Spring Framework 7 / Jackson 3. In a Boot 3.5.x project, first read [Working in an existing Boot 3.5.x project](references/spring-boot-migration.md#working-in-an-existing-boot-35x-project) and translate topic-guide code with it.
 5. **Follow the project's dependency management.** Prefer the Spring Boot parent or BOM. Check compatibility before overriding managed versions or adding third-party libraries.
 6. **Keep boundaries clear.** Organize new code by business feature where practical. Use request and response DTOs at HTTP boundaries; do not expose persistence entities as API representations.
 7. **Avoid unnecessary infrastructure.** Add authentication, messaging, caching, cloud services, or other optional systems only when the request requires them. Follow existing project conventions when they already define the choice.
@@ -97,7 +97,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 
 ### Spring Boot versions and project setup
 
-- **Version selection or Boot 3.5.x to 4.x migration**: [Spring Boot version compatibility and migration](references/spring-boot-migration.md)
+- **Version selection, changes in a Boot 3.5.x project, or Boot 3.5.x to 4.x migration**: [Spring Boot version compatibility and migration](references/spring-boot-migration.md)
 - **Project generation, defaults, or repository setup assets**: [Project setup](references/tooling/project-setup.md)
 - **Maven build configuration**: [Maven](references/tooling/maven.md)
 - **Gradle build configuration**: [Gradle](references/tooling/gradle.md)
