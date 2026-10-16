@@ -4,6 +4,8 @@ Boot 4 ships **Spring Security 7**. The lambda DSL is the only style - most Spri
 
 Add `spring-boot-starter-security` only when the application needs authentication or authorization. Once present, Spring Security protects requests by default; define an explicit `SecurityFilterChain` for the application's public and protected routes. Select the authentication mechanism in the relevant guide: local accounts, self-issued JWTs, or an OAuth2 resource server.
 
+Treat the security properties below as firm boundaries; treat code samples, package layouts, token lifetimes, and component placement as starting points. Adapt those choices to the existing architecture and stated requirements. When a choice changes a security property, explain the trade-off and verify it with a focused test. Load only the security guide that matches the current authentication flow.
+
 | Removed in Security 7 | Replacement |
 |---|---|
 | `.and()` chaining | Lambda configuration |
@@ -23,7 +25,7 @@ class SecurityConfig {
 
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity http,
-            SecurityProblemHandlers problemDetailHandler) throws Exception {
+            SecurityProblemHandler problemDetailHandler) throws Exception {
         return http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
@@ -46,7 +48,7 @@ class SecurityConfig {
 - This is a chain skeleton. Configure the authentication mechanism required by the application; see [JWT authentication](jwt-authentication.md) or [OAuth2 resource server](oauth2-resource-server.md) for bearer-token APIs.
 - Disable CSRF and use `STATELESS` only for a stateless token API. Cookie and session authentication need CSRF protection.
 - **Order matters** inside `authorizeHttpRequests` - the first matching rule wins, so `anyRequest()` is always last.
-- **`PasswordEncoderFactories.createDelegatingPasswordEncoder()`** rather than `new BCryptPasswordEncoder(12)`: it stores an algorithm prefix (`{bcrypt}…`) so you can migrate hashes later. A bare encoder locks you in.
+- For a new project, prefer **`PasswordEncoderFactories.createDelegatingPasswordEncoder()`**: its algorithm prefix (`{bcrypt}…`) supports future hash migration. An existing project may keep its chosen supported encoder when that fits its migration plan.
 
 ### Multiple chains
 
@@ -146,9 +148,9 @@ UserDetailsService localUsers(
 
 Set `app.security.dev-password` from a developer-only environment variable. Do not provide a shared default credential.
 
-## Authentication is global, authorization belongs to the feature
+## Put authorization where the policy is easiest to own and verify
 
-The failure mode is a `SecurityConfig` that lists every URL in the application, which every feature change has to edit and nobody can read.
+Keep authentication mechanisms and shared filter-chain behavior in the security configuration. Put authorization near the use case by default, where it can use trusted domain data and be tested with the operation. A feature-level `@PreAuthorize` or access-policy bean works well for many applications; a central policy service or URL rules may fit an established architecture better. Keep one clear source of truth for each decision.
 
 | Concern | Where |
 |---|---|
@@ -156,8 +158,8 @@ The failure mode is a `SecurityConfig` that lists every URL in the application, 
 | Password encoder, JWT decoder, `UserDetailsService` | Global `SecurityConfig` |
 | 401 and 403 responses | Global `SecurityConfig` |
 | Coarse public/authenticated split | Global `SecurityConfig` |
-| **Who may do what** | The feature, via `@PreAuthorize` |
-| A whole URL space with different rules | The feature's own `SecurityFilterChain` with an `@Order` |
+| **Who may do what** | Near the use case by default, using the project's authorization pattern |
+| A whole URL space with different rules | A scoped `SecurityFilterChain`, where appropriate |
 
 See [code-organization.md](../architecture/code-organization.md).
 
@@ -207,44 +209,7 @@ Avoid `@PostAuthorize` where you can: it runs the method, then decides. On a rea
 
 Out of the box an unauthenticated API request gets an empty 401, or a redirect to a login page. Neither is usable by a client. And **`@RestControllerAdvice` cannot help** - security filters run before the `DispatcherServlet`, so nothing thrown there reaches your handler ([error-handling.md](../web/error-handling.md)).
 
-Use one handler for both filter-chain interfaces when they share the same response format. The same `SecurityProblemHandlers` can write ProblemDetail responses from authentication filters and logout handlers, avoiding a second response utility. Boot 4 applications can use Jackson 3's `JsonMapper`:
-
-```java
-@Component
-class SecurityProblemHandlers implements AuthenticationEntryPoint, AccessDeniedHandler {
-
-    private final JsonMapper jsonMapper;
-
-    SecurityProblemHandlers(JsonMapper jsonMapper) {
-        this.jsonMapper = jsonMapper;
-    }
-
-    @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException exception) throws IOException {
-        response.setHeader("WWW-Authenticate", "Bearer");
-        write(response, HttpStatus.UNAUTHORIZED,
-                "unauthorized", "Authentication required", "A valid bearer token is required.");
-    }
-
-    @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response,
-                       AccessDeniedException exception) throws IOException {
-        write(response, HttpStatus.FORBIDDEN, "forbidden",
-                "Access denied", "You do not have permission to access this resource.");
-    }
-
-    public void write(HttpServletResponse response, HttpStatus status, String type, String title, String detail)
-            throws IOException {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
-        problem.setType(URI.create("https://example.com/problems/" + type));
-        problem.setTitle(title);
-        response.setStatus(status.value());
-        response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-        jsonMapper.writeValue(response.getOutputStream(), problem);
-    }
-}
-```
+Use a shared `AuthenticationEntryPoint` and `AccessDeniedHandler` when both should return the same Problem Details contract. Set the status and `application/problem+json` content type; preserve `WWW-Authenticate: Bearer` on bearer-token 401 responses. A `@RestControllerAdvice` does not handle filter-chain failures.
 
 Keep MVC failures in `GlobalExceptionHandler`; it does not replace these filter-chain handlers. Security responses should not expose credentials, account existence, or internal exception details.
 
@@ -272,20 +237,9 @@ public record RegistrationRequest(@NotBlank String username, @NotBlank @ValidPas
 
 The custom constraint validator should delegate only to local rules such as configured length and strength checks. Keep it out of login DTOs when existing passwords should still be accepted for authentication, and perform the breach-service check in the application service for registration and password changes.
 
-For username/password authentication, use a repository-backed `UserDetailsService` with `DaoAuthenticationProvider`; keep the persisted account model separate from Spring Security's `UserDetails` adapter. In-memory users are for local development or tests only. Register accounts with the configured `PasswordEncoder`, assign the least privilege by default, and enforce username/email uniqueness with a database constraint rather than a check-then-insert alone.
+For username/password authentication, use a repository-backed `UserDetailsService` with `DaoAuthenticationProvider`; keep the persisted account model separate from Spring Security's `UserDetails` adapter. In-memory users are for local development or tests only. Register accounts with the configured `PasswordEncoder`, assign least privilege by default, and enforce account uniqueness in the database.
 
-`UserDetailsService` looks up an account by username; it does not authenticate the submitted password. It returns a `UserDetails` principal containing the encoded password, granted authorities, and account status. `DaoAuthenticationProvider` compares the submitted password through the configured `PasswordEncoder` and creates the authenticated principal:
-
-```java
-@Bean
-UserDetailsService userDetailsService(UserRepository users) {
-    return email -> users.findByEmail(email)
-            .map(user -> new SecurityUser(user.id(), user.email(), user.password()))
-            .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials"));
-}
-```
-
-For example, a `SecurityUser` can carry the stable user ID needed after authentication:
+`UserDetailsService` loads the principal; `DaoAuthenticationProvider` verifies its encoded password and account status. When downstream authorization needs a stable account ID, expose it on a small security principal:
 
 ```java
 public record SecurityUser(String id, String email, String password) implements UserDetails {
@@ -305,30 +259,13 @@ public record SecurityUser(String id, String email, String password) implements 
 
 Use a custom `UserDetails` implementation when the authenticated principal must carry a stable account ID or other security-relevant state. Keep it as an adapter over the domain account; do not make the persistence entity implement `UserDetails` by default. Use a security-specific name such as `SecurityUser` or `UserPrincipal` so the adapter is not confused with the persisted `User` model.
 
-Use `GlobalExceptionHandler` for MVC validation and application errors. Configure `AuthenticationEntryPoint` and `AccessDeniedHandler` for filter-chain failures; they may share one Problem Details handler class. `@RestControllerAdvice` does not handle authentication failures raised before MVC dispatch.
-
-For example, keep MVC exception mapping in the advice and return Spring's `ProblemDetail` type:
-
-```java
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(EmailAlreadyRegisteredException.class)
-    ProblemDetail emailAlreadyRegistered() {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
-                "An account with this email already exists.");
-        problem.setTitle("Email already registered");
-        problem.setType(URI.create("https://example.com/problems/email-already-registered"));
-        return problem;
-    }
-}
-```
+Keep MVC validation and application errors in `GlobalExceptionHandler` and return Spring's `ProblemDetail`; see [error handling](../web/error-handling.md) for examples. Configure `AuthenticationEntryPoint` and `AccessDeniedHandler` for filter-chain failures; they may share one Problem Details handler class. `@RestControllerAdvice` does not handle authentication failures raised before MVC dispatch.
 
 Password recovery must not reveal whether an account exists. Generate a cryptographically random, single-use reset token, store only its hash and expiry, and invalidate it after use. Keep reset responses generic. Deployed systems should apply rate limits at an appropriate shared boundary; minimal examples can state that deployment requirement without adding application-level rate-limit code unless requested. Do not trust `X-Forwarded-For` unless a trusted proxy has set it. See [rate limiting](../integration/rate-limiting.md).
 
 ## Headers, CORS and CSRF
 
-Boot sets sensible defaults - `X-Content-Type-Options`, `X-Frame-Options`, `Cache-Control` on secured responses. Add HSTS in production if you terminate TLS:
+Boot sets sensible defaults - `X-Content-Type-Options`, `X-Frame-Options`, `Cache-Control` on secured responses. Ensure the TLS termination point sets HSTS in production. Enable `includeSubDomains` only when every subdomain supports HTTPS, and tailor CSP directives to the application's assets and integrations:
 
 ```java
 .headers(headers -> headers
@@ -336,7 +273,7 @@ Boot sets sensible defaults - `X-Content-Type-Options`, `X-Frame-Options`, `Cach
         .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'")))
 ```
 
-CORS goes in one place. For a Bearer API, use an explicit origin allowlist and do not enable credentials:
+Configure CORS deliberately. For a Bearer API, use an explicit origin allowlist and do not enable credentials:
 
 ```java
 @Bean
@@ -352,7 +289,7 @@ CorsConfigurationSource corsConfigurationSource(WebProperties properties) {
 }
 ```
 
-Then `.cors(Customizer.withDefaults())` on the chain. Do not scatter `@CrossOrigin`.
+Then `.cors(Customizer.withDefaults())` on the chain. Prefer one explicit CORS policy when origins are shared across routes; route-level configuration can be appropriate when the allowed origins genuinely differ by feature. Keep the effective policy understandable and testable.
 
 **CSRF**: disable it only for a stateless token API. Cookie-based session authentication needs it on. CORS does not replace CSRF; test that an unsafe browser request without a token fails and that a valid token succeeds.
 

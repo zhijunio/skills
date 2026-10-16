@@ -52,6 +52,8 @@ The controller is package-private, as is its constructor - nothing outside the f
 - **Choose path IDs for the API's exposure and threat model.** UUIDs or business references can reduce accidental enumeration and row-count disclosure on public APIs. Numeric IDs are acceptable when they fit the established contract and authorization is enforced for every lookup; an opaque ID is not an authorization control.
 - **Verbs only for genuine non-CRUD transitions**: `POST /orders/{id}/cancel` is better than `PATCH` with a magic status field
 
+Group routes by resource and caller intent when it makes the API easier to understand. A useful starting convention is `/api/auth/**` for authentication flows, `/api/me/**` for the authenticated caller's self-service operations, and `/api/users/**` for user collection and administration operations. These are examples, not required Spring paths: preserve an established API's conventions and choose names that make ownership and authorization boundaries clear. Enforce those boundaries in authorization policy, not through route names alone.
+
 ```
 GET    /api/orders              list, paginated
 POST   /api/orders              create

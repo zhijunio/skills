@@ -82,33 +82,7 @@ An authenticated OIDC principal is not automatically a local application user. R
 
 Review the actual claims returned by each IdP before mapping them. Claim names and group/role locations differ by provider and token type; do not assume that a `roles`, `groups`, or email claim has the same meaning across providers. Preserve the default scope authorities when adding custom role mappings, and keep the mapping allowlisted and tenant-scoped.
 
-For example, map only known application roles from a claim the IdP has agreed to issue. Replace `app_roles` and the values below with the provider's verified contract:
-
-```java
-@Bean
-GrantedAuthoritiesMapper oidcAuthoritiesMapper() {
-    Set<String> allowedRoles = Set.of("APP_USER", "APP_ADMIN");
-    return authorities -> {
-        Set<GrantedAuthority> mapped = new HashSet<>(authorities);
-        for (GrantedAuthority authority : authorities) {
-            if (authority instanceof OidcUserAuthority oidc) {
-                Object claim = oidc.getIdToken().getClaims().get("app_roles");
-                if (claim instanceof Collection<?> roles) {
-                    roles.stream()
-                            .filter(String.class::isInstance)
-                            .map(String.class::cast)
-                            .filter(allowedRoles::contains)
-                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                            .forEach(mapped::add);
-                }
-            }
-        }
-        return mapped;
-    };
-}
-```
-
-Attach it to the login flow with `.oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userAuthoritiesMapper(oidcAuthoritiesMapper())))`. Preserve existing scope authorities, and test the mapper with the exact claims your IdP returns.
+Map only allowlisted application roles from the provider's verified claim contract. Preserve existing scope authorities and test the mapping against the claims the IdP actually returns. The mapper belongs in Spring Security's OIDC authority-mapping hook; its claim parsing should follow the provider's documented shape.
 
 Choose one account lifecycle:
 
@@ -120,9 +94,9 @@ Map provider roles or groups explicitly to application authorities. Keep provide
 
 ## Browser, SPA, and API boundaries
 
-For a browser application, prefer a BFF: the browser uses an HttpOnly, Secure, SameSite session cookie, while the server keeps OAuth tokens. Retain CSRF protection for cookie-authenticated state-changing requests.
+Choose browser token handling to fit the client and server architecture. A BFF is a strong default when server-side token custody is practical; a direct SPA can fit when the application is intentionally a public OAuth client. Retain CSRF protection for cookie-authenticated state-changing requests and choose cookie attributes such as `SameSite` for the actual login and callback flow.
 
-A pure SPA is a public OAuth client and cannot keep a client secret. Use Authorization Code with PKCE through a supported client library; validate `state` and OIDC `nonce`, and keep access tokens in memory where possible. Do not embed a client secret or treat a browser-held token as a server session.
+A pure SPA is a public OAuth client and cannot keep a client secret. Use Authorization Code with PKCE through a supported client library; validate `state` and OIDC `nonce`, and consider in-memory access-token storage. Do not embed a client secret or treat a browser-held token as a server session.
 
 Do not confuse OAuth2 login with API token validation. An API accepting bearer access tokens should be configured as a resource server and validate issuer, signature, expiry, and audience. See [OAuth2 resource server](oauth2-resource-server.md). For self-issued JWTs, see [JWT authentication](jwt-authentication.md). For MFA and step-up policy, see [MFA](mfa.md).
 

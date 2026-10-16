@@ -12,31 +12,16 @@ First establish the application's authentication shape:
 
 ## Spring Security 7
 
-Spring Security 7 provides `FactorGrantedAuthority`, `@EnableMultiFactorAuthentication`, and `AuthorizationManagerFactories.multiFactor()` for expressing factor requirements in authorization rules. An authentication mechanism must still verify each factor and provide its factor authority. For example, password and WebAuthn can be required together:
+Spring Security 7 provides `FactorGrantedAuthority`, `@EnableMultiFactorAuthentication`, and `AuthorizationManagerFactories.multiFactor()` for expressing factor requirements in authorization rules. An authentication mechanism must still verify each factor and provide its factor authority. For example, the application can require password and WebAuthn factors:
 
 ```java
-@Configuration
 @EnableMultiFactorAuthentication(authorities = {
         FactorGrantedAuthority.PASSWORD_AUTHORITY,
         FactorGrantedAuthority.WEBAUTHN_AUTHORITY
 })
-class MfaConfiguration {
-
-    @Bean
-    SecurityFilterChain browserSecurity(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
-                .webAuthn(webAuthn -> webAuthn
-                        .rpId("example.com")
-                        .allowedOrigins("https://example.com"))
-                .build();
-    }
-}
 ```
 
-This illustrates a browser/session flow. Spring Security combines the required factors with authorization rules and can direct a user to the mechanism that supplies a missing factor. The annotation applies its factor requirement to authorization rules across the application, so do not use it when public routes or lower-assurance routes need different policy. For selective MFA, enable MFA without global required authorities, create an `AuthorizationManagerFactory` with `AuthorizationManagerFactories.multiFactor()`, and apply its manager only to routes that require additional proof.
+Spring Security combines the required factors with authorization rules and can direct a user to the mechanism that supplies a missing factor. The annotation applies its factor requirement across the application, so use a route-specific authorization manager when public or lower-assurance routes need a different policy. Configure WebAuthn origins and relying-party details for the real deployment; see the Spring Security guides below.
 
 Spring Security's `oneTimeTokenLogin()` is One-Time Token (OTT) login. It can deliver a login token out of band, for example by email, but it is not TOTP/HOTP. Treat it as a distinct authentication mechanism and decide explicitly whether it is an acceptable factor for the application's policy.
 

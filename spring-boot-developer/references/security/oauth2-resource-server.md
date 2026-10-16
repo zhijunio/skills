@@ -27,9 +27,9 @@ spring:
 
 `issuer-uri` alone is enough. Spring fetches the provider's OpenID configuration, discovers the JWKS endpoint, caches the keys and refreshes them when an unknown `kid` appears - so provider key rotation needs no action from you.
 
-**Always set `issuer-uri`, not just `jwk-set-uri`.** With only the JWKS URL, Spring validates the signature but not the `iss` claim, so a correctly-signed token minted for a different tenant or realm on the same provider is accepted. Use `jwk-set-uri` on its own only when the provider has no discovery endpoint, and then validate the issuer explicitly.
+Prefer `issuer-uri`, which lets Spring discover keys and validate the issuer. If the provider has no discovery endpoint or startup discovery is unsuitable, `jwk-set-uri` may be configured directly, but add explicit issuer validation; signature validation alone does not establish which issuer's token was accepted.
 
-**Set `audiences`.** Without it, any token the provider issued for any of its clients is valid against your API. The `aud` claim is what scopes a token to *your* service.
+Validate that a token is intended for this API when the provider issues tokens for multiple audiences. Boot's `audiences` property is the usual choice; if the provider uses a different resource-binding contract, validate that contract explicitly and document the trust boundary.
 
 `issuer-uri` is resolved at startup by default, so the application will not start if the provider is unreachable. In an environment where that ordering is not guaranteed, configure `jwk-set-uri` alongside it to defer the fetch.
 
@@ -159,7 +159,7 @@ spring:
           client-secret: ${INTROSPECTION_CLIENT_SECRET}
 ```
 
-Every request costs a network round trip to the provider, so cache introspection results for a few seconds. Configure `jwt` or `opaquetoken`, never both.
+Introspection normally requires a provider request. Cache only if the latency or provider load warrants it, and set the cache lifetime according to the acceptable revocation delay; use no cache when changes must take effect on the next request. Configure `jwt` or `opaquetoken` for a given chain, not both.
 
 ## Multi-tenancy
 
