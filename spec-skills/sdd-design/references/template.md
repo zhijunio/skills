@@ -5,9 +5,9 @@
 **PRD status:** Draft / Approved<br>
 **Gate result:** Exploratory (Draft PRD) / Pending (in progress) / Ready / Blocked<br>
 **Updated:** <date><br>
-**Related PRD:** <path and section>
-**Assessment scope:** <approved delivery batch or subset of approved PRD requirement IDs/sections; exclude unrelated future candidates>
-**Assessment record:** <path; required for an Approved PRD>
+**Related PRD:** <path and section><br>
+**Assessment scope:** <approved delivery batch or subset of approved PRD requirement IDs/sections; exclude unrelated future candidates><br>
+**Assessment record:** <path; required for an Approved PRD><br>
 **Contract acceptance:** <Not required / Pending / accepted by contract owner on date>
 
 ## PRD contract coverage

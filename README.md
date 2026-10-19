@@ -16,17 +16,19 @@ A collection of Agent Skills for agentic coding tools, covering Java, PostgreSQL
 
 ## SDD workflow skills
 
-Use these skills for a spec-driven delivery flow. The main path is `sdd-spec` → `sdd-plan` → `sdd-build` → `sdd-review`; use `sdd-improve` separately for a read-only, broad-scope health scan.
+Use these skills for a spec-driven delivery flow: `sdd-prd` turns an early product idea and available evidence into a Draft PRD, then obtains explicit approval of its product scope → required `sdd-design` readiness assessment checks the approved delivery batch or selected requirements, reuses or updates shared domain/API contracts as needed, and records a scoped Ready/Blocked result → `sdd-spec` decomposes only requirements covered by a Ready assessment into feature specs → for each approved spec, `sdd-plan` creates an implementation plan → `sdd-build` implements that spec and plan. Deferred roadmap candidates are assessed only when they enter a delivery scope. A no-change design result is valid and must not create empty contract documents. A Draft PRD may support exploratory artifacts but cannot pass the design gate or authorize accepted contracts, approved specs, plans, or implementation. Brainstorming, grilling, or interviews may use separate skills when useful; their findings feed directly into the PRD. Review with `sdd-review` when requested; it is not an automatic build step. Use `sdd-improve` separately for a read-only, broad-scope health scan.
 
 | Skill | Purpose |
 | ----- | ------- |
-| [`sdd-spec`](spec-skills/sdd-spec/SKILL.md) | Define scope, requirements, and testable acceptance criteria. |
-| [`sdd-plan`](spec-skills/sdd-plan/SKILL.md) | Turn an approved spec into verifiable vertical slices. |
-| [`sdd-build`](spec-skills/sdd-build/SKILL.md) | Implement an approved plan test-first, or fix listed review findings. |
+| [`sdd-prd`](spec-skills/sdd-prd/SKILL.md) | Clarify product inputs and create or revise the single product requirements document; keep it Draft until explicit scope approval. |
+| [`sdd-design`](spec-skills/sdd-design/SKILL.md) | Required after PRD approval for the selected delivery scope: assess domain/API readiness and update shared contracts where needed; deferred roadmap items are excluded. |
+| [`sdd-spec`](spec-skills/sdd-spec/SKILL.md) | After a scoped Ready design assessment, decompose covered PRD requirements into traceable feature specs with user cases, acceptance criteria, edge cases, and verification. |
+| [`sdd-plan`](spec-skills/sdd-plan/SKILL.md) | Decompose one approved feature spec into ordered, verifiable implementation slices; use parallel analysis when independent questions could materially affect the plan. |
+| [`sdd-build`](spec-skills/sdd-build/SKILL.md) | Implement one approved spec and its plan test-first, or fix listed review findings. |
 | [`sdd-review`](spec-skills/sdd-review/SKILL.md) | Review a fixed increment against documented standards and its spec. |
 | [`sdd-improve`](spec-skills/sdd-improve/SKILL.md) | Find improvement candidates through a read-only repository scan. |
 
-The workflow includes [spec and plan templates](spec-skills/) and shared [review baselines](spec-skills/sdd-review/references/).
+The workflow includes [PRD, design, spec, and plan templates](spec-skills/) and shared [review baselines](spec-skills/sdd-review/references/). Multi-spec initiatives are planned and built one approved spec at a time; parallel analysis in `sdd-plan` is reserved for substantial independent questions and does not delegate plan ownership or implementation.
 
 ## Runnable samples
 

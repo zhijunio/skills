@@ -17,8 +17,8 @@
   - During build, only flip "Done" to true after verification passes; append results at the bottom.
 -->
 
-**Status:** Draft / Approved
-**Approval record:** <Pending / approved by user on date>
+**Status:** Draft / Approved<br>
+**Approval record:** <Pending / approved by user on date><br>
 **Spec:** `<relative path to approved spec file>`
 
 <!--

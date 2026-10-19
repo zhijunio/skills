@@ -1,9 +1,9 @@
 # <Feature slice>
 
-**Status:** Draft / Approved
-**Approval record:** <Pending / approved by user on date>
-**Version:** 0.1
-**Spec ID:** <ID from breakdown map, if applicable>
+**Status:** Draft / Approved<br>
+**Approval record:** <Pending / approved by user on date><br>
+**Version:** 0.1<br>
+**Spec ID:** <ID from breakdown map, if applicable><br>
 **Parent PRD:** <path and covered requirement IDs / sections>
 
 ## Outcome and scope
