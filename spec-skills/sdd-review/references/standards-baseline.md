@@ -1,6 +1,6 @@
 # Standards baseline
 
-Repo-documented standards override this list. Paste [smell-baseline.md](smell-baseline.md) into the Standards sub-agent (smells belong under **Structure**).
+Repo-documented standards override this list. Consult [smell-baseline.md](smell-baseline.md) for deeper structural review; smells belong under **Structure**.
 
 | Dimension | Look for |
 | --- | --- |

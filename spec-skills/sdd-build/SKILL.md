@@ -17,7 +17,7 @@ Tests verify behavior through public interfaces, not implementation details.
 
 ## Task
 
-1. Require **approved spec + plan** — read `AGENTS.md`, README, linters when present; follow spec/plan and touched-code patterns; exclude unrelated dirty files. On the **review-fix** path, [`sdd-review`](../sdd-review/SKILL.md) listed findings are the temporary plan: skip the spec/plan prerequisite; **listed findings only** — no new behavior or scope expansion.
+1. Require **one approved spec + its approved plan**, with an approved parent PRD and a persisted **Ready `sdd-design` assessment covering the spec's requirements** — one build run implements one spec/plan pair. Verify the PRD, design gate, spec, and plan status/approval records; read `AGENTS.md`, README, and linters when present; follow spec/plan and touched-code patterns; exclude unrelated dirty files. On the **review-fix** path, [`sdd-review`](../sdd-review/SKILL.md) listed findings are the temporary plan: skip the spec/plan prerequisite; **listed findings only** — no new behavior or scope expansion.
 2. **Slice loop** until all slices complete:
     - Select one unfinished slice (already satisfied → mark done, next)
     - For behavior code, write a **failing test** and observe the right failure

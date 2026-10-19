@@ -1,6 +1,6 @@
 # Fowler smell baseline (Standards)
 
-Paste this list into the Standards sub-agent when spawning. From Fowler, *Refactoring* ch.3. Match against the scoped change only. These smells sit under the **Structure** Standards dimension.
+Use this list for deeper structural reviews. From Fowler, *Refactoring* ch.3. Match against the scoped change only. These smells sit under the **Structure** Standards dimension.
 
 
 **Rules**
