@@ -56,9 +56,9 @@ For changes to generated project defaults or repository files, read [project set
 
 ### Change an existing project
 
-1. Inspect repository instructions, the working tree, build files, configuration, related code, and tests.
-2. Identify the behavior and constraints to preserve. For CRUD or REST work, establish fields, validation, pagination and ordering, status codes, error behavior, persistence changes, and client states.
-3. Read the relevant topic guides and implement the smallest coherent change in the existing conventions.
+1. Identify the requested outcome and scope. Inspect repository instructions, the working tree, build files, configuration, related code, and tests before choosing an approach.
+2. Identify the behavior and constraints to preserve. For CRUD or REST work, establish fields, validation, pagination and ordering, status codes, error behavior, persistence changes, and client states. Do not turn unrelated observations into extra work.
+3. Read only the applicable topic guides and implement the smallest coherent change in the existing conventions. Add optional infrastructure only when the requirement calls for it.
 4. Add or update tests at the narrowest layer that proves the behavior. Use the real database or the project's established integration setup for database-specific behavior.
 5. Run relevant checks and review the final diff for unintended changes.
 
@@ -124,7 +124,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 
 ### Web and API
 
-- **REST endpoints, HTTP semantics, and pagination**: [REST controllers](references/web/rest-controllers.md)
+- **REST endpoints, HTTP semantics, pagination, and idempotent API commands**: [REST controllers](references/web/rest-controllers.md)
 - **Validation**: [Validation](references/web/validation.md)
 - **Error responses**: [Error handling](references/web/error-handling.md)
 - **JSON serialization and Jackson**: [JSON and Jackson](references/web/json-and-jackson.md)
@@ -135,7 +135,6 @@ Load the guide that matches the task. The focused guides contain implementation 
 - **WebSocket and STOMP**: [WebSocket](references/web/websocket.md)
 - **Thymeleaf views**: [Thymeleaf](references/web/thymeleaf.md)
 - **Serving frontend files and SPA routes**: [Static resources](references/web/static-resources.md)
-- **Idempotent API commands**: [API idempotency](references/web/api-idempotency.md)
 
 ### Persistence and configuration
 

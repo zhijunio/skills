@@ -4,6 +4,8 @@ Use this for a review pass over existing code. Each rule links to the reference 
 
 This checklist covers Spring application concerns. Use the focused architecture and Java references in this directory for records, sealed types, `Optional`, `var`, and pattern matching.
 
+Review the requested change and directly affected code; do not expand the pass into unrelated cleanup. Check each rule against its linked guidance and the project's actual constraints before reporting a finding. Report actionable findings with severity, file and line, code or configuration evidence, impact, and a specific remediation direction. Separate confirmed defects from test gaps and optional hardening suggestions; omit style-only or speculative comments. If a requested review finds no actionable issue, say so and note important areas that could not be verified.
+
 ## Versions and build
 
 | # | Rule | Reference |

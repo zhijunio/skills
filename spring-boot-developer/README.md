@@ -9,7 +9,7 @@ An Agent Skill for creating and maintaining Spring Boot applications. Generate a
 - **Selectable persistence** with JPA (default), MyBatis-Plus, or no persistence framework
 - **Backend guidance** for REST APIs, persistence, validation, security, configuration, testing, application architecture, and optional local BootUI diagnostics; security guidance covers both browser sessions and stateless Bearer APIs
 - **Frontend integration guides** for Vue, React, Next.js, Angular, and vanilla JavaScript
-- **Deployment guidance** for Docker, GraalVM Native Image, and Azure Container Apps
+- **Deployment guidance** for Docker, Kubernetes, GraalVM Native Image, and Azure Container Apps
 - **Existing-project support** for implementation, debugging, version migration, and verification
 - **A hands-on workshop** that builds and verifies a Spring Boot, Vue, and PostgreSQL CRUD application
 
@@ -71,6 +71,7 @@ The guides cover frontend scaffolding and API integration. Production packaging 
 ### Deployment guides
 
 - [Docker and Compose](references/deployment/docker.md)
+- [Kubernetes](references/deployment/kubernetes.md)
 - [GraalVM Native Image](references/deployment/graalvm.md)
 - [Azure Container Apps](references/deployment/azure.md)
 - [CI/CD and releases](references/deployment/ci-cd-release.md)
