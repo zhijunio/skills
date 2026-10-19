@@ -68,7 +68,7 @@ Versioning is not a URL convention on Boot 4 - see [api-versioning.md](api-versi
 
 Use the path to identify the resource or a genuine state-transition subresource. Put filters, search terms, pagination and whitelisted sort fields in query parameters; put create/update data in the request body. Keep route names independent of representation formats and avoid putting credentials or sensitive values in URLs, which are commonly logged and cached.
 
-Preserve method semantics in the implementation: `GET` must not mutate state; `PUT` replaces a representation and should be idempotent; `PATCH` must document its patch format and whether repeating the same operation is safe; `POST` is not inherently idempotent. If a client must retry a non-idempotent command safely, define an idempotency-key contract rather than changing the resource path. See [api-idempotency.md](api-idempotency.md).
+Preserve method semantics in the implementation: `GET` must not mutate state; `PUT` replaces a representation and should be idempotent; `PATCH` must document its patch format and whether repeating the same operation is safe; `POST` is not inherently idempotent. If a client must retry a non-idempotent command safely, define an idempotency-key contract rather than changing the resource path; see [Idempotency for retried commands](#idempotency-for-retried-commands).
 
 ## Status codes
 
@@ -87,6 +87,45 @@ Preserve method semantics in the implementation: `GET` must not mutate state; `P
 | Unhandled | 500 |
 
 400 versus 422 is worth getting right: 400 is "I could not parse or bind this", 422 is "I understood it and the domain refused". Map validation failures to 400 and domain rule violations to 422.
+
+## Idempotency for retried commands
+
+HTTP methods such as `PUT` and `DELETE` are defined as idempotent, but the application must still uphold that contract.
+Use an idempotency key for non-idempotent operations such as creating a payment or order when clients may retry after a
+timeout.
+
+Document which operation accepts a key, who creates it, its scope, retention period, and duplicate response. Scope the
+key by authenticated tenant/client and operation/route so one tenant cannot replay another tenant's response. Require
+high-entropy client-generated values, cap their length, and reject malformed or duplicate header fields. The
+`Idempotency-Key` header is used by industry APIs, but its IETF specification is an expired Internet-Draft, not an RFC;
+publish the exact syntax and behavior in your API contract.
+
+For a short database-only command, store a unique record keyed by `(tenant, operation, key)` in the same transaction as
+the business write. Include a fingerprint of the validated semantic request, state, resulting resource ID, response
+status/body or stable result reference, and expiry. Then:
+
+- First use reserves the key and performs the operation once.
+- Same key and same request returns the original result without repeating side effects.
+- Same key with a different request is rejected as key reuse.
+- Concurrent requests follow a documented policy: wait and replay, or return an in-progress response (often 409 or 202).
+
+Use a database unique constraint as the final concurrency guard; do not check a cache and then write. If a concurrent
+insert loses the unique-key race, roll back and resolve the existing record afterward. Retain records longer than the
+client retry horizon and clean them with a bounded retention job. Hash the canonical validated command, not raw JSON
+bytes, and recheck authorization before replaying a stored response.
+
+For remote side effects, do not hold a database transaction open during the provider call. Persist the command outcome
+and an outbox message atomically, then deliver outside the transaction. Pass a stable downstream idempotency key when
+supported and reconcile ambiguous timeouts. Long-running work should persist a recoverable `PENDING` state and return
+`202 Accepted` with a status-resource `Location`.
+
+Authenticate and authorize before returning a stored result. Never use the key as an authorization token. Protect stored
+response data, redact keys from logs when they could correlate sensitive operations, and bound storage through rate and
+retention limits. Test first success, retries, payload mismatch, concurrent duplicates, rollback, expiry, tenant
+isolation, downstream timeout reconciliation, and authorization changes against the production database engine.
+
+See [database concurrency](../persistence/database-concurrency.md), [transactions](../persistence/transactions.md),
+[messaging](../integration/messaging.md) and [resilience](../integration/resilience.md) for the underlying guarantees.
 
 ## Binding value-object IDs
 
@@ -151,12 +190,16 @@ For deep pagination use keyset pagination instead; see [spring-data-jpa.md](../p
 - Agent nests resources three levels deep - flatten to a top-level resource
 - Agent sprinkles `@CrossOrigin` on controllers, or configures CORS only in `WebMvcConfigurer` while a security chain is present - call `.cors()` on that chain; see [security-fundamentals.md](../security/security-fundamentals.md)
 - Agent parses the ID from a `String` path variable inside the handler - register a `Converter` and bind the value object
+- Agent checks an idempotency key in Redis and then writes the database - concurrent requests can both pass; use a database uniqueness constraint for transactional commands
+- Agent scopes an idempotency key globally or replays a stored result before authorization - include tenant/client and operation, then recheck access
+- Agent treats an idempotency key as exactly-once execution - remote timeouts still need a stable provider key and reconciliation
 
 ## Related
 
-- [error-handling.md](error-handling.md) · [validation.md](validation.md) · [json-and-jackson.md](json-and-jackson.md) · [api-versioning.md](api-versioning.md) · [api-idempotency.md](api-idempotency.md) · [rate-limiting.md](../integration/rate-limiting.md) · [spring-data-jpa.md](../persistence/spring-data-jpa.md) · [testing-slices-web.md](../testing/testing-slices-web.md)
+- [error-handling.md](error-handling.md) · [validation.md](validation.md) · [json-and-jackson.md](json-and-jackson.md) · [api-versioning.md](api-versioning.md) · [rate-limiting.md](../integration/rate-limiting.md) · [spring-data-jpa.md](../persistence/spring-data-jpa.md) · [testing-slices-web.md](../testing/testing-slices-web.md)
 
 ## References
 
 - [Spring Framework: Annotated Controllers](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller.html)
 - [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)
+- [IETF HTTPAPI Idempotency-Key draft](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/)

@@ -157,7 +157,7 @@ Code-first cannot drift from the code, but it can drift from what consumers expe
 
 ### Production
 
-Ship the spec, not the UI:
+In production, ship the spec only when consumers need it, and disable the UI by default:
 
 ```yaml
 springdoc:
@@ -167,7 +167,9 @@ springdoc:
     enabled: false      # in production
 ```
 
-Swagger UI in production is an unnecessary attack surface and an interactive client for your API. If it must be exposed, put it behind authentication - and make sure `/v3/api-docs` is not accidentally `permitAll` in your security config ([security-fundamentals.md](../security/security-fundamentals.md)).
+Swagger UI in production is an unnecessary attack surface and an interactive client for your API. If it must be exposed, put it behind authentication. Protect `/v3/api-docs` as well when the specification should not be public; do not leave it `permitAll` by accident ([security-fundamentals.md](../security/security-fundamentals.md)).
+
+For local development and non-production demos, it is reasonable to allow anonymous access to `/swagger-ui/**`, `/swagger-ui.html`, and `/v3/api-docs/**` so developers can inspect the contract without completing application authentication. Keep this environment-scoped: use a development profile or equivalent configuration, and ensure production disables the UI and applies the intended access policy to the specification endpoint.
 
 ## Spec-first with the generator
 
@@ -261,7 +263,7 @@ The generator target follows the client transport and project needs, not whether
 - Agent relies on record-component Javadocs without checking processor output - verify `/v3/api-docs` and use `@Schema` for descriptions that must be present
 - Agent documents errors as a bespoke object - document `ProblemDetail`
 - Agent leaves Swagger UI enabled in production - ship the spec, disable the UI
-- Agent adds `/v3/api-docs` to `permitAll` without thinking - that publishes the full API surface anonymously
+- Agent makes `/v3/api-docs` anonymous in every environment - that publishes the full API surface anonymously; scope public docs access to local/non-production environments when intended
 - Agent lets a `@JsonValue` value object document as an object - the schema then contradicts the payload
 - Agent assumes springdoc discovers Framework 7's API-version header automatically - declare the header explicitly or use a tested OpenAPI customiser, then inspect the generated spec
 - Agent sets `useSpringBoot3` for a Boot 4 project, or sets `useSpringBoot4` without `useJackson3` - generated code stays on Jackson 2 and does not compile

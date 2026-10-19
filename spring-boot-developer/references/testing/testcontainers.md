@@ -189,7 +189,7 @@ class OrderIntegrationTest extends BaseIntegrationTest { … }
 
 ## Related
 
-- [testing-slices-persistence.md](testing-slices-persistence.md) · [testing-integration.md](testing-integration.md) · [testing-rest-api.md](testing-rest-api.md) · [testing-strategy.md](testing-strategy.md) · [Spring Data JPA](../persistence/spring-data-jpa.md) · [Flyway](../persistence/flyway.md)
+- [testing-slices-persistence.md](testing-slices-persistence.md) · [testing-integration.md](testing-integration.md#full-rest-api-tests) · [testing-strategy.md](testing-strategy.md) · [Spring Data JPA](../persistence/spring-data-jpa.md) · [Flyway](../persistence/flyway.md)
 
 ---
 

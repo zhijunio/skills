@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#eff6ff">
+    <title>管理端点安全隔离演示</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">SPRING BOOT 4.1.1 · SPRING SECURITY 7</p>
+          <h1>管理端点安全隔离</h1>
+          <p class="lede">业务 API 与 Actuator 使用不同的安全链、authority 和端口。存活与就绪探针可匿名访问，其余管理操作需要专用权限。</p>
+        </div>
+        <div class="port-badge"><span>业务端口</span><strong>8080</strong><span class="badge-divider"></span><span>管理端口</span><strong>9090</strong></div>
+      </header>
+
+      <section class="grid">
+        <article class="card business-card">
+          <div class="card-heading"><span class="icon">01</span><div><p class="eyebrow">APPLICATION CHAIN</p><h2>业务 API</h2></div></div>
+          <p>业务链处理 <code>/api/**</code>。订单接口要求 <code>BUSINESS_READ</code>；公开状态接口仅用于展示业务链的匿名规则。</p>
+          <label>业务用户名<input id="businessUser" autocomplete="username" value="business"></label>
+          <label>业务密码<input id="businessPassword" type="password" autocomplete="current-password" placeholder="启动时设置 BUSINESS_PASSWORD"></label>
+          <div class="button-row"><button id="publicCall" class="button secondary">调用公开状态</button><button id="ordersCall" class="button primary">读取受保护订单</button></div>
+          <pre id="businessResult" class="result" aria-live="polite">点击按钮查看业务 API 响应。</pre>
+        </article>
+
+        <article class="card actuator-card">
+          <div class="card-heading"><span class="icon">02</span><div><p class="eyebrow">ACTUATOR CHAIN · :9090</p><h2>管理端点</h2></div></div>
+          <p>第一条安全链只匹配 <code>/actuator/**</code>。它按 authority 授权，不会落入宽泛的业务链。</p>
+          <div class="endpoint-row"><div><strong>Liveness</strong><code>/actuator/health/liveness</code></div><a href="http://localhost:9090/actuator/health/liveness" target="_blank" rel="noreferrer">匿名探测 ↗</a></div>
+          <div class="endpoint-row"><div><strong>Readiness</strong><code>/actuator/health/readiness</code></div><a href="http://localhost:9090/actuator/health/readiness" target="_blank" rel="noreferrer">匿名探测 ↗</a></div>
+          <div class="endpoint-row restricted"><div><strong>Health 汇总</strong><code>/actuator/health</code></div><span>需 ACTUATOR_ADMIN</span></div>
+          <div class="endpoint-row restricted"><div><strong>Metrics / env / configprops</strong><code>未加入 Web exposure allowlist</code></div><span>未暴露</span></div>
+          <aside class="note"><strong>隔离提示</strong><span>独立管理端口只是网络边界之一。生产环境还需限制网络路由，并保留认证和 authority 检查。</span></aside>
+        </article>
+      </section>
+
+      <section class="card request-card">
+        <div class="card-heading"><span class="icon">03</span><div><p class="eyebrow">TRY IT LOCALLY</p><h2>请求示例</h2></div></div>
+        <div class="commands">
+          <div><span class="command-label">公开探针，无需凭据</span><code>curl http://localhost:9090/actuator/health/liveness</code></div>
+          <div><span class="command-label">管理操作，专用账号</span><code>curl -u "$MANAGEMENT_USERNAME:$MANAGEMENT_PASSWORD" http://localhost:9090/actuator/health</code></div>
+          <div><span class="command-label">业务 API，业务账号</span><code>curl -u "$BUSINESS_USERNAME:$BUSINESS_PASSWORD" http://localhost:8080/api/orders</code></div>
+        </div>
+        <p class="footnote">演示账号密码通过环境变量注入。页面和账户仅用于本地学习，不是生产身份系统。</p>
+      </section>
+
+      <footer>本示例不使用数据库。生产部署还需结合防火墙、服务网格或私有网络限制管理端口的可达范围。</footer>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

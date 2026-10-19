@@ -20,10 +20,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 
 /**
  * Prints a friendly banner at startup showing the URLs where the
- * application (and, if present, the Vite dev server) can be reached.
+ * application (and, if present, the OpenAPI endpoints and Vite dev server) can be reached.
  */
 @Component
 public class StartupInfoListener implements ApplicationListener<ApplicationReadyEvent> {
@@ -69,6 +70,8 @@ public class StartupInfoListener implements ApplicationListener<ApplicationReady
                 : String.join(", ", env.getActiveProfiles());
 
         String viteHint = viteDevServerHint(env);
+        String openApiHint = openApiHint(
+                event.getApplicationContext(), env, protocol, serverPort, contextPath);
 
         String banner = AnsiOutput.toString(
                 "\n",
@@ -83,12 +86,45 @@ public class StartupInfoListener implements ApplicationListener<ApplicationReady
                 protocol, "://localhost:", serverPort, "/api\n",
                 AnsiColor.GREEN, "  Actuator:    ", AnsiColor.DEFAULT,
                 protocol, "://localhost:", serverPort, "/actuator\n",
+                openApiHint,
                 AnsiColor.GREEN, "  Profile(s):  ", AnsiColor.DEFAULT, profiles, "\n",
                 viteHint,
                 AnsiColor.GREEN, "----------------------------------------------------------",
                 AnsiColor.DEFAULT);
 
         log.info(banner);
+    }
+
+    /** Prints springdoc URLs only when their optional modules are present and enabled. */
+    private String openApiHint(
+            ApplicationContext context, Environment env, String protocol, String port, String contextPath) {
+        ClassLoader classLoader = context.getClassLoader();
+        boolean apiDocsAvailable = ClassUtils.isPresent("org.springdoc.core.service.OpenAPIService", classLoader)
+                && env.getProperty("springdoc.api-docs.enabled", Boolean.class, true);
+        boolean swaggerUiAvailable = ClassUtils.isPresent("org.springdoc.webmvc.ui.SwaggerConfig", classLoader)
+                && env.getProperty("springdoc.swagger-ui.enabled", Boolean.class, true);
+        if (!apiDocsAvailable && !swaggerUiAvailable) {
+            return "";
+        }
+
+        StringBuilder hint = new StringBuilder();
+        if (apiDocsAvailable) {
+            String path = env.getProperty("springdoc.api-docs.path", "/v3/api-docs");
+            hint.append(AnsiOutput.toString(
+                    AnsiColor.GREEN, "  OpenAPI:     ", AnsiColor.DEFAULT,
+                    protocol, "://localhost:", port, contextPath + pathWithoutLeadingSlash(path), "\n"));
+        }
+        if (swaggerUiAvailable) {
+            String path = env.getProperty("springdoc.swagger-ui.path", "/swagger-ui.html");
+            hint.append(AnsiOutput.toString(
+                    AnsiColor.GREEN, "  Swagger UI:  ", AnsiColor.DEFAULT,
+                    protocol, "://localhost:", port, contextPath + pathWithoutLeadingSlash(path), "\n"));
+        }
+        return hint.toString();
+    }
+
+    private String pathWithoutLeadingSlash(String path) {
+        return path.startsWith("/") ? path.substring(1) : path;
     }
 
     /** If a {@code frontend/} folder exists next to the process, hint at the Vite dev URL. */

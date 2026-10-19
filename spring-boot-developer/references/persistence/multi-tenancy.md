@@ -34,7 +34,7 @@ Return a consistent not-found or forbidden policy for cross-tenant object IDs so
 
 ## Preserve the boundary across the system
 
-Include tenant identity in cache keys, idempotency scopes, audit records, rate-limit keys, storage ownership and outbox events. Do not put raw tenant IDs in metric tags unless the tenant set is bounded and approved; tenant identifiers in logs and traces need the same privacy and access controls as other identifiers. See [caching.md](caching.md), [api-idempotency.md](../web/api-idempotency.md), [auditing.md](auditing.md) and [rate-limiting.md](../integration/rate-limiting.md).
+Include tenant identity in cache keys, idempotency scopes, audit records, rate-limit keys, storage ownership and outbox events. Do not put raw tenant IDs in metric tags unless the tenant set is bounded and approved; tenant identifiers in logs and traces need the same privacy and access controls as other identifiers. See [caching.md](caching.md), [idempotency contract](../web/rest-controllers.md#idempotency-for-retried-commands), [auditing.md](auditing.md) and [rate-limiting.md](../integration/rate-limiting.md).
 
 Tenant-aware background jobs must enumerate or claim tenant work explicitly, apply the same isolation rules, and bound concurrency so one tenant cannot starve others. Never run a tenant job under whichever request context happened to schedule it.
 
@@ -53,7 +53,7 @@ Integration tests should create at least two tenants and prove that reads, updat
 
 ## Related
 
-- [security-fundamentals.md](../security/security-fundamentals.md) · [oauth2-resource-server.md](../security/oauth2-resource-server.md) · [spring-data-jpa.md](spring-data-jpa.md) · [caching.md](caching.md) · [auditing.md](auditing.md) · [api-idempotency.md](../web/api-idempotency.md)
+- [security-fundamentals.md](../security/security-fundamentals.md) · [oauth2-resource-server.md](../security/oauth2-resource-server.md) · [spring-data-jpa.md](spring-data-jpa.md) · [caching.md](caching.md) · [auditing.md](auditing.md) · [idempotency contract](../web/rest-controllers.md#idempotency-for-retried-commands)
 
 ## References
 

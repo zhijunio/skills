@@ -31,6 +31,16 @@ table aligned with `versions.json`.
 - [Cleanup](#cleanup)
 - [References](#references)
 
+## Quick lookup
+
+| Symptom or task | Start here |
+| --- | --- |
+| Want to deploy without a database first | [Quick Start (no database)](#quick-start-no-database) |
+| Need Azure Database for PostgreSQL over a private network | [With PostgreSQL (VNET-injected)](#with-postgresql-vnet-injected) |
+| Need a native executable image | [Deploy the native image](#deploy-the-native-image) |
+| Need GitHub Actions authentication without a stored Azure client secret | [CI/CD with GitHub Actions](#cicd-with-github-actions-oidc-no-secrets) |
+| Need to inspect a running app or diagnose a failed deployment | [Day-2 operations](#day-2-operations) and [Troubleshooting](#troubleshooting) |
+
 ## Overview
 
 Core components:

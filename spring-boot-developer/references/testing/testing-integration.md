@@ -119,6 +119,143 @@ Notes that matter:
 - Every distinct `@MockitoBean` set and `@TestConfiguration` changes the context cache key. Consolidate shared ones in a base class ([testing-strategy.md](testing-strategy.md)).
 - **Reuse the suite's existing `TestcontainersConfig`** rather than writing a second one - two container configurations mean two databases and two cache families.
 
+## Full REST API tests
+
+The end-to-end layer: the application on a real port, a real database, driven only through HTTP. Keep this layer **thin** - it is the slowest tier and the one that catches the fewest bugs per test. Its job is to prove the whole stack is wired together, not to cover business rules ([testing-strategy.md](testing-strategy.md)).
+
+### The base class
+
+One base class, imported by every end-to-end test, so the whole suite shares a single context and a single container:
+
+```java
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
+
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+@Import(TestcontainersConfig.class)
+@AutoConfigureRestTestClient
+@ActiveProfiles("test")
+public abstract class BaseIntegrationTest {
+
+    @Autowired protected RestTestClient restTestClient;
+    @Autowired protected JsonMapper jsonMapper;
+
+    protected String bearerTokenFor(String email) { … }
+}
+```
+
+Every element earns its place:
+
+- **`RANDOM_PORT`** - a fixed port breaks on CI and under parallel runs.
+- **`@Import(TestcontainersConfig.class)`** - the *shared* configuration ([testcontainers.md](testcontainers.md)). A second one means a second database.
+- **`@AutoConfigureRestTestClient`** - required on Boot 4; `RestTestClient` is not auto-provided.
+- **`@ActiveProfiles("test")`** with settings in `application-test.yml` rather than scattered `@TestPropertySource` - every distinct property set forks the context cache.
+- **`JsonMapper`** - Jackson 3 on Boot 4, not `ObjectMapper` ([testing-slices-web.md](testing-slices-web.md)).
+
+Put shared mocks here too, not on individual test classes, for the same cache reason.
+
+### `RestTestClient`
+
+Spring Framework 7's `RestTestClient` unifies MockMvc and `WebTestClient` behind one fluent API, with a bind mode per test level: `bindToController(...)`, `bindTo(MockMvc)`, `bindToApplicationContext(...)`, and `bindToServer()`. The same client spans the sliced-to-end-to-end range instead of switching tools per level.
+
+```java
+class OrderApiTest extends BaseIntegrationTest {
+
+    @Test
+    void createsOrder() {
+        var response = restTestClient.post()
+                .uri("/api/orders")
+                .headers(h -> h.setBearerAuth(bearerTokenFor(CUSTOMER_EMAIL)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("""
+                        {
+                          "customerEmail": "customer@example.com",
+                          "items": [{"productId": "%s", "quantity": 2}]
+                        }
+                        """.formatted(productId))
+                .exchange()
+                .expectStatus().isCreated()
+                .expectHeader().exists(HttpHeaders.LOCATION)
+                .returnResult(OrderResponse.class)
+                .getResponseBody();
+
+        assertThat(response.status()).isEqualTo("PLACED");
+    }
+
+    @Test
+    void rejectsUnauthenticated() {
+        restTestClient.post().uri("/api/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("{}")
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void returnsProblemDetailForUnknownOrder() {
+        restTestClient.get()
+                .uri("/api/orders/{id}", UUID.randomUUID())
+                .headers(h -> h.setBearerAuth(bearerTokenFor(CUSTOMER_EMAIL)))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectHeader().contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .expectBody()
+                .jsonPath("$.type").exists()
+                .jsonPath("$.title").isEqualTo("Resource Not Found");
+    }
+}
+```
+
+Text blocks keep request bodies readable - but never interpolate untrusted content into one; use `.formatted(...)` with known values, exactly as in [security fundamentals](../security/security-fundamentals.md).
+
+### What belongs at this level
+
+A handful of tests, chosen deliberately:
+
+| Worth an end-to-end test | Test it lower down instead |
+|---|---|
+| The happy path of each major resource | Every validation rule ([testing-slices-web.md](testing-slices-web.md)) |
+| Authentication and authorization actually apply over HTTP | Every business rule ([testing-unit.md](testing-unit.md)) |
+| The error contract really is `ProblemDetail` on the wire | Every query variant ([testing-slices-persistence.md](testing-slices-persistence.md)) |
+| Content negotiation, headers, status codes | Every field's serialisation ([`@JsonTest`](testing-slices-web.md)) |
+| A full write-then-read round trip through the real database | |
+
+Adding an end-to-end test for every validation case is the most common way a suite becomes slow. Those belong in a web slice, which runs in a fraction of the time and gives a sharper failure.
+
+### Test data
+
+`RANDOM_PORT` tests **do not roll back** - the request runs on another thread, outside the test's transaction. Options in order of preference:
+
+1. **Each test creates its own data** with unique identifiers. Order-independent and parallel-safe.
+2. **`@Sql("/test-data.sql")`** on the base class for a shared, known starting state.
+3. Truncate in `@BeforeEach` - works, and breaks the day someone adds a test that forgets.
+
+Do not let tests depend on each other's leftovers, and never on execution order.
+
+### Authentication
+
+Generating a real token per test is slow and couples the suite to the auth implementation. Better:
+
+- Issue one token in the base class and reuse it.
+- Or use the JWT post-processor for the request rather than a real token ([OAuth2 resource server](../security/oauth2-resource-server.md)).
+
+Assert the negative cases here: unauthenticated is 401, wrong role is 403. These are the paths that silently break when a `securityMatcher` changes.
+
+### Gotchas
+
+- Agent writes end-to-end tests for every validation rule - they belong in a web slice; this layer stays thin
+- Agent uses a fixed port instead of `RANDOM_PORT` - clashes on CI and in parallel runs
+- Agent omits `@AutoConfigureRestTestClient` on Boot 4 - the client is not auto-provided
+- Agent uses `TestRestTemplate` on Boot 4 without `@AutoConfigureTestRestTemplate`
+- Agent injects `ObjectMapper` on Boot 4 - the bean is a `JsonMapper`
+- Agent creates a second `TestcontainersConfig` - a second database and a second cache family
+- Agent puts `@TestPropertySource` on individual test classes - use one `application-test.yml` with `@ActiveProfiles`
+- Agent expects the test transaction to roll back the request's writes - it does not
+- Agent writes tests that depend on execution order or another test's data
+- Agent asserts only the happy path - assert 401, 403, and the `ProblemDetail` shape
+- Agent generates a real auth token per test - issue one in the base class or use the JWT post-processor
+
+
 ## External HTTP: in-process first, WireMock when you need a port
 
 Full and sliced tests still call whatever external services the code depends on. Stub them:
@@ -168,6 +305,32 @@ WireMock's port is assigned at startup, so its base URL is a textbook `@DynamicP
 
 The second test is the one worth writing: fault injection is the only practical way to prove that a downstream timeout produces the behaviour you intended rather than a hung request ([resilience.md](../integration/resilience.md)).
 
+### Provider contracts and external dependency tests
+
+A mock can prove application branching; it cannot prove HTTP serialization, authentication headers, timeout behavior or
+compatibility with a provider. Keep the HTTP client behind a small application port. Unit tests can fake that port to
+check domain decisions; client-boundary tests should exercise the actual request factory and serialization against a
+local HTTP server, then assert method, path, headers, body, response mapping, error translation and timeout behavior.
+Return representative provider payloads, including unknown fields and malformed/error responses. Do not mock Spring's
+internal `RestClient` or `WebClient` chain; verify behavior at the network boundary.
+
+Use a local stub such as WireMock or MockWebServer when a test needs a port. Keep stubs deterministic, bind to an
+ephemeral port, reset mappings and scenarios between tests, and never share mutable expectations across parallel test
+cases. For critical integrations, maintain a provider contract from its OpenAPI/schema or a consumer-driven contract.
+Contract tests complement a small number of sandbox checks; they do not prove provider availability or operational
+behavior. Pin the provider API version where supported, and sanitize recorded fixtures.
+
+For local development, document a substitute or sandbox for each external dependency when feasible. Use fake
+credentials, reject unintended calls, and never send real email, payments or customer data. Use Testcontainers when the
+production protocol or engine matters, such as a broker or S3-compatible store; use a local mail sink for email
+rendering and delivery flow. Make costly or stateful sandbox checks opt-in or isolated from ordinary CI.
+
+Test failure and recovery as well as success: timeouts, connection refusal, 4xx/5xx mapping, malformed payloads,
+duplicate delivery, retry limits, circuit state and cleanup. Configure explicit test base URLs and fail fast if a test
+profile points to a production host. Avoid logging full request/response bodies that can contain tokens or personal
+data. If parallel tests share a substitute, isolate scenarios by unique IDs and ensure cleanup cannot delete another
+test's data.
+
 ## Testing async and messaging
 
 Anything asynchronous needs an awaited assertion, never a sleep:
@@ -194,13 +357,16 @@ void reservesInventoryOnOrderPlaced() {
 - Agent reaches for WireMock where `@RestClientTest` would do - the in-process stub needs no port
 - Agent hardcodes a WireMock port - use `dynamicPort()` and register the base URL dynamically
 - Agent stubs only success responses - fault injection is the only way to test timeout and retry behaviour
+- Agent treats a local stub as proof of provider compatibility - add a contract or controlled sandbox check for that claim
+- Agent shares mutable stub scenarios across parallel tests - isolate and reset them
+- Agent records real tokens or customer data in fixtures - sanitize fixtures and use fake credentials
 - Agent uses `Thread.sleep` for asynchronous assertions - use Awaitility
 - Agent expects a `RANDOM_PORT` test to roll back - the request runs on another thread
 - Agent uses `@MockBean` - removed in Boot 4
 
 ## Related
 
-- [testing-strategy.md](testing-strategy.md) · [testing-rest-api.md](testing-rest-api.md) · [testcontainers.md](testcontainers.md) · [testing-slices-web.md](testing-slices-web.md) · [resilience.md](../integration/resilience.md) · [security fundamentals](../security/security-fundamentals.md)
+- [testing-strategy.md](testing-strategy.md) · [testcontainers.md](testcontainers.md) · [testing-slices-web.md](testing-slices-web.md) · [HTTP clients](../integration/http-clients.md) · [OpenAPI](../web/openapi.md) · [resilience.md](../integration/resilience.md) · [security fundamentals](../security/security-fundamentals.md)
 
 ---
 
@@ -210,3 +376,4 @@ void reservesInventoryOnOrderPlaced() {
 
 - [Spring Boot testing reference](https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html)
 - [Testing Spring Boot the Netflix Way](https://github.com/paulbakker/testing-spring-boot-presentation)
+- [WireMock Documentation](https://wiremock.org/docs/)

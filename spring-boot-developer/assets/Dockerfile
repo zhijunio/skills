@@ -27,7 +27,7 @@
 #
 # Build and run:
 #   docker build -t my-spring-app .
-#   docker run --rm -e SPRING_BOOT_PORT=8080 -p 8080:8080 my-spring-app
+#   docker run --rm -e SERVER_PORT=8080 -p 8080:8080 my-spring-app
 
 # ---------------------------------------------------------------------------
 # Build stage. A glibc JDK (Ubuntu "noble") is used so the frontend-maven-plugin's

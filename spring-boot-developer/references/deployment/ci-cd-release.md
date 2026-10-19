@@ -2,6 +2,16 @@
 
 Treat CI as the reproducible path from a reviewed commit to the exact artifact running in production. Keep build, verification, packaging and deployment stages explicit; use the same wrapper and checks locally and in CI. See [taskfile.md](../tooling/taskfile.md) for discoverable project commands.
 
+## Quick lookup
+
+| Symptom or task | Start here |
+| --- | --- |
+| Different artifacts are being built for staging and production | [Build once and verify the artifact](#build-once-and-verify-the-artifact) |
+| A release changes the database schema and application together | [Coordinate schema and application changes](#coordinate-schema-and-application-changes) |
+| A deployment needs canary checks, rollback, or recovery criteria | [Release and recovery](#release-and-recovery) |
+| CI needs cloud credentials or production secrets | [Pipeline permissions and environments](#pipeline-permissions-and-environments) |
+| Need evidence that the deployed artifact and migrations were verified | [Evidence and tests](#evidence-and-tests) |
+
 ## Build once and verify the artifact
 
 Run formatting/lint, compilation, unit and slice tests, integration tests against required real services, migration validation, and dependency/security checks before packaging. Keep credentials in the CI secret store or use federated workload identity. Pin actions/plugins and container base images to reviewed versions or digests according to the platform policy.

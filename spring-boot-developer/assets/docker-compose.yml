@@ -35,13 +35,13 @@ services:
         NPM_DOWNLOAD_ROOT: ${NPM_DOWNLOAD_ROOT:-https://registry.npmjs.org/npm/-/}
         NPM_CONFIG_REGISTRY: ${NPM_CONFIG_REGISTRY:-https://registry.npmjs.org}
     environment:
-      SPRING_BOOT_PORT: ${SPRING_BOOT_PORT:-8080}
+      SERVER_PORT: ${SERVER_PORT:-8080}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydb
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-user}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-password}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
     ports:
-      - "${SPRING_BOOT_PORT:-8080}:${SPRING_BOOT_PORT:-8080}"
+      - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
     depends_on:
       postgres:
         condition: service_healthy

@@ -19,7 +19,7 @@ On Boot 4, `spring-boot-starter-webmvc-test` includes the general test starter a
 
 ## `@WebMvcTest` - controllers in isolation
 
-On Boot 4, import the slice from `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest`. Boot 3.5.x uses `org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest`; do not carry the old package into a Boot 4 project.
+On Boot 4, import the slice from `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest`. Boot 3.5.x uses `org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest`; do not carry the old package into a Boot 4 project. Boot 4 also moved `@AutoConfigureMockMvc` to `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`. This matters when using `@SpringBootTest` with MockMvc; the annotation is no longer in the Boot 3 package.
 
 Loads the web layer only: controllers, `@ControllerAdvice`, filters, converters, `MockMvcTester`. `@Service`, `@Repository` and `@Component` are **not** loaded, so any collaborator the controller needs must be a `@MockitoBean` or the context fails to start.
 
@@ -184,6 +184,7 @@ Test the **error translation**, not just the happy path. That is where the bug i
 - Agent adds `spring-boot-starter-test` separately on Boot 4 - `spring-boot-starter-webmvc-test` already includes it
 - Agent uses `@WithMockUser` without Spring Security test support - add the matching security test dependency for the Boot line
 - Agent uses `@MockBean` - removed in Boot 4; `@MockitoBean`
+- Agent imports `@AutoConfigureMockMvc` from `org.springframework.boot.test.autoconfigure.web.servlet` on Boot 4 - use `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`
 - Agent uses raw `MockMvc` with `andExpect(jsonPath(...))` - `MockMvcTester` gives readable AssertJ failures
 - Agent omits `@WithMockUser` and gets an unexplained 401
 - Agent tests only authorised requests - assert the 401 and the 403
@@ -193,7 +194,7 @@ Test the **error translation**, not just the happy path. That is where the bug i
 
 ## Related
 
-- [testing-strategy.md](testing-strategy.md) · [testing-integration.md](testing-integration.md) · [testing-rest-api.md](testing-rest-api.md) · [JSON and Jackson](../web/json-and-jackson.md) · [security fundamentals](../security/security-fundamentals.md)
+- [testing-strategy.md](testing-strategy.md) · [testing-integration.md](testing-integration.md#full-rest-api-tests) · [JSON and Jackson](../web/json-and-jackson.md) · [security fundamentals](../security/security-fundamentals.md)
 
 ---
 

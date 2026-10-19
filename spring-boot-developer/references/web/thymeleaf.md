@@ -78,7 +78,7 @@ Prefer `th:text` for output and a restrictive Content Security Policy for defens
 
 ## Testing
 
-Use MVC slice tests to verify the route, selected view name, model attributes, form validation behavior, redirect, and status. For secured forms, include CSRF in valid POST tests and assert that a request without it is rejected. Add a rendered-template test when escaping, fragments, or message resolution are important to the feature; a controller-only test does not exercise template rendering. See [testing-slices-web.md](../testing/testing-slices-web.md) and [testing-rest-api.md](../testing/testing-rest-api.md) for the appropriate web test boundary.
+Use MVC slice tests to verify the route, selected view name, model attributes, form validation behavior, redirect, and status. For secured forms, include CSRF in valid POST tests and assert that a request without it is rejected. Add a rendered-template test when escaping, fragments, or message resolution are important to the feature; a controller-only test does not exercise template rendering. See [testing-slices-web.md](../testing/testing-slices-web.md) and the [full REST API test section](../testing/testing-integration.md#full-rest-api-tests) for the appropriate web test boundary.
 
 ## Gotchas
 

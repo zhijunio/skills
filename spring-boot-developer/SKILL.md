@@ -15,8 +15,11 @@ Use this skill for Spring Boot project creation and implementation. It includes 
 4. **Read the focused guide for the task.** Use the reference map below to select only the relevant guidance. The topic guides describe Boot 4 / Spring Framework 7 / Jackson 3. In a Boot 3.5.x project, first read [Working in an existing Boot 3.5.x project](references/spring-boot-migration.md#working-in-an-existing-boot-35x-project) and translate topic-guide code with it.
 5. **Follow the project's dependency management.** Prefer the Spring Boot parent or BOM. Check compatibility before overriding managed versions or adding third-party libraries.
 6. **Keep boundaries clear.** Organize new code by business feature where practical. Use request and response DTOs at HTTP boundaries; do not expose persistence entities as API representations.
-7. **Avoid unnecessary infrastructure.** Add authentication, messaging, caching, cloud services, or other optional systems only when the request requires them. Follow existing project conventions when they already define the choice.
-8. **Verify implementation changes.** Use the project's wrapper and established checks. Compile and run relevant tests after code changes; validate Compose configuration after container changes. Report the commands run and their actual results, including checks not run.
+7. **Do not introduce Lombok by default.** Prefer explicit constructors, accessors, and logging in new projects and new code. If the existing project uses Lombok, follow its conventions; add Lombok to a project only when the user requests it or the project explicitly requires it.
+8. **Use Spring MVC by default for server-side web work.** Preserve an existing WebFlux stack, or use WebFlux when the requirement explicitly calls for a reactive server. Do not choose WebFlux solely to make outbound HTTP calls non-blocking; use the appropriate HTTP client. Do not guess at WebFlux-specific configuration when the focused guidance does not cover it.
+9. **Prefer Spring Boot's built-in support and avoid optional infrastructure.** Use managed starters, auto-configuration, validated `@ConfigurationProperties`, configuration binding tests, and the narrowest relevant test slice before adding custom bootstrapping or bespoke test infrastructure. Add authentication, messaging, caching, cloud services, or other optional systems only when the request requires them; preserve established project choices.
+10. **Choose the narrowest test that proves the behavior.** Use unit tests for framework-free logic, Spring slice tests for framework behavior, and the production database through Testcontainers for persistence behavior. Keep full-context tests to a small number of startup smoke and representative request tests. Keep test data and time deterministic; see [testing strategy](references/testing/testing-strategy.md).
+11. **Verify implementation changes.** Use the project's wrapper and established checks. Compile and run relevant tests after code changes; validate Compose configuration after container changes. Report the commands run and their actual results, including checks not run.
 
 ## Version and Environment Discovery
 
@@ -47,7 +50,7 @@ node scripts/create-project.mjs \
 The generator downloads a Boot 4.x project from Spring Initializr and applies this skill's setup assets. Check `--help` for all arguments and `versions.json` for version choices.
 
 - **Options**: `--persistence jpa|mybatis-plus|none` (default `jpa`) and `--database postgresql|none` (default `postgresql`). `--database none` implies `--persistence none`. `--docker` requires Maven and PostgreSQL.
-- **Always generated**: Spotless formatting (applied once, so the first `verify` passes), a wrapper-based `Taskfile.yml` with `format`, `test`, and `verify`, an `.sdkmanrc` for the selected Java major, and `server.port=${SPRING_BOOT_PORT:8080}` so the port variable in `.env.sample` and Compose takes effect.
+- **Always generated**: Spotless formatting (applied once, so the first `verify` passes), a wrapper-based `Taskfile.yml` with `format`, `test`, and `verify`, an `.sdkmanrc` for the selected Java major, and `server.port=${SERVER_PORT:8080}` so the port variable in `.env.sample` and Compose takes effect.
 - **When Docker image/build files are generated**: ensure the project has a root `.dockerignore` merged with the skill template, excluding build output, dependency directories, `.git`, and local secrets such as `.env`.
 - **With PostgreSQL**: a local `compose.yaml` and a Testcontainers configuration pinned to the same PostgreSQL image; Maven projects also run `*IT` tests through Failsafe.
 - **Not generated**: front-end, VS Code, and Dev Container files, unless their workflow is requested. The generator does not overwrite an existing target, install global tools, or initialize Git.
@@ -71,9 +74,10 @@ Start from the observed symptom. Inspect the failing code path, configuration, l
 ## Implementation Guidance
 
 - Keep controllers focused on HTTP binding and response mapping. Put business rules and transaction coordination in an appropriate application service; avoid pass-through layers without a clear responsibility.
+- For blocking outbound HTTP, prefer Spring's HTTP Service Client (`@HttpExchange`), which uses `RestClient` by default in Boot 4. Use `RestClient` directly when the call is dynamic or needs imperative control. Use `WebClient` when the application genuinely uses reactive `Mono`/`Flux` flows; do not select it just to make blocking calls non-blocking. Set finite connect and read timeouts. See [HTTP clients](references/integration/http-clients.md).
 - Validate untrusted input at the boundary. Return useful client errors without exposing stack traces, internal details, or secrets.
 - Use database migrations for deployed schema changes. Treat automatic schema generation as a local-development aid, not a production migration strategy.
-- Use constructor injection. Follow the project's established Java conventions and the guidance in [Java in Spring](references/architecture/java-in-spring.md).
+- Use constructor injection for required dependencies; prefer a single constructor and avoid field injection. Follow the project's established Java conventions and the guidance in [Java in Spring](references/architecture/java-in-spring.md).
 - For new API errors, prefer RFC 9457 `ProblemDetail` unless the project already has a required error contract.
 - Keep credentials outside source control. Use documented environment variables and placeholder values in example environment files.
 - For frontend integration, align browser calls with backend routes, validation, pagination, JSON wire types, and error responses. Keep generated wire types at the API boundary; handle loading, empty, success, HTTP-error, and no-response states. Prefer a same-origin API contract when suitable. See [OpenAPI](references/web/openapi.md), [JSON and Jackson](references/web/json-and-jackson.md), and [Error handling](references/web/error-handling.md).
@@ -115,6 +119,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 ### Architecture and Java
 
 - **Package and feature boundaries**: [Code organization](references/architecture/code-organization.md)
+- **Choosing Strategy, Adapter, events, Outbox, Saga, or CQRS**: [Design patterns for Spring applications](references/architecture/design-patterns.md)
 - **Domain model, aggregates, and domain events**: [Domain modelling](references/architecture/domain-modelling.md)
 - **Java language choices in Spring-managed code**: [Java in Spring](references/architecture/java-in-spring.md)
 - **Ports and adapters**: [Hexagonal architecture](references/architecture/hexagonal-architecture.md)
@@ -146,7 +151,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 - **Backup and recovery objectives, database restore, or recovery drills**: [Backup and recovery](references/persistence/backup-and-recovery.md)
 - **Concurrency, locking, and uniqueness races**: [Database concurrency](references/persistence/database-concurrency.md)
 - **Auditing**: [Auditing](references/persistence/auditing.md)
-- **Caching, Redis, cache failure behavior, or Redis Compose**: [Caching](references/persistence/caching.md), [cache consistency](references/persistence/cache-consistency.md), and [Docker](references/deployment/docker.md)
+- **Caching, Redis, cache consistency/failure behavior, or Redis Compose**: [Caching](references/persistence/caching.md) and [Docker](references/deployment/docker.md)
 - **Multi-tenant data isolation**: [Multi-tenancy](references/persistence/multi-tenancy.md)
 - **Profiles, properties, environment variables, and secrets**: [Configuration](references/configuration/configuration.md)
 
@@ -164,10 +169,8 @@ Load the guide that matches the task. The focused guides contain implementation 
 - **Unit tests**: [Unit testing](references/testing/testing-unit.md)
 - **MVC, JSON, and web client tests**: [Web slice testing](references/testing/testing-slices-web.md)
 - **JPA and database tests**: [Persistence slice testing](references/testing/testing-slices-persistence.md)
-- **Focused application integration tests**: [Integration testing](references/testing/testing-integration.md)
-- **Full REST tests**: [REST API testing](references/testing/testing-rest-api.md)
+- **Focused application integration, full REST API, outbound HTTP, or provider contract tests**: [Integration testing](references/testing/testing-integration.md)
 - **Containers and service connections (PostgreSQL, Redis, and other dependencies)**: [Testcontainers](references/testing/testcontainers.md)
-- **Testing external services and outbound HTTP clients**: [External service testing](references/testing/testing-external-service.md)
 
 ### Integration and runtime
 
@@ -185,8 +188,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 
 ### Observability and performance
 
-- **Logging**: [Logging](references/observability/logging.md)
-- **Health, metrics, tracing, and alerts**: [Observability](references/observability/observability.md)
+- **Logging, health, metrics, tracing, and alerts**: [Observability and logging](references/observability/observability.md)
 - **HTTP server and application performance settings**: [Performance](references/observability/performance.md)
 - **AI and token usage signals**: [AI observability](references/observability/ai-observability.md)
 
@@ -203,6 +205,7 @@ Choose the requested client. For a single-page application packaged into the jar
 ### Containers and deployment
 
 - **Dockerfiles, Compose, and container workflows**: [Docker](references/deployment/docker.md)
+- **Kubernetes workload manifests, probes, runtime configuration, and rollout behavior**: [Kubernetes](references/deployment/kubernetes.md)
 - **Native images and AOT**: [GraalVM Native Image](references/deployment/graalvm.md)
 - **Azure Container Apps deployment**: [Azure](references/deployment/azure.md)
 - **CI/CD and release practices**: [CI/CD and releases](references/deployment/ci-cd-release.md)

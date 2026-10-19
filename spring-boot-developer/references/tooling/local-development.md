@@ -23,7 +23,7 @@ Devtools is a **local convenience, not a development platform**. Its restart is 
 
 ## Startup information
 
-The project scaffold adds `config/StartupInfoListener.java`, which logs the bound application URL, active profile, and—when a `frontend/` directory is present—the Vite development URL after startup. The template is [`StartupInfoListener.java.tmpl`](../../assets/StartupInfoListener.java.tmpl). Keep the banner informational; do not make application startup depend on frontend files or assert on ANSI-formatted output in tests.
+The project scaffold adds `config/StartupInfoListener.java`, which logs the bound application URL and active profile. When springdoc is on the classpath and its endpoints are enabled, it also logs the OpenAPI JSON and Swagger UI URLs; when a `frontend/` directory is present, it hints at the Vite development URL. The template is [`StartupInfoListener.java.tmpl`](../../assets/StartupInfoListener.java.tmpl). Keep the banner informational; do not make application startup depend on optional OpenAPI/frontend files or assert on ANSI-formatted output in tests.
 
 ## Profiles
 

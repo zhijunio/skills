@@ -321,7 +321,7 @@ Disable scheduling in tests so jobs do not fire unpredictably - `spring.task.sch
 
 ## Related
 
-- [spring-proxies-and-di.md](../architecture/spring-proxies-and-di.md) · [transactions.md](../persistence/transactions.md) · [error-handling.md](../web/error-handling.md) · [resilience.md](resilience.md) · [messaging.md](messaging.md) · [api-idempotency.md](../web/api-idempotency.md) · [observability.md](../observability/observability.md) · [spring-batch.md](spring-batch.md) · [configuration.md](../configuration/configuration.md)
+- [spring-proxies-and-di.md](../architecture/spring-proxies-and-di.md) · [transactions.md](../persistence/transactions.md) · [error-handling.md](../web/error-handling.md) · [resilience.md](resilience.md) · [messaging.md](messaging.md) · [idempotency contract](../web/rest-controllers.md#idempotency-for-retried-commands) · [observability.md](../observability/observability.md) · [spring-batch.md](spring-batch.md) · [configuration.md](../configuration/configuration.md)
 
 ## References
 

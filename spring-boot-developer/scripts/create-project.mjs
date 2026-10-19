@@ -188,22 +188,13 @@ async function addProjectSetupAssets(projectDir, packageName) {
   await ensureDockerignore(projectDir)
 
   const resourcesDirectory = join(projectDir, 'src', 'main', 'resources')
-  const propertiesPath = join(resourcesDirectory, 'application.properties')
-  if (existsSync(propertiesPath)) {
-    const properties = await readFile(propertiesPath, 'utf8')
-    const yamlPath = join(resourcesDirectory, 'application.yaml')
-    const yamlLines = properties.split(/\r?\n/).flatMap((line) => {
-      const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('!')) return trimmed ? [`# ${trimmed.slice(1).trim()}`] : []
-      const match = trimmed.match(/^([^=:\s]+)\s*[=:]\s*(.*)$/)
-      if (!match) return [`# Unconverted Spring Initializr property: ${trimmed}`]
-      return [`${JSON.stringify(match[1])}: ${JSON.stringify(match[2])}`]
-    })
-    if (!/^\s*["']?server\.port["']?\s*:/m.test(yamlLines.join('\n'))) {
-      yamlLines.push('server:', '  port: ${SPRING_BOOT_PORT:8080}')
-    }
-    await writeFile(yamlPath, `${yamlLines.join('\n')}\n`)
-    await rm(propertiesPath)
+  const yamlPath = join(resourcesDirectory, 'application.yaml')
+  if (!existsSync(yamlPath)) throw new Error('Spring Initializr did not generate application.yaml; check configurationFileFormat support')
+  let yaml = await readFile(yamlPath, 'utf8')
+  if (!/^\s+port\s*:/m.test(yaml.match(/^server:[ \t]*\n((?:[ \t].*\n?)*)/m)?.[1] ?? '')) {
+    if (/^server:[ \t]*$/m.test(yaml)) yaml = yaml.replace(/^server:[ \t]*$/m, 'server:\n  port: ${SERVER_PORT:8080}')
+    else yaml = `${yaml.trimEnd()}\nserver:\n  port: \${SERVER_PORT:8080}\n`
+    await writeFile(yamlPath, yaml)
   }
 
   const configDirectory = join(projectDir, 'src', 'main', 'java', ...packageName.split('.'), 'config')
@@ -401,6 +392,7 @@ async function main() {
     packageName: options.packagename,
     packaging: 'jar',
     javaVersion: options.java,
+    configurationFileFormat: 'yaml',
     dependencies: [...new Set(dependencies)].join(','),
   })
 

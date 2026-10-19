@@ -4,19 +4,18 @@ Spring Cloud releases coordinated component versions in a **release train**. Sel
 supports the project's Spring Boot generation, import its BOM, and let it manage Spring Cloud
 components. Do not select a component version from a different train to satisfy a dependency conflict.
 
-## Compatibility checked 2026-10-13
+## Compatibility checked 2026-10-19
 
 | Spring Boot line | Compatible Spring Cloud train | Open-source support note |
 | ---------------- | ----------------------------- | ------------------------- |
-| 4.1.x | 2025.1.x, starting with 2025.1.2 | Oakwood 2025.1.2 was the latest GA train verified for this guide. |
-| 4.0.x | 2025.1.x | Verify the latest service release and its Boot patch compatibility before upgrading. |
+| 4.1.x | 2025.1.x, starting with 2025.1.2 | Oakwood 2025.1.3 is the latest GA train verified for this guide and is compatible with Boot 4.1.x. |
+| 4.0.x | 2025.1.x | Oakwood 2025.1.3 is the latest GA train verified for this guide. |
 | 3.5.x | 2025.0.x | Northfields 2025.0.3 was the final open-source release; Spring announced OSS support ended 2026-06-30. Use only with an applicable commercial support arrangement or plan a Boot upgrade. |
 
 This table records a point-in-time compatibility check, not a promise that a train remains supported.
-Spring Cloud 2025.1.2 announced compatibility with Boot 4.0.7 and added Boot 4.1.0 compatibility;
-the Spring Cloud project matrix says 4.1.x starts at 2025.1.2. The 2025.0.3 release announcement
-identifies it as the final open-source release of that train. Recheck the [official compatibility
-matrix](https://spring.io/projects/spring-cloud#overview), [support policy](https://spring.io/projects/spring-cloud#support),
+Spring Cloud 2025.1.3 is the latest GA train verified here. Spring Cloud 2026.0.0-M1 is a preview based
+on Spring Boot 4.2.0-M2; do not treat it as a GA production recommendation. Recheck the [official
+compatibility matrix](https://spring.io/projects/spring-cloud#overview), [support policy](https://spring.io/projects/spring-cloud#support),
 and release announcements before making a production upgrade decision.
 
 ## Maven BOM
@@ -25,7 +24,7 @@ Import one release train BOM, then omit versions from Spring Cloud dependencies:
 
 ```xml
 <properties>
-    <spring-cloud.version>2025.1.2</spring-cloud.version>
+    <spring-cloud.version>2025.1.3</spring-cloud.version>
 </properties>
 <dependencyManagement>
     <dependencies>
@@ -59,5 +58,6 @@ module versions without a documented compatibility reason.
 ## Sources
 
 - [Spring Cloud release-train compatibility matrix](https://spring.io/projects/spring-cloud#overview)
-- [Spring Cloud 2025.1.2 release announcement](https://spring.io/blog/2026/06/11/spring-cloud-2025-1-2-aka-oakwood-has-been-released/)
+- [Spring Cloud 2025.1.3 release announcement](https://spring.io/blog/2026/08/20/spring-cloud-2025-1-3-has-been-released/)
+- [Spring Cloud 2026.0.0-M1 announcement](https://spring.io/blog/2026/09/24/spring-cloud-2026-0-0-M1-has-been-released/)
 - [Spring Cloud 2025.0.3 release and end-of-OSS-support announcement](https://spring.io/blog/2026/06/11/spring-cloud-2025-0-3-aka-northfields-has-been-released/)

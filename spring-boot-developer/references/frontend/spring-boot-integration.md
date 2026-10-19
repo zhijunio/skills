@@ -18,7 +18,7 @@ Framework-independent integration for a single-page application in `frontend/` t
 
 | Mode | Frontend | API calls |
 |---|---|---|
-| Development | The framework dev server with hot reload (Vite on `VITE_PORT`, default 5173; Angular on 4200) | The dev server proxies `/api` to Spring Boot on `SPRING_BOOT_PORT` (default 8080), so the browser stays same-origin |
+| Development | The framework dev server with hot reload (Vite on `VITE_PORT`, default 5173; Angular on 4200) | The dev server proxies `/api` to Spring Boot on `SERVER_PORT` (default 8080), so the browser stays same-origin |
 | Production | The build writes minified, content-hashed files to `src/main/resources/static` | Spring Boot serves the files and the API from one origin |
 
 Use relative URLs such as `/api/items` in browser code. The same code then works behind the dev proxy and in the packaged jar, and neither mode needs CORS.
@@ -102,7 +102,7 @@ Open the dev server URL from the framework guide. Production is a single jar:
 
 ```bash
 ./mvnw clean package
-java -jar target/my-app.jar     # http://localhost:${SPRING_BOOT_PORT:-8080}
+java -jar target/my-app.jar     # http://localhost:${SERVER_PORT:-8080}
 ```
 
 Content-hashed files under `/assets/**` can be cached for a year; keep `index.html` uncached so clients pick up new bundles. See [static resource caching](../web/static-resources.md).

@@ -6,6 +6,16 @@ Read this when adding application settings, selecting environment-specific value
 
 This guide covers Spring Boot 4.x. For an existing Boot 3.5.x application, see [version compatibility and migration](../spring-boot-migration.md).
 
+## Quick lookup
+
+| Symptom or task | Start here |
+| --- | --- |
+| Related settings are scattered across `@Value` fields | [Bind related settings with `@ConfigurationProperties`](#bind-related-settings-with-configurationproperties) |
+| Local, test, and production values are mixed together | [Choose configuration files and profiles](#choose-configuration-files-and-profiles) |
+| An environment variable is ignored or a value has unexpected precedence | [Externalize deployment values](#externalize-deployment-values) |
+| A required secret is missing or must be mounted as files | [Keep secrets outside source control](#keep-secrets-outside-source-control) |
+| Property binding or validation fails in the application context | [Test binding and validation](#test-binding-and-validation) |
+
 ## Bind related settings with `@ConfigurationProperties`
 
 Use a properties type for a named group of related values. It gives the group one owner, supports type conversion and validation, and can be constructed directly in tests. Use `@Value` for a single, unrelated value.

@@ -162,7 +162,7 @@ function readRootEnv() {
 }
 
 const env = { ...readRootEnv(), ...process.env };
-const springBootPort = env.SPRING_BOOT_PORT ?? '8080';
+const springBootPort = env.SERVER_PORT ?? '8080';
 
 module.exports = {
   '/api': {

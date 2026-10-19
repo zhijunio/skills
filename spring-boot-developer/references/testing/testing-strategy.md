@@ -17,12 +17,24 @@ The mistake is assuming green unit tests mean the framework-touching tests can b
 A useful default distribution is:
 
 - **The bulk - focused Spring tests.** Use built-in slices such as `@WebMvcTest` and `@DataJpaTest` for common layers. Use `@SpringBootTest(classes = { … })` with selected `@AutoConfigure…` annotations for a custom cross-layer context. Mock only slow or costly external boundaries; keep the rest real. See [testing-integration.md](testing-integration.md), [testing-slices-web.md](testing-slices-web.md), [testing-slices-persistence.md](testing-slices-persistence.md).
-- **For web applications, keep a small number of smoke and request-level tests.** A context-load test catches wiring errors; a representative request verifies the exposed path. See [testing-integration.md](testing-integration.md) and [testing-rest-api.md](testing-rest-api.md).
+- **For web applications, keep a small number of smoke and request-level tests.** A context-load test catches wiring errors; a representative request verifies the exposed path. See [integration testing](testing-integration.md) and its [full REST API test section](testing-integration.md#full-rest-api-tests).
 - **Some unit tests** for complex framework-free logic - fast and valuable, rarely sufficient alone. See [testing-unit.md](testing-unit.md).
 
 Avoid targeting a fixed percentage pyramid. Prefer the least expensive test that proves the behavior, while retaining framework-level coverage for mappings, serialization, wiring, and persistence.
 
 Use the decision table in [SKILL.md](../../SKILL.md) for "what am I testing → which reference". This file is the reasoning behind it.
+
+## A repeatable test workflow
+
+For each behavior, make the test show the contract clearly:
+
+1. State one observable outcome in the test name.
+2. Arrange only the relevant input and boundary setup.
+3. Act through the layer being tested: call pure logic directly, send an MVC request, use a repository against the production database family, or exercise a focused application context.
+4. Assert the result a caller or operator observes: returned value, persisted state, HTTP status/body, or a rejected operation. Avoid asserting internal call counts unless the count itself is a requirement, such as detecting an N+1 query.
+5. Cover both accepted and rejected inputs where validation, authorization, uniqueness, or external failure changes the contract. Keep time, randomness, identifiers, and test data deterministic.
+
+Examples are intentionally provided at the layer where the Spring behavior exists: [MVC binding and authorization](testing-slices-web.md#what-to-assert), [JPA queries and constraints](testing-slices-persistence.md#datajpatest), and [real dependencies with Testcontainers](testcontainers.md#serviceconnection-first). Use Spring Boot's built-in test starter and slice for the selected layer; add a full application context only when the behavior crosses boundaries that the slice does not load.
 
 ## Why the sliced test is the workhorse: context cost
 
@@ -87,7 +99,7 @@ Spring recommends running most tests on the JVM and using native tests for code 
 
 ## Related
 
-- [testing-unit.md](testing-unit.md) · [testing-slices-web.md](testing-slices-web.md) · [testing-slices-persistence.md](testing-slices-persistence.md) · [testing-integration.md](testing-integration.md) · [testing-rest-api.md](testing-rest-api.md) · [testcontainers.md](testcontainers.md)
+- [testing-unit.md](testing-unit.md) · [testing-slices-web.md](testing-slices-web.md) · [testing-slices-persistence.md](testing-slices-persistence.md) · [testing-integration.md](testing-integration.md) · [testcontainers.md](testcontainers.md)
 
 ---
 

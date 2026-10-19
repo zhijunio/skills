@@ -150,7 +150,7 @@ export default defineConfig(({ mode }) => {
   const projectRoot = fileURLToPath(new URL('..', import.meta.url))
   const env = loadEnv(mode, projectRoot, '')
   const vitePort = Number(env.VITE_PORT ?? 5173)
-  const springBootPort = Number(env.SPRING_BOOT_PORT ?? 8080)
+  const springBootPort = Number(env.SERVER_PORT ?? 8080)
 
   return {
     plugins: [vue()],

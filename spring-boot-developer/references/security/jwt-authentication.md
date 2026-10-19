@@ -176,7 +176,7 @@ Implement rotation as one transaction: lock the owning session, reject missing o
 
 Prefer a backend-for-frontend or in-memory access-token handling when it fits the client architecture. Do not treat a client-side route guard as authorization.
 
-For browser clients that refresh access tokens, coordinate concurrent 401 responses through one in-flight refresh operation, then retry each eligible request at most once. Clear the shared refresh operation after it settles so a later expiry can start a new refresh. Do not refresh on 403, and do not blindly replay a write unless the endpoint is idempotent or the client knows the original request had no side effect; see [api-idempotency.md](../web/api-idempotency.md). Cookie-based refresh also requires a deliberate CSRF policy; route guards improve navigation but never replace server authorization. For server-rendered clients, keep per-request authentication state isolated and account for cookie forwarding and hydration.
+For browser clients that refresh access tokens, coordinate concurrent 401 responses through one in-flight refresh operation, then retry each eligible request at most once. Clear the shared refresh operation after it settles so a later expiry can start a new refresh. Do not refresh on 403, and do not blindly replay a write unless the endpoint is idempotent or the client knows the original request had no side effect; see the [idempotency contract](../web/rest-controllers.md#idempotency-for-retried-commands). Cookie-based refresh also requires a deliberate CSRF policy; route guards improve navigation but never replace server authorization. For server-rendered clients, keep per-request authentication state isolated and account for cookie forwarding and hydration.
 
 ## Logout and revocation
 

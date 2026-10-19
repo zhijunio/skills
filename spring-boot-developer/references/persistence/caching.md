@@ -65,11 +65,10 @@ see [spring-proxies-and-di.md](../architecture/spring-proxies-and-di.md).
 
 ### Cache and transaction ordering
 
-`@CacheEvict` runs when the method returns, **before** the transaction commits. If the commit then fails, the cache has
-been evicted for a change that never happened - self-correcting, since the next read repopulates from the database.
-
-The dangerous direction is `@CachePut`: it can publish a value that the rollback then discards, leaving the cache
-holding data that does not exist. Where correctness matters, evict after commit instead:
+`@CacheEvict` may run when the method returns, **before** the transaction commits. If commit fails, the cache is
+needlessly empty; the next read usually repopulates it. `@CachePut` is more dangerous: it can publish a value that a
+later rollback discards. For ordinary cache-aside data, update the database first and invalidate or refresh only after
+commit:
 
 ```java
 
@@ -80,6 +79,31 @@ void onProductChanged(ProductChanged event) {
 ```
 
 See [transactions.md](transactions.md).
+
+An in-process `@TransactionalEventListener(AFTER_COMMIT)` avoids invalidating on rollback, but it is not durable: a
+process crash after commit can lose the event. If invalidation must survive crashes, write an outbox record in the
+database transaction and have a worker invalidate or refresh the cache. The database and Redis do not share a normal
+atomic transaction; make repeated invalidations idempotent.
+
+### Consistency promise and invalidation
+
+Treat a cache as a derived copy; the database remains authoritative unless the architecture explicitly makes another
+store the source of truth. State the acceptable stale-read window for each data set. TTL provides bounded staleness,
+not immediate consistency. Authorization, balances, inventory reservations and other correctness-critical decisions
+should read authoritative state or use stronger coordination.
+
+For multiple application instances, invalidation must reach every cache instance. A local cache plus single-instance
+eviction is not coherent across nodes; use shared storage or a cross-instance invalidation mechanism. Include every
+dimension that changes visibility or representation in the key, such as tenant, locale or authorization scope. Never
+let a cache hit bypass object-level authorization. Avoid caching permission decisions or sensitive data unless the
+invalidation and revocation window is explicit and tested.
+
+Invalidation has a race: a reader can load old database state, a writer can commit and evict, then the reader can write
+the old value back into the cache. If stale resurrection matters, use versioned entries, compare-and-set, a short
+acceptable TTL, or serialize refreshes for that key. Choose based on measured impact; distributed locks add their own
+failure modes. If an outbox drives invalidation, claim work with a lease or database locking strategy, make events
+idempotent, and retain enough version information to reject an older refresh after a newer write. Monitor the age of
+the oldest pending invalidation, not only queue depth.
 
 ## Keys
 
@@ -273,9 +297,19 @@ public ProductResponse getById(ProductId id) { …}
 
 `sync = true` lets one caller compute while the others wait - **per instance**. Across a fleet you still get one
 recomputation per instance; for a genuinely expensive value, add a short distributed lock (`SET key value NX EX 30`)
-around the recompute.
+around the recompute. A bounded stale-while-revalidate policy is another option when serving a slightly stale value is
+acceptable. Do not let every request hit the database after a cache outage; bound fallback load and define whether to
+fail fast or shed load. Negative caching can protect a hot miss, but use a short TTL and consider whether a newly
+created resource must become visible immediately.
 
 Add jitter to TTLs so a batch of keys written together does not expire on the same second.
+
+## Testing consistency behavior
+
+Test commit and rollback behavior, multiple cache instances or the chosen invalidation transport, stale-reader races
+when relevant, and cache-outage fallback. Use the real cache implementation in at least one integration test when
+serialization, TTL or pub/sub behavior is part of the guarantee. Testcontainers can provide Redis; see
+[Testcontainers](../testing/testcontainers.md) and [transactions](transactions.md).
 
 ## Local caching
 
@@ -334,15 +368,20 @@ saves both.
 - Agent calls a `@Cacheable` method on `this` - proxy bypassed, nothing is cached
 - Agent puts `@Cacheable` and `@CachePut` on the same method - they contradict each other
 - Agent evicts inside the transaction where correctness matters - evict after commit
+- Agent assumes an `AFTER_COMMIT` listener is durable - use an outbox when invalidation must survive a process crash
+- Agent ignores a concurrent stale reader repopulating an evicted key - choose a race strategy if stale resurrection violates the requirement
+- Agent assumes local cache evictions reach every instance - use shared storage or cross-instance invalidation
+- Agent treats TTL as immediate consistency - state and test the actual staleness window
 - Agent sets no Redis timeout - an unresponsive cache becomes a full outage
 - Agent lets a Redis failure fail the request - add a `CacheErrorHandler` that falls through to the source
+- Agent lets a Redis outage send every request to the database - bound fallback load and define a failure policy
 - Agent leaves a hot key unprotected - use `sync = true`, plus a distributed lock if the recompute is expensive
 - Agent gives every entry an identical TTL - add jitter so they do not expire together
 - Agent uses Caffeine for data that must be consistent across instances - local caches do not share evictions
 
 ## Related
 
-- [cache-consistency.md](cache-consistency.md) · [transactions.md](transactions.md) · [spring-proxies-and-di.md](../architecture/spring-proxies-and-di.md) · [json-and-jackson.md](../web/json-and-jackson.md) · [observability.md](../observability/observability.md) · [configuration.md](../configuration/configuration.md)
+- [transactions.md](transactions.md) · [messaging.md](../integration/messaging.md) · [resilience.md](../integration/resilience.md) · [spring-proxies-and-di.md](../architecture/spring-proxies-and-di.md) · [json-and-jackson.md](../web/json-and-jackson.md) · [observability.md](../observability/observability.md) · [configuration.md](../configuration/configuration.md)
 
 ## References
 

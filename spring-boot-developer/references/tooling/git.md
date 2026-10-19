@@ -165,7 +165,7 @@ Each worktree should be able to run the Spring Boot app, Vite dev server, and Po
 Recommended local port variables:
 
 ```dotenv
-SPRING_BOOT_PORT=18080
+SERVER_PORT=18080
 VITE_PORT=15173
 POSTGRES_PORT=15432
 SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:15432/mydb
@@ -188,7 +188,7 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:password}
 
 server:
-  port: ${SPRING_BOOT_PORT:8080}
+  port: ${SERVER_PORT:8080}
 ```
 
 The `[.properties]` hint tells Spring Boot to parse the extensionless `.env` file as Java properties. With this in place, local development does not need to source `.env` first:
@@ -209,7 +209,7 @@ export default defineConfig(({ mode }) => {
   const projectRoot = fileURLToPath(new URL('..', import.meta.url));
   const env = loadEnv(mode, projectRoot, '');
   const vitePort = Number(env.VITE_PORT ?? 5173);
-  const springBootPort = Number(env.SPRING_BOOT_PORT ?? 8080);
+  const springBootPort = Number(env.SERVER_PORT ?? 8080);
 
   return {
     server: {
@@ -257,12 +257,12 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      SPRING_BOOT_PORT: ${SPRING_BOOT_PORT:-8080}
+      SERVER_PORT: ${SERVER_PORT:-8080}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydb
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
     ports:
-      - "${SPRING_BOOT_PORT:-8080}:${SPRING_BOOT_PORT:-8080}"
+      - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -301,7 +301,7 @@ If you want explicit forwarding, keep defaults in the committed file and overrid
 }
 ```
 
-The important worktree-safe behavior is that Docker Compose uses `POSTGRES_PORT`, and the application-level configs use `SPRING_BOOT_PORT` and `VITE_PORT`.
+The important worktree-safe behavior is that Docker Compose uses `POSTGRES_PORT`, and the application-level configs use `SERVER_PORT` and `VITE_PORT`.
 
 ## Agent rules
 

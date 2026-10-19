@@ -142,7 +142,7 @@ Review the requested change and directly affected code; do not expand the pass i
 | # | Rule | Reference |
 | - | ---- | --------- |
 | 77 | Use resource-oriented paths; put filters, pagination and allowlisted sorting in query parameters. Keep credentials out of URLs. | [rest-controllers.md](web/rest-controllers.md) |
-| 78 | Define a scoped idempotency contract for retryable create operations; persist keys atomically and recheck authorization before replaying a response. | [api-idempotency.md](web/api-idempotency.md) |
+| 78 | Define a scoped idempotency contract for retryable create operations; persist keys atomically and recheck authorization before replaying a response. | [REST controllers](web/rest-controllers.md#idempotency-for-retried-commands) |
 | 79 | Apply rate limits and hard resource bounds at the appropriate boundary in deployed systems; add application-level rate-limit code to a sample only when requested. Return a documented overload response when limits apply. | [rate-limiting.md](integration/rate-limiting.md) |
 | 80 | Treat database constraints as the final concurrency guard; translate constraint failures only after handling the failed transaction boundary. | [database-concurrency.md](persistence/database-concurrency.md) |
 | 81 | Derive tenant context from trusted identity and enforce it in every persistence, cache, storage and background-job path. | [multi-tenancy.md](persistence/multi-tenancy.md) |
@@ -150,7 +150,7 @@ Review the requested change and directly affected code; do not expand the pass i
 | 83 | Public API changes have compatibility checks; deprecation has a replacement, owner, dates and measured client usage. | [api-versioning.md](web/api-versioning.md) |
 | 84 | Secrets have an owner, least-privilege scope, rotation and revocation procedure; CI does not expose them to untrusted code. | [configuration.md](configuration/configuration.md) |
 | 85 | Alerts have an owner, user impact, actionable runbook and SLO-aligned threshold; logs validate client-supplied correlation IDs. | [observability.md](observability/observability.md) |
-| 86 | External client tests exercise the network boundary; local substitutes cannot silently fall through to live providers. | [external-service-testing.md](testing/testing-external-service.md) |
+| 86 | External client tests exercise the network boundary; local substitutes cannot silently fall through to live providers. | [integration testing](testing/testing-integration.md#provider-contracts-and-external-dependency-tests) |
 | 87 | Runtime-managed OAuth registrations are privileged configuration: allowlist endpoint hosts, protect and audit changes, encrypt stored secrets, and let database uniqueness constraints resolve create races. | [OAuth2 login and SSO](security/oauth2-login.md) · [database concurrency](persistence/database-concurrency.md) |
 
 ---

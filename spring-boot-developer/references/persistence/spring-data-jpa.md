@@ -18,6 +18,16 @@ Boot 4 manages **Jakarta Persistence 3.2** and **Hibernate ORM 7**. Import `jaka
 - [Gotchas](#gotchas)
 - [Related](#related)
 
+## Quick lookup
+
+| Symptom or task | Start here |
+| --- | --- |
+| `LazyInitializationException`, recursive entity JSON, or a list that issues many queries | [Relationships](#relationships), then [N+1](#n1) |
+| A list endpoint loads too much data or is slow on later pages | [Projections](#projections) and [Pagination](#pagination) |
+| Concurrent updates overwrite one another | [The base class](#the-base-class) for `@Version` and conflict handling |
+| A bulk write is slow or insert batching has no effect | [Batch writes](#batch-writes) |
+| Assigned IDs cause unexpected `merge`/extra selects | [The base class](#the-base-class) and [Identity](#identity-value-object-ids-with-time-ordered-uuids) |
+
 ## Entities are classes, not records
 
 A record cannot be an entity: JPA needs a no-arg constructor, mutable fields and a non-final class to proxy. Records are for DTOs, commands, events, value objects and embeddables - see [java-in-spring.md](../architecture/java-in-spring.md).

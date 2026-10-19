@@ -203,7 +203,45 @@ logging:
     level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"
 ```
 
-## Structured logging
+## Logging
+
+Use Spring Boot's logging defaults unless the project has a concrete need for another backend. With the standard
+starters, Boot uses Logback; use SLF4J in application code. Write logs to standard output in containers and let the
+platform collect, rotate, and retain them.
+
+### Log levels and useful events
+
+Use `application.yaml` for ordinary configuration. Keep production levels at `INFO` by default and raise a package
+temporarily when diagnosing a problem:
+
+```yaml
+logging:
+  level:
+    root: INFO
+    com.example.orders: DEBUG
+    org.springframework.web: INFO
+```
+
+Prefer configuration over code changes for environment-specific levels. Avoid enabling SQL or framework-wide `DEBUG`
+logs for long periods; they can expose data and overwhelm useful events.
+
+Use parameterized messages and include stable identifiers that help connect an event to a request or business operation:
+
+```java
+log.info("Order placed: orderId={}, customerId={}", orderId, customerId);
+log.warn("Payment provider timed out: orderId={}, provider={}", orderId, provider);
+log.error("Payment failed: orderId={}", orderId, exception);
+```
+
+Choose a level that signals the action required. `ERROR` should mean an operator or developer needs to investigate;
+expected client errors and handled business outcomes usually do not need error-level logs. Log an exception at one
+boundary where it is handled, rather than logging and rethrowing it at every layer.
+
+Never log passwords, tokens, credentials, payment data, session identifiers, or sensitive personal data. Redact at the
+source, and treat request and response bodies as sensitive by default. Do not put user, order, or request identifiers in
+metric tags; their unbounded values belong in logs or traces.
+
+### Structured logging
 
 Boot emits JSON logs natively - no encoder configuration, no extra dependency:
 
@@ -224,6 +262,15 @@ Log rules that matter more than the format:
 - Use placeholders - `log.info("Placed order {}", orderId)` - not concatenation, so the message is not built when the level is disabled.
 
 Use trace/span IDs as cross-service correlation fields. If clients can submit a request/correlation ID, validate its syntax and length or replace it with a server-generated ID; never use an untrusted value as a metric tag or trust it for authorization. Keep log retention and access appropriate to the identifiers and business data recorded, and document which fields are intentionally omitted or redacted.
+
+### Customize Logback only when needed
+
+Use `logback-spring.xml` for conditional appenders or logging behavior that cannot be expressed through properties. The
+`-spring` variant lets Spring Boot apply its extensions before Logback initializes. Keep container output on the
+console; use a rolling file appender only when the deployment owns local file collection and retention.
+
+Async appenders can reduce logging I/O on request threads, but queue saturation can drop events and shutdown can lose
+buffered messages. Measure before enabling them and choose an explicit loss and shutdown policy.
 
 ## The info endpoint
 
@@ -271,13 +318,20 @@ Spring Batch 6 dropped Micrometer's global static registry - a Batch application
 - Agent logs `ex.getMessage()` - the stack trace is lost
 - Agent logs tokens, passwords or personal data - redact at the source
 - Agent hand-rolls a JSON log encoder - Boot has structured logging built in
+- Agent concatenates values into log messages - use SLF4J placeholders
+- Agent records the same exception at every layer - log once where it is handled and let higher layers propagate it
+- Agent writes container logs to local files without a collection or rotation plan - use standard output and platform collection
+- Agent enables broad `DEBUG` or SQL logging in production indefinitely - scope it to a package and a diagnostic window
 - Agent enables `management.info.env` - it can expose configuration values
 
 ## Related
 
-- [Performance](performance.md) · [security-fundamentals.md](../security/security-fundamentals.md) · [error-handling.md](../web/error-handling.md) · [async-and-scheduling.md](../integration/async-and-scheduling.md) · [messaging.md](../integration/messaging.md) · [configuration.md](../configuration/configuration.md) · [docker.md](../deployment/docker.md) · [graalvm.md](../deployment/graalvm.md)
+- [Performance](performance.md) · [Configuration](../configuration/configuration.md) · [Error handling](../web/error-handling.md) · [Security fundamentals](../security/security-fundamentals.md) · [Async and scheduling](../integration/async-and-scheduling.md) · [Messaging](../integration/messaging.md) · [Docker](../deployment/docker.md) · [GraalVM](../deployment/graalvm.md)
 
 ## References
 
 - [Spring Boot Actuator Reference](https://docs.spring.io/spring-boot/reference/actuator/)
+- [Spring Boot logging](https://docs.spring.io/spring-boot/4.1/reference/features/logging.html)
 - [Micrometer Documentation](https://docs.micrometer.io/micrometer/reference/)
+- [SLF4J manual](https://www.slf4j.org/manual.html)
+- [Logback documentation](https://logback.qos.ch/documentation.html)

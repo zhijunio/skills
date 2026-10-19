@@ -98,7 +98,7 @@ Test the complete authentication and authorization contract, not just a successf
 - Factor enrollment, removal, recovery, and step-up paths require the intended recent authentication and produce the expected notifications or audit events.
 - Every alternate login and recovery path enforces the same assurance policy.
 
-Test the configured factor requirements and selective-MFA rules. See [testing strategy](../testing/testing-strategy.md), [integration testing](../testing/testing-integration.md), and [REST API testing](../testing/testing-rest-api.md).
+Test the configured factor requirements and selective-MFA rules. See [testing strategy](../testing/testing-strategy.md) and [integration/full REST API testing](../testing/testing-integration.md#full-rest-api-tests).
 
 ## Gotchas
 

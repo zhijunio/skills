@@ -20,7 +20,7 @@ Set up ignore rules, environment files, editor settings, and optional developmen
 
 ## Generator persistence options
 
-New projects use `application.yaml`; the generator converts Spring Initializr's generated properties to YAML and adds the `SPRING_BOOT_PORT` default there. For existing projects, preserve their established configuration format.
+New projects use `application.yaml`; the generator requests YAML directly from Spring Initializr and adds the `SERVER_PORT` default there. For existing projects, preserve their established configuration format.
 
 The bundled generator separates the persistence layer from the database driver:
 
@@ -154,7 +154,7 @@ dependency-check-report.*
 SPRING_PROFILES_ACTIVE=dev
 
 # Local ports (override per Git worktree when needed)
-SPRING_BOOT_PORT=8080
+SERVER_PORT=8080
 VITE_PORT=5173
 POSTGRES_PORT=5432
 COMPOSE_PROJECT_NAME=my-spring-boot-app
@@ -405,7 +405,7 @@ Because the `postgres` service runs as a sibling Docker Compose service, the app
 
 ```properties
 spring.config.import=optional:file:.env[.properties]
-server.port=${SPRING_BOOT_PORT:8080}
+server.port=${SERVER_PORT:8080}
 spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/mydb}
 spring.datasource.username=${SPRING_DATASOURCE_USERNAME:user}
 spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:password}
@@ -566,7 +566,7 @@ gh auth token | docker login ghcr.io -u "$GHCR_OWNER" --password-stdin
   - `.dockerignore`
   - `Taskfile.yml` with wrapper-backed test, verify, and run tasks; Compose tasks appear when PostgreSQL is selected, Docker tasks when `--docker` is selected
   - `.sdkmanrc` matching the selected Java major with the Temurin distribution
-  - `server.port: ${SPRING_BOOT_PORT:8080}` in `application.yaml`, so the port variable used by `.env.sample` and the Compose files changes the port the app listens on
+  - `server.port: ${SERVER_PORT:8080}` in `application.yaml`, so the port variable used by `.env.sample` and the Compose files changes the port the app listens on
 - Existing files are **not overwritten blindly**:
   - If `.gitignore` exists, we append with a marker `# === spring-boot-developer additions ===`.
   - For other dotfiles, we create them only if missing.

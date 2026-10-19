@@ -44,7 +44,7 @@ const builds = [
       ['docker', 'compose', '-f', 'compose.full.yaml', 'config', '-q'],
       ['docker', 'compose', '-f', 'compose.full.yaml', 'up', '-d', '--build', '--wait'],
     ],
-    env: { SPRING_BOOT_PORT: '18080' },
+    env: { SERVER_PORT: '18080' },
     health: 'http://localhost:18080/actuator/health',
     cleanup: [['docker', 'compose', '-f', 'compose.full.yaml', 'down', '-v', '--rmi', 'local']],
   },

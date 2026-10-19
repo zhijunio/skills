@@ -2,6 +2,16 @@
 
 Read this when building an OCI image, wiring the application to PostgreSQL with Compose, or preparing a container for deployment. Prefer Spring Boot buildpacks for a standard image; use the bundled Dockerfile when the project needs its custom runtime or the skill's Docker scaffold.
 
+## Quick lookup
+
+| Symptom or task | Start here |
+| --- | --- |
+| Need an image, but are unsure whether to use Buildpacks or a Dockerfile | [Build an image](#build-an-image) and [Choose an image variant](#choose-an-image-variant) |
+| Need to scan or identify the exact release image | [Scan and identify the release image](#scan-and-identify-the-release-image) |
+| Need local PostgreSQL, Redis, mail, or identity services | [Run local services with Compose](#run-local-services-with-compose) |
+| Requests are cut off during container shutdown | [Tune shutdown and health checks](#tune-shutdown-and-health-checks) |
+| A hardened image fails because of permissions or filesystem writes | [Keep the image safe and operable](#keep-the-image-safe-and-operable) |
+
 ## Build an image
 
 Spring Boot's Maven and Gradle plugins can build an OCI image with Cloud Native Buildpacks. For Maven:
@@ -35,6 +45,19 @@ The skill includes these Dockerfile assets. The generator currently copies the s
 | [`Dockerfile-native`](../../assets/Dockerfile-native) | Native startup and memory characteristics justify native compilation | See [GraalVM Native Image](graalvm.md); native builds are slower and need compatibility checks |
 
 Choose based on measurements from the target workload. A warmed JVM can provide better throughput and simpler diagnostics for long-running services. Native Image specifics are in [GraalVM Native Image](graalvm.md).
+
+## Scan and identify the release image
+
+Scan the built OCI image, including its runtime base layers, before publishing it. A source dependency scan alone does not inspect the complete runtime image. For example, with Trivy:
+
+```bash
+docker build -t inventory-api:local .
+trivy image --severity HIGH,CRITICAL --exit-code 1 inventory-api:local
+```
+
+Choose the severity threshold and exception process to match the project's security policy; this command is an example gate, not a universal release policy. Review any accepted finding, record its rationale and owner, and set a review or expiry date. Keep scanner data current, retain the report with CI evidence, and scan the final image that will be published. Docker Scout is another option for image vulnerability summaries (`docker scout quickview inventory-api:local`).
+
+Tag images for humans, but use the registry digest to identify and promote a release. Build once, scan that image, then promote the same digest between environments; do not rebuild it for each environment. Rebuild and rescan when a base image or runtime dependency receives a security update. Generate and retain an SBOM when the project's supply-chain policy requires one. See [CI/CD and safe releases](ci-cd-release.md).
 
 ## Run local services with Compose
 
@@ -204,10 +227,28 @@ Treat `MaxRAMPercentage` as a starting value and measure it under the actual mem
 - Run as a non-root user and use a maintained base image. Pin production images by version or digest; rebuild them to receive security fixes.
 - Add `.dockerignore` entries for `.git/`, `target/`, `node_modules/`, local configuration, and secrets. Keep the build context small.
 - Pass secrets at runtime as environment variables or mounted files. Never put credentials in Dockerfile `ARG`, image layers, or committed Compose files.
+- Scan the final image in CI and retain the report; define a project-specific severity gate and a reviewed exception process. Image scanning complements dependency scanning and does not replace it.
 - Let container-aware JVMs size the heap from the memory limit. Do not hardcode `-Xmx` without measuring native memory, thread stacks, and direct buffers as well.
 - Configure graceful shutdown so Spring's shutdown timeout is shorter than the orchestrator's termination grace period.
 - Use readiness probes to remove an instance that cannot serve traffic. Keep liveness checks focused on whether the process can make progress; do not make a shared database outage restart every replica.
 - Distroless images have no shell or `curl`; do not add an in-container `HEALTHCHECK` that depends on them. Configure application probes in the orchestrator. A Compose health check can still be used for services such as PostgreSQL that include a probe command.
+
+For a container runtime that supports these controls, evaluate a read-only root filesystem, dropping all Linux capabilities, and preventing privilege escalation. Verify the application under these settings before adopting them; a Spring Boot process may need a writable temporary directory, and a service that binds privileged ports or uses native features may need a specific capability. Grant only the writable paths and capabilities the measured runtime requires. A Compose service can express the controls like this:
+
+```yaml
+services:
+  app:
+    image: inventory-api:local
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+```
+
+Check all write paths, including Java temporary files, uploads, generated files, and application-managed logs. Mount persistent data only where the application requires it; keep configuration and secret mounts read-only. Do not add a writable volume simply to make a read-only-root test pass without identifying what writes there.
 
 For Actuator probes and safe operational endpoints, see [observability](../observability/observability.md). For build profiles and supported Maven/Gradle behavior, see [Maven](../tooling/maven.md) and [Gradle](../tooling/gradle.md).
 
@@ -218,13 +259,15 @@ For Actuator probes and safe operational endpoints, see [observability](../obser
 - The bundled Dockerfile is used for a Gradle project; the skill generator's Docker option currently targets Maven.
 - The Docker build copies local build outputs or secrets into the image context; maintain `.dockerignore` and never copy real `.env` files.
 - The JVM is run as root or secrets are baked into an image; use a non-root runtime and inject secrets at deployment.
+- The image is published without scanning the final artifact or recording its digest; scan before publication and promote the same digest.
+- A blanket read-only filesystem or `cap_drop: ALL` breaks an untested write path or runtime feature; validate each restriction and grant only the required exception.
 - The runtime image is distroless but the guide assumes `docker exec ... sh` or an in-image `curl` health check; use logs and external probes.
 - A liveness probe depends on a shared database; use readiness to signal dependency outages.
 - `docker compose down -v` is used for routine cleanup; it deletes named database volumes.
 
 ## Related
 
-- [GraalVM Native Image](graalvm.md) · [Configuration](../configuration/configuration.md) · [Observability](../observability/observability.md) · [Maven](../tooling/maven.md) · [Gradle](../tooling/gradle.md)
+- [Kubernetes](kubernetes.md) · [GraalVM Native Image](graalvm.md) · [Configuration](../configuration/configuration.md) · [Observability](../observability/observability.md) · [Maven](../tooling/maven.md) · [Gradle](../tooling/gradle.md)
 
 ## References
 
@@ -235,4 +278,6 @@ For Actuator probes and safe operational endpoints, see [observability](../obser
 - [Dex getting started](https://dexidp.io/docs/getting-started/) · [Dex local connector](https://dexidp.io/docs/connectors/local/)
 - [Docker documentation](https://docs.docker.com/)
 - [Docker Compose documentation](https://docs.docker.com/compose/)
+- [Docker Compose service security options](https://docs.docker.com/reference/compose-file/services/)
+- [Trivy image scanning](https://trivy.dev/docs/latest/guide/target/container_image/)
 - [Google Distroless](https://github.com/GoogleContainerTools/distroless)
