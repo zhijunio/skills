@@ -17,10 +17,20 @@
 
 ### Domain models
 
-| Model | Meaning / responsibility | Key domain attributes | Identity / lifecycle | PRD requirement |
-| --- | --- | --- | --- | --- |
-| Setup attempt | A bounded attempt to complete device setup. | Status, failure reason, start time, completion time | Identity and allowed states need contract review | Draft PRD behavior |
-| Owner | The user authorized to initiate or recover setup. | None defined by this feature | Identity comes from the authenticated account context | Draft PRD behavior |
+| Model | Meaning / responsibility | Identity / lifecycle | PRD requirement |
+| --- | --- | --- | --- |
+| Setup attempt | A bounded attempt to complete device setup. | Identity and allowed states need contract review | Draft PRD behavior |
+| Owner | The user authorized to initiate or recover setup. | Identity comes from the authenticated account context | Draft PRD behavior |
+
+#### Domain fields
+
+| Model | Field | Domain type / shape | Requiredness | Meaning and business constraints / defaults | PRD requirement |
+| --- | --- | --- | --- | --- | --- |
+| Setup attempt | `status` | Setup status enum | Required | Allowed values and transitions remain open pending PRD decisions | Draft recovery requirement |
+| Setup attempt | `failureReason` | Failure reason value | Conditional | Present when the attempt fails; safe values to expose remain open | Draft recovery requirement |
+| Setup attempt | `startedAt` | Instant | Required | Time the attempt began | Draft recovery requirement |
+| Setup attempt | `completedAt` | Instant | Optional | Set only when the attempt completes; exact transition remains open | Draft recovery requirement |
+| Owner | authenticated identity | Owner reference | Required | Resolved from trusted server authentication context, not caller input | Draft recovery requirement |
 
 ### Model relationships
 

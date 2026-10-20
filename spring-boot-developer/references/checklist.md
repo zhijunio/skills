@@ -55,7 +55,7 @@ Review the requested change and directly affected code; do not expand the pass i
 
 | # | Rule | Reference |
 | - | ---- | --------- |
-| 26 | Value-object `@EmbeddedId` with a time-ordered UUIDv7. Never `GenerationType.UUID` (v4) on a high-write table. | [spring-data-jpa.md](persistence/spring-data-jpa.md) |
+| 26 | `Long` primary key by default; use `String` for stated opaque/external-ID needs. UUIDv7 is opt-in, never the default. | [spring-data-jpa.md](persistence/spring-data-jpa.md) |
 | 27 | `@Version` as a nullable `Long` - optimistic locking *and* new-state detection. | [spring-data-jpa.md](persistence/spring-data-jpa.md) |
 | 28 | Do not write `equals`/`hashCode` on an entity unless there is a stable natural key; then use `instanceof`, never `getClass()`. | [spring-data-jpa.md](persistence/spring-data-jpa.md) |
 | 29 | `fetch = LAZY` on every to-one. `@Enumerated(STRING)`. No association in `equals`/`hashCode`/`toString`. | [spring-data-jpa.md](persistence/spring-data-jpa.md) |
@@ -92,66 +92,76 @@ Review the requested change and directly affected code; do not expand the pass i
 | 45 | Enable method security when features use `@PreAuthorize`; keep coarse URL rules in the chain and feature authorization with the feature. | [security-fundamentals.md](security/security-fundamentals.md) |
 | 46 | Configure `authenticationEntryPoint` and `accessDeniedHandler` - advice cannot catch filter exceptions. | [security-fundamentals.md](security/security-fundamentals.md) |
 | 47 | Authorize STOMP inbound commands and subscriptions, require CSRF for cookie-authenticated `CONNECT`, and bound connections and frames. | [websocket.md](web/websocket.md) |
-| 48 | Prefer an external IdP. If self-issuing, use Spring's JWT encoder/decoder and bearer filter; use `AuthenticationFilter` for credential endpoints when the flow requires it. | [jwt-authentication.md](security/jwt-authentication.md) |
+| 48 | Prefer an external IdP where suitable. Honor the specified auth endpoint architecture: use `AuthenticationFilter` for required credential login and Spring Security's logout filter when required; keep bearer validation in resource-server support and add refresh only when specified. | [jwt-authentication.md](security/jwt-authentication.md) |
 | 49 | Validate issuer and audience for JWTs; use `issuer-uri` and `audiences` for an external resource server. Scopes are `hasAuthority('SCOPE_…')`, not `hasRole`. | [jwt-authentication.md](security/jwt-authentication.md) · [oauth2-resource-server.md](security/oauth2-resource-server.md) |
-| 50 | Refresh tokens are opaque, high-entropy and rotated on use; detect reuse and revoke the session. Hash at rest by default; raw storage requires an explicit requirement and documented database-leak impact. | [jwt-authentication.md](security/jwt-authentication.md) |
+| 50 | When refresh tokens are in scope, make them opaque and high-entropy, rotate on use, detect reuse, and revoke the session. Hash at rest by default; raw storage requires an explicit requirement and documented database-leak impact. | [jwt-authentication.md](security/jwt-authentication.md) |
+| 51 | For local password login, `UserDetailsService` must map persisted disabled, unverified, and passwordless states into Spring Security account-status checks; keep the persistence entity separate from `UserDetails`. Map identity-store failures to service unavailable, not invalid credentials. | [security-fundamentals.md](security/security-fundamentals.md) · [jwt-authentication.md](security/jwt-authentication.md) |
+| 52 | Verify filter ordering and every filter-level error path: login converter/success/failure handlers, resource-server invalid-token vs unavailable-store responses, logout matcher/handler/success handler, `WWW-Authenticate`, no-store headers, and stateless context persistence. Add focused HTTP tests for the configured contract. | [jwt-authentication.md](security/jwt-authentication.md) · [security-fundamentals.md](security/security-fundamentals.md) |
 
 ## Configuration and operations
 
 | # | Rule | Reference |
 | - | ---- | --------- |
-| 51 | `@ConfigurationProperties` records with `@Validated`, not scattered `@Value`. Fail at startup. | [configuration.md](configuration/configuration.md) |
-| 52 | Secrets never in the repository. Required ones have no default, so absence stops startup. | [configuration.md](configuration/configuration.md) |
-| 53 | The no-profile default must be safe. Never `@Profile` a business implementation. | [configuration.md](configuration/configuration.md) |
-| 54 | Never `management.endpoints.web.exposure.include: "*"` - that publishes `/env` and `/heapdump`. | [observability.md](observability/observability.md) |
-| 55 | Database in **readiness**, never liveness. | [observability.md](observability/observability.md) |
-| 56 | Never tag a metric with a user id, entity id or exception message. | [observability.md](observability/observability.md) |
-| 57 | Log the exception object, not `ex.getMessage()`. Never log secrets or personal data. | [observability.md](observability/observability.md) |
-| 58 | Enable virtual threads on Java 21+ - they are off by default - then size the connection pool, which is now the bottleneck. | [async-and-scheduling.md](integration/async-and-scheduling.md) |
-| 59 | Virtual threads do nothing for a sequential fan-out inside one request. `StructuredTaskScope` is that fix - preview on Java 25, in a service and never in a controller, never around a repository call inside `@Transactional`. | [async-and-scheduling.md](integration/async-and-scheduling.md) |
-| 60 | A `@Scheduled` job runs once per replica. Make it idempotent or claim the work. | [async-and-scheduling.md](integration/async-and-scheduling.md) |
-| 61 | `MaxRAMPercentage`, not `-Xmx`. Run as non-root. Graceful shutdown shorter than the orchestrator's grace period. | [Docker](deployment/docker.md) · [GraalVM Native Image](deployment/graalvm.md) |
+| 53 | `@ConfigurationProperties` records with `@Validated`, not scattered `@Value`. Fail at startup. | [configuration.md](configuration/configuration.md) |
+| 54 | Secrets never in the repository. Required ones have no default, so absence stops startup. | [configuration.md](configuration/configuration.md) |
+| 55 | The no-profile default must be safe. Never `@Profile` a business implementation. | [configuration.md](configuration/configuration.md) |
+| 56 | Never `management.endpoints.web.exposure.include: "*"` - that publishes `/env` and `/heapdump`. | [observability.md](observability/observability.md) |
+| 57 | Database in **readiness**, never liveness. | [observability.md](observability/observability.md) |
+| 58 | Never tag a metric with a user id, entity id or exception message. | [observability.md](observability/observability.md) |
+| 59 | Log the exception object, not `ex.getMessage()`. Never log secrets or personal data. | [observability.md](observability/observability.md) |
+| 60 | Enable virtual threads on Java 21+ - they are off by default - then size the connection pool, which is now the bottleneck. | [async-and-scheduling.md](integration/async-and-scheduling.md) |
+| 61 | Virtual threads do nothing for a sequential fan-out inside one request. `StructuredTaskScope` is that fix - preview on Java 25, in a service and never in a controller, never around a repository call inside `@Transactional`. | [async-and-scheduling.md](integration/async-and-scheduling.md) |
+| 62 | A `@Scheduled` job runs once per replica. Make it idempotent or claim the work. | [async-and-scheduling.md](integration/async-and-scheduling.md) |
+| 63 | `MaxRAMPercentage`, not `-Xmx`. Run as non-root. Graceful shutdown shorter than the orchestrator's grace period. | [Docker](deployment/docker.md) · [GraalVM Native Image](deployment/graalvm.md) |
 
 ## Testing
 
 | # | Rule | Reference |
 | - | ---- | --------- |
-| 62 | Layer the levels - unit, sliced, smoke, one end-to-end. Green unit tests do not mean a working application. | [testing-strategy.md](testing/testing-strategy.md) |
-| 63 | Guard the context cache: shared `application-test.yml`, mocks in a base class, avoid `@DirtiesContext`. | [testing-strategy.md](testing/testing-strategy.md) |
-| 64 | **Testcontainers against the real database, never H2** - H2 also means your migrations never run. | [testing-slices-persistence.md](testing/testing-slices-persistence.md) |
-| 65 | One container for the suite. `static` or a shared `@TestConfiguration`. Pin the image tag. | [testcontainers.md](testing/testcontainers.md) |
-| 66 | `@ServiceConnection` where a factory exists; `DynamicPropertyRegistrar` only for values that do not exist at authoring time. | [testcontainers.md](testing/testcontainers.md) |
-| 67 | `@WebMvcTest` needs `@Import(SecurityConfig.class)` - otherwise it tests Boot's defaults. | [testing-slices-web.md](testing/testing-slices-web.md) |
-| 68 | Assert the negative security cases: 401 and 403. | [testing-slices-web.md](testing/testing-slices-web.md) |
-| 69 | Awaitility for anything asynchronous. Never `Thread.sleep`. | [testing-integration.md](testing/testing-integration.md) |
-| 70 | Inject a `Clock`; never call `Instant.now()` in code you need to test. | [testing-unit.md](testing/testing-unit.md) |
-| 71 | `@MockitoBean`, not `@MockBean` - removed in Boot 4. | [spring-boot-migration.md](spring-boot-migration.md) |
+| 64 | Layer the levels - unit, sliced, smoke, one end-to-end. Green unit tests do not mean a working application. | [testing-strategy.md](testing/testing-strategy.md) |
+| 65 | Guard the context cache: shared `application-test.yml`, mocks in a base class, avoid `@DirtiesContext`. | [testing-strategy.md](testing/testing-strategy.md) |
+| 66 | **Testcontainers against the real database, never H2** - H2 also means your migrations never run. | [testing-slices-persistence.md](testing/testing-slices-persistence.md) |
+| 67 | One container for the suite. `static` or a shared `@TestConfiguration`. Pin the image tag. | [testcontainers.md](testing/testcontainers.md) |
+| 68 | `@ServiceConnection` where a factory exists; `DynamicPropertyRegistrar` only for values that do not exist at authoring time. | [testcontainers.md](testing/testcontainers.md) |
+| 69 | `@WebMvcTest` needs `@Import(SecurityConfig.class)` - otherwise it tests Boot's defaults. | [testing-slices-web.md](testing/testing-slices-web.md) |
+| 70 | Assert the negative security cases: 401 and 403. | [testing-slices-web.md](testing/testing-slices-web.md) |
+| 71 | Awaitility for anything asynchronous. Never `Thread.sleep`. | [testing-integration.md](testing/testing-integration.md) |
+| 72 | Inject a `Clock`; never call `Instant.now()` in code you need to test. | [testing-unit.md](testing/testing-unit.md) |
+| 73 | `@MockitoBean`, not `@MockBean` - removed in Boot 4. | [spring-boot-migration.md](spring-boot-migration.md) |
 
 ## AI
 
 | # | Rule | Reference |
 | - | ---- | --------- |
-| 72 | Use Spring AI 2.0 with Boot 4; 1.x does not resolve on Boot 4. | [spring-ai.md](integration/spring-ai.md) |
-| 73 | Scope the conversation id per user or session - a shared one leaks history between users. | [spring-ai.md](integration/spring-ai.md) |
-| 74 | Never concatenate user input into a prompt. Never execute or render model output unescaped. | [spring-ai.md](integration/spring-ai.md) |
-| 75 | `log-prompt: false` in production, and never tag a metric with prompt content. | [ai-observability.md](observability/ai-observability.md) |
-| 76 | Cap `max-tokens`, track token usage per operation, and alert on spend. | [ai-observability.md](observability/ai-observability.md) |
+| 74 | Use Spring AI 2.0 with Boot 4; 1.x does not resolve on Boot 4. | [spring-ai.md](integration/spring-ai.md) |
+| 75 | Scope the conversation id per user or session - a shared one leaks history between users. | [spring-ai.md](integration/spring-ai.md) |
+| 76 | Never concatenate user input into a prompt. Never execute or render model output unescaped. | [spring-ai.md](integration/spring-ai.md) |
+| 77 | `log-prompt: false` in production, and never tag a metric with prompt content. | [ai-observability.md](observability/ai-observability.md) |
+| 78 | Cap `max-tokens`, track token usage per operation, and alert on spend. | [ai-observability.md](observability/ai-observability.md) |
 
 ## Cross-cutting API safeguards
 
 | # | Rule | Reference |
 | - | ---- | --------- |
-| 77 | Use resource-oriented paths; put filters, pagination and allowlisted sorting in query parameters. Keep credentials out of URLs. | [rest-controllers.md](web/rest-controllers.md) |
-| 78 | Define a scoped idempotency contract for retryable create operations; persist keys atomically and recheck authorization before replaying a response. | [REST controllers](web/rest-controllers.md#idempotency-for-retried-commands) |
-| 79 | Apply rate limits and hard resource bounds at the appropriate boundary in deployed systems; add application-level rate-limit code to a sample only when requested. Return a documented overload response when limits apply. | [rate-limiting.md](integration/rate-limiting.md) |
-| 80 | Treat database constraints as the final concurrency guard; translate constraint failures only after handling the failed transaction boundary. | [database-concurrency.md](persistence/database-concurrency.md) |
-| 81 | Derive tenant context from trusted identity and enforce it in every persistence, cache, storage and background-job path. | [multi-tenancy.md](persistence/multi-tenancy.md) |
-| 82 | CI promotes the same verified artifact digest; schema changes remain compatible across rollout and rollback windows. | [ci-cd-release.md](deployment/ci-cd-release.md) |
-| 83 | Public API changes have compatibility checks; deprecation has a replacement, owner, dates and measured client usage. | [api-versioning.md](web/api-versioning.md) |
-| 84 | Secrets have an owner, least-privilege scope, rotation and revocation procedure; CI does not expose them to untrusted code. | [configuration.md](configuration/configuration.md) |
-| 85 | Alerts have an owner, user impact, actionable runbook and SLO-aligned threshold; logs validate client-supplied correlation IDs. | [observability.md](observability/observability.md) |
-| 86 | External client tests exercise the network boundary; local substitutes cannot silently fall through to live providers. | [integration testing](testing/testing-integration.md#provider-contracts-and-external-dependency-tests) |
-| 87 | Runtime-managed OAuth registrations are privileged configuration: allowlist endpoint hosts, protect and audit changes, encrypt stored secrets, and let database uniqueness constraints resolve create races. | [OAuth2 login and SSO](security/oauth2-login.md) · [database concurrency](persistence/database-concurrency.md) |
+| 79 | Use resource-oriented paths; put filters, pagination and allowlisted sorting in query parameters. Keep credentials out of URLs. | [rest-controllers.md](web/rest-controllers.md) |
+| 80 | Define a scoped idempotency contract for retryable create operations; persist keys atomically and recheck authorization before replaying a response. | [REST controllers](web/rest-controllers.md#idempotency-for-retried-commands) |
+| 81 | Keep rate-limit enforcement out of controller/business logic: prefer a servlet filter, MVC interceptor, or service AOP boundary selected by the policy's required context and timing; keep algorithms/storage in a dedicated limiter component. Keep only quota reservation that must be atomic with the business transaction in the owning use case, with policy/state isolated in a component; document overload responses. | [rate-limiting.md](integration/rate-limiting.md) |
+| 82 | Treat database constraints as the final concurrency guard; translate constraint failures only after handling the failed transaction boundary. | [database-concurrency.md](persistence/database-concurrency.md) |
+| 83 | Derive tenant context from trusted identity and enforce it in every persistence, cache, storage and background-job path. | [multi-tenancy.md](persistence/multi-tenancy.md) |
+| 84 | CI promotes the same verified artifact digest; schema changes remain compatible across rollout and rollback windows. | [ci-cd-release.md](deployment/ci-cd-release.md) |
+| 85 | Public API changes have compatibility checks; deprecation has a replacement, owner, dates and measured client usage. | [api-versioning.md](web/api-versioning.md) |
+| 86 | Secrets have an owner, least-privilege scope, rotation and revocation procedure; CI does not expose them to untrusted code. | [configuration.md](configuration/configuration.md) |
+| 87 | Alerts have an owner, user impact, actionable runbook and SLO-aligned threshold; logs validate client-supplied correlation IDs. | [observability.md](observability/observability.md) |
+| 88 | External client tests exercise the network boundary; local substitutes cannot silently fall through to live providers. | [integration testing](testing/testing-integration.md#provider-contracts-and-external-dependency-tests) |
+| 89 | Runtime-managed OAuth registrations are privileged configuration: allowlist endpoint hosts, protect and audit changes, encrypt stored secrets, and let database uniqueness constraints resolve create races. | [OAuth2 login and SSO](security/oauth2-login.md) · [database concurrency](persistence/database-concurrency.md) |
+| 90 | A feature never injects another feature's Mapper or imports its persistence entity; cross-feature calls use the owning feature's service/facade and application DTOs. | [code-organization.md](architecture/code-organization.md) |
+| 91 | Security filter failures use serialized `ProblemDetail` with `JsonMapper`; MVC advice does not handle 401/403 raised before dispatch. | [error-handling.md](web/error-handling.md) |
+| 92 | For MyBatis-Plus, use `BaseMapper`, Lambda Wrappers, and `selectPage` with a registered pagination interceptor and `maxLimit`; no annotation/XML SQL or concatenated paging SQL. | [mybatis-plus.md](persistence/mybatis-plus.md) |
+| 93 | New MyBatis-Plus persistence models use `MetaObjectHandler` for creation/update audit fields; wrapper-only updates set fill fields explicitly. | [mybatis-plus.md](persistence/mybatis-plus.md) |
+| 94 | Avoid per-row Mapper calls; batch related reads and keep query count bounded. Mapper `default` methods may compose reusable Lambda Wrapper operations, but must not hide N+1 loops or application orchestration. | [mybatis-plus.md](persistence/mybatis-plus.md) |
+| 95 | Implement business audit events with opt-in AOP on public service methods and persist through the owning audit service; also expose an explicit audit-service method for dynamic, multi-event, and failure events. Define transaction behavior and test proxy invocation, duplicates, and rollback semantics. | [auditing.md](persistence/auditing.md) |
+| 96 | Choose mail delivery guarantees before implementation: use an after-commit async listener when best-effort delivery has a documented recovery path, or an outbox when delivery must survive process failure without caller action. Preserve or explicitly revise the HTTP acceptance/failure contract; enqueueing is not proof of delivery. Add a broker only for durable buffering, scaling, fan-out, or an existing integration. | [mail.md](integration/mail.md) · [messaging.md](integration/messaging.md) |
+| 97 | After SDD build slices pass acceptance, run a bounded cleanup against this checklist: fix verified deviations and simplify duplication without changing behavior; avoid speculative abstractions and unrelated rewrites, then rerun affected checks. | [SKILL.md](../SKILL.md) |
 
 ---
 

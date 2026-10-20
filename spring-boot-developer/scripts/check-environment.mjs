@@ -12,22 +12,24 @@ if (args.has('--help') || args.has('-h')) {
   console.log(`Check local tools against the versions.json baseline.
 
 Usage:
-  node scripts/check-environment.mjs [--frontend] [--docker] [--gradle]
+  node scripts/check-environment.mjs [--frontend] [--docker] [--docker-daemon] [--gradle]
 
 Options:
   --frontend   Require Node.js and npm
-  --docker     Require Docker
+  --docker        Require the Docker CLI
+  --docker-daemon Require the Docker CLI and an active Docker daemon
   --gradle     Require a global Gradle installation
   --help       Show this help`)
   process.exit(0)
 }
-const unknown = [...args].filter((arg) => !['--frontend', '--docker', '--gradle'].includes(arg))
+const unknown = [...args].filter((arg) => !['--frontend', '--docker', '--docker-daemon', '--gradle'].includes(arg))
 if (unknown.length > 0) {
   console.error(`Unknown option: ${unknown.join(', ')}`)
   process.exit(1)
 }
 const needNode = args.has('--frontend')
-const needDocker = args.has('--docker')
+const needDockerDaemon = args.has('--docker-daemon')
+const needDocker = args.has('--docker') || needDockerDaemon
 const needGradle = args.has('--gradle')
 let failures = 0
 
@@ -81,6 +83,14 @@ report('Maven', version('mvn', ['--version']), versions.mavenMinimum, false)
 report('Gradle', version('gradle', ['--version']), versions.gradleMinimum, needGradle)
 report('Node.js', version('node', ['--version']), needNode ? versions.node.minimum : '20', needNode)
 report('npm', version('npm', ['--version']), needNode ? versions.node.npmMinimum : '10', needNode)
-report('Docker', version('docker', ['--version']), '1', needDocker)
+report('Docker CLI', version('docker', ['--version']), '1', needDocker)
+if (needDockerDaemon) {
+  const daemonVersion = version('docker', ['info', '--format', '{{.ServerVersion}}'])
+  if (daemonVersion) report('Docker daemon', daemonVersion, '1', true)
+  else {
+    console.log('FAIL Docker daemon: unavailable (start Docker Desktop, OrbStack, or another configured daemon)')
+    failures += 1
+  }
+}
 
 if (failures > 0) process.exitCode = 1

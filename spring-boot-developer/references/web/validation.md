@@ -55,6 +55,8 @@ ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest requ
 
 Failures surface as `MethodArgumentNotValidException` and become an RFC 9457 `violations` array - see [error-handling.md](error-handling.md).
 
+With Boot 4's Jackson 3, an omitted JSON property for a primitive record component such as `boolean completed` or `int quantity` can fail during deserialization before Jakarta Validation runs. For a required request value, use the wrapper type (`Boolean`, `Integer`) with `@NotNull` so omission and explicit `null` become ordinary validation failures. For an optional value, model the nullable state and apply its default explicitly. Prefer separate create and update request records when their required fields differ, and test omitted, `null`, `false`, and `0` according to the contract.
+
 ### Which annotation
 
 | Intent | Annotation |

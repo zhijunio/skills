@@ -26,6 +26,8 @@ Options:
   --boot-version <version>      Exact Spring Boot version (default: ${versions.springBoot.default})
   --persistence <jpa|mybatis-plus|none> Persistence layer (default: jpa, or none with --database none)
   --database <postgresql|none>   Database driver and local Compose setup (default: postgresql)
+  --license <apache2|mit|none>    Project license (default: apache2)
+  --copyright-holder <name>       Copyright holder (default: visible placeholder)
   --docker                      Add Dockerfile and full-stack Compose overlay
   --output-dir <path>           Parent directory (default: current directory)
   --help                        Show this help
@@ -37,8 +39,8 @@ Examples:
 }
 
 function parseArgs(args) {
-  const options = { build: 'maven', database: 'postgresql', outputDir: process.cwd() }
-  const values = new Set(['--name', '--group-id', '--package-name', '--build', '--java', '--boot-version', '--persistence', '--database', '--output-dir'])
+  const options = { build: 'maven', database: 'postgresql', license: 'apache2', outputDir: process.cwd() }
+  const values = new Set(['--name', '--group-id', '--package-name', '--build', '--java', '--boot-version', '--persistence', '--database', '--license', '--copyright-holder', '--output-dir'])
   for (let i = 0; i < args.length; i += 1) {
     const key = args[i]
     if (key === '--help' || key === '-h') return { help: true, options }
@@ -62,6 +64,11 @@ function assertOptions(options) {
   }
   if (!['maven', 'gradle'].includes(options.build)) throw new Error('--build must be maven or gradle')
   if (!['none', 'postgresql'].includes(options.database)) throw new Error('--database must be none or postgresql')
+  if (!['apache2', 'mit', 'none'].includes(options.license)) throw new Error('--license must be apache2, mit, or none')
+  options.copyrightholder ??= '[Copyright holder]'
+  if (!options.copyrightholder.trim() || /[\r\n]/.test(options.copyrightholder)) {
+    throw new Error('--copyright-holder must be a non-empty single line')
+  }
   options.persistence ??= options.database === 'none' ? 'none' : 'jpa'
   if (!['jpa', 'mybatis-plus', 'none'].includes(options.persistence)) throw new Error('--persistence must be jpa, mybatis-plus, or none')
   if (options.persistence !== 'none' && options.database === 'none') {
@@ -172,6 +179,17 @@ async function addDatabaseAssets(projectDir) {
   }
 }
 
+async function normalizeDatabaseCompose(projectDir) {
+  const composePath = join(projectDir, 'compose.yaml')
+  let compose = await readFile(composePath, 'utf8')
+  const postgresImage = /^([ \t]*image:[ \t]*)(['"]?)postgres(?::[^'"\s]+)?\2([ \t]*(?:#.*)?)$/m
+  if (!postgresImage.test(compose)) {
+    throw new Error('Cannot pin PostgreSQL image: generated compose.yaml has no PostgreSQL image declaration')
+  }
+  compose = compose.replace(postgresImage, `$1${versions.postgresql.image}$3`)
+  await writeFile(composePath, compose)
+}
+
 async function addProjectSetupAssets(projectDir, packageName) {
   const assets = join(root, 'assets')
   const gitignorePath = join(projectDir, '.gitignore')
@@ -203,75 +221,96 @@ async function addProjectSetupAssets(projectDir, packageName) {
   await writeFile(join(configDirectory, 'StartupInfoListener.java'), listener)
 }
 
-async function addDeveloperToolingAssets(projectDir, javaVersion, build, database, docker) {
-  await writeFile(join(projectDir, '.sdkmanrc'), `java=${javaVersion}-tem\n`)
+async function addLicense(projectDir, license, copyrightHolder) {
+  if (license !== 'none') {
+    const year = new Date().getFullYear()
+    const templateName = license === 'mit' ? 'LICENSE-MIT.txt' : 'LICENSE-APACHE-2.0.txt'
+    let text = await readFile(join(root, 'assets', templateName), 'utf8')
+    if (license === 'mit') {
+      text = text.replaceAll('<year>', String(year)).replaceAll('<copyright holders>', copyrightHolder)
+    } else {
+      text = `Copyright ${year} ${copyrightHolder}\n\n${text}`
+    }
+    await writeFile(join(projectDir, 'LICENSE'), text)
+  }
 
-  const wrapperName = build === 'maven' ? 'mvnw' : 'gradlew'
-  const wrapper = `{{if eq OS "windows"}}${wrapperName === 'mvnw' ? 'mvnw.cmd' : 'gradlew.bat'}{{else}}./${wrapperName}{{end}}`
+  const pomPath = join(projectDir, 'pom.xml')
+  if (!existsSync(pomPath)) return
+  const pom = await readFile(pomPath, 'utf8')
+  const emptyLicenses = /\s*<licenses>\s*<license\s*\/>\s*<\/licenses>/m
+  if (!emptyLicenses.test(pom)) return
+  const licenseMetadata = license === 'none' ? '' : license === 'mit'
+    ? '\n    <licenses>\n        <license>\n            <name>MIT License</name>\n            <url>https://opensource.org/license/mit</url>\n            <distribution>repo</distribution>\n        </license>\n    </licenses>\n'
+    : '\n    <licenses>\n        <license>\n            <name>Apache License, Version 2.0</name>\n            <url>https://www.apache.org/licenses/LICENSE-2.0</url>\n            <distribution>repo</distribution>\n        </license>\n    </licenses>\n'
+  await writeFile(pomPath, pom.replace(emptyLicenses, licenseMetadata))
+}
+
+async function addRenovateConfig(projectDir) {
+  const target = join(projectDir, 'renovate.json')
+  if (existsSync(target)) return
+  const config = JSON.parse(await readFile(join(root, 'assets', 'renovate.json'), 'utf8'))
+  config.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  await writeFile(target, `${JSON.stringify(config, null, 2)}\n`)
+}
+
+async function addDeveloperToolingAssets(projectDir, javaVersion, build, database, docker) {
+  const wrapper = build === 'maven' ? './mvnw' : './gradlew'
+  const windowsWrapper = build === 'maven' ? 'mvnw.cmd' : 'gradlew.bat'
+  const verifyGoal = build === 'maven' ? 'verify' : 'check'
+  const formatGoal = build === 'maven' ? 'spotless:apply' : 'spotlessApply'
+  const runGoal = build === 'maven' ? 'spring-boot:run' : 'bootRun'
   const tasks = [
-    "version: '3'",
+    '[tools]',
+    `java = "temurin-${javaVersion}"`,
     '',
-    'vars:',
-    `  WRAPPER: '${wrapper}'`,
+    '[tasks.test]',
+    'description = "Run the test suite"',
+    `run = "${wrapper} test"`,
+    `run_windows = "${windowsWrapper} test"`,
     '',
-    'tasks:',
-    '  default:',
-    '    desc: List available tasks',
-    '    cmds:',
-    '      - task --list',
+    '[tasks.verify]',
+    'description = "Run verification and package checks"',
+    `run = "${wrapper} ${verifyGoal}"`,
+    `run_windows = "${windowsWrapper} ${verifyGoal}"`,
     '',
-    '  test:',
-    '    desc: Run the test suite',
-    '    cmds:',
-    `      - '{{.WRAPPER}} test'`,
+    '[tasks.format]',
+    'description = "Apply Java formatting"',
+    `run = "${wrapper} ${formatGoal}"`,
+    `run_windows = "${windowsWrapper} ${formatGoal}"`,
     '',
-    '  verify:',
-    '    desc: Run verification and package checks',
-    '    cmds:',
-    `      - '{{.WRAPPER}} ${build === 'maven' ? 'verify' : 'check'}'`,
-    '',
-    '  format:',
-    '    desc: Apply Java formatting',
-    '    cmds:',
-    `      - '{{.WRAPPER}} ${build === 'maven' ? 'spotless:apply' : 'spotlessApply'}'`,
-    '',
-    '  run:',
-    '    desc: Run the application',
-    '    cmds:',
-    `      - '{{.WRAPPER}} ${build === 'maven' ? 'spring-boot:run' : 'bootRun'}'`,
+    '[tasks.run]',
+    'description = "Run the application"',
+    `run = "${wrapper} ${runGoal}"`,
+    `run_windows = "${windowsWrapper} ${runGoal}"`,
   ]
 
   if (database === 'postgresql') {
     tasks.push(
       '',
-      '  compose:up:',
-      '    desc: Start local PostgreSQL',
-      '    cmds:',
-      '      - docker compose up -d postgres',
+      '[tasks."compose:up"]',
+      'description = "Start local PostgreSQL"',
+      'run = "docker compose up -d postgres"',
       '',
-      '  compose:stop:',
-      '    desc: Stop local services and keep their data',
-      '    cmds:',
-      '      - docker compose stop',
+      '[tasks."compose:stop"]',
+      'description = "Stop local services and keep their data"',
+      'run = "docker compose stop"',
     )
   }
 
   if (docker) {
     tasks.push(
       '',
-      '  docker:up:',
-      '    desc: Build and start the Docker Compose application',
-      '    cmds:',
-      '      - docker compose -f compose.full.yaml up -d --build',
+      '[tasks."docker:up"]',
+      'description = "Build and start the Docker Compose application"',
+      'run = "docker compose -f compose.full.yaml up -d --build"',
       '',
-      '  docker:down:',
-      '    desc: Stop the Docker Compose application and keep its data',
-      '    cmds:',
-      '      - docker compose -f compose.full.yaml down',
+      '[tasks."docker:down"]',
+      'description = "Stop the Docker Compose application and keep its data"',
+      'run = "docker compose -f compose.full.yaml down"',
     )
   }
 
-  await writeFile(join(projectDir, 'Taskfile.yml'), `${tasks.join('\n')}\n`)
+  await writeFile(join(projectDir, 'mise.toml'), `${tasks.join('\n')}\n`)
 }
 
 async function renameContainerTest(projectDir) {
@@ -420,9 +459,13 @@ async function main() {
     }
 
     await addProjectSetupAssets(options.projectDir, options.packagename)
+    await addLicense(options.projectDir, options.license, options.copyrightholder)
     await addDeveloperToolingAssets(options.projectDir, options.java, options.build, options.database, options.docker)
 
-    if (options.database === 'postgresql') await addDatabaseAssets(options.projectDir)
+    if (options.database === 'postgresql') {
+      await addDatabaseAssets(options.projectDir)
+      await normalizeDatabaseCompose(options.projectDir)
+    }
 
     if (options.build === 'maven') await ensureMavenSpotless(options.projectDir)
     else await ensureGradleSpotless(options.projectDir)
@@ -434,8 +477,12 @@ async function main() {
     }
     if (options.build === 'gradle') await ensureGradlePluginRepositories(options.projectDir)
     if (options.docker) await addDockerAssets(options.projectDir, options.name, options.persistence)
+    await addRenovateConfig(options.projectDir)
     applyFormatting(options.projectDir, options.build)
     console.log(`\nProject created: ${options.projectDir}`)
+    if (options.license !== 'none' && options.copyrightholder === '[Copyright holder]') {
+      console.log('Replace [Copyright holder] in LICENSE with the copyright owner before distribution.')
+    }
     console.log(`Next: cd ${options.projectDir}`)
     console.log(options.build === 'maven' ? 'Then: ./mvnw spring-boot:run' : 'Then: ./gradlew bootRun')
   } finally {

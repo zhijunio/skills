@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const versions = JSON.parse(await readFile(join(root, 'versions.json'), 'utf8'))
 const args = process.argv.slice(2)
 if (args.includes('--help') || args.includes('-h')) {
   console.log(`Generate projects with create-project.mjs, run their builds, and start the Docker project.
@@ -79,6 +80,16 @@ function generate(name, options, outputDir) {
   return run(process.execPath, [join(root, 'scripts', 'create-project.mjs'), '--name', name, '--output-dir', outputDir, ...options], root)
 }
 
+async function readFileList(directory) {
+  const result = []
+  for (const item of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, item.name)
+    if (item.isDirectory()) result.push(...await readFileList(path))
+    else result.push(path)
+  }
+  return result
+}
+
 const workDir = await mkdtemp(join(tmpdir(), 'spring-boot-developer-smoke-'))
 let failures = 0
 
@@ -101,6 +112,18 @@ try {
     if (!generated.ok) {
       report(false, `${name}: generate`, generated.output)
       continue
+    }
+    if (name !== 'maven-nodb') {
+      const projectDir = join(workDir, name)
+      const compose = await readFile(join(projectDir, 'compose.yaml'), 'utf8')
+      const testcontainers = (await readFileList(join(projectDir, 'src', 'test', 'java')))
+        .filter((file) => file.endsWith('TestcontainersConfiguration.java'))
+      const testcontainerSource = await Promise.all(testcontainers.map((file) => readFile(file, 'utf8')))
+      const composeImage = compose.match(/^\s*image:\s*['"]?([^'"\s]+)['"]?/m)?.[1]
+      const pinned = composeImage === versions.postgresql.image
+        && testcontainerSource.some((source) => source.includes(versions.postgresql.image))
+      report(pinned, `${name}: PostgreSQL image is pinned consistently`, `compose image: ${composeImage ?? 'missing'}\nexpected: ${versions.postgresql.image}`)
+      if (!pinned) continue
     }
     let ok = true
     for (const [command, ...commandArgs] of commands) {

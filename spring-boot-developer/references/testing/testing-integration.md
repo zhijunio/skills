@@ -156,7 +156,7 @@ Put shared mocks here too, not on individual test classes, for the same cache re
 
 ### `RestTestClient`
 
-Spring Framework 7's `RestTestClient` unifies MockMvc and `WebTestClient` behind one fluent API, with a bind mode per test level: `bindToController(...)`, `bindTo(MockMvc)`, `bindToApplicationContext(...)`, and `bindToServer()`. The same client spans the sliced-to-end-to-end range instead of switching tools per level.
+Spring Framework 7's `RestTestClient` is built on Spring's `RestClient` and unifies MockMvc and `WebTestClient` behind one fluent API, with a bind mode per test level: `bindToController(...)`, `bindTo(MockMvc)`, `bindToApplicationContext(...)`, and `bindToServer()`. Prefer it for request-level tests against the application's own HTTP server: it uses Spring's client stack and includes response assertions. Keep raw `RestClient` for production outbound calls, and use a JDK HTTP client in tests only when the production code itself uses that client. The same client spans the sliced-to-end-to-end range instead of switching tools per level.
 
 ```java
 class OrderApiTest extends BaseIntegrationTest {

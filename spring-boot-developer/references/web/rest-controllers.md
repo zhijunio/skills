@@ -48,9 +48,10 @@ The controller is package-private, as is its constructor - nothing outside the f
 
 - **Plural nouns**: `/orders`, `/customers`
 - **Kebab-case** for multi-word: `/order-items`, never `/orderItems`
-- **Two levels of nesting maximum**: `/orders/{id}/items` is fine; `/orders/{id}/items/{itemId}/notes` is not - promote it to `/order-item-notes/{id}`
+- **Mirror domain ownership in nesting**: nest a resource only when the parent owns or scopes that child relationship, such as `/tenants/{tenantId}/users`. Keep independently managed models at their own collection path, even when an admin screen or configuration groups them together; for example, do not put an independent OAuth client under `/system-settings` just because administrators configure both there. `/me` is a caller-scoped view of the authenticated user's resources, not a claim that the user owns every model in the same way.
+- **Two levels of resource nesting maximum**: `/orders/{id}/items` is fine; `/orders/{id}/items/{itemId}/notes` is not - promote it to `/order-item-notes/{id}`. Count ownership/scoping relationships, not a genuine transition suffix such as `/orders/{id}/cancel`.
 - **Choose path IDs for the API's exposure and threat model.** UUIDs or business references can reduce accidental enumeration and row-count disclosure on public APIs. Numeric IDs are acceptable when they fit the established contract and authorization is enforced for every lookup; an opaque ID is not an authorization control.
-- **Verbs only for genuine non-CRUD transitions**: `POST /orders/{id}/cancel` is better than `PATCH` with a magic status field
+- **Use verbs for genuine non-CRUD transitions**: `POST /orders/{id}/cancel` is appropriate when cancellation has domain rules or side effects; use `PUT /orders/{id}` for an ordinary full representation update. Do not turn every status field into an action endpoint, and do not hide a meaningful transition in a generic update when it has its own authorization, invariants, or side effects.
 
 Group routes by resource and caller intent when it makes the API easier to understand. A useful starting convention is `/api/auth/**` for authentication flows, `/api/me/**` for the authenticated caller's self-service operations, and `/api/users/**` for user collection and administration operations. These are examples, not required Spring paths: preserve an established API's conventions and choose names that make ownership and authorization boundaries clear. Enforce those boundaries in authorization policy, not through route names alone.
 

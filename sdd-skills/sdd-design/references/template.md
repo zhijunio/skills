@@ -13,7 +13,7 @@
 ## PRD contract coverage
 
 | PRD requirement | Domain contract disposition | API contract disposition | Canonical contract(s) | Decision / gap |
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- |
 | <FR or product behavior in assessment scope> | <Covered by existing / Updated or created and accepted / No domain impact / Open or blocked; use Exploratory for a Draft PRD> | <Covered by existing / Updated or created and accepted / No API impact / Open or blocked; use Exploratory for a Draft PRD> | <Document and section for each applicable contract> | <Rationale, change, or unresolved decision> |
 
 <For an Approved PRD, every requirement in scope needs separate final domain and API dispositions. For a Draft PRD, use Exploratory in the coverage cells; these provisional notes do not satisfy the gate. Ready means required new/updated contracts are accepted and no blocking decision remains. Blocked means a named issue prevents spec approval for this scope. No-change dispositions need a rationale. Pending is only for an incomplete assessment.>
@@ -24,11 +24,17 @@
 
 ### Domain models
 
-List models and conceptual attributes only when they clarify a shared product/domain contract. These are domain concepts, not database tables or columns. Keep database column names, storage types, indexes, nullability, and physical schema in implementation/data design or migration artifacts.
+List every domain model in scope and enumerate its domain fields. These are domain concepts, not database tables or columns. For each field, record its name, domain-level type/shape, whether it is required, optional, or conditional, its business meaning, and applicable constraints, defaults, or derived/lifecycle behavior. Mark unresolved fields as open. In this project, identifier types are `Long` by default or `String` when explicitly selected; never use UUID. Keep physical column names when they differ, SQL storage types, indexes, physical nullability, and table layout in implementation/data design or migration artifacts.
 
-| Model | Meaning / responsibility | Key domain attributes | Identity / lifecycle | PRD requirement |
-| --- | --- | --- | --- | --- |
-| <Entity / value object> | <What it represents and owns> | <Business-meaningful attributes; avoid persistence details> | <Identity rule or state lifecycle, if relevant> | <FR ID> |
+| Model | Meaning / responsibility | Identity / lifecycle | PRD requirement |
+| --- | --- | --- | --- |
+| <Entity / value object> | <What it represents and owns> | <Identity rule or state lifecycle, if relevant> | <FR ID> |
+
+#### Domain fields
+
+| Model | Field | Domain type / shape | Requiredness | Meaning and business constraints / defaults | PRD requirement |
+| --- | --- | --- | --- | --- | --- |
+| <Model> | <fieldName> | <Long / String for IDs; Email, Instant, enum, collection, value object, etc.> | <Required / Optional / Conditional> | <Meaning, allowed values, default, or lifecycle/derivation rule; mark open if unresolved> | <FR ID> |
 
 ### Model relationships
 

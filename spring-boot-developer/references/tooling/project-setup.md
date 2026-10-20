@@ -28,8 +28,11 @@ The bundled generator separates the persistence layer from the database driver:
 |---|---|---|---|
 | `--persistence` | `jpa`, `mybatis-plus`, `none` | `jpa` | Adds Spring Data JPA, the Boot-major-specific MyBatis-Plus starter, or no ORM starter |
 | `--database` | `postgresql`, `none` | `postgresql` | Adds the PostgreSQL driver and Spring Boot Docker Compose/Testcontainers support, or no database dependencies |
+| `--license` | `apache2`, `mit`, `none` | `apache2` | Writes a root `LICENSE` from the selected license text, or skips it (`apache2` means Apache License 2.0) |
 
 The generator creates Boot 4.x projects only; Spring Initializr no longer offers Boot 3.5.x, so `--boot-version 3.5.x` is rejected before the request. `--persistence mybatis-plus` uses `mybatis-plus-spring-boot4-starter`. The starter version is pinned in `versions.json`. `--database none` is for applications without a database; it defaults `--persistence` to `none`, and the generator rejects `--persistence jpa` or `mybatis-plus` without a database because the application would fail to start without a driver. Docker generation requires Maven and `--database postgresql`.
+
+The environment checker distinguishes the Docker CLI from a running daemon. Use `--docker` when a task requires the CLI, and `--docker-daemon` before running Compose, Testcontainers, or Docker builds; the latter fails early when the CLI exists but cannot reach an active daemon.
 
 Examples:
 
@@ -51,8 +54,9 @@ node scripts/create-project.mjs --name inventory --persistence none --database n
 - **.editorconfig** → enforce indentation, charset, LF endings, trim trailing whitespace
 - **.gitattributes** → normalize line endings, mark binary files, improve diffs
 - **.dockerignore** → keep Docker build context lean; exclude `target/`, `node_modules/`, `.git/`, etc.
-- **Taskfile.yml** → discoverable project commands that delegate to Maven or Gradle wrappers
-- **.sdkmanrc** → align the SDKMAN! Java candidate with the selected project Java major
+- **mise.toml** → select the Java version and expose discoverable commands that delegate to Maven or Gradle wrappers
+- **LICENSE** → generated as Apache License 2.0 by default; choose MIT or `none` explicitly when appropriate. Maven metadata is aligned with the selected license. The copyright holder is not inferred: pass `--copyright-holder` or replace the visible placeholder before distributing the project.
+- **renovate.json** → generated with dependency update policy; Renovate autodetects managers from manifests and tooling files. The generator does not set `enabledManagers` or add broad package groups, so added stacks remain discoverable and unrelated updates are easier to diagnose. Renovate's built-in presets may still group related packages. The update schedule uses the generator host's IANA timezone. Stable non-major patch/minor/pin updates may automerge after checks pass; major and 0.x updates require review. Keep required checks configured on the hosting platform. The file does not run Renovate by itself: enable the Renovate GitHub App or an existing self-hosted Renovate service.
 - **.devcontainer/** and **.vscode/** (optional) → add only when the team uses those tools
 - **.nvmrc / .node-version** (optional) → pin Node 24.x for front-end builds
 - **GitHub remote** (optional, recommended) → unlock GHCR, CI/CD, OIDC deploy to Azure
@@ -564,8 +568,7 @@ gh auth token | docker login ghcr.io -u "$GHCR_OWNER" --password-stdin
   - `.editorconfig`
   - `.gitattributes`
   - `.dockerignore`
-  - `Taskfile.yml` with wrapper-backed test, verify, and run tasks; Compose tasks appear when PostgreSQL is selected, Docker tasks when `--docker` is selected
-  - `.sdkmanrc` matching the selected Java major with the Temurin distribution
+  - `mise.toml` with the selected Temurin Java major and wrapper-backed test, verify, and run tasks; Compose tasks appear when PostgreSQL is selected, Docker tasks when `--docker` is selected
   - `server.port: ${SERVER_PORT:8080}` in `application.yaml`, so the port variable used by `.env.sample` and the Compose files changes the port the app listens on
 - Existing files are **not overwritten blindly**:
   - If `.gitignore` exists, we append with a marker `# === spring-boot-developer additions ===`.

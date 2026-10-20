@@ -1,6 +1,6 @@
 # CI/CD and Safe Releases
 
-Treat CI as the reproducible path from a reviewed commit to the exact artifact running in production. Keep build, verification, packaging and deployment stages explicit; use the same wrapper and checks locally and in CI. See [taskfile.md](../tooling/taskfile.md) for discoverable project commands.
+Treat CI as the reproducible path from a reviewed commit to the exact artifact running in production. Keep build, verification, packaging and deployment stages explicit; use the same wrapper and checks locally and in CI. See [mise.md](../tooling/mise.md) for discoverable project commands.
 
 ## Quick lookup
 
@@ -51,7 +51,7 @@ The pipeline should leave inspectable evidence: source revision, test and scan r
 
 ## Related
 
-- [taskfile.md](../tooling/taskfile.md) · [flyway.md](../persistence/flyway.md) · [testcontainers.md](../testing/testcontainers.md) · [configuration.md](../configuration/configuration.md) · [observability.md](../observability/observability.md) · [docker.md](docker.md) · [graalvm.md](graalvm.md)
+- [mise.md](../tooling/mise.md) · [flyway.md](../persistence/flyway.md) · [testcontainers.md](../testing/testcontainers.md) · [configuration.md](../configuration/configuration.md) · [observability.md](../observability/observability.md) · [docker.md](docker.md) · [graalvm.md](graalvm.md)
 
 ## References
 

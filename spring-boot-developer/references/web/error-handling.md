@@ -195,7 +195,7 @@ Scoped advice applies only to controllers in that package. The rule: **the globa
 )
 ```
 
-Write the `ProblemDetail` to the response by hand there. `BearerTokenAuthenticationFilter` does not use the `exceptionHandling()` entry point. On a resource-server chain, also set `authenticationEntryPoint` and `accessDeniedHandler` on `oauth2ResourceServer()`; that access-denied handler is registered with `ExceptionTranslationFilter` for bearer requests. See [security-fundamentals.md](../security/security-fundamentals.md).
+Write the `ProblemDetail` to the response by hand there, serializing it with Boot's configured `JsonMapper` rather than hand-built JSON strings. Set the response status and `application/problem+json` content type, and use the same stable `type`/`title` conventions as MVC errors. `BearerTokenAuthenticationFilter` does not use the `exceptionHandling()` entry point. On a resource-server chain, also set `authenticationEntryPoint` and `accessDeniedHandler` on `oauth2ResourceServer()`; that access-denied handler is registered with `ExceptionTranslationFilter` for bearer requests. See [security-fundamentals.md](../security/security-fundamentals.md).
 
 Same applies to failures during request parsing before dispatch, and to anything thrown from an async listener after the response has been sent ([async-and-scheduling.md](../integration/async-and-scheduling.md)).
 

@@ -8,6 +8,17 @@ Reach for what follows when the feature has **rules** - states a thing can be in
 
 Apply it per feature. A single application can have three CRUD features and one modelled domain, and should.
 
+## Lifecycle timestamps
+
+Choose timestamps from the model's lifecycle rather than adding a standard pair to every table:
+
+- A persisted model with a meaningful lifecycle normally has `createdAt`. Add `updatedAt` when the model can change after creation and callers or operators need to know when its current state last changed.
+- A pure link or join model does not need generic timestamps by default. Add `createdAt` when the time the relationship began has domain or operational value; add `updatedAt` only when the relationship itself has mutable state.
+- Keep business transition times such as `acceptedAt`, `revokedAt` or `passwordChangedAt` separate. `updatedAt` records any current-row mutation and does not say which business event occurred.
+- Append-only events and audit records represent facts, so give them the event's occurrence or record time (for example `occurredAt` or `createdAt`) and no `updatedAt`. If occurrence and persistence times can differ materially, model both explicitly.
+
+Use the project's established field names when a domain contract already chose another convention. Lifecycle timestamps describe the current row; they do not replace an append-only audit history. See [Auditing](../persistence/auditing.md) for Spring/JPA and MyBatis-Plus population guidance.
+
 ## Rich, not anemic
 
 An anemic model is data with getters and setters, and all the rules elsewhere:
@@ -144,6 +155,8 @@ public record OrderPlaced(OrderId orderId, CustomerId customerId, Money total, I
 Carry **IDs and values, not entities.** An event holding an entity is a detached object by the time the listener runs.
 
 ### Let Spring Data publish them
+
+This mechanism applies when the aggregate is saved through Spring Data repositories. MyBatis-Plus mapper writes do not invoke Spring Data's `@DomainEvents` hooks. With MyBatis-Plus, publish the fact explicitly from the application service after saving; use an after-commit listener for non-critical in-process work, or persist an outbox record in the same database transaction when delivery must survive a process crash. See [MyBatis-Plus](../persistence/mybatis-plus.md), [Spring Modulith](spring-modulith.md), and [Messaging](../integration/messaging.md).
 
 Rather than publishing by hand in the service, collect events on the aggregate and let the repository drain them on `save()`:
 
@@ -298,7 +311,8 @@ The adapter lives in infrastructure. The `PaymentPort` interface belongs to the 
 - Agent makes a value object mutable - operations return new instances
 - Agent puts an entity inside a domain event - carry IDs and values; the entity is detached by then
 - Agent names an event in the present tense - events are facts: `OrderPlaced`, not `PlaceOrder`
-- Agent publishes an event before the save - collect on the aggregate and let `@DomainEvents` drain it
+- Agent publishes a Spring Data domain event before saving - collect it on the aggregate and let `@DomainEvents` drain it
+- Agent expects a MyBatis-Plus mapper write to invoke Spring Data `@DomainEvents` - publish through the application service or a transaction-aware outbox
 - Agent omits `@AfterDomainEventPublication` - events republish on the next save
 - Agent uses plain `@EventListener` for a side effect - it runs inside the transaction; use `AFTER_COMMIT`
 - Agent passes the HTTP `*Request` record into the service - map to a `*Cmd` so the API can change independently

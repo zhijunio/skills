@@ -40,22 +40,11 @@ The no-profile default must be **safe**. If someone runs the jar without a profi
 
 Secrets never live in any of these files - a gitignored `.env` or your platform's secret store.
 
-## SDKMAN! (optional)
+## mise (optional)
 
-On macOS, Linux or Windows Subsystem for Linux, [SDKMAN!](https://sdkman.io/install/) can manage per-user JDKs and optional JVM tools such as Maven and Gradle. It is a local convenience; do not make SDKMAN! a prerequisite for building the repository.
+On macOS, Linux and Windows, [mise](https://mise.jdx.dev/) can select the project JDK and expose wrapper-backed development tasks. It is a local convenience; direct Maven/Gradle Wrapper commands remain available without it.
 
-```bash
-sdk list java                 # see available distributions and identifiers
-sdk install java <candidate> # replace with the project-approved id from `sdk list java`
-sdk use java <candidate>     # replace with that same id for this shell
-java -version
-```
-
-The angle-bracketed value is a placeholder; do not type the brackets literally. See the [SDKMAN! usage guide](https://sdkman.io/usage/) for `.sdkmanrc` and `sdk env` behavior.
-
-For a team that has agreed on an SDKMAN! distribution, commit an `.sdkmanrc` with the exact candidate identifiers, then developers can run `sdk env install` and `sdk env` in the project directory. Keep it aligned with the Java version in the Maven/Gradle build and CI. Do not commit machine-specific absolute paths.
-
-SDKMAN! selects tools on the developer's shell `PATH`; the Maven or Gradle Wrapper remains the project build entry point and pins the build-tool distribution. Java toolchains in the build configure the JDK used for compilation and tests where supported. Verify `java -version` when diagnosing which JDK launches a local app or build. CI and containers should select their JDK explicitly instead of depending on a developer's SDKMAN! defaults. See [maven.md](maven.md) and [gradle.md](gradle.md).
+The generator writes the selected Temurin major and tasks to `mise.toml`. Install mise using its [official guide](https://mise.jdx.dev/getting-started.html), then run `mise install` to install the configured JDK, `mise tasks` to list commands, and `mise run verify` to run verification. Keep the configured Java major aligned with build toolchains and CI. CI and containers should select their JDK explicitly. See [maven.md](maven.md), [gradle.md](gradle.md), and [mise.md](mise.md).
 
 ## Seed data
 
@@ -84,7 +73,7 @@ Profile-scoped and idempotent. Development data does **not** belong in a Flyway 
 
 ## A task runner
 
-A short list of named commands beats a wiki page. [Task](https://taskfile.dev/) is one option; a `Makefile` or a `scripts/` directory works as well. What matters is that the commands are in the repository and discoverable. See [taskfile.md](taskfile.md) for Taskfile design rules and a portable starter example. Use the repository's build wrapper and actual Compose service names ([maven.md](maven.md)).
+A short list of named commands beats a wiki page. [mise](https://mise.jdx.dev/) is one option; a `Makefile` or a `scripts/` directory works as well. What matters is that the commands are in the repository and discoverable. See [mise.md](mise.md) for mise tasks design rules and a portable starter example. Use the repository's build wrapper and actual Compose service names ([maven.md](maven.md)).
 
 ## Fast feedback
 
@@ -98,17 +87,16 @@ A short list of named commands beats a wiki page. [Task](https://taskfile.dev/) 
 - Agent seeds development data in a Flyway migration - it reaches production and cannot be changed
 - Agent writes a non-idempotent seeder - it duplicates rows on every restart
 - Agent commits a `.env` or puts secrets in `application-local.yml`
-- Agent makes SDKMAN! mandatory or treats its selected JDK as a replacement for the project's Wrapper and toolchain configuration
+- Agent makes mise mandatory or treats its selected JDK as a replacement for the project's Wrapper and toolchain configuration
 - Agent debugs a devtools classloader oddity as if it were an application bug - do a full restart first
 - Agent makes startup information a hard requirement for manually maintained applications - the listener is a scaffold convenience and can be omitted or adapted
 - Agent turns `open-in-view` on locally to make a `LazyInitializationException` go away - that hides an N+1 until production
 
 ## Related
 
-- [configuration.md](../configuration/configuration.md) · [flyway.md](../persistence/flyway.md) · [testcontainers.md](../testing/testcontainers.md) · [maven.md](maven.md) · [taskfile.md](taskfile.md) · [docker.md](../deployment/docker.md) · [graalvm.md](../deployment/graalvm.md)
+- [configuration.md](../configuration/configuration.md) · [flyway.md](../persistence/flyway.md) · [testcontainers.md](../testing/testcontainers.md) · [maven.md](maven.md) · [mise.md](mise.md) · [docker.md](../deployment/docker.md) · [graalvm.md](../deployment/graalvm.md)
 
 ## References
 
-- [SDKMAN!](https://sdkman.io/install/)
-- [SDKMAN! usage guide](https://sdkman.io/usage/)
-- [Task](https://taskfile.dev/)
+- [mise installation](https://mise.jdx.dev/getting-started.html)
+- [mise configuration](https://mise.jdx.dev/configuration.html)

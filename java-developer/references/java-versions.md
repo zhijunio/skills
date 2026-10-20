@@ -8,7 +8,7 @@ Read the build configuration - it is authoritative, not the installed JDK:
 | ---------- | ------------- |
 | Maven | `maven.compiler.release`, or `maven.compiler.source` / `target` in `pom.xml` |
 | Gradle | `java.toolchain.languageVersion`, `sourceCompatibility`, or `options.release` |
-| Either | `.sdkmanrc`, `.tool-versions`, `.java-version`, CI workflow files |
+| Either | `mise.toml`, `.tool-versions`, `.java-version`, CI workflow files |
 
 Then run `java -version`. Projects frequently build on a newer JDK than they target; if the installed JDK is *older* than the configured release, say so - the code will not compile.
 

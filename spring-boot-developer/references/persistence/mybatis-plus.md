@@ -1,11 +1,37 @@
 # MyBatis-Plus
 
-Use MyBatis-Plus when the feature benefits from explicit SQL, mapper interfaces, or incremental adoption over an existing MyBatis schema. It enhances MyBatis; it does not provide JPA-style aggregate persistence or remove the need to design and review SQL. Read [spring-data-jpa.md](spring-data-jpa.md) when the feature is better served by entity lifecycle and repository semantics.
+Use MyBatis-Plus when the feature benefits from Mapper interfaces, Wrapper-based queries, or incremental adoption over an existing MyBatis schema. It enhances MyBatis; it does not provide JPA-style aggregate persistence or remove the need to design and review query behavior. Read [spring-data-jpa.md](spring-data-jpa.md) when the feature is better served by entity lifecycle and repository semantics.
+
+**Required Mapper style:** define persistence operations with `BaseMapper<T>` and MyBatis-Plus Wrapper APIs. Mapper interfaces declare methods without SQL text. Keep SQL out of `@Select`, `@Insert`, `@Update`, `@Delete`, provider annotations, and mapper XML files.
+
+## Prevent N+1 queries and reuse Mapper operations
+
+Review query count as well as query correctness. Do not call a Mapper once per entity inside a loop or stream when the same data can be fetched in a batch. Collect the required IDs, issue one `in(...)` query (or a small fixed number of set-oriented queries), then join results in memory by key. For list endpoints, load related records in batches for the page rather than lazily fetching each row. Prefer a focused projection or a documented join when that is simpler and supported by the project's persistence rules. Keep a bounded, predictable number of queries as the input page grows; do not hide N+1 behavior behind a helper.
+
+Mapper interfaces may declare `default` methods to share repeated persistence query construction or compose MyBatis-Plus operations. Keep these methods persistence-focused: use `BaseMapper` methods and fresh Lambda Wrappers, handle empty collections explicitly, and favor batch operations. A default method must not loop over IDs and call `selectById`/`selectOne` for each item, contain business orchestration or transaction policy, or introduce SQL text. Put use-case decisions and multi-feature coordination in application services/facades. Review the generated query count for collection and page paths so a convenience method does not conceal N+1 access.
+
+```java
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import java.util.Collection;
+import java.util.List;
+
+public interface UserMapper extends BaseMapper<UserEntity> {
+    default List<UserEntity> selectByIds(Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return selectList(new LambdaQueryWrapper<UserEntity>().in(UserEntity::getId, ids));
+    }
+}
+```
+
+The example is a reusable bulk lookup; callers should group IDs first and map the returned rows by ID rather than issue one lookup per item.
 
 ## Choose one persistence model per feature
 
 - Prefer **Spring Data JPA** when aggregate changes should be expressed through domain behavior and entity state, and repository operations fit the query needs.
-- Prefer **MyBatis-Plus** when query shape and SQL need to stay explicit, the schema is legacy or database-specific, or the feature is read-heavy and uses custom projections.
+- Prefer **MyBatis-Plus** when query shape needs explicit control through Mapper and Wrapper APIs, the schema is legacy or database-specific, or the feature is read-heavy and uses custom projections.
 - Keep one persistence owner for a table or aggregate. If JPA and MyBatis-Plus must both access the same tables, document which owns writes and how reads observe them; account for JPA flush/clear and first-level cache behavior. Verify the combination with the real database.
 
 ## Match the starter to Spring Boot
@@ -22,7 +48,7 @@ Use the Boot 4 artifact and keep all MyBatis-Plus modules on one release. The of
 
 Do not add `mybatis-spring-boot-starter`, `mybatis-spring`, or a separate MyBatis dependency beside the MyBatis-Plus starter unless the official compatibility guidance for the selected release explicitly requires it. Duplicate dependency lines can introduce mismatched MyBatis versions. Manage the MyBatis-Plus version centrally and check the dependency tree after upgrades.
 
-Register mapper packages once, in a narrow feature-owned package:
+Register mapper scanning once. Keep Mapper interfaces and persistence models owned by their feature. When using flat feature packages, scan those feature packages; when using dedicated persistence sub-packages, keep scanning narrow and enforce the nested-package boundary with Modulith or ArchUnit (Java package names alone do not enforce it):
 
 ```java
 @SpringBootApplication
@@ -32,15 +58,15 @@ class Application {}
 
 ## Keep SQL and domain behavior visible
 
-Use `BaseMapper<T>` for routine single-table operations. Name custom mapper methods after the query intent and keep nontrivial joins, aggregates, locking clauses, and database-specific SQL in reviewed mapper SQL or XML. A generic CRUD method is not a substitute for a use-case boundary.
+Use `BaseMapper<T>` for single-table CRUD and Wrapper APIs for filtered reads, updates, deletes, and pagination. Give service operations domain-specific names; keep transaction and lifecycle behavior in services. A feature must not inject another feature's Mapper or read/write its persistence model; call that feature's public service/facade and exchange application-level inputs or results. Keep dependency direction acyclic. Compose join-heavy read models from focused Mapper queries where practical, and use MyBatis-Plus-supported extensions only when needed.
 
-Keep mapper interfaces and persistence models inside the feature's persistence package. The service coordinates transactions and domain behavior; the mapper executes persistence operations. Map persistence models or query projections to response DTOs at the application boundary. Do not expose mapper models, `Page`, or Wrapper objects as API contracts.
+Keep Mapper interfaces and persistence models inside the package area owned by their feature, following the flat or Modulith-enforced layout described above. The service coordinates transactions and domain behavior; the Mapper executes persistence operations. Map persistence models or query projections to response DTOs at the application boundary. Do not expose Mapper models, `Page`, or Wrapper objects as API contracts.
 
 Use explicit table/column mappings where naming conventions do not match the schema. Let Flyway or Liquibase own production schema changes; do not use application startup DDL or code generation as the production migration path. See [flyway.md](flyway.md).
 
 ## Build conditions safely
 
-Prefer `LambdaQueryWrapper` / `LambdaUpdateWrapper` for compile-time property references and Wrapper methods such as `eq`, `in`, and `between` for bound values. A wrapper helps bind values; it does not make raw SQL fragments safe.
+**Required:** use `LambdaQueryWrapper<T>` / `LambdaUpdateWrapper<T>` and entity method references for filters and updates. Use string-based `QueryWrapper` only for map projections or when no mapped entity property is available. A wrapper binds values; it does not make raw SQL fragments safe.
 
 - Never accept SQL fragments, column names, or `ORDER BY` expressions directly from a request. Map public sort keys through a fixed allowlist to known columns.
 - Treat `last`, raw `apply` fragments, `inSql`, and string column overloads as SQL construction boundaries. Keep their contents static or validate them against a strict allowlist; never concatenate request values.
@@ -51,7 +77,7 @@ These are security boundaries, not just style preferences. See the official [Wra
 
 ## Auto-fill audit fields with `MetaObjectHandler`
 
-Use MyBatis-Plus auto-fill for persistence-level fields such as creation and modification timestamps or trusted actor IDs. Mark entity properties with `@TableField(fill = FieldFill.INSERT)` or `FieldFill.INSERT_UPDATE`, and register a Spring-managed `MetaObjectHandler`:
+For new MyBatis-Plus projects, use auto-fill for persistence-level fields such as creation and modification timestamps or trusted actor IDs. Mark entity properties with `@TableField(fill = FieldFill.INSERT)` or `FieldFill.INSERT_UPDATE`, and register a Spring-managed `MetaObjectHandler`:
 
 ```java
 @Component
@@ -69,7 +95,7 @@ class AuditMetaObjectHandler implements MetaObjectHandler {
 }
 ```
 
-Use the exact Java property name and type in the fill call. Resolve actor IDs from trusted server-side authentication context, never from client-controlled DTO fields. Strict fill normally leaves a non-null entity value unchanged; avoid letting clients construct persistence entities with audit values. Auto-fill runs only on supported MyBatis-Plus operations: custom SQL, direct JDBC, and some update forms may need explicit assignment. Test insert and update paths, including wrapper-only updates, with the selected release and database.
+Use the exact Java property name and type in the fill call. Resolve actor IDs from trusted server-side authentication context, never from client-controlled DTO fields. Strict fill normally leaves a non-null entity value unchanged; avoid letting clients construct persistence entities with audit values. Auto-fill runs only on supported MyBatis-Plus operations; wrapper-only updates may need explicit assignment. Test insert and update paths, including wrapper-only updates, with the selected release and database.
 
 ## Logical deletion
 
@@ -81,7 +107,7 @@ Review custom XML/annotation SQL, joins, reports, and direct JDBC statements: th
 
 Use `DataPermissionInterceptor` with a `MultiDataPermissionHandler` (or the handler API provided by the selected MyBatis-Plus release) when row visibility depends on trusted user, role, or organizational scope. This is distinct from a tenant-line plugin: tenant isolation partitions records by tenant, while data permission narrows access within the tenant. Build predicates from server-derived authorization data and bind values safely; do not concatenate request input into SQL or accept a client-supplied permission fragment.
 
-Treat the interceptor as defense in depth. Audit custom SQL and joins, mapped statements excluded through interceptor-ignore annotations/configuration, batch and background work, and every query shape supported by the selected parser. A missing or failed permission rule must not silently become unrestricted access; define explicit deny/allow behavior and fail closed. Verify the emitted SQL and cross-user, cross-role, and cross-organization cases against the production database. See the official [data permission plugin guide](https://baomidou.com/en/plugins/data-permission/) and [multi-tenancy.md](multi-tenancy.md).
+Treat the interceptor as defense in depth. Audit joins, mapped statements excluded through interceptor-ignore annotations/configuration, batch and background work, and every query shape supported by the selected parser. A missing or failed permission rule must not silently become unrestricted access; define explicit deny/allow behavior and fail closed. Verify the emitted SQL and cross-user, cross-role, and cross-organization cases against the production database. See the official [data permission plugin guide](https://baomidou.com/en/plugins/data-permission/) and [multi-tenancy.md](multi-tenancy.md).
 
 ## Custom JDBC mappings with `BaseTypeHandler`
 
@@ -124,7 +150,7 @@ This example assumes `Money` validates its scale and currency elsewhere; a real 
 
 ## Bound pagination and order interceptors
 
-The `PaginationInnerInterceptor` applies database pagination, but request limits and sort choices remain application responsibilities. Clamp page size to an explicit maximum, validate page values, allowlist sort fields and directions, and add a deterministic tie-breaker to prevent records shifting between pages. Configure `maxLimit` as a second guard.
+For every paginated MyBatis-Plus endpoint, register a `PaginationInnerInterceptor` in the application's `MybatisPlusInterceptor`. Use Mapper `selectPage`/`Page` APIs instead of assembling `LIMIT`/`OFFSET` SQL in a Wrapper or service. The interceptor applies database pagination, but request limits and sort choices remain application responsibilities. Clamp page size to an explicit maximum, validate page values, allowlist sort fields and directions, and add a deterministic tie-breaker to prevent records shifting between pages. Configure `maxLimit` as a second guard. Map page records to response DTOs; keep MyBatis `Page` internal.
 
 Since MyBatis-Plus 3.5.9, the pagination parser is a separate dependency. Add `mybatis-plus-jsqlparser` at the same version when pagination is used; choose the JDK-compatible parser artifact described by the official installation guide when targeting an older Java baseline.
 
@@ -136,11 +162,11 @@ Put `@Transactional` at the application service/use-case boundary. Mapper calls 
 
 For optimistic locking, configure `OptimisticLockerInnerInterceptor`, map a version column with `@Version`, and check the affected-row outcome as part of the use case. A zero-row update is a conflict to resolve or report, not a successful write. Custom SQL must include and test the equivalent version predicate itself; do not assume every statement is rewritten by the plugin. See the official [optimistic-lock plugin guide](https://baomidou.com/en/plugins/optimistic-locker/).
 
-For multi-tenant data, derive tenant identity from authenticated server-side context. A tenant-line plugin is defense in depth, not authorization: audit custom SQL, excluded tables, joins, batch jobs, and background tasks, and prove cross-tenant isolation with integration tests. A scoped `ThreadLocal` tenant context and a post-authentication filter are optional context-carrier mechanisms, not requirements; use them only when the tenant handler cannot resolve a trusted principal directly. See [multi-tenancy.md](multi-tenancy.md) for context lifecycle, async boundaries, plugin bypasses, and test cases, and the official [tenant plugin guide](https://baomidou.com/plugins/tenant/).
+For multi-tenant data, derive tenant identity from authenticated server-side context. A tenant-line plugin is defense in depth, not authorization: audit excluded tables, joins, batch jobs, and background tasks, and prove cross-tenant isolation with integration tests. A scoped `ThreadLocal` tenant context and a post-authentication filter are optional context-carrier mechanisms, not requirements; use them only when the tenant handler cannot resolve a trusted principal directly. See [multi-tenancy.md](multi-tenancy.md) for context lifecycle, async boundaries, plugin bypasses, and test cases, and the official [tenant plugin guide](https://baomidou.com/plugins/tenant/).
 
 ## Test against the production database engine
 
-Test custom SQL, result mappings, plugin behavior, optimistic locking, tenant isolation, and pagination with Testcontainers using the same database family as production. MyBatis-Plus documents `@MybatisPlusTest` in `mybatis-plus-boot-starter-test`; keep its version aligned with MyBatis-Plus and verify compatibility with the project's Boot line. Make sure the slice does not replace the Testcontainers `DataSource` with embedded H2. Assert SQL-visible behavior and affected-row outcomes; do not spend tests re-proving `BaseMapper` CRUD. See the official [testing guide](https://baomidou.com/en/getting-started/test/), [testing-slices-persistence.md](../testing/testing-slices-persistence.md), and [testcontainers.md](../testing/testcontainers.md).
+Test Wrapper query behavior, plugin behavior, optimistic locking, tenant isolation, and pagination with Testcontainers using the same database family as production. MyBatis-Plus documents `@MybatisPlusTest` in `mybatis-plus-boot-starter-test`; keep its version aligned with MyBatis-Plus and verify compatibility with the project's Boot line. Make sure the slice does not replace the Testcontainers `DataSource` with embedded H2. Assert SQL-visible behavior and affected-row outcomes; do not spend tests re-proving `BaseMapper` CRUD. See the official [testing guide](https://baomidou.com/en/getting-started/test/), [testing-slices-persistence.md](../testing/testing-slices-persistence.md), and [testcontainers.md](../testing/testcontainers.md).
 
 ## Gotchas
 
@@ -148,7 +174,7 @@ Test custom SQL, result mappings, plugin behavior, optimistic locking, tenant is
 - Adding MyBatis or MyBatis-Spring dependencies beside the MyBatis-Plus starter and creating version conflicts.
 - Treating `BaseMapper` convenience CRUD as a domain repository or returning persistence models from controllers.
 - Sending a Wrapper, raw sort expression, or SQL fragment from a client.
-- Assuming an optimistic-lock or tenant plugin protects custom SQL without testing its exact behavior.
+- Assuming an optimistic-lock or tenant plugin protects every Wrapper query without testing its exact behavior.
 - Using an unbounded page size or allowing client-controlled columns in `ORDER BY`.
 - Testing production SQL on H2 or allowing a persistence test slice to replace the container database.
 - Letting JPA and MyBatis-Plus write the same aggregate without an explicit owner and cache/flush policy.

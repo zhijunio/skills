@@ -5,7 +5,7 @@ Boot 4 manages **Jakarta Persistence 3.2** and **Hibernate ORM 7**. Import `jaka
 ## Contents
 
 - [Entities are classes, not records](#entities-are-classes-not-records)
-- [Identity: value-object IDs with time-ordered UUIDs](#identity-value-object-ids-with-time-ordered-uuids)
+- [Identity: Long by default, UUIDv7 when explicitly selected](#identity-long-by-default-uuidv7-when-explicitly-selected)
 - [The base class](#the-base-class)
 - [equals and hashCode](#equals-and-hashcode)
 - [Relationships](#relationships)
@@ -116,9 +116,19 @@ Rules visible above:
 - **`@Enumerated(EnumType.STRING)` with a length.** `ORDINAL` stores a position, so reordering the enum silently corrupts every stored row.
 - **Collections initialised inline** and never null.
 
-## Identity: value-object IDs with time-ordered UUIDs
+## Identity: Long by default, UUIDv7 when explicitly selected
 
-Two independent decisions, and both defaults are wrong.
+Use `Long` primary keys by default, commonly with database identity generation for ordinary CRUD entities. Use `String` when opaque or externally supplied identifiers are a stated requirement. Do not use UUID identifiers or database foreign-key constraints by default. Map cross-entity references through scalar ID fields so ORM schema generation cannot add foreign-key constraints; validate reference existence in application code. The UUIDv7 guidance and examples in this section apply only when a user or project explicitly selects UUID IDs.
+
+```java
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+```
+
+Identity generation can limit insert batching on high-write tables; measure that workload before choosing a different key strategy. A nullable `Long` `@Version` remains separate from the primary key and is useful for optimistic locking and Spring Data new-state detection.
+
+When UUID IDs are explicitly selected, make two independent decisions about their type and generation.
 
 ### The type: a value object
 
@@ -432,7 +442,7 @@ spring:
         order_updates: true
 ```
 
-`GenerationType.IDENTITY` **silently disables insert batching** - Hibernate must round-trip for each generated key. Assigned UUIDv7 IDs, as recommended above, do not have this problem. That is a second, independent reason to prefer them.
+`GenerationType.IDENTITY` **silently disables insert batching** - Hibernate must round-trip for each generated key. In a high-write workload that needs insert batching, evaluate an assigned identifier strategy; UUIDv7 is an option only when the project explicitly selects UUID IDs.
 
 For PostgreSQL, add `reWriteBatchedInserts=true` to the JDBC URL only when measurements show insert batching is useful; it lets the PostgreSQL driver rewrite compatible batches. Keep this driver-specific option in the externalized datasource URL, not in entity code.
 

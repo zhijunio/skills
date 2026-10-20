@@ -36,6 +36,10 @@ com.example.app/
 
 The entity and the repository are package-private. Only the service is public, so no other feature can reach past it into the persistence model. That is a real, compiler-enforced boundary and it costs nothing.
 
+Apply the same boundary with MyBatis-Plus: a feature owns its Mapper interfaces and persistence models, and only its application service/facade is a cross-feature entry point. Never inject another feature's Mapper, import its entity for business logic, or let one feature coordinate another feature's tables directly. Return a feature-owned result/read DTO or accept an application command at the facade. If the collaboration creates a dependency cycle, move the shared use case to an explicit application-level coordinator or reconsider feature ownership; do not solve it with mutual Mapper access.
+
+For a flat feature package, keep controllers, services, DTOs and persistence types together so package-private visibility can protect internals where supported. If framework discovery or team conventions require persistence sub-packages, introduce Modulith or ArchUnit rules at the same time; Java sub-packages do not inherit access restrictions. Keep `@MapperScan` aligned with the chosen package layout rather than using a broad root scan by habit.
+
 Keep `Application.java` in the root package above every feature - `@SpringBootApplication` derives component, entity and repository scanning from its package.
 
 ## The escalation ladder

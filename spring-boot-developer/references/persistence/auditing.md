@@ -92,6 +92,27 @@ auditing infrastructure. Choose the minimum actor identifier needed; usernames, 
 data and should follow the application's retention and access rules. Do not put secrets or full request payloads into
 audit metadata.
 
+## Business audit events with AOP and an explicit service
+
+Use opt-in Spring AOP for repeatable audit events attached to public application-service methods. Mark only operations
+whose successful completion should create a stable event, using a small annotation with explicit event type and target
+metadata. The aspect should obtain the trusted actor and safe target/context values, then delegate persistence to the
+owning audit feature's public `AuditEventService`; it must not inject a Mapper or assemble SQL. Keep the annotation and
+aspect behavior visible in the service API so callers and reviewers can identify which operations are audited.
+
+Also expose an explicit service method such as `AuditEventService.record(...)` for business flows that need to write an
+event directly. Use it when event details depend on runtime decisions, when one use case emits multiple distinct facts,
+or when auditing an authentication or authorization failure that has no successful annotated service return. Application
+services may call this method; controllers and other features should call the owning service/facade rather than its
+Mapper. Keep one source of truth for each event: do not combine an annotation and an explicit call for the same fact.
+
+Define transaction behavior deliberately. Successful-operation events that must commit atomically with the business
+change should be recorded in that transaction. An event for a failed operation that must survive rollback needs an
+explicit independent transaction or an outbox design; do not assume an insert made inside a rolled-back transaction is
+retained. AOP runs through Spring proxies: annotate externally invoked public service methods, account for self-invocation
+not crossing the proxy, and avoid advice that changes return values or swallows business exceptions. Keep auditing
+failures observable without silently turning an otherwise successful operation into an unaudited success.
+
 Auditing callbacks run as part of persistence lifecycle; they are not a replacement for domain events, compliance logs
 or a history table. When a business audit event must be retained even after a record changes or is deleted, write a
 separate append-only record in the same transaction.
@@ -101,7 +122,9 @@ separate append-only record in the same transaction.
 Test create and update metadata with a fixed clock or controlled persistence time where practical. Test authenticated
 and system actors, and verify clients cannot supply audit fields. For message consumers or scheduled jobs, test the
 no-request-context path. Verify JPA callbacks in a JPA slice and MyBatis-Plus fill and custom SQL in a persistence
-slice, both against the real database engine
+slice, both against the real database engine. Test the AOP path through a Spring-managed service proxy, verify the
+explicit service method persists an event, verify the same event is not written twice, and verify the selected transaction
+behavior when the operation fails
 ([testing-slices-persistence.md](../testing/testing-slices-persistence.md), [testcontainers.md](../testing/testcontainers.md)).
 
 ## Gotchas

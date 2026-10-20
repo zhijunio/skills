@@ -248,7 +248,7 @@ The generator pins Spotless Maven Plugin `3.10.4` and Palantir Java Format `2.10
 </plugin>
 ```
 
-A build-time formatter, not a runtime dependency. The generator adds it to new Maven projects and binds `check` to `validate`, so `./mvnw verify` checks formatting. Run `./mvnw spotless:apply` (or `task format`) to format files locally. Any consistent formatter does the job; the value is in having one, not in which. See the official [Spotless Maven guide](https://github.com/diffplug/spotless/blob/main/plugin-maven/README.md).
+A build-time formatter, not a runtime dependency. The generator adds it to new Maven projects and binds `check` to `validate`, so `./mvnw verify` checks formatting. Run `./mvnw spotless:apply` (or `mise run format`) to format files locally. Any consistent formatter does the job; the value is in having one, not in which. See the official [Spotless Maven guide](https://github.com/diffplug/spotless/blob/main/plugin-maven/README.md).
 
 ### Build provenance
 

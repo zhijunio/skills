@@ -180,7 +180,7 @@ spotless {
 }
 ```
 
-Run `./gradlew spotlessApply` (or `task format`) to apply formatting and `./gradlew spotlessCheck` to check it directly. JaCoCo verification still needs an explicit dependency from `check`; unlike Spotless, applying JaCoCo alone does not create a coverage rule or wire that rule into the lifecycle.
+Run `./gradlew spotlessApply` (or `mise run format`) to apply formatting and `./gradlew spotlessCheck` to check it directly. JaCoCo verification still needs an explicit dependency from `check`; unlike Spotless, applying JaCoCo alone does not create a coverage rule or wire that rule into the lifecycle.
 
 The coverage-as-a-floor argument from [maven.md](maven.md) applies.
 

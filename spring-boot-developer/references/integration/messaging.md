@@ -6,6 +6,8 @@ Messaging buys decoupling, buffering and retry across a process boundary. It cos
 
 Do not reach for it to decouple two classes in the same application - that is an in-process event ([spring-modulith.md](../architecture/spring-modulith.md)), which is transactional, ordered and debuggable. A broker is for crossing a process boundary, absorbing load spikes, or fanning out to consumers you do not own.
 
+For notifications, start with a domain/application event and a notification service. Use a durable message queue when delivery must survive process restarts, the notification workload needs independent buffering/scaling, multiple services consume it, or the project already operates a suitable broker. Do not require a broker for a single-process notification feature or add one only to make one method asynchronous. If a notification event is published from a database transaction to an external broker, use a transactional outbox or Spring Modulith's publication registry; `@TransactionalEventListener(AFTER_COMMIT)` prevents pre-commit delivery but is not durable across a crash. Consumers must be idempotent and retries/dead-letter handling must be observable.
+
 | Broker | Fits |
 |---|---|
 | **Kafka** | Event streams, replay, high throughput, ordering per key, multiple independent consumer groups over the same data |
