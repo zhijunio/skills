@@ -17,16 +17,19 @@ Tests verify behavior through public interfaces, not implementation details.
 
 ## Task
 
-1. Require **one approved spec + its approved plan**, with an approved parent PRD and a persisted **Ready `sdd-design` assessment covering the spec's requirements** — one build run implements one spec/plan pair. Verify the PRD, design gate, spec, and plan status/approval records; read `AGENTS.md`, README, and linters when present; follow spec/plan and touched-code patterns; exclude unrelated dirty files. On the **review-fix** path, [`sdd-review`](../sdd-review/SKILL.md) listed findings are the temporary plan: skip the spec/plan prerequisite; **listed findings only** — no new behavior or scope expansion.
+1. Select the applicable path:
+   - **Planned build:** Require one approved spec and its approved plan, an approved parent PRD, and **Ready design-readiness evidence recorded in the spec or a linked assessment**. Verify that the spec's requirement IDs and readiness evidence still match the current approved PRD, and that the spec and plan are not marked stale/reconciliation-required; preserve approval history without treating stale approval as current authorization. Route stale readiness to [`sdd-design`](../sdd-design/SKILL.md), stale behavior or coverage to [`sdd-spec`](../sdd-spec/SKILL.md), and product-scope changes to [`sdd-prd`](../sdd-prd/SKILL.md) before building.
+   - **Review-fix:** Use only the listed [`sdd-review`](../sdd-review/SKILL.md) findings as the temporary plan; no PRD/spec/plan prerequisite. Fix listed findings only, with no new behavior or scope expansion. If a finding conflicts with approved scope or an applicable current contract, route it to the owning SDD stage before changing behavior.
+   - **Both paths:** Verify applicable approval records; read `AGENTS.md`, README, and linters when present; follow repository and touched-code patterns; exclude unrelated dirty files.
 2. **Slice loop** until all slices complete:
     - Select one unfinished slice (already satisfied → mark done, next)
     - For behavior code, write a **failing test** and observe the right failure
     - Minimum change to pass
     - Refactor; keep tests green
     - Run slice verification
-    - Update only slice `Done` status and append result, command outcome, material deviation to the plan
+    - On the approved-plan path, update only slice `Done` status and append result, command outcome, and material deviation to that plan. On the review-fix path, record finding IDs and progress in the response; do not create a plan just for the fixes.
 3. **Alternative proof** only when no reasonable automated-test entry (docs, pure config, mechanical rename/generate): deterministic, rerunnable command or observable check — not a skip for laziness
-4. **Close-out verification** — after all slices (or listed review fixes) are done: run the project’s full suite when practical, otherwise proportionate regression covering touched interfaces, dependencies, config, and shared modules. Record commands and outcomes in the plan appendix. Gaps stay visible — do not claim green without evidence.
+4. **Close-out verification** — after all slices (or listed review fixes) are done: run the project’s full suite when practical, otherwise proportionate regression covering touched interfaces, dependencies, config, and shared modules. Record commands and outcomes in the persisted plan appendix when a plan exists. For review fixes without a plan, include them in the response. Do not create a separate build report by default. Gaps stay visible — do not claim green without evidence.
 5. **Present** an **Approval Present** status (see Present) — also append evidence to the plan file when one is in use
 
 ## Present

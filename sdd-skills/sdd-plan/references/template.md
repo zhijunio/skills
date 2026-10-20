@@ -66,7 +66,7 @@
 ### Related documents
 
 - Parent PRD: <path>
-- Ready design assessment: <path and covered requirement IDs>
+- Design readiness: <recorded in the spec, or standalone assessment path and covered requirement IDs>
 - Dependencies: <prerequisite spec paths, or none>
 
 ### Supporting material (optional)

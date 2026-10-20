@@ -2,7 +2,7 @@
 
 **Status:** Draft<br>
 **Approval record:** Pending<br>
-**Spec:** `docs/specs/alert-confirmation.md`
+**Spec:** `docs/sdd/002-alert-confirmation/spec.md`
 
 ## Slice 1: Authorized operators can confirm an open alert
 
@@ -29,7 +29,7 @@
 ### Related documents
 
 - Parent PRD: `docs/prd/iot-platform.md` — FR-5
-- Ready design assessment: `docs/design/alert-readiness.md` — FR-5
+- Design readiness: Ready — recorded in the approved spec for FR-5; no separate assessment file was needed.
 - Dependencies: None
 
 ### Supporting material (optional)

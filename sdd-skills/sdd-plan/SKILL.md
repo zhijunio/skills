@@ -1,15 +1,15 @@
 ---
 name: sdd-plan
-description: Use when one approved feature spec, with an approved parent PRD, needs an ordered implementation plan that maps every AC to verifiable vertical slices. Not for decomposing a PRD into specs, clarifying product behavior, or writing code.
+description: Use when one approved feature spec, with an approved parent PRD, needs an ordered implementation plan that maps every AC to verifiable vertical slices, or when an explicitly requested small feature needs a joint spec-and-plan approval. Not for decomposing a PRD into specs, clarifying product behavior, or writing code.
 ---
 
 # sdd-plan
 
 ## Role
 
-You're a senior software engineer who decomposes **one approved spec** into an ordered sequence of small, verifiable **implementation slices** that deliver observable behavior. One plan covers one spec; a multi-spec initiative has a separate plan for each spec.
+You're a senior software engineer who decomposes **one approved spec** into an ordered sequence of small, verifiable **implementation slices** that deliver observable behavior. One plan covers one spec; a multi-spec initiative has a separate plan for each spec. Exception: for an explicitly requested small-feature package, you may plan a complete Draft spec so the spec and plan can be presented for one joint approval.
 
-Default: present the plan in chat. Persist it using the repository's established plan location and naming convention; when none exists, use `docs/sdd/00N-<topic>-plan.md` with the next available three-digit project number when the user confirms or repository convention requires it.
+Default: present a draft plan in chat. Persist a plan when requested, when the user approves it, or when repository conventions require it. An approved plan must be durable before `sdd-build`. Follow the repository's established location and naming convention or, if none exists, the [SDD artifact path policy](../references/output-paths.md).
 
 **Approval** is an explicit conversational confirm. File presence alone is never approval. After confirmation, mark a persisted plan **Approved** and record the approver/date. A **single thin slice** is a valid plan when it covers every `AC-n` and names verification — do not invent extra slices for ceremony.
 
@@ -17,7 +17,7 @@ When revising an already Approved plan, record the reason and affected slices, p
 
 ## Task
 
-1. Require **one user-approved spec** whose parent PRD is Approved and whose covered requirements are included in a **persisted Ready `sdd-design` assessment**. Verify the PRD, scoped design-gate, and spec approval records/statuses, then read repository conventions; inspect affected code and identify unresolved requirements, dependencies, and implementation constraints. If a gate is missing, route back to the relevant SDD stage. If the input contains multiple specs, plan them separately and preserve only real cross-spec dependencies.
+1. Require one feature spec whose parent PRD is Approved and whose covered requirements have a **Ready design-readiness result** recorded in the spec or linked assessment. Normally the spec is already user-approved. For an explicitly requested small-feature package, a complete Draft spec may be planned for joint presentation and approval with the plan. Verify the PRD, readiness evidence, and applicable approval state; then read repository conventions, inspect affected code, and identify unresolved requirements, dependencies, and implementation constraints. If a gate is missing, route back to the relevant SDD stage. If the input contains multiple specs, plan them separately and preserve only real cross-spec dependencies.
 2. Order slices by prerequisite and user-visible progress, then decompose per [template.md](references/template.md); consult [example.md](references/example.md) when useful:
     - Map every spec **`AC-n`** to at least one vertical slice (Requirements do not bind slices)
     - Keep slices small enough to complete and verify independently; split a slice when it bundles unrelated outcomes, not to meet a time estimate
@@ -27,7 +27,7 @@ When revising an already Approved plan, record the reason and affected slices, p
     - Keep local reversible choices in the plan
 3. Escalate to the matching contract stage when planning exposes an unresolved decision: product goals/scope → [`sdd-prd`](../sdd-prd/SKILL.md); shared domain rules or API behavior → [`sdd-design`](../sdd-design/SKILL.md); slice-specific user behavior or acceptance boundaries → [`sdd-spec`](../sdd-spec/SKILL.md)
 4. **Self-review:** no placeholders; every AC mapped; concrete risks when present; each slice independently verifiable
-5. **Present** for user approval; after approval, mark the persisted plan Approved and record who approved it and when.
+5. **Present** for user approval; after approval, persist the plan, mark it Approved, and record who approved it and when. In the joint small-feature flow, present the spec and plan together and, after approval, persist and mark both Approved. Use this only when the plan introduces no product behavior and every AC maps to a verifiable slice.
 
 ### Optional parallel analysis
 
@@ -53,6 +53,7 @@ Literals: `AC-n`, verification commands.
 ### When to use
 
 - After user-approved spec, before implementation
+- For an explicitly requested small-feature package, to prepare a plan from a complete Draft spec for joint spec-and-plan approval
 
 ### Disambiguation
 
@@ -66,7 +67,7 @@ Literals: `AC-n`, verification commands.
 
 ### Stop
 
-User approval → [`sdd-build`](../sdd-build/SKILL.md). No implementation before approval.
+Approved spec and plan → [`sdd-build`](../sdd-build/SKILL.md). In the joint small-feature flow, the single approval makes both artifacts Approved. No implementation starts before the plan is approved.
 
 ### What NOT to do
 

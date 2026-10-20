@@ -18,6 +18,7 @@
 
 ## Upstream contracts
 
+- Design readiness: <Ready / Exploratory / Blocked; assessed PRD requirement IDs and date; standalone assessment link if one exists, otherwise concise no-change rationale>
 - Design / API: <relevant links and sections, or none>
 - Dependencies: <spec IDs, or none>
 

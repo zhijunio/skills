@@ -71,25 +71,25 @@
 
 Use this table as a short roadmap summary. Detailed product behavior belongs in Solution Design. A phase describes capability order or dependency; a delivery batch describes what ships together. A Draft PRD's batch is proposed, not committed.
 
-| Phase / batch | User outcome and capability summary | Dependencies | Scope status |
-| --- | --- | --- | --- |
-| <Phase or batch> | <Short outcome and capability summary> | <Prerequisite capabilities> | <Proposed / Approved for release / Deferred> |
+| Phase / batch | User outcome | Included requirement IDs | Prerequisite requirement IDs / external dependencies | Scope status |
+| --- | --- | --- | --- | --- |
+| <Phase or batch> | <Short outcome> | <FR-1, FR-2> | <FR-1; external dependency or None / TBD> | <Proposed / Approved for release / Deferred> |
 
-**Current release / delivery batch** (optional; use TBD when not decided): <capabilities selected for the current release>
+**Current release / delivery batch** (optional; use TBD when not decided): <requirement IDs selected for the current release>
+
+The requirements register below is authoritative. Phases and batches organize delivery, reference requirement IDs, and do not repeat requirement statements. A requirement may be unassigned or appear in a proposed future batch. Distinguish a true prerequisite from planned sequence; use `None` when no dependency is known and `TBD` when unresolved.
 
 ## Solution Design
 
 ### Functional requirements
 
-Group requirements under the phases or delivery batches in Scope. Keep phase order aligned with user outcomes and dependencies; do not imply a release date or commitment. Requirement status and PRD approval are separate: a confirmed requirement does not by itself approve this PRD. Include a Source / evidence column when traceability clarifies why a requirement exists; omit it when it only repeats the information sources or decision status.
+Maintain one requirements register as the source of truth, independent of phases or delivery batches. Requirement priority and decision status are separate: a confirmed requirement does not by itself approve this PRD. Use stable IDs and observable statements; record dependencies explicitly, including `None` or `TBD`. Include a Source / evidence column when traceability clarifies why a requirement exists; omit it when it only repeats the information sources or decision status.
 
-#### Phase <number>: <capability outcome>
+| ID | Requirement | Priority | Related goal / story | Depends on | Delivery phase / batch | Source / evidence | Decision status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| FR-1 | <Observable product behavior> | <Must / Should / Could / TBD> | <G-1 / US-1> | <FR-2 / external prerequisite / None / TBD> | <Phase or batch ID / Unassigned> | <Source or TBD> | <Proposed / Confirmed / Deferred> |
 
-| ID | Requirement | Priority | Related goal / story | Source / evidence | Decision status |
-| --- | --- | --- | --- | --- | --- |
-| FR-1 | <Observable, testable product behavior> | <Must / Should / Could / TBD> | <G-1 / US-1> | <User input, interview, data, or source document> | <Proposed / Confirmed / Deferred> |
-
-<Repeat a phase heading and table as needed; omit empty phases.>
+<Add rows to this single register; do not create a separate copy under each phase.>
 
 ### User experience (when useful)
 
@@ -135,9 +135,9 @@ Surface product constraints and dependencies for engineering without specifying 
 
 ### Constraints and non-functional requirements
 
-| ID | Quality area / constraint | Requirement or measure | Status / source |
-| --- | --- | --- | --- |
-| NFR-1 | <Security / performance / availability / privacy / accessibility / compatibility> | <Observable need; use TBD if unmeasured> | <Confirmed / Proposed; source> |
+| ID | Quality area / constraint | Requirement or measure | Priority | Depends on | Delivery phase / batch | Status / source |
+| --- | --- | --- | --- | --- | --- | --- |
+| NFR-1 | <Security / performance / availability / privacy / accessibility / compatibility> | <Observable need; use TBD if unmeasured> | <Must / Should / Could / TBD> | <FR-1 / external prerequisite / None / TBD> | <Phase or batch ID / Unassigned> | <Confirmed / Proposed; source> |
 
 ### Integration points
 

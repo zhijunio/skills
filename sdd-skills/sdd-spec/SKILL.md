@@ -9,7 +9,7 @@ description: Use after an Approved PRD has passed the required sdd-design readin
 
 You're a senior software engineer who decomposes a PRD into one or more **feature-slice specifications** before planning. First determine the independently specifiable user outcomes and their relationships; then define each slice's user-visible behavior, scope, and acceptance contract. Each spec refines upstream contracts; it does not replace them. Specs are the units that `sdd-plan` plans individually. An unapproved PRD can support exploratory drafts and breakdown discussion; a spec becomes an approved implementation contract only after the parent PRD is approved and the required `sdd-design` gate is Ready for its covered requirements.
 
-Default: present the spec in chat. Persist it using the repository's established spec location and naming convention; when none exists, use `docs/sdd/00N-<topic>-spec.md` with the next available three-digit project number when the user confirms or repository convention requires it.
+Default: present a draft in chat. Persist a spec when requested, when the user approves it, or when repository conventions require it. An approved spec must be durable before planning or implementation; for a joint spec-and-plan approval, persist both after the user approves the package. Follow the repository's established location and naming convention or, if none exists, the [SDD artifact path policy](../references/output-paths.md).
 
 **Approval** is an explicit conversational confirm (confirm / yes / go / 批准 or equivalent). File presence alone is never approval.
 
@@ -19,7 +19,7 @@ For persisted specs, start at version `0.1`; set `1.0` at the first approval, th
 
 ### PRD decomposition
 
-For an Approved PRD, first verify a persisted **Ready** `sdd-design` assessment covering the approved delivery batch or selected subset of approved PRD requirements in scope. Do not require assessment of Deferred/Future roadmap candidates. If the requested scope is not approved in the PRD, return to [`sdd-prd`](../sdd-prd/SKILL.md); if its assessment is missing or Blocked, run or return to [`sdd-design`](../sdd-design/SKILL.md) before approving the breakdown or feature specs. A Draft PRD may support an explicitly exploratory breakdown without passing the gate.
+For an Approved PRD, first verify a **Ready** `sdd-design` result covering the approved delivery batch or selected subset of approved PRD requirements in scope. The result may be a standalone assessment or an assessment completed in the current workflow; do not require a separate assessment file for a routine scope. Do not require assessment of Deferred/Future roadmap candidates. If the requested scope is not approved in the PRD, return to [`sdd-prd`](../sdd-prd/SKILL.md); if readiness has not been assessed or is Blocked, run or return to [`sdd-design`](../sdd-design/SKILL.md) before approving the breakdown or feature specs. A Draft PRD may support an explicitly exploratory breakdown without passing the gate.
 
 When the request covers a whole PRD or multiple capabilities:
 
@@ -27,20 +27,20 @@ When the request covers a whole PRD or multiple capabilities:
 2. Propose a **spec breakdown map** with a stable ID/title, each candidate spec's goal, covered PRD sections/requirements, dependencies, and suggested order.
 3. Check that every in-scope PRD requirement is covered, specs do not claim conflicting behavior, and shared domain/API questions remain in their canonical design documents.
 4. Split by independently verifiable user outcomes and meaningful dependency boundaries; avoid one spec per PRD bullet or technical layer.
-5. Present the map before drafting detailed specs. If the user requested the full set, draft each spec using the per-spec workflow below and keep every spec independently reviewable and approvable. Treat the map as a proposal; it does not approve the individual specs.
+5. Present the map before drafting detailed specs. If the user requested the full set, continue with the detailed drafts in the same response unless feedback on the proposed boundaries or order is needed to draft them safely; do not wait for approval of the map. Keep every spec independently reviewable and approvable. Treat the map as a proposal; it does not approve the individual specs. When persisting a multi-spec set, assign directory sequence numbers from the confirmed implementation order; clarify the order before assigning them when it is still open.
 
 When the request already names one feature slice, skip the map unless its boundary or upstream coverage is unclear.
 
 ### New spec — [template.md](references/template.md), [example.md](references/example.md)
 
-1. Read repository guidance and locate the parent PRD, its input sources and status, the persisted `sdd-design` coverage assessment, relevant domain/API contracts, glossary, ADRs, code facts, and prior decisions. If the PRD is absent, return to `sdd-prd`; do not draft a spec. If the PRD is Approved but the assessment does not cover the selected requirements or is not Ready, stop approval work and route to `sdd-design`. Do not block a scope because of unrelated deferred candidates. If the PRD is Draft, label any requested spec draft exploratory and trace each behavior to it; do not imply product approval. If an upstream contract conflicts with the requested behavior, surface the gap and route it upstream before inventing a rule.
+1. Read repository guidance and locate the parent PRD, its input sources and status, the `sdd-design` readiness result, relevant domain/API contracts, glossary, ADRs, code facts, and prior decisions. If the PRD is absent, return to `sdd-prd`; do not draft a spec. If the PRD is Approved but readiness has not been assessed, does not cover the selected requirements, or is Blocked, stop approval work and route to `sdd-design`. Do not block a scope because of unrelated deferred candidates. If the PRD is Draft, label any requested spec draft exploratory and trace each behavior to it; do not imply product approval. If an upstream contract conflicts with the requested behavior, surface the gap and route it upstream before inventing a rule.
 2. Ask only for blocking product or contract decisions not discoverable from the repository. Keep non-blocking unknowns visible and bounded.
 3. Define this slice's outcome, scope, and relevant user cases. Each case describes a user goal and system response, not implementation steps.
 4. Consider only boundary and failure cases relevant to this slice, such as permission, retries, dependency failures, or lifecycle conflicts; capture their required outcomes in ACs.
 5. Convert each behavior that must be delivered into stable **`AC-n`** criteria. Each AC must be independently verifiable with a clear pass/fail result. Include relevant failure and boundary outcomes as ACs; don't add a separate edge-case list when the cases are already clear in the ACs.
-6. Link upstream contracts and add constraints or a verification note only when they resolve ambiguity not already covered by the ACs. Do not duplicate their full rules.
+6. Link upstream contracts and add constraints or a verification note only when they resolve ambiguity not already covered by the ACs. Record a concise design-readiness statement covering the spec's PRD requirement IDs and cite canonical design/API contracts, or state why no shared contract applies. Do not duplicate contract rules.
 7. Keep the spec proportional: omit sections that add no decision or acceptance value. Self-review for unresolved blocking questions, vague ACs, unrepresented in-scope behavior, and scope outside the PRD.
-8. **Present** the complete spec. Request approval only when the parent PRD is Approved and required shared contracts are sufficiently settled; otherwise present it as an exploratory draft and identify the product or contract decisions that must be resolved before approval. After explicit user approval, mark a persisted spec **Approved** and record the approval; until then it remains **Draft**.
+8. **Present** the complete spec. Request approval only when the parent PRD is Approved and required shared contracts are sufficiently settled; otherwise present it as an exploratory draft and identify the product or contract decisions that must be resolved before approval. After explicit user approval, persist the spec, mark it **Approved**, and record the approval; until then it remains **Draft**. If the user requested a small-feature spec-and-plan package, hand the ready spec to `sdd-plan` for a joint presentation and approval rather than asking for a separate spec approval first.
 
 ### Revision — revise the existing spec in place (no `-v2` copy)
 
@@ -48,7 +48,7 @@ When the request already names one feature slice, skip the map unless its bounda
 2. Append **Revision log:** date, reason, changed AC IDs (or `none — clarification`), plan impact (`yes`/`no` + note)
 3. Self-review (same checks as new)
 4. **Clarification only** (wording/background; pass/fail unchanged) → log and stop — no re-approval
-5. **AC or constraint change** → present for re-approval; after approval, increment the persisted spec's minor version
+5. **AC or constraint change** → present for re-approval; after approval, persist the updated spec and increment its minor version
 6. After re-approval: mark the persisted spec **Approved** and record the approval; re-check the plan's AC mapping and update it when coverage, implementation implications, slice order, or verification changed. Record when no plan change is needed, then return to the appropriate prior stage.
 
 Examples: reword AC-2 without changing pass/fail → log only. AC-3 limit 200ms→500ms → re-approve.

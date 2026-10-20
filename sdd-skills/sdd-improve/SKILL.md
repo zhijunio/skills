@@ -6,7 +6,7 @@ description: Scan a repository, module, or area for evidence-backed improvement 
 # sdd-improve
 
 Perform a read-only, hotspot-first scan and report a small set of useful improvement candidates. Use the user's language.
-Reports are point-in-time outputs, not versioned contracts. If the user asks to save one, include its date and inspected scope.
+Reports are point-in-time outputs, not versioned contracts. Present them in chat by default; if the user asks to save one, follow the [SDD artifact path policy](../references/output-paths.md) and include its date and inspected scope.
 
 ## Process
 

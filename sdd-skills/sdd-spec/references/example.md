@@ -19,6 +19,7 @@ An authorized platform operator can acknowledge a device-reported alert so the r
 
 ## Upstream contracts
 
+- Design readiness: Exploratory — Draft PRD; alert lifecycle assessment is incomplete.
 - Design / API: Not established; alert lifecycle details must be resolved before approval if they affect this behavior.
 - Dependencies: None
 

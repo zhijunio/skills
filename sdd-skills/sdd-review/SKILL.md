@@ -6,7 +6,7 @@ description: Review a branch, pull request, or change range against repository s
 # sdd-review
 
 Review a change set and report actionable findings. Read-only by default. Use the user's language.
-Reports are point-in-time outputs, not versioned contracts. If the user asks to save one, include its date and reviewed range.
+Reports are point-in-time outputs, not versioned contracts. Present them in chat by default; if the user asks to save one, follow the [SDD artifact path policy](../references/output-paths.md) and include its date and reviewed range.
 
 ## Review
 

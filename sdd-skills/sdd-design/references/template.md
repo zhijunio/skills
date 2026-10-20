@@ -7,7 +7,7 @@
 **Updated:** <date><br>
 **Related PRD:** <path and section><br>
 **Assessment scope:** <approved delivery batch or subset of approved PRD requirement IDs/sections; exclude unrelated future candidates><br>
-**Assessment record:** <path; required for an Approved PRD><br>
+**Assessment record:** <standalone record path, or “Recorded in resulting spec(s)”><br>
 **Contract acceptance:** <Not required / Pending / accepted by contract owner on date>
 
 ## PRD contract coverage
