@@ -298,6 +298,105 @@ my-app/
 
 **Reach for multi-module deliberately.** It is rung four of the ladder in [code-organization.md](../architecture/code-organization.md) - real enforcement, real ceremony. A single module with feature packages is the right default until a boundary genuinely needs the build to enforce it.
 
+## Publishing to Maven Central
+
+For a library published to Maven Central, keep release-only publishing and signing plugins in an explicitly activated `release` profile in the parent POM. Keep artifact metadata outside the profile so it is present in every published POM.
+
+### POM metadata
+
+Every published component needs accurate coordinates and Central metadata. Define `<name>`, `<description>`, `<url>`, `<licenses>`, `<developers>`, and `<scm>` in the parent so they appear in each child POM. The referenced parent includes `name`, license, developers, and SCM, but omits `description` and project `url`; add those before publishing. Do not copy placeholder or personal metadata from an example without confirming it belongs to the project.
+
+Release versions must not end in `-SNAPSHOT`. Keep a `-SNAPSHOT` version during development and switch to an immutable release version for publishing. Central does not allow replacing a published release with different contents.
+
+### Central Publishing Portal
+
+Pin the plugin versions in properties, enable the Central Publishing Maven extension, and match `publishingServerId` to a server entry in the user's Maven `settings.xml`. Put both Central publishing and GPG signing in the same profile so a regular build or snapshot deployment does not activate a release. The referenced POM pins Central Publishing `0.10.0`; the example uses `0.12.0`, which Sonatype currently documents. Check the official release notes when selecting a version rather than carrying an old pin forward automatically:
+
+```xml
+<properties>
+    <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
+    <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+</properties>
+
+<profiles>
+    <profile>
+        <id>release</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>${central-publishing-maven-plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <publishingServerId>central</publishingServerId>
+                        <!-- Keep false for a manual Portal approval step. -->
+                        <autoPublish>true</autoPublish>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals><goal>sign</goal></goals>
+                            <configuration>
+                                <gpgArguments>
+                                    <arg>--pinentry-mode</arg>
+                                    <arg>loopback</arg>
+                                </gpgArguments>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+</profiles>
+```
+
+Store the Central Portal user token in `~/.m2/settings.xml`, not in the POM or repository:
+
+```xml
+<settings>
+    <servers>
+        <server>
+            <id>central</id>
+            <username><!-- Central Portal token username --></username>
+            <password><!-- Central Portal token password --></password>
+        </server>
+    </servers>
+</settings>
+```
+
+Run a release explicitly with `./mvnw -Prelease clean deploy`. With `autoPublish` omitted or `false`, Maven uploads a bundle for validation and a person publishes it in the Portal. Set it to `true` only when the release job is authorized to publish immediately after validation. Add `<waitUntil>published</waitUntil>` when that job must wait for Central publication to finish; this requires `autoPublish`.
+
+The Central plugin creates bundle checksums, but does not create every required artifact. Attach source and Javadoc JARs for each published JAR (for example, use `maven-source-plugin`'s `jar-no-fork` goal and `maven-javadoc-plugin`'s `jar` goal), and sign all deployed files. These requirements do not apply to a module published only with `pom` packaging. Validate the generated bundle and POM metadata before the first release. In a multi-module build, mark example or sample modules that should not be released with `<skipPublishing>true</skipPublishing>` in that module's plugin configuration; otherwise inherited publishing configuration can include them.
+
+### GPG signatures
+
+Central requires detached GPG/PGP signatures. The release profile binds the Maven GPG plugin to `verify`, which runs before `deploy`, so only a release build signs the artifacts.
+
+Provision the signing key and passphrase through the developer/CI GPG environment and secret store. Never commit a private key, token, or passphrase. Confirm that the public key is available from a key server accepted by Central, and test signing locally before configuring release CI.
+
+### Snapshot publishing
+
+Snapshot deployment is separate from a release. For Central Portal snapshots, the namespace must first have snapshots enabled. Keep the snapshot repository in `distributionManagement` outside the `release` profile so a normal deploy can publish snapshots without activating release signing or Portal auto-publish:
+
+```xml
+<distributionManagement>
+    <snapshotRepository>
+        <id>central</id>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </snapshotRepository>
+</distributionManagement>
+```
+
+The referenced POM uses this snapshot repository URL. A release uses a non-snapshot version and `./mvnw -Prelease clean deploy`. Review the effective POM, version, signing setup, target modules, and Portal behavior before running it. The Central Publishing plugin currently lists Maven 4 as unsupported; check its release notes before changing the wrapper's major version for publishing.
+
 ## Reproducibility and hygiene
 
 - **Commit the Maven wrapper** (`mvnw`, `mvnw.cmd`, `.mvn/`). Everyone and CI then build with the same Maven version.
@@ -319,6 +418,10 @@ my-app/
 - Agent publishes the full git-commit-id property set - it includes committer name and email
 - Agent runs `mvn install` in CI - use `verify`
 - Agent omits the Maven wrapper - builds differ between machines
+- Agent leaves Central publishing or GPG signing active for every build - put both in an explicit `release` profile
+- Agent assumes Central Publishing creates sources, Javadocs, signatures, or required metadata - verify each release prerequisite
+- Agent enables `autoPublish` without an intentional release approval path - uploads can become public as soon as validation passes
+- Agent publishes example modules through inherited Central configuration - set `skipPublishing` on modules that are not artifacts
 - Agent reaches for multi-module before a boundary needs enforcing - feature packages first
 
 ## Related
@@ -330,5 +433,9 @@ my-app/
 - [Surefire guide](https://maven.apache.org/surefire/maven-surefire-plugin/)
 - [Failsafe guide](https://maven.apache.org/surefire/maven-failsafe-plugin/)
 - [Spotless Maven guide](https://github.com/diffplug/spotless/blob/main/plugin-maven/README.md)
+- [Central Publishing Maven plugin](https://central.sonatype.org/publish/publish-portal-maven/)
+- [Central publishing requirements](https://central.sonatype.org/publish/requirements/)
+- [Central snapshot publishing](https://central.sonatype.org/publish/publish-portal-snapshots/)
+- [GPG signing for Central](https://central.sonatype.org/publish/requirements/gpg/)
 - [Maven Central](https://central.sonatype.com/artifact/me.fabriciorby/maven-surefire-junit5-tree-reporter)
 - [JUnit Platform / Surefire extension guide](https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html#external-extensions-for-the-plugin)
