@@ -1,11 +1,10 @@
 ---
 name: spring-boot-4
 description: >-
-  Creates and maintains Spring Boot 4 applications. Use whenever the task
-  scaffolds, implements, changes, or debugs a Spring Boot 4 service, including
-  MyBatis-Plus, REST, Jackson 3, OpenAPI, Flyway, Maven, or Compose work in
-  that app. Not for Java language-only tasks, PostgreSQL engine diagnosis, SSO
-  or identity providers, Spring Cloud, CI/CD pipelines, or JVM performance.
+  Use whenever a task creates, implements, changes, or debugs a Java Spring
+  Boot 4 application, including its build, APIs, persistence, tests,
+  configuration, integrations, observability, or delivery. Route
+  stack-specific work to the matching reference.
 license: MIT
 metadata:
   author: Zhijunio
@@ -14,130 +13,132 @@ metadata:
 
 # Spring Boot 4
 
-Router for Spring Boot 4 application work. Core Rules are the v1 floor. Stack
-detail lives in `references/` and is read only when that file exists.
+Use this skill as the entry point for Spring Boot 4 application work. First
+establish the project's Boot version, Java version, and build tool. Then read
+the applicable references below and follow their rules. References are
+progressively disclosed: open only those matching the task.
 
-## When to use
+## Route the task
 
-- Scaffold a new Spring Boot 4 project
-- Implement or change behavior in a Boot 4 app
-- Debug a Boot 4 service that this skill's stacks cover
+| Work involves | Read |
+| --- | --- |
+| New app, feature boundaries, package organization, deployment topology, or cross-feature dependencies | [references/architecture.md](references/architecture.md) |
+| Build files, dependencies, plugins, release, or coverage | For Maven work, use [references/maven.md](references/maven.md); for other build tools, follow the project's existing build conventions |
+| Controller, application service, transactions, or exception advice | [references/webmvc.md](references/webmvc.md) |
+| HTTP contract, paths, status, request/response shape, or API versioning | [references/rest.md](references/rest.md) |
+| OpenAPI, springdoc, Swagger UI, or JavaDoc API descriptions | [references/openapi.md](references/openapi.md) |
+| MyBatis-Plus, Mapper, persistence model, or database access | [references/mybatis-plus.md](references/mybatis-plus.md) |
+| PostgreSQL datasource, SQL types, or database time zone | [references/postgresql.md](references/postgresql.md) |
+| SQL schema or migrations | [references/flyway.md](references/flyway.md) |
+| Local PostgreSQL, Redis, Mailpit, or Docker Compose | [references/docker.md](references/docker.md) |
+| Redis-backed application cache | [references/cache.md](references/cache.md) |
+| Outbound email or SMTP | [references/email.md](references/email.md) |
+| Spring properties, profiles, or `@ConfigurationProperties` | [references/configuration.md](references/configuration.md) |
+| In-process asynchronous work or task executors | [references/async.md](references/async.md) |
+| Logs, metrics, traces, health, or Actuator exposure | [references/observability.md](references/observability.md) |
+| Tests or datasource-related context loading | [references/testing.md](references/testing.md) |
+| Taskfile or `go-task` | [references/taskfile.md](references/taskfile.md) |
+| Optional local BootUI console | [references/bootui.md](references/bootui.md) |
+| GitHub Actions, CI, tags, or GitHub releases | [references/cicd.md](references/cicd.md) |
 
-## When not to use
+Read more than one reference when a task crosses boundaries. For example,
+schema changes that add persistence use MyBatis-Plus, Flyway, PostgreSQL, and
+testing references as applicable. Local service setup routes to Docker; it
+does not by itself imply a production architecture decision.
 
-- Java language, JDK, or language-server work with no Boot app change → [java-developer](../java-developer/SKILL.md)
-- PostgreSQL engine, SQL tuning, or replication → [postgresql-developer](../postgresql-developer/SKILL.md)
-- SSO, OIDC, SAML, or identity providers → [spring-sso-developer](../spring-sso-developer/SKILL.md)
-- Spring Cloud, config server, or service discovery → [spring-cloud-developer](../spring-cloud-developer/SKILL.md)
-- CI pipelines or GitHub Actions → [ci-cd-developer](../ci-cd-developer/SKILL.md)
-- JVM performance, GC, or profiling → [java-performance-developer](../java-performance-developer/SKILL.md)
+For Gradle or another build tool, follow the existing build and wrapper
+conventions. The Maven reference applies only to Maven-specific tasks.
 
 ## Core Rules
 
-1. Read the build file and establish the Boot version, Java version, and build
-   tool before giving version-sensitive guidance.
-2. Use Boot 4.x for new projects. Reject Boot 3.x in the generator.
-3. Default Java is 21. Floor is 17.
-4. Package by feature. A feature owns its Controller, Service, and Mapper.
-   Do not start with top-level `controller/`, `service/`, and `mapper/` packages.
-5. Controller binds HTTP. Service owns `@Transactional`. Mapper extends
-   `BaseMapper` and uses Lambda Wrappers. No SQL in annotations or XML.
-6. Persistence is MyBatis-Plus. Do not add Spring Data JPA, `spring-boot-starter-jdbc`,
-   `JdbcTemplate`, or `JdbcClient`.
-7. Schema changes go in Flyway. Singular `snake_case` tables. `bigint` primary
-   keys. Do not declare `FOREIGN KEY`. Keep `PRIMARY KEY`, `UNIQUE`, and
-   `NOT NULL`.
-8. REST uses plural `/api/{resources}`, `*Request` and `*Response` records,
-   `@Valid`, and RFC 9457 `ProblemDetail`. Do not return persistence types.
-9. JSON is Jackson 3. Inject `JsonMapper`. Use `tools.jackson` for databind.
-   Keep `com.fasterxml.jackson.annotation`. Do not declare an `ObjectMapper`
-   bean, add `spring-boot-jackson2`, Gson, or JSON-B.
-10. OpenAPI is code-first springdoc. Do not add a spec-first generator unless
-    the task names it.
-11. Constructor injection. No Lombok on new code.
-12. Keep the Initializr `*ApplicationTests` context load. Do not add other test
-    classes. Testing conventions live in `references/testing.md` when that file
-    exists.
-13. Verify with the project wrapper. After generation run
-    `node scripts/doctor-project.mjs --strict <project>`. After code changes run
-    `./mvnw verify` and report the commands actually run.
+1. For a new project, use Spring Boot 4.x and Java 21 (minimum Java 17).
+   For an existing project, retain its Boot line unless the requested change
+   requires an upgrade.
+2. Organize code by business feature. Read
+   [references/architecture.md](references/architecture.md) when creating a
+   project or changing its module, feature, or deployment boundaries.
+3. Follow `jackson.major` and `jackson.mapper` in `versions.json` (currently
+   Jackson 3) and inject `JsonMapper`; use `tools.jackson` for databind and
+   retain `com.fasterxml.jackson.annotation`. Serialize `Instant` as a
+   timestamp with `spring.jackson.datatype.datetime.write-dates-as-timestamps:
+   true`; do not add `@JsonFormat` for this. Do not declare an `ObjectMapper`
+   bean or add Jackson 2, Gson, or JSON-B.
+4. Use `RestClient` for outbound HTTP. Do not use `RestTemplate`.
+5. Use constructor injection and avoid Lombok in new code.
+6. Keep the generated `*ApplicationTests` context-load test. For test changes,
+   follow [references/testing.md](references/testing.md).
+7. New applications use the defaults supported by their selected build tool.
+   Read [references/architecture.md](references/architecture.md) for new
+   projects. For Maven, also read [references/maven.md](references/maven.md).
+   For web applications, read [references/openapi.md](references/openapi.md).
+   Apply these new-project defaults unless the user declines them. Do not add
+   them to an existing application unless asked to align it.
+8. Optional integrations and developer tools are added only when the task
+   needs them. GitHub Actions workflows are opt-in.
 
-## Create a project
+## Workflow
 
-Run scripts from this skill directory. Set `--output-dir` to the user workspace.
-Do not generate inside this skill directory.
+### Create
+
+1. Generate the skeleton with the script below, or use the requested build
+   tool's Spring Initializr option when it is not Maven.
+2. Read the generated build file and `versions.json`; establish the Boot and
+   Java versions and build tool. For Maven, use `springBoot.maven`; for other
+   build tools, use `springBoot.default` where the Boot version must be pinned
+   and follow that tool's plugin or dependency-management configuration.
+3. Apply the new-project defaults: architecture checks, build-tool conventions,
+   and OpenAPI for a web application unless the user declined them. Read the
+   matching references, then add only requested optional stacks and features.
+4. Review the generated project against Core Rules and every reference used.
+   Resolve each violation before handing off.
+5. Run the project's test task once, following its wrapper and test
+   conventions. Start required services when available; report any tests that
+   could not run because a required service was unavailable.
+
+### Change
+
+1. Read the build file and establish Boot version, Java version, and build
+   tool. Keep the existing Boot line and package/API contracts unless the task
+   requires changing them.
+2. Identify the affected behavior, read the relevant configuration, code,
+   tests, and matching reference files.
+3. Make the smallest coherent change. Do not add new-project defaults to an
+   existing application unless requested.
+4. Review the change against Core Rules and every reference used. Resolve each
+   violation before handing off.
+5. Run the relevant test task once, following the project's wrapper and test
+   conventions. Start required services when available; report any tests that
+   could not run because a required service was unavailable.
+
+## Create script
+
+Run from this skill directory and set `--output-dir` to a workspace outside
+the skill tree. The generator needs Node.js 18+, `unzip`, and access to Spring
+Initializr:
 
 ```bash
-node scripts/check-environment.mjs
 node scripts/create-project.mjs \
   --name inventory-api \
   --group-id com.example \
   --output-dir /absolute/path/to/workspace
-node scripts/doctor-project.mjs --strict /absolute/path/to/workspace/inventory-api
 ```
 
-Defaults are Maven, Java 21, Boot from `versions.json`, MyBatis-Plus, and
-PostgreSQL. Check `--help` and `versions.json`. PostgreSQL projects overwrite
-Initializr's `compose.yaml` with `assets/compose.yaml` and the image from
-`versions.json`.
+The script requests `web`, `validation`, and `actuator` from Spring Initializr,
+then pins the Maven parent to `springBoot.maven`. It creates only a starter
+skeleton: the **Create** workflow adds the required house defaults from the
+Maven, architecture, and OpenAPI references. Optional stacks remain opt-in.
+For another build tool, use Spring Initializr with that tool and follow its
+existing dependency-management conventions plus the same stack references.
 
-Phase 1 emits a Boot 4 skeleton with MyBatis-Plus, Flyway, `@MapperScan`,
-Jackson 3, springdoc OpenAPI, PostgreSQL Compose, and the Initializr context-load
-test. It does not copy a sample feature. It does not add Testcontainers classes,
-slice tests, or architecture tests.
+## Scope boundaries
 
-## Change an existing project
-
-1. Identify the outcome. Read build files, configuration, neighboring code, and
-   tests.
-2. Keep existing Boot line, package layout, and API contract unless the change
-   requires an update.
-3. Read only the matching stack reference when that file exists. Implement the
-   smallest coherent change.
-4. Do not add test classes until `references/testing.md` exists.
-5. Run the wrapper and `doctor-project.mjs --strict` when configuration changed.
-   Report actual results.
-
-## Stack references
-
-Read `references/<stack>.md` only when that file exists and the task is on that
-stack. Until a file exists, stay on Core Rules. Do not invent stack rules. Do
-not create stub reference files.
-
-Each later reference owns that stack's conventions, templates, and Verify
-command.
-
-Default stack, generated every time.
-
-| Task | File |
-| --- | --- |
-| Architecture and packaging | `references/architecture.md` |
-| MVC roles | `references/mvc.md` |
-| MyBatis-Plus | `references/mybatis-plus.md` |
-| REST | `references/rest.md` |
-| Schema SQL | `references/schema-sql.md` |
-| Validation | `references/validation.md` |
-| Errors | `references/error-handling.md` |
-| Jackson 3 | `references/json-jackson.md` |
-| OpenAPI | `references/openapi.md` |
-| Transactions | `references/transactions.md` |
-| Configuration | `references/configuration.md` |
-| Testing | `references/testing.md` |
-| Maven | [references/maven.md](references/maven.md) |
-| Compose | `references/docker-compose.md` |
-| Security defaults | `references/security.md` |
-| Actuator | `references/observability.md` |
-
-On demand. Read only when the task names that stack.
-
-| Task | File |
-| --- | --- |
-| HTTP clients | `references/http-clients.md` |
-| Redis cache | `references/caching.md` |
-| Async | `references/async.md` |
-| Messaging | `references/messaging.md` |
-| Resilience | `references/resilience.md` |
-| Gradle | `references/gradle.md` |
-| API versioning | `references/api-versioning.md` |
-| File storage | `references/file-storage.md` |
-| Mail | `references/mail.md` |
+- Java language, JDK, or language-server work with no Boot application change:
+  [java-developer](../java-developer/SKILL.md)
+- PostgreSQL server operations, SQL tuning, or replication:
+  [postgresql-developer](../postgresql-developer/SKILL.md)
+- SSO, OIDC, SAML, or identity providers:
+  [spring-sso-developer](../spring-sso-developer/SKILL.md)
+- Spring Cloud, config server, or service discovery:
+  [spring-cloud-developer](../spring-cloud-developer/SKILL.md)
+- JVM performance, GC, or profiling:
+  [java-performance-developer](../java-performance-developer/SKILL.md)
