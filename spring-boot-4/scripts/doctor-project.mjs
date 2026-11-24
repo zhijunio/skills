@@ -5,6 +5,7 @@ import { readFile, readdir } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { inspectCompose } from './compose.mjs'
+import { dependenciesBlock } from './pom.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const versions = JSON.parse(await readFile(join(root, 'versions.json'), 'utf8'))
@@ -105,6 +106,28 @@ async function main() {
   }
   if (!declaredArtifact(pom, 'springdoc-openapi-starter-webmvc-ui')) {
     finding('error', 'springdoc.missing', 'springdoc-openapi-starter-webmvc-ui is missing')
+  }
+  if (!pom.includes('<dependencyManagement>')) {
+    finding('error', 'maven.dependencyManagement', 'pom.xml has no <dependencyManagement> block')
+  }
+  if (!pom.includes('<springdoc.version>')) {
+    finding('error', 'springdoc.version.property', 'springdoc.version is missing from <properties>')
+  }
+  if (declaredArtifact(pom, 'mybatis-plus-spring-boot4-starter') && !pom.includes('<mybatis-plus.version>')) {
+    finding('error', 'mybatis.version.property', 'mybatis-plus.version is missing from <properties>')
+  }
+  const deps = dependenciesBlock(pom)
+  if (/<artifactId>\s*springdoc-openapi-starter-webmvc-ui\s*<\/artifactId>\s*<version>/.test(deps)) {
+    finding('error', 'maven.inline.version', 'springdoc version belongs in dependencyManagement, not <dependencies>')
+  }
+  if (/<artifactId>\s*mybatis-plus-spring-boot4-starter\s*<\/artifactId>\s*<version>/.test(deps)) {
+    finding('error', 'maven.inline.version', 'mybatis-plus version belongs in dependencyManagement, not <dependencies>')
+  }
+  if (!declaredArtifact(pom, 'maven-surefire-plugin') || !pom.includes('<failIfNoTests>true</failIfNoTests>')) {
+    finding('error', 'surefire.missing', 'maven-surefire-plugin with failIfNoTests is missing')
+  }
+  if (!declaredArtifact(pom, 'spotless-maven-plugin')) {
+    finding('error', 'spotless.missing', 'spotless-maven-plugin is missing')
   }
 
   const hasMp = declaredArtifact(pom, 'mybatis-plus-spring-boot4-starter')

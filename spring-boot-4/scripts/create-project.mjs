@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { applyCompose } from './compose.mjs'
+import { applyMavenHouseStyle } from './pom.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const versions = JSON.parse(await readFile(join(root, 'versions.json'), 'utf8'))
@@ -121,7 +122,7 @@ async function addMyBatisPlus(projectDir) {
   const pomPath = join(projectDir, 'pom.xml')
   let pom = await readFile(pomPath, 'utf8')
   if (pom.includes('mybatis-plus-spring-boot4-starter')) return
-  const dependency = `\n\t\t<dependency>\n\t\t\t<groupId>com.baomidou</groupId>\n\t\t\t<artifactId>mybatis-plus-spring-boot4-starter</artifactId>\n\t\t\t<version>${versions.mybatisPlus.default}</version>\n\t\t</dependency>`
+  const dependency = `\n\t\t<dependency>\n\t\t\t<groupId>com.baomidou</groupId>\n\t\t\t<artifactId>mybatis-plus-spring-boot4-starter</artifactId>\n\t\t</dependency>`
   await writeFile(pomPath, insertMavenDependency(pom, dependency))
 }
 
@@ -129,7 +130,7 @@ async function addSpringdoc(projectDir) {
   const pomPath = join(projectDir, 'pom.xml')
   let pom = await readFile(pomPath, 'utf8')
   if (pom.includes(versions.springdoc.artifact)) return
-  const dependency = `\n\t\t<dependency>\n\t\t\t<groupId>org.springdoc</groupId>\n\t\t\t<artifactId>${versions.springdoc.artifact}</artifactId>\n\t\t\t<version>${versions.springdoc.default}</version>\n\t\t</dependency>`
+  const dependency = `\n\t\t<dependency>\n\t\t\t<groupId>org.springdoc</groupId>\n\t\t\t<artifactId>${versions.springdoc.artifact}</artifactId>\n\t\t</dependency>`
   await writeFile(pomPath, insertMavenDependency(pom, dependency))
 }
 
@@ -289,8 +290,10 @@ async function main() {
     await keepOnlyContextLoadTest(options.projectDir)
     await writeTestApplicationYaml(options.projectDir, options)
     await applyCompose(options.projectDir, options.database)
+    await applyMavenHouseStyle(options.projectDir, options, versions)
     const wrapper = join(options.projectDir, 'mvnw')
     if (process.platform !== 'win32' && existsSync(wrapper)) await chmod(wrapper, 0o755)
+    run(wrapper, ['-q', '-B', 'spotless:apply'], { cwd: options.projectDir })
     console.log(`\nProject created: ${options.projectDir}`)
     console.log(`Next: cd ${options.projectDir}`)
     console.log('Then: ./mvnw spring-boot:run')

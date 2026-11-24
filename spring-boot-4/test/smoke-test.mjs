@@ -121,7 +121,11 @@ try {
     const pom = await readFile(join(projectDir, 'pom.xml'), 'utf8')
     report(pom.includes('mybatis-plus-spring-boot4-starter') && !pom.includes('spring-boot-starter-data-jpa'), `${defaultName}: MyBatis-Plus without JPA`)
     report(pom.includes('spring-boot-starter-flyway') && pom.includes('flyway-database-postgresql'), `${defaultName}: Flyway on Boot 4`)
-    report(pom.includes('springdoc-openapi-starter-webmvc-ui') && pom.includes(versions.springdoc.default), `${defaultName}: springdoc OpenAPI`)
+    report(pom.includes('springdoc-openapi-starter-webmvc-ui') && pom.includes(`<springdoc.version>${versions.springdoc.default}</springdoc.version>`), `${defaultName}: springdoc OpenAPI`)
+    report(pom.includes('<dependencyManagement>') && pom.includes('<mybatis-plus.version>'), `${defaultName}: versions in properties and dependencyManagement`)
+    report(!/<artifactId>\s*springdoc-openapi-starter-webmvc-ui\s*<\/artifactId>\s*<version>/.test(pom.replace(/<dependencyManagement>[\s\S]*?<\/dependencyManagement>/, '')), `${defaultName}: no inline springdoc version in dependencies`)
+    report(pom.includes('maven-surefire-plugin') && pom.includes('<failIfNoTests>true</failIfNoTests>'), `${defaultName}: Surefire failIfNoTests`)
+    report(pom.includes('spotless-maven-plugin') && pom.includes(`<spotless.version>${versions.spotless.mavenPlugin}</spotless.version>`), `${defaultName}: Spotless plugin`)
     report(!pom.includes('spring-boot-jackson2') && !pom.includes('spring-boot-starter-jdbc'), `${defaultName}: no Jackson 2 or JDBC starter`)
     report(pom.includes(`<java.version>${versions.java.default}</java.version>`), `${defaultName}: Java ${versions.java.default}`)
     report(
@@ -158,6 +162,11 @@ try {
     report(!doctorFlyway.ok && doctorFlyway.output.includes('flyway.missing'), `${defaultName}: doctor fails without Flyway`, doctorFlyway.output)
     await writeFile(pomPath, originalPom)
 
+    await writeFile(pomPath, originalPom.replace(/<artifactId>spotless-maven-plugin<\/artifactId>/g, '<artifactId>maven-resources-plugin</artifactId>'))
+    const doctorSpotless = run(process.execPath, [join(root, 'scripts', 'doctor-project.mjs'), '--strict', projectDir])
+    report(!doctorSpotless.ok && doctorSpotless.output.includes('spotless.missing'), `${defaultName}: doctor fails without Spotless`, doctorSpotless.output)
+    await writeFile(pomPath, originalPom)
+
     const composePath = join(projectDir, 'compose.yaml')
     const originalCompose = compose
     await writeFile(composePath, originalCompose.replace(/postgres_data:(\s*)\/var\/lib\/postgresql$/m, 'postgres_data:$1/var/lib/postgresql/data'))
@@ -175,6 +184,7 @@ try {
     const nodbDir = join(workDir, 'maven-nodb')
     const nodbPom = await readFile(join(nodbDir, 'pom.xml'), 'utf8')
     report(!nodbPom.includes('mybatis-plus-spring-boot4-starter') && nodbPom.includes('springdoc-openapi-starter-webmvc-ui'), 'maven-nodb: web plus OpenAPI without persistence')
+    report(nodbPom.includes('spotless-maven-plugin') && nodbPom.includes('<springdoc.version>') && !nodbPom.includes('<mybatis-plus.version>'), 'maven-nodb: managed versions without MyBatis-Plus')
     report(!existsSync(join(nodbDir, 'compose.yaml')), 'maven-nodb: compose.yaml is absent')
     const nodbDoctor = run(process.execPath, [join(root, 'scripts', 'doctor-project.mjs'), '--strict', nodbDir])
     report(nodbDoctor.ok && nodbDoctor.output.includes('PASS project contract'), 'maven-nodb: doctor --strict', nodbDoctor.output)
