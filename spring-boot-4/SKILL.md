@@ -101,8 +101,8 @@ slice tests, or architecture tests.
 ## Stack references
 
 Read `references/<stack>.md` only when that file exists and the task is on that
-stack. Phase 1 has no files under `references/`. Until a file exists, stay on
-Core Rules. Do not invent stack rules. Do not create stub reference files.
+stack. Until a file exists, stay on Core Rules. Do not invent stack rules. Do
+not create stub reference files.
 
 Each later reference owns that stack's conventions, templates, and Verify
 command.
@@ -123,7 +123,7 @@ Default stack, generated every time.
 | Transactions | `references/transactions.md` |
 | Configuration | `references/configuration.md` |
 | Testing | `references/testing.md` |
-| Maven | `references/maven.md` |
+| Maven | [references/maven.md](references/maven.md) |
 | Compose | `references/docker-compose.md` |
 | Security defaults | `references/security.md` |
 | Actuator | `references/observability.md` |

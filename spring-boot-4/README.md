@@ -27,6 +27,6 @@ Smoke generation needs network access to `start.spring.io` and a JDK matching `v
 
 ## What phase 1 emits
 
-A Boot 4 Maven skeleton with `@MapperScan`, Flyway, PostgreSQL Compose, Jackson 3 via `spring-boot-starter-webmvc`, and `springdoc-openapi-starter-webmvc-ui`. It keeps the Initializr `*ApplicationTests` context load. It does not copy a sample feature and does not add Testcontainers classes, slice tests, or architecture tests. Phase 2 adds feature templates, per-stack references, and test-class conventions.
+A Boot 4 Maven skeleton with `@MapperScan`, Flyway, PostgreSQL Compose, Jackson 3 via `spring-boot-starter-webmvc`, and `springdoc-openapi-starter-webmvc-ui`. It keeps the Initializr `*ApplicationTests` context load. It does not copy a sample feature and does not add Testcontainers classes, slice tests, or architecture tests. Maven conventions live in [references/maven.md](references/maven.md). Remaining stack files land later.
 
 [SKILL.md](SKILL.md) is the agent workflow. [versions.json](versions.json) is the pin file.

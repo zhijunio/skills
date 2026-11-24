@@ -86,7 +86,14 @@ try {
   const skill = await readFile(join(root, 'SKILL.md'), 'utf8')
   report(skill.includes('## When to use') && skill.includes('## When not to use'), 'SKILL.md has when to use / when not to use')
   report(skill.includes('## Stack references') && skill.includes('references/testing.md'), 'SKILL.md discloses stack references')
-  report(!skill.includes('](references/'), 'SKILL.md does not link missing reference files')
+  report(skill.includes('[references/maven.md](references/maven.md)'), 'SKILL.md links maven reference')
+  const linkedRefs = [...skill.matchAll(/\]\((references\/[^)]+)\)/g)].map((match) => match[1])
+  for (const rel of linkedRefs) {
+    report(existsSync(join(root, rel)), `SKILL.md link ${rel} exists`)
+  }
+  const maven = await readFile(join(root, 'references', 'maven.md'), 'utf8')
+  report(maven.includes('## When to use') && maven.includes('## When not to use'), 'maven.md has when to use / when not to use')
+  report(maven.includes('## Verify') && maven.includes('./mvnw verify'), 'maven.md has Verify command')
 
   const help = run(process.execPath, [join(root, 'scripts', 'create-project.mjs'), '--help'])
   report(help.ok && help.output.includes('--persistence') && help.output.includes('mybatis-plus'), 'create-project --help lists MyBatis-Plus default', help.output)
