@@ -1,1 +1,0 @@
-给已有文档重命名接口 PATCH /api/documents/{id} 增加浏览器跨源支持。只允许 https://editor.example.test 携带会话 cookie 发起该 PATCH，预检须允许 Content-Type 和 X-CSRF-TOKEN 请求头。其他来源、其他跨源方法、相邻 /api/preferences 接口均不应获得新的跨源许可。保留已有会话登录、资源归属、CSRF 和响应契约。不要改变正常同源行为。补充验证，并使用项目 Maven Wrapper 运行检查。项目中的账号仅用于本地实验。
