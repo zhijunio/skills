@@ -1,0 +1,400 @@
+diff -ruN -x target -x *.log -x *.tar.gz base/src/main/java/com/example/portal/PortalSecurity.java disabled2/src/main/java/com/example/portal/PortalSecurity.java
+--- base/src/main/java/com/example/portal/PortalSecurity.java	2026-11-24 09:46:28
++++ disabled2/src/main/java/com/example/portal/PortalSecurity.java	2026-11-24 10:30:09
+@@ -1,7 +1,11 @@
+ package com.example.portal;
+ 
++import java.io.IOException;
++import java.util.List;
++
+ import org.springframework.context.annotation.Bean;
+ import org.springframework.context.annotation.Configuration;
++import org.springframework.http.HttpMethod;
+ import org.springframework.http.HttpStatus;
+ import org.springframework.security.config.Customizer;
+ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+@@ -13,9 +17,25 @@
+ import org.springframework.security.web.SecurityFilterChain;
+ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+ 
++import jakarta.servlet.FilterChain;
++import jakarta.servlet.ServletException;
++import jakarta.servlet.http.HttpServletRequest;
++import jakarta.servlet.http.HttpServletResponse;
++
++import org.springframework.web.cors.CorsConfiguration;
++import org.springframework.web.cors.CorsConfigurationSource;
++import org.springframework.web.cors.CorsProcessor;
++import org.springframework.web.cors.CorsUtils;
++import org.springframework.web.cors.DefaultCorsProcessor;
++import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
++import org.springframework.web.filter.CorsFilter;
++import org.springframework.web.filter.OncePerRequestFilter;
++
+ @Configuration(proxyBeanMethods = false)
+ @EnableWebSecurity
+ class PortalSecurity {
++	private static final String EDITOR_ORIGIN = "https://editor.example.test";
++
+ 	@Bean
+ 	SecurityFilterChain security(HttpSecurity http) {
+ 		return http.authorizeHttpRequests(requests -> requests
+@@ -25,6 +45,7 @@
+ 				.exceptionHandling(errors -> errors
+ 						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+ 				.formLogin(Customizer.withDefaults())
++				.addFilterAt(new DocumentRenameCorsFilter(documentRenameCors()), CorsFilter.class)
+ 				.build();
+ 	}
+ 
+@@ -34,5 +55,54 @@
+ 		return new InMemoryUserDetailsManager(
+ 				User.withUsername("alice").password(password).roles("EDITOR").build(),
+ 				User.withUsername("bob").password(password).roles("EDITOR").build());
++	}
++
++	private static CorsConfigurationSource documentRenameCors() {
++		CorsConfiguration configuration = new CorsConfiguration();
++		configuration.setAllowedOrigins(List.of(EDITOR_ORIGIN));
++		configuration.setAllowedMethods(List.of(HttpMethod.PATCH.name()));
++		configuration.setAllowedHeaders(List.of("Content-Type", "X-CSRF-TOKEN"));
++		configuration.setAllowCredentials(true);
++		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
++		source.registerCorsConfiguration("/api/documents/{id}", configuration);
++		return source;
++	}
++
++	private static final class DocumentRenameCorsFilter extends OncePerRequestFilter {
++		private final CorsConfigurationSource source;
++		private final CorsProcessor processor = new DefaultCorsProcessor();
++
++		private DocumentRenameCorsFilter(CorsConfigurationSource source) {
++			this.source = source;
++		}
++
++		@Override
++		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
++				throws ServletException, IOException {
++			CorsConfiguration configuration = this.source.getCorsConfiguration(request);
++			if (configuration == null || !isCrossOrigin(request)) {
++				chain.doFilter(request, response);
++				return;
++			}
++			boolean preflight = CorsUtils.isPreFlightRequest(request);
++			if (!preflight && !HttpMethod.PATCH.matches(request.getMethod())) {
++				chain.doFilter(request, response);
++				return;
++			}
++			boolean allowed = this.processor.processRequest(configuration, request, response);
++			if (!allowed || preflight) {
++				return;
++			}
++			chain.doFilter(request, response);
++		}
++
++		private static boolean isCrossOrigin(HttpServletRequest request) {
++			try {
++				return CorsUtils.isCorsRequest(request);
++			}
++			catch (IllegalArgumentException ex) {
++				return true;
++			}
++		}
+ 	}
+ }
+diff -ruN -x target -x *.log -x *.tar.gz base/src/test/java/com/example/portal/PortalCorsTests.java disabled2/src/test/java/com/example/portal/PortalCorsTests.java
+--- base/src/test/java/com/example/portal/PortalCorsTests.java	1970-01-01 08:00:00
++++ disabled2/src/test/java/com/example/portal/PortalCorsTests.java	2026-11-24 10:30:39
+@@ -0,0 +1,292 @@
++package com.example.portal;
++
++import static org.hamcrest.Matchers.containsString;
++import static org.hamcrest.Matchers.not;
++import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
++import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
++import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
++import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
++
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.params.ParameterizedTest;
++import org.junit.jupiter.params.provider.ValueSource;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
++import org.springframework.http.HttpHeaders;
++import org.springframework.http.MediaType;
++import org.springframework.mock.web.MockHttpSession;
++import org.springframework.test.web.servlet.MockMvc;
++import org.springframework.test.web.servlet.MvcResult;
++
++import com.jayway.jsonpath.JsonPath;
++
++@SpringBootTest
++@AutoConfigureMockMvc
++class PortalCorsTests {
++	private static final String EDITOR_ORIGIN = "https://editor.example.test";
++	private static final String REQUEST_HEADERS = "Content-Type, X-CSRF-TOKEN";
++
++	@Autowired
++	private MockMvc mockMvc;
++
++	@Test
++	void editorPreflightAllowsCredentialedPatchWithContentTypeAndCsrfHeader() throws Exception {
++		this.mockMvc.perform(options("/api/documents/1")
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, REQUEST_HEADERS))
++				.andExpect(status().isOk())
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, EDITOR_ORIGIN))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "PATCH"))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, containsString("Content-Type")))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, containsString("X-CSRF-TOKEN")))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, not("*")));
++	}
++
++	@Test
++	void editorPreflightAcceptsHeaderNamesRegardlessOfCase() throws Exception {
++		this.mockMvc.perform(options("/api/documents/1")
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "content-type, x-csrf-token"))
++				.andExpect(status().isOk())
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, containsString("content-type")))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, containsString("x-csrf-token")));
++	}
++
++	@Test
++	void editorCanRenameOwnDocumentWithSessionAndCsrf() throws Exception {
++		Login alice = login("alice");
++		String title = "Editor rename " + System.nanoTime();
++
++		this.mockMvc.perform(patch("/api/documents/1")
++						.session(alice.session())
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(alice.csrfHeader(), alice.csrfToken())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"title\":\"" + title + "\"}"))
++				.andExpect(status().isOk())
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, EDITOR_ORIGIN))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"))
++				.andExpect(content().json("{\"title\":\"" + title + "\"}"));
++
++		this.mockMvc.perform(get("/api/documents/1").session(alice.session()))
++				.andExpect(status().isOk())
++				.andExpect(jsonPath("$.title").value(title))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
++	}
++
++	@ParameterizedTest
++	@ValueSource(strings = {
++			"https://evil.example.test",
++			"http://editor.example.test",
++			"https://editor.example.test.evil",
++			"https://editor.example.test:8443"
++	})
++	void otherOriginsDoNotReceivePatchPermission(String origin) throws Exception {
++		Login alice = login("alice");
++		String before = currentTitle(alice, 1);
++
++		this.mockMvc.perform(options("/api/documents/1")
++						.header(HttpHeaders.ORIGIN, origin)
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, REQUEST_HEADERS))
++				.andExpect(status().isForbidden())
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS))
++				.andExpect(content().string("Invalid CORS request"));
++
++		this.mockMvc.perform(patch("/api/documents/1")
++						.session(alice.session())
++						.header(HttpHeaders.ORIGIN, origin)
++						.header(alice.csrfHeader(), alice.csrfToken())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"title\":\"blocked origin\"}"))
++				.andExpect(status().isForbidden())
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
++				.andExpect(content().string("Invalid CORS request"));
++
++		this.mockMvc.perform(get("/api/documents/1").session(alice.session()))
++				.andExpect(jsonPath("$.title").value(before));
++	}
++
++	@ParameterizedTest
++	@ValueSource(strings = {"GET", "POST", "PUT", "DELETE"})
++	void otherCrossOriginMethodsDoNotReceivePermission(String method) throws Exception {
++		Login alice = login("alice");
++		String before = currentTitle(alice, 1);
++
++		this.mockMvc.perform(options("/api/documents/1")
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, method)
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, REQUEST_HEADERS))
++				.andExpect(status().isForbidden())
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS))
++				.andExpect(content().string("Invalid CORS request"));
++
++		this.mockMvc.perform(get("/api/documents/1")
++						.session(alice.session())
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN))
++				.andExpect(status().isOk())
++				.andExpect(jsonPath("$.title").value(before))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
++	}
++
++	@Test
++	void preferencesDoNotGainCrossOriginPermission() throws Exception {
++		Login alice = login("alice");
++
++		this.mockMvc.perform(options("/api/preferences")
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, REQUEST_HEADERS))
++				.andExpect(status().isUnauthorized())
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
++
++		this.mockMvc.perform(options("/api/documents")
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
++						.header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, REQUEST_HEADERS))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
++
++		String theme = "theme-" + System.nanoTime();
++		this.mockMvc.perform(patch("/api/preferences")
++						.session(alice.session())
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(alice.csrfHeader(), alice.csrfToken())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"theme\":\"" + theme + "\"}"))
++				.andExpect(status().isOk())
++				.andExpect(content().json("{\"theme\":\"" + theme + "\"}"))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
++	}
++
++	@Test
++	void sameOriginRenameKeepsSessionOwnershipCsrfAndBody() throws Exception {
++		Login alice = login("alice");
++		String title = "Same origin " + System.nanoTime();
++
++		this.mockMvc.perform(patch("/api/documents/1")
++						.session(alice.session())
++						.header(alice.csrfHeader(), alice.csrfToken())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"title\":\"" + title + "\"}"))
++				.andExpect(status().isOk())
++				.andExpect(content().json("{\"title\":\"" + title + "\"}"))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
++
++		this.mockMvc.perform(patch("/api/documents/1")
++						.session(alice.session())
++						.header(HttpHeaders.ORIGIN, "http://localhost")
++						.header(alice.csrfHeader(), alice.csrfToken())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"title\":\"" + title + "-local\"}"))
++				.andExpect(status().isOk())
++				.andExpect(content().json("{\"title\":\"" + title + "-local\"}"))
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
++
++		this.mockMvc.perform(patch("/api/documents/1")
++						.session(alice.session())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"title\":\"missing csrf\"}"))
++				.andExpect(status().isForbidden())
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
++
++		this.mockMvc.perform(get("/api/documents/1").session(alice.session()))
++				.andExpect(jsonPath("$.title").value(title + "-local"));
++
++		Login bob = login("bob");
++		this.mockMvc.perform(patch("/api/documents/1")
++						.session(bob.session())
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(bob.csrfHeader(), bob.csrfToken())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"title\":\"bob takeover\"}"))
++				.andExpect(status().isNotFound())
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, EDITOR_ORIGIN));
++
++		this.mockMvc.perform(get("/api/documents/1").session(alice.session()))
++				.andExpect(jsonPath("$.title").value(title + "-local"));
++
++		this.mockMvc.perform(get("/api/csrf"))
++				.andExpect(status().isOk())
++				.andExpect(jsonPath("$.headerName").value("X-CSRF-TOKEN"));
++	}
++
++	@Test
++	void anonymousEditorRequestStaysUnauthorizedWhenCsrfIsPresent() throws Exception {
++		Login anonymous = anonymousCsrf();
++
++		this.mockMvc.perform(patch("/api/documents/1")
++						.session(anonymous.session())
++						.header(HttpHeaders.ORIGIN, EDITOR_ORIGIN)
++						.header(anonymous.csrfHeader(), anonymous.csrfToken())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"title\":\"anonymous\"}"))
++				.andExpect(status().isUnauthorized())
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, EDITOR_ORIGIN))
++				.andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"));
++
++		this.mockMvc.perform(patch("/api/documents/1")
++						.session(anonymous.session())
++						.header(anonymous.csrfHeader(), anonymous.csrfToken())
++						.contentType(MediaType.APPLICATION_JSON)
++						.content("{\"title\":\"anonymous same origin\"}"))
++				.andExpect(status().isUnauthorized())
++				.andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
++	}
++
++	private String currentTitle(Login login, long id) throws Exception {
++		MvcResult result = this.mockMvc.perform(get("/api/documents/" + id).session(login.session()))
++				.andExpect(status().isOk())
++				.andReturn();
++		return JsonPath.read(result.getResponse().getContentAsString(), "$.title");
++	}
++
++	private Login login(String username) throws Exception {
++		Login csrf = anonymousCsrf();
++		MvcResult login = this.mockMvc.perform(post("/login")
++						.session(csrf.session())
++						.header(csrf.csrfHeader(), csrf.csrfToken())
++						.param("username", username)
++						.param("password", "demo-password"))
++				.andExpect(status().isFound())
++				.andReturn();
++		MockHttpSession session = (MockHttpSession) login.getRequest().getSession(false);
++		return refreshCsrf(session);
++	}
++
++	private Login anonymousCsrf() throws Exception {
++		MvcResult result = this.mockMvc.perform(get("/api/csrf"))
++				.andExpect(status().isOk())
++				.andReturn();
++		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
++		return csrf(session, result.getResponse().getContentAsString());
++	}
++
++	private Login refreshCsrf(MockHttpSession session) throws Exception {
++		MvcResult result = this.mockMvc.perform(get("/api/csrf").session(session))
++				.andExpect(status().isOk())
++				.andReturn();
++		return csrf(session, result.getResponse().getContentAsString());
++	}
++
++	private static Login csrf(MockHttpSession session, String body) {
++		return new Login(session, JsonPath.read(body, "$.headerName"), JsonPath.read(body, "$.token"));
++	}
++
++	private record Login(MockHttpSession session, String csrfHeader, String csrfToken) {
++	}
++}

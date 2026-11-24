@@ -1,6 +1,6 @@
 # Spring Boot Skill Validation
 
-A small task-management REST API generated with the local `spring-boot-developer` skill. It uses Spring Boot 4.1.1, Java 25, Maven, Spring MVC, Spring Data JPA, PostgreSQL, and Flyway.
+A small task-management REST API generated with the local `spring-boot-developer` skill. It uses Spring Boot 4.1.2, Java 25, Maven, Spring MVC, Spring Data JPA, PostgreSQL, and Flyway.
 
 ## Run locally
 

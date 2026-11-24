@@ -1,7 +1,7 @@
 # Auth Platform：产品与工程需求
 
 **状态：** 实施规划草案
-**目的：** 定义基于 Spring Boot 4.1.1 和 Spring Security 7 的可复用身份平台需求，明确框架能力与应用职责边界。本文件是独立需求说明，规定产品行为及必须遵守的框架集成约束；存储选型见第 2 节第 4 条，不限定 ORM、迁移工具或代码架构，也不构成合规声明。
+**目的：** 定义基于 Spring Boot 4.1.2 和 Spring Security 7 的可复用身份平台需求，明确框架能力与应用职责边界。本文件是独立需求说明，规定产品行为及必须遵守的框架集成约束；存储选型见第 2 节第 4 条，不限定 ORM、迁移工具或代码架构，也不构成合规声明。
 
 ## 1. 产品目标
 
@@ -19,11 +19,11 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 1. **身份服务职责：** 服务认证自身用户，并接受选定的外部身份 Provider。首版不作为 OAuth2 Authorization Server。如果产品需要向第三方客户端签发标准 OAuth2/OIDC 令牌，应作为独立范围评估 Spring Authorization Server。
 2. **API 风格：** 首版采用 JSON REST API，路径使用不带版本号的 `/api/...`。引入破坏性变更前，需单独确定并记录 API 版本兼容策略。
-3. **客户端支持：** 完整身份平台目标为前后端分离 JSON API 和 bearer-token 客户端，令牌交付与存储见 4.4。`samples/mfa-demo` 是浏览器演示例外：页面与 API 同源，通过 Spring Security `HttpSession` 保存分阶段认证状态，并保留 CSRF 防护；演示 API 路径与请求体以第 5.4 节为准。不得把该内存 session 演示描述成原生 App 或生产令牌方案。客户端不得持有 Provider access token 或 client secret。
+3. **客户端支持：** 完整身份平台目标为前后端分离 JSON API 和 bearer-token 客户端，令牌交付与存储见 4.4。[`spring-security-7-mfa-demo`](https://github.com/zhijunio/spring-security-7-mfa-demo) 是浏览器演示例外：页面与 API 同源，通过 Spring Security `HttpSession` 保存分阶段认证状态，并保留 CSRF 防护；演示 API 路径与请求体以第 5.4 节为准。不得把该内存 session 演示描述成原生 App 或生产令牌方案。客户端不得持有 Provider access token 或 client secret。
 4. **存储与运行环境：** 持久数据使用 PostgreSQL；共享短时效安全状态（限流计数、令牌撤销、挑战、待 MFA 事务和 `OAuthTransaction`）使用 Redis。迁移工具、部署拓扑和可用性目标在实施规划阶段确定，必须满足本文规定的持久性、原子性、过期、可用性和安全要求。
 5. **基础令牌能力：** JWT 是平台的基础能力，使用非对称签名签发和验证自身访问 JWT，并发布对应公钥 JWKS；具体要求见 4.4。
 6. **可选功能开关：** MFA 与 OAuth2 Client 可由部署配置决定是否提供。若部署提供 MFA 管理能力，管理员可通过受保护的管理 API 配置并运行时启用/停用 MFA；若部署未提供 MFA 能力，则不暴露因子 API 或 MFA 管理 API。OAuth2 Client 按部署配置启停。敏感操作可配置为要求近期 MFA；只有 MFA 运行时启用后该策略才可生效。启动或运行时停用 MFA 前，必须确认既不存在强制 MFA 的操作/用户策略，也不存在用户已激活的因子；否则拒绝启动或拒绝变更（运行时返回 `409`），不能静默降级认证要求，也不能让已自愿注册因子的用户退化为仅密码登录。如确需停用，须先经受审计的数据处理流程处置已激活因子并通知受影响用户。本条是 MFA 停用保护的唯一规范定义，其他章节引用本条。
-7. **MFA 能力：** 完整身份平台支持 TOTP、邮件 OTP、EIP-191 钱包签名、单次恢复码和可重复验证的应用 BIP-39 助记词；Passkey 通过 Spring Security WebAuthn 完成主认证。`samples/mfa-demo` 演示 TOTP、开发用途邮件验证码、钱包签名和助记词，不实现一次性恢复码。邮件码只用于本地演示，不代表生产环境中邮箱是独立强因子。助记词由应用新生成，绝不请求、记录或存储用户已有的钱包助记词；应用助记词不得用于钱包创建、恢复或签名。首版不收集手机号，也不发送短信。
+7. **MFA 能力：** 完整身份平台支持 TOTP、邮件 OTP、EIP-191 钱包签名、单次恢复码和可重复验证的应用 BIP-39 助记词；Passkey 通过 Spring Security WebAuthn 完成主认证。[`spring-security-7-mfa-demo`](https://github.com/zhijunio/spring-security-7-mfa-demo) 演示 TOTP、开发用途邮件验证码、钱包签名和助记词，不实现一次性恢复码。邮件码只用于本地演示，不代表生产环境中邮箱是独立强因子。助记词由应用新生成，绝不请求、记录或存储用户已有的钱包助记词；应用助记词不得用于钱包创建、恢复或签名。首版不收集手机号，也不发送短信。
 8. **OAuth2 Client 能力：** 启用 OAuth2 Client 后支持 OIDC Provider 登录，Google 为首个配置 Provider。增加 Provider 时应复用协议处理，避免重复实现协议逻辑。首版只用外部 Provider 登录，不代表用户访问 Provider API，因此不保留 authorized-client 状态，也不处理委托访问的 consent 和 scope。
 9. **首版不自建 Authorization Server：** OAuth2 Client 登录不等同于签发 OAuth2 授权。Authorization Server 功能需单独进行产品和安全评审。
 10. **单租户：** 首版不支持多租户，数据模型和 API 不包含租户维度。
@@ -98,7 +98,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 - 刷新时按当前账户状态、角色和 MFA 策略重新评估会话：账户已停用时拒绝刷新；会话的认证上下文不再满足策略强制的必需因子（例如管理员启用强制 MFA）时拒绝刷新并要求重新登录。用恢复码完成登录的会话可以按空闲超时和绝对有效期刷新；刷新不更新最近 MFA 时间，也不改变 MFA 满足来源；角色从当前数据重新读取。账户停用会撤销全部会话并立即生效；不撤销会话的角色变更最长滞后访问 JWT 的有效期，须在文档中写明。
 - 用户自愿注册首个因子时，完成注册的当前会话视为已完成 MFA 并更新最近 MFA 时间；其他活动会话不因此被拒绝刷新，而是通过已验证渠道通知用户，并在通知和会话列表中提供一键撤销其他会话的入口。
 - **近期认证** 以服务端会话记录的最近认证时间为准，初始值为登录时间，窗口时长可配置，不超过 15 分钟。可通过 `POST /api/me/reauthentication` 刷新：有本地密码的用户提交密码；只有外部身份的用户提交已绑定身份的 `registrationId`，经 OIDC 重新认证（`prompt=login` 或 `max_age`）。返回的 ID Token 必须包含 `auth_time`，且该时间不得早于重新认证事务的发起时间，缺失或更早则拒绝；并校验身份与原绑定的 `(issuer, subject)` 一致。重新认证回调只更新当前会话的认证时间，不建立新会话。
-- **近期 MFA** 以服务端会话记录的最近 MFA 时间为准，窗口时长可配置，不超过 15 分钟。mfa-demo 在 `/api/auth/mfa/verify` 成功后更新该时间；若以一次性恢复码完成认证，MFA 满足来源记为恢复码，不足以授权要求强因子来源的敏感变更。因子管理和安全状态读取分别使用 `/api/mfa/*` 与 `/api/me/security`，仅在最近 MFA 时间仍在窗口内时允许访问。完整身份平台的敏感写操作还须按本节定义的强因子来源及 step-up 策略执行；mfa-demo 未实现的业务 API 不得被误认为已受其保护。
+- **近期 MFA** 以服务端会话记录的最近 MFA 时间为准，窗口时长可配置，不超过 15 分钟。spring-security-7-mfa-demo 在 `/api/auth/mfa/verify` 成功后更新该时间；若以一次性恢复码完成认证，MFA 满足来源记为恢复码，不足以授权要求强因子来源的敏感变更。因子管理和安全状态读取分别使用 `/api/mfa/*` 与 `/api/me/security`，仅在最近 MFA 时间仍在窗口内时允许访问。完整身份平台的敏感写操作还须按本节定义的强因子来源及 step-up 策略执行；spring-security-7-mfa-demo 未实现的业务 API 不得被误认为已受其保护。
 - 对 bearer token 客户端，仅在所有必需因子通过后签发短时效访问令牌。
 - 在访问凭据中包含可信认证上下文（`amr` 或等效信息）和认证时间。不得依据客户端请求字段或请求头判断保证等级。`auth_time` 只表示登录时间，重新认证和 step-up 不会更新已签发的令牌；客户端和其他验签方不得用它判断本平台定义的近期认证或近期 MFA。
 - 定义 refresh token 的保存、轮换、撤销、缓存指令和密钥轮换行为。所有客户端的 refresh token 都在令牌响应体中返回，刷新时在请求体中提交，不使用 Cookie 交付。客户端可通过 `POST /api/auth/token/revocation` 用 refresh token 注销对应会话，访问令牌过期时也能注销。CORS 只允许已配置的前端 origin，不允许携带凭据。
@@ -139,7 +139,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 用户名/密码登录的过滤器链约束见 4.1。`AuthenticationEntryPoint` 与 `AccessDeniedHandler` 负责过滤器链中的 `401`/`403`；`@RestControllerAdvice`（`GlobalExceptionHandler`）只处理进入 MVC 后的请求绑定、校验及应用异常，不能代替 Security 处理器。Spring Security 认证事件通过事件发布机制进入认证日志。
 
-完整身份平台的邮箱 JSON 登录请求体示例（mfa-demo 使用 `POST /login` 表单字段 `username`、`password`）：
+完整身份平台的邮箱 JSON 登录请求体示例（spring-security-7-mfa-demo 使用 `POST /login` 表单字段 `username`、`password`）：
 
 ```json
 {
@@ -174,7 +174,7 @@ OAuth2 Client 有不同用途：OAuth2/OIDC 登录、代表用户访问 Provider
 
 Bearer-token 响应是业务 envelope 的明确例外。使用 OAuth 2.0 字段名：`access_token`、`token_type`、`expires_in`（秒），以及启用时的 `refresh_token`；扩展字段必须有文档，并返回 `Cache-Control: no-store` 和 `Pragma: no-cache`。这些字段并不意味着本服务是 OAuth2 Authorization Server。
 
-mfa-demo 的浏览器认证流程使用服务端 session，不签发待 MFA bearer handle，也不要求 `Authorization: MFA` Header。主认证成功后只在服务端 session 中保存待完成 MFA 的认证主体；`GET /api/auth/state` 仅返回认证阶段摘要。登录第二步使用 `/api/auth/mfa/challenge` 与 `/api/auth/mfa/verify`，所有写请求携带 `/api/csrf` 提供的 CSRF header；因子证明不得放在 URL、日志或缓存中。验证完成后更新 session 的 MFA 因子授权和最近验证时间。通用身份平台的 bearer-token 设计仍见第 4.4 节，但不属于 mfa-demo 的 API 实现范围。
+spring-security-7-mfa-demo 的浏览器认证流程使用服务端 session，不签发待 MFA bearer handle，也不要求 `Authorization: MFA` Header。主认证成功后只在服务端 session 中保存待完成 MFA 的认证主体；`GET /api/auth/state` 仅返回认证阶段摘要。登录第二步使用 `/api/auth/mfa/challenge` 与 `/api/auth/mfa/verify`，所有写请求携带 `/api/csrf` 提供的 CSRF header；因子证明不得放在 URL、日志或缓存中。验证完成后更新 session 的 MFA 因子授权和最近验证时间。通用身份平台的 bearer-token 设计仍见第 4.4 节，但不属于 spring-security-7-mfa-demo 的 API 实现范围。
 
 ### 5.2 认证与恢复
 
@@ -360,7 +360,7 @@ OAuth 登录回调签发最长 3 分钟、单次使用的兑换码。`POST /api/
 | 请求状态 | 允许的操作 |
 |---|---|
 | 匿名 | 注册、注册邮箱验证与重发、登录发起、密码恢复与重置、认证解锁请求与完成、公开 Provider 列表、OAuth2/OIDC 登录发起与回调、凭 refresh credential 刷新或注销、凭一次性代码兑换联邦登录凭据、公开公钥发现。首版不提供无密码 Passkey 登录；若后续启用，需单独定义需求 |
-| 待 MFA（mfa-demo session） | 读取 `GET /api/auth/state`、调用 `POST /api/auth/mfa/challenge` 和 `/api/auth/mfa/verify`、通过 `POST /logout` 结束 session；可读取 CSRF 引导信息，不得访问 `/api/mfa/*` 管理接口或普通资源 |
+| 待 MFA（spring-security-7-mfa-demo session） | 读取 `GET /api/auth/state`、调用 `POST /api/auth/mfa/challenge` 和 `/api/auth/mfa/verify`、通过 `POST /logout` 结束 session；可读取 CSRF 引导信息，不得访问 `/api/mfa/*` 管理接口或普通资源 |
 | 受限会话（强制 MFA 注册宽限期） | 仅限 TOTP、钱包和 Passkey 的 `enrollment` 与 `enrollment/confirm`、只读 `GET /api/mfa/factors`、`DELETE /api/me/sessions/current`；首个因子激活后只允许注销；不得访问其他资源 |
 | 已认证 | 本人资料、邮箱、凭据、会话、认证事件、本人账户相关操作审计记录、因子管理和 WebAuthn 注册、已绑定身份；敏感变更适用 step-up 策略。示例因子管理和安全设置读取均须近期 MFA |
 | 管理员 | 仅访问明确授予管理权限所覆盖的资源；高影响操作按部署策略要求近期 MFA 并记录审计 |

@@ -25,7 +25,7 @@ Verified from `ClientRegistration.java` at each tag:
 | **7.1.0**, Boot 4.1.0 | `private boolean requireProofKey = true;` | **PKCE on by default** |
 | **6.5.11**, Boot 3.5.16 | `private boolean requireProofKey;`, so `false` | **PKCE off by default** |
 
-Boot 4.1.1 manages Spring Security 7.1.1. The implementation comparison above was checked against
+Boot 4.1.2 manages Spring Security 7.1.1. The implementation comparison above was checked against
 7.1.0 and 6.5.11; re-check point-release behavior against the project's managed version before relying
 on a default.
 

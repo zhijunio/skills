@@ -1,0 +1,197 @@
+diff -ruN -x target base/src/main/java/com/example/orders/order/persistence/OrderEntity.java enabled/src/main/java/com/example/orders/order/persistence/OrderEntity.java
+--- base/src/main/java/com/example/orders/order/persistence/OrderEntity.java	2026-11-24 08:28:06
++++ enabled/src/main/java/com/example/orders/order/persistence/OrderEntity.java	2026-11-24 09:39:41
+@@ -2,6 +2,8 @@
+ 
+ import jakarta.persistence.Column;
+ import jakarta.persistence.Entity;
++import jakarta.persistence.EnumType;
++import jakarta.persistence.Enumerated;
+ import jakarta.persistence.GeneratedValue;
+ import jakarta.persistence.GenerationType;
+ import jakarta.persistence.Id;
+@@ -18,10 +20,15 @@
+ 	@Column(name = "order_number", nullable = false, length = 40)
+ 	private String orderNumber;
+ 
++	@Enumerated(EnumType.STRING)
++	@Column(name = "order_source", nullable = false, length = 5)
++	private OrderSource orderSource;
++
+ 	protected OrderEntity() {}
+ 
+ 	public OrderEntity(String orderNumber) {
+ 		this.orderNumber = orderNumber;
++		this.orderSource = orderNumber.startsWith("WEB-") ? OrderSource.WEB : OrderSource.OTHER;
+ 	}
+ 
+ 	public Long id() {
+@@ -30,5 +37,9 @@
+ 
+ 	public String orderNumber() {
+ 		return orderNumber;
++	}
++
++	private enum OrderSource {
++		WEB, OTHER
+ 	}
+ }
+diff -ruN -x target base/src/main/resources/db/migration/V2__add_order_source.sql enabled/src/main/resources/db/migration/V2__add_order_source.sql
+--- base/src/main/resources/db/migration/V2__add_order_source.sql	1970-01-01 08:00:00
++++ enabled/src/main/resources/db/migration/V2__add_order_source.sql	2026-11-24 09:39:41
+@@ -0,0 +1,9 @@
++ALTER TABLE orders ADD COLUMN order_source varchar(5);
++
++UPDATE orders
++SET order_source = CASE
++    WHEN left(order_number, 4) COLLATE "C" = 'WEB-' THEN 'WEB'
++    ELSE 'OTHER'
++END;
++
++ALTER TABLE orders ALTER COLUMN order_source SET NOT NULL;
+diff -ruN -x target base/src/test/java/com/example/orders/OrderHttpIT.java enabled/src/test/java/com/example/orders/OrderHttpIT.java
+--- base/src/test/java/com/example/orders/OrderHttpIT.java	2026-11-24 08:28:46
++++ enabled/src/test/java/com/example/orders/OrderHttpIT.java	2026-11-24 09:40:14
+@@ -1,19 +1,27 @@
+ package com.example.orders;
+ 
+-import java.util.UUID;
++import java.sql.SQLException;
+ 
+ import org.junit.jupiter.api.Test;
++import org.junit.jupiter.params.ParameterizedTest;
++import org.junit.jupiter.params.provider.CsvSource;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.boot.test.context.SpringBootTest;
+ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+ import org.springframework.context.annotation.Import;
++import org.springframework.dao.DataIntegrityViolationException;
+ import org.springframework.http.HttpHeaders;
+ import org.springframework.http.MediaType;
++import org.springframework.jdbc.core.JdbcTemplate;
++import org.springframework.test.json.JsonCompareMode;
+ import org.springframework.test.web.servlet.MockMvc;
+ 
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.assertj.core.api.Assertions.assertThatThrownBy;
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+ 
+@@ -24,23 +32,60 @@
+ 
+ 	@Autowired
+ 	MockMvc mvc;
++	@Autowired
++	JdbcTemplate jdbc;
+ 
+-	@Test
+-	void createsAnOrderAndRejectsASecondWriteWithTheSameNumber() throws Exception {
+-		String orderNumber = UUID.randomUUID().toString();
+-		String request = "{\"orderNumber\":\"" + orderNumber + "\"}";
+-		String location = mvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON).content(request))
+-				.andExpect(status().isCreated())
+-				.andExpect(jsonPath("$.orderNumber").value(orderNumber))
+-				.andReturn().getResponse().getHeader(HttpHeaders.LOCATION);
++	@ParameterizedTest
++	@CsvSource({"101, WEB-legacy, WEB", "102, web-legacy, OTHER", "103, XWEB-legacy, OTHER",
++			"104, WEB, OTHER", "105, WEB-, WEB"})
++	void backfillsLegacyOrdersAndPreservesTheirIdentity(long id, String orderNumber, String source) throws Exception {
++		assertThat(jdbc.queryForObject("SELECT order_source FROM orders WHERE id = ?", String.class, id))
++				.isEqualTo(source);
++		mvc.perform(get("/orders/{id}", id))
++				.andExpect(status().isOk())
++				.andExpect(content().json(orderResponse(id, orderNumber), JsonCompareMode.STRICT));
++	}
+ 
++	@ParameterizedTest
++	@CsvSource({"WEB-new, WEB", "web-new, OTHER", "XWEB-new, OTHER", "manual-new, OTHER"})
++	void createsAnOrderWithItsSource(String orderNumber, String source) throws Exception {
++		var creation = mvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON)
++				.content("{\"orderNumber\":\"%s\"}".formatted(orderNumber)))
++				.andExpect(status().isCreated());
++
++		long id = jdbc.queryForObject("SELECT id FROM orders WHERE order_number = ?", Long.class, orderNumber);
++		assertThat(jdbc.queryForObject("SELECT order_source FROM orders WHERE id = ?", String.class, id))
++				.isEqualTo(source);
++		String location = "http://localhost/orders/" + id;
++		String response = orderResponse(id, orderNumber);
++		creation.andExpect(header().string(HttpHeaders.LOCATION, location))
++				.andExpect(content().json(response, JsonCompareMode.STRICT));
+ 		mvc.perform(get(location))
+ 				.andExpect(status().isOk())
+-				.andExpect(jsonPath("$.orderNumber").value(orderNumber));
++				.andExpect(content().json(response, JsonCompareMode.STRICT));
++	}
+ 
+-		mvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON).content(request))
++	@Test
++	void rejectsAnOrderWithAnExistingNumber() throws Exception {
++		mvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON)
++				.content("{\"orderNumber\":\"WEB-legacy\"}"))
+ 				.andExpect(status().isConflict())
+ 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+ 				.andExpect(jsonPath("$.detail").value("Order number already exists"));
++		assertThat(jdbc.queryForList("SELECT id FROM orders WHERE order_number = ?", Long.class, "WEB-legacy"))
++				.containsExactly(101L);
++	}
++
++	@Test
++	void databaseRejectsNullOrderSource() {
++		assertThatThrownBy(() -> jdbc.update("INSERT INTO orders (order_number, order_source) VALUES (?, NULL)",
++				"missing-source"))
++				.isInstanceOf(DataIntegrityViolationException.class)
++				.rootCause().isInstanceOfSatisfying(SQLException.class,
++						exception -> assertThat(exception.getSQLState()).isEqualTo("23502"));
++	}
++
++	private static String orderResponse(long id, String orderNumber) {
++		return "{\"id\":%d,\"orderNumber\":\"%s\"}".formatted(id, orderNumber);
+ 	}
+ }
+diff -ruN -x target base/src/test/java/com/example/orders/TestcontainersConfiguration.java enabled/src/test/java/com/example/orders/TestcontainersConfiguration.java
+--- base/src/test/java/com/example/orders/TestcontainersConfiguration.java	2026-11-24 08:27:10
++++ enabled/src/test/java/com/example/orders/TestcontainersConfiguration.java	2026-11-24 09:39:41
+@@ -1,8 +1,11 @@
+ package com.example.orders;
+ 
++import com.github.dockerjava.api.command.InspectContainerResponse;
++import org.flywaydb.core.Flyway;
+ import org.springframework.boot.test.context.TestConfiguration;
+ import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+ import org.springframework.context.annotation.Bean;
++import org.springframework.jdbc.core.JdbcTemplate;
+ import org.testcontainers.postgresql.PostgreSQLContainer;
+ import org.testcontainers.utility.DockerImageName;
+ 
+@@ -12,7 +15,26 @@
+ 	@Bean
+ 	@ServiceConnection
+ 	PostgreSQLContainer postgresContainer() {
+-		return new PostgreSQLContainer(DockerImageName.parse("postgres:18-alpine"));
++		return new PostgreSQLContainer(DockerImageName.parse("postgres:18-alpine")) {
++
++			@Override
++			protected void containerIsStarted(InspectContainerResponse containerInfo) {
++				super.containerIsStarted(containerInfo);
++				var flyway = Flyway.configure()
++						.dataSource(getJdbcUrl(), getUsername(), getPassword())
++						.target("1")
++						.load();
++				flyway.migrate();
++				new JdbcTemplate(flyway.getConfiguration().getDataSource()).update("""
++						INSERT INTO orders (id, order_number) VALUES
++							(101, 'WEB-legacy'),
++							(102, 'web-legacy'),
++							(103, 'XWEB-legacy'),
++							(104, 'WEB'),
++							(105, 'WEB-')
++						""");
++			}
++		};
+ 	}
+ 
+ }

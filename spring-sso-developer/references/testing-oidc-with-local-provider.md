@@ -27,7 +27,7 @@ default client constants, custom configuration mounting, and TLS/mTLS setup. The
 custom ID-token claims such as roles, which is useful for exercising the application's real claim-to-authority mapping.
 
 Use the published `io.zhijun.rose:rose-authorization-server` artifact in test scope, plus the Testcontainers JUnit
-integration. The released `0.1.0` artifact is built with Spring Boot 4.1.1 and Testcontainers 2; the project
+integration. The released `0.1.0` artifact is built with Spring Boot 4.1.2 and Testcontainers 2; the project
 repository may be ahead of that release. For Boot 4 projects, use the Testcontainers 2 JUnit artifact shown below.
 Boot 3.5 projects using Testcontainers 1 use `org.testcontainers:junit-jupiter`, but compatibility of the
 published Rose wrapper with Testcontainers 1 is not established; use Dex or verify the wrapper against that

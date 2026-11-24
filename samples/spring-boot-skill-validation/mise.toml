@@ -1,5 +1,5 @@
 [tools]
-java = "temurin-25"
+java = "oracle-graalvm-25"
 
 [tasks.test]
 description = "Run the test suite"

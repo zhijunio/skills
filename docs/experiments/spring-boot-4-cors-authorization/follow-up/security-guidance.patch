@@ -1,0 +1,8 @@
+--- security.md.before
++++ security.md.after
+@@ -53,3 +53,5 @@
+ ## Verify CORS for cross-origin browser clients
+ 
+ When the application serves cross-origin browser clients, use the project's configured origins, methods, headers, and credential policy. Test an allowed preflight with the intended origin, method, and request headers. Assert the relevant CORS response headers, including credentials when required. Test an unapproved origin and confirm the response grants it no cross-origin access. Check CORS separately from request authorization and CSRF.
++
++**Verify a denied preflight.** Assert that the response's CORS headers do not grant permission for the requested origin, method, and headers. For a credentialed request, an unmatched route can return `200 OK` without `Access-Control-Allow-Origin`, which grants no cross-origin access. A test that always expects `403 Forbidden` can fail even when the browser would block the request. Assert a particular status only when the application contract specifies it.

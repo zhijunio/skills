@@ -30,7 +30,7 @@ The bundled generator separates the persistence layer from the database driver:
 | `--database` | `postgresql`, `none` | `postgresql` | Adds the PostgreSQL driver and Spring Boot Docker Compose/Testcontainers support, or no database dependencies |
 | `--license` | `apache2`, `mit`, `none` | `apache2` | Writes a root `LICENSE` from the selected license text, or skips it (`apache2` means Apache License 2.0) |
 
-The generator creates Boot 4.x projects only; Spring Initializr no longer offers Boot 3.5.x, so `--boot-version 3.5.x` is rejected before the request. `--persistence mybatis-plus` uses `mybatis-plus-spring-boot4-starter`. The starter version is pinned in `versions.json`. `--database none` is for applications without a database; it defaults `--persistence` to `none`, and the generator rejects `--persistence jpa` or `mybatis-plus` without a database because the application would fail to start without a driver. Docker generation requires Maven and `--database postgresql`.
+The generator creates Boot 4.x projects only; Spring Initializr no longer offers Boot 3.5.x, so `--boot-version 3.5.x` is rejected before the request. `--persistence mybatis-plus` uses `mybatis-plus-spring-boot4-starter`. The starter version is pinned in `versions.json`. Every generated project also receives the test-scoped Taikai dependency and a conservative `TaikaiArchitectureTest`; extend or remove rules when the project's architecture requires it. `--database none` is for applications without a database; it defaults `--persistence` to `none`, and the generator rejects `--persistence jpa` or `mybatis-plus` without a database because the application would fail to start without a driver. Docker generation requires Maven and `--database postgresql`.
 
 The environment checker distinguishes the Docker CLI from a running daemon. Use `--docker` when a task requires the CLI, and `--docker-daemon` before running Compose, Testcontainers, or Docker builds; the latter fails early when the CLI exists but cannot reach an active daemon.
 
@@ -50,7 +50,7 @@ node scripts/create-project.mjs --name inventory --persistence none --database n
 ## Checklist
 
 - **.gitignore** → include Java/Maven, IDEs, OS junk, Testcontainers, Docker, Node/Vite outputs, `.env*`
-- **.env.sample** → committed, documents required variables; actual `.env` ignored
+- **.env.sample** → committed, documents variables consumed by the generated application or tools; actual `.env` ignored
 - **.editorconfig** → enforce indentation, charset, LF endings, trim trailing whitespace
 - **.gitattributes** → normalize line endings, mark binary files, improve diffs
 - **.dockerignore** → keep Docker build context lean; exclude `target/`, `node_modules/`, `.git/`, etc.
@@ -151,36 +151,14 @@ dependency-check-report.*
 
 > **⚠️ AI Agent Security Rule**: the `.env` file contains real secrets. AI agents and scripts **must never** read, `cat`, view, or print its contents — not to the console, not in output, not in any log. Only `.env.sample` (placeholder values) may be read or displayed. If a task requires knowing a current value, ask the user to share only that specific variable, never the whole file.
 
-**Suggested `./.env.sample`:**
+The generator renders this file from the selected capabilities. A project without a database should not receive PostgreSQL variables; a frontend adds its own `VITE_PORT` or equivalent when it is actually generated. The common portion is:
 
 ```dotenv
-# Spring profiles
-SPRING_PROFILES_ACTIVE=dev
-
-# Local ports (override per Git worktree when needed)
+# Local port (override per Git worktree when needed)
 SERVER_PORT=8080
-VITE_PORT=5173
-POSTGRES_PORT=5432
-COMPOSE_PROJECT_NAME=my-spring-boot-app
-
-# Database (PostgreSQL)
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:${POSTGRES_PORT}/mydb
-SPRING_DATASOURCE_USERNAME=user
-SPRING_DATASOURCE_PASSWORD=change-me
-
-# Testcontainers overrides (optional)
-TESTCONTAINERS_RYUK_DISABLED=false
-
-# Application secrets (NEVER commit real values)
-APP_API_KEY=replace-me
-APP_API_SECRET=replace-me
-
-# Front-end build mirrors — only needed behind a corporate proxy that blocks
-# registry.npmjs.org. Read by docker-compose*.yml at build time.
-# NODE_DOWNLOAD_ROOT=https://nodejs.org/dist/
-# NPM_DOWNLOAD_ROOT=https://your-mirror/npm/-/
-# NPM_CONFIG_REGISTRY=https://your-mirror
 ```
+
+The PostgreSQL variant adds `POSTGRES_PORT`, `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD`. Do not add profile names, application secrets, frontend ports, or proxy variables until the project generates a consumer for them.
 
 > **Local dev tip:** copy once → `cp .env.sample .env`, then update values. **Do not** check in `.env`.
 
@@ -569,7 +547,7 @@ gh auth token | docker login ghcr.io -u "$GHCR_OWNER" --password-stdin
   - `.gitattributes`
   - `.dockerignore`
   - `mise.toml` with the selected Temurin Java major and wrapper-backed test, verify, and run tasks; Compose tasks appear when PostgreSQL is selected, Docker tasks when `--docker` is selected
-  - `server.port: ${SERVER_PORT:8080}` in `application.yaml`, so the port variable used by `.env.sample` and the Compose files changes the port the app listens on
+  - capability-matched `.env.sample` and `application.yaml` settings, including the optional `.env` import, `server.port: ${SERVER_PORT:8080}`, PostgreSQL placeholders, and JPA `open-in-view=false`/`ddl-auto=validate` when those capabilities are selected
 - Existing files are **not overwritten blindly**:
   - If `.gitignore` exists, we append with a marker `# === spring-boot-developer additions ===`.
   - For other dotfiles, we create them only if missing.
@@ -582,11 +560,12 @@ gh auth token | docker login ghcr.io -u "$GHCR_OWNER" --password-stdin
 
 After project generation, verify:
 
-1. `git status` is clean (no generated artifacts tracked)
-2. `.env` is ignored (`git check-ignore -v .env`)
-3. Editors honor `.editorconfig` (try saving a Java + JS file)
-4. Docker build context excludes heavy folders (`docker buildx bake --print` to inspect context)
-5. Line endings are LF (`git ls-files --eol | head`)
+1. `node scripts/doctor-project.mjs --strict .` passes
+2. `git status` is clean (no generated artifacts tracked)
+3. `.env` is ignored (`git check-ignore -v .env`)
+4. Editors honor `.editorconfig` (try saving a Java + JS file)
+5. Docker build context excludes heavy folders (`docker buildx bake --print` to inspect context)
+6. Line endings are LF (`git ls-files --eol | head`)
 
 If any check fails, adjust the dotfiles and re-run the generator or update your global git settings.
 

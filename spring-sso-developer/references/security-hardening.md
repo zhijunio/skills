@@ -24,7 +24,7 @@ the default flipped between the two versions this skill covers. Verified from
 | **7.1.0**, Boot 4.1.0 | `private boolean requireProofKey = true;` | **PKCE is on by default.** Nothing to do |
 | **6.5.11**, Boot 3.5.16 | `private boolean requireProofKey;`, so `false` | **PKCE is off by default.** You must enable it |
 
-Boot 4.1.1 manages Spring Security 7.1.1. This implementation comparison was checked at 7.1.0 and
+Boot 4.1.2 manages Spring Security 7.1.1. This implementation comparison was checked at 7.1.0 and
 6.5.11; verify the exact point release when a default affects the security decision.
 
 So on Boot 4.x the good news is that Spring already meets RFC 9700's recommendation for confidential
@@ -94,7 +94,7 @@ cheat sheets.
 
 | Concern | Detail |
 | ------- | ------ |
-| Boot to Spring Security mapping | Verified from Boot's own `spring-boot-dependencies` build files: **Boot 4.1.1 manages Spring Security 7.1.1**, Boot 4.1.0 manages 7.1.0, Boot 4.0.0 manages 7.0.0, Boot 4.0.7 manages 7.0.6, and **Boot 3.5.16 manages 6.5.11**. So the 3.5.x line is on 6.5.x, not 7.x |
+| Boot to Spring Security mapping | Verified from Boot's own `spring-boot-dependencies` build files: **Boot 4.1.2 manages Spring Security 7.1.1**, Boot 4.1.0 manages 7.1.0, Boot 4.0.0 manages 7.0.0, Boot 4.0.7 manages 7.0.6, and **Boot 3.5.16 manages 6.5.11**. So the 3.5.x line is on 6.5.x, not 7.x |
 | Java floor | Spring Security 7.1.0 "requires a Java 17 or higher Runtime Environment" |
 | `OpenSaml5AuthenticationProvider` | The current class name. Older material names `OpenSaml4AuthenticationProvider` or `OpenSamlAuthenticationProvider` |
 | Deprecated patterns in older books | `WebSecurityConfigurerAdapter` and `authorizeRequests()` were **removed** in Spring Security 6. Any example using them predates every supported version |

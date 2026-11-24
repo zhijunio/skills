@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product UX Audit"
+  short_description: "Review and improve product experiences"
+  default_prompt: "Audit this product's screens and interactions, prioritize the highest-impact usability issues, and provide actionable fixes."

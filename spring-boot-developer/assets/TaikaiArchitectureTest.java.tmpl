@@ -1,0 +1,32 @@
+package __PACKAGE__;
+
+import com.enofex.taikai.Taikai;
+import org.junit.jupiter.api.Test;
+
+class TaikaiArchitectureTest {
+
+    private static final String BASE_PACKAGE = "__PACKAGE__";
+
+    @Test
+    void architectureRulesPass() {
+        Taikai.builder()
+                .namespace(BASE_PACKAGE)
+                .java(java -> java
+                        .noUsageOfDeprecatedAPIs()
+                        .methodsShouldNotDeclareGenericExceptions()
+                        .imports(imports -> imports.shouldHaveNoCycles()))
+                .spring(spring -> spring
+                        .noAutowiredFields()
+                        .noSelfInvocationOfProxiedMethods()
+                        .boot(boot -> boot.applicationClassShouldResideInPackage(BASE_PACKAGE))
+                        .controllers(controllers -> controllers.shouldNotDependOnOtherControllers())
+                        .services(services -> services
+                                .shouldNotDependOnControllers()
+                                .namesShouldEndWithService())
+                        .repositories(repositories -> repositories
+                                .shouldNotDependOnServices()
+                                .namesShouldEndWithRepository()))
+                .build()
+                .checkAll();
+    }
+}

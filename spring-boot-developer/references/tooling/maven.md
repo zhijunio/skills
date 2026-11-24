@@ -94,14 +94,14 @@ Maven's default lifecycle binds Surefire to the `test` phase, so ordinary Maven 
 Use the default class-name patterns (`Test*`, `*Test`, `*Tests`, `*TestCase`) and keep Docker-dependent integration tests under a Failsafe convention such as `*IT`. Surefire selects by filename, not by annotations or words such as `Integration` in the class name: `TaskApiIntegrationTest` matches `*Test` and runs during `./mvnw test`, while `ProductApiIT` is reserved for Failsafe. A Docker-backed class that matches Surefire makes `test` require Docker. Rename it to `*IT` and bind Failsafe when `test` should stay fast and independent of Docker, with `./mvnw verify` running the full suite. Avoid custom include/exclude lists unless test names genuinely require them; stale patterns can silently omit tests.
 
 ```xml
-<!-- Usually no extra configuration is needed. Declare the plugin only to customize it. -->
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-surefire-plugin</artifactId>
-    <configuration>
-        <failIfNoTests>true</failIfNoTests>
-    </configuration>
-</plugin>
+    <!-- Usually no extra configuration is needed. Declare the plugin only to customize it. -->
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+            <failIfNoTests>true</failIfNoTests>
+        </configuration>
+    </plugin>
 ```
 
 `failIfNoTests` is useful in runnable application modules, but may need a different policy in aggregator or intentionally test-free modules. Surefire runs tests matching its patterns; it does not configure Failsafe or move integration tests to `verify`.
@@ -120,18 +120,18 @@ See the official [Surefire guide](https://maven.apache.org/surefire/maven-surefi
 Use Failsafe when Docker-backed integration tests should run separately from the fast `test` phase. Name them `*IT` (or use one of Failsafe's other default patterns) and bind both goals. The `integration-test` goal runs the tests; `verify` checks the result and reports failures after the integration-test lifecycle has completed.
 
 ```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-failsafe-plugin</artifactId>
-    <executions>
-        <execution>
-            <goals>
-                <goal>integration-test</goal>
-                <goal>verify</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>integration-test</goal>
+                    <goal>verify</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
 ```
 
 The Spring Boot parent manages the plugin version. The project generator adds this configuration only when PostgreSQL/Testcontainers is selected. Run `./mvnw test` for fast tests and `./mvnw verify` for the full suite. Do not bind only `integration-test`; doing so can leave test failures unreported or skip cleanup/reporting behavior.
@@ -141,31 +141,31 @@ The Spring Boot parent manages the plugin version. The project generator adds th
 For per-test console output, `maven-surefire-junit5-tree-reporter` is an optional plugin dependency; it does not enter the application's runtime classpath. Pin a reporter release compatible with the Surefire version managed by the project. The example below uses reporter `1.5.1`; check [Maven Central](https://central.sonatype.com/artifact/me.fabriciorby/maven-surefire-junit5-tree-reporter) before upgrading.
 
 ```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-surefire-plugin</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>me.fabriciorby</groupId>
-            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
-            <version>1.5.1</version>
-        </dependency>
-    </dependencies>
-    <configuration>
-        <reportFormat>plain</reportFormat>
-        <consoleOutputReporter>
-            <disable>true</disable>
-        </consoleOutputReporter>
-        <statelessTestsetInfoReporter
-                implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
-            <theme>ASCII</theme>
-            <printStacktraceOnError>true</printStacktraceOnError>
-            <printStacktraceOnFailure>true</printStacktraceOnFailure>
-            <printStdoutOnSuccess>false</printStdoutOnSuccess>
-            <printStderrOnSuccess>false</printStderrOnSuccess>
-        </statelessTestsetInfoReporter>
-    </configuration>
-</plugin>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <dependencies>
+            <dependency>
+                <groupId>me.fabriciorby</groupId>
+                <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                <version>1.5.1</version>
+            </dependency>
+        </dependencies>
+        <configuration>
+            <reportFormat>plain</reportFormat>
+            <consoleOutputReporter>
+                <disable>true</disable>
+            </consoleOutputReporter>
+            <statelessTestsetInfoReporter
+                    implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+                <theme>ASCII</theme>
+                <printStacktraceOnError>true</printStacktraceOnError>
+                <printStacktraceOnFailure>true</printStacktraceOnFailure>
+                <printStdoutOnSuccess>false</printStdoutOnSuccess>
+                <printStderrOnSuccess>false</printStderrOnSuccess>
+            </statelessTestsetInfoReporter>
+        </configuration>
+    </plugin>
 ```
 
 Keep `reportFormat=plain`, the tree reporter, and `consoleOutputReporter.disable` together to avoid duplicate or empty output. Set successful-test stdout/stderr to `true` temporarily when diagnosing output-dependent failures. Merge this into the existing Surefire block rather than declaring the plugin twice. Failsafe does not inherit Surefire's plugin configuration; repeat the dependency and configuration there only if integration tests also need tree output. See the official [JUnit Platform / Surefire extension guide](https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html#external-extensions-for-the-plugin).
@@ -173,11 +173,11 @@ Keep `reportFormat=plain`, the tree reporter, and `consoleOutputReporter.disable
 ### Configuration metadata
 
 ```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-configuration-processor</artifactId>
-    <optional>true</optional>
-</dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-configuration-processor</artifactId>
+        <optional>true</optional>
+    </dependency>
 ```
 
 Generates IDE autocomplete and documentation for your `@ConfigurationProperties` types ([configuration.md](../configuration/configuration.md)). Cheapest win in this file.
@@ -185,37 +185,37 @@ Generates IDE autocomplete and documentation for your `@ConfigurationProperties`
 ### Test coverage
 
 ```xml
-<plugin>
-    <groupId>org.jacoco</groupId>
-    <artifactId>jacoco-maven-plugin</artifactId>
-    <executions>
-        <execution><goals><goal>prepare-agent</goal></goals></execution>
-        <execution>
-            <id>report</id>
-            <phase>verify</phase>
-            <goals><goal>report</goal></goals>
-        </execution>
-        <execution>
-            <id>check</id>
-            <phase>verify</phase>
-            <goals><goal>check</goal></goals>
-            <configuration>
-                <rules>
-                    <rule>
-                        <element>BUNDLE</element>
-                        <limits>
-                            <limit>
-                                <counter>LINE</counter>
-                                <value>COVEREDRATIO</value>
-                                <minimum>0.80</minimum>
-                            </limit>
-                        </limits>
-                    </rule>
-                </rules>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>
+    <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+            <execution><goals><goal>prepare-agent</goal></goals></execution>
+            <execution>
+                <id>report</id>
+                <phase>verify</phase>
+                <goals><goal>report</goal></goals>
+            </execution>
+            <execution>
+                <id>check</id>
+                <phase>verify</phase>
+                <goals><goal>check</goal></goals>
+                <configuration>
+                    <rules>
+                        <rule>
+                            <element>BUNDLE</element>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>0.80</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
 ```
 
 Coverage is a **floor that stops regression**, not a target. A team optimising for the number writes tests that execute code without asserting anything, and the metric goes up while the suite gets worse. Set it near where you already are and ratchet slowly.
@@ -225,27 +225,27 @@ Coverage is a **floor that stops regression**, not a target. A team optimising f
 The generator pins Spotless Maven Plugin `3.10.4` and Palantir Java Format `2.102.0` in `versions.json`.
 
 ```xml
-<plugin>
-    <groupId>com.diffplug.spotless</groupId>
-    <artifactId>spotless-maven-plugin</artifactId>
-    <version>3.10.4</version>
-    <configuration>
-        <java>
-            <importOrder/>
-            <removeUnusedImports/>
-            <formatAnnotations/>
-            <palantirJavaFormat>
-                <version>2.102.0</version>
-            </palantirJavaFormat>
-        </java>
-    </configuration>
-    <executions>
-        <execution>
-            <goals><goal>check</goal></goals>
-            <phase>validate</phase>
-        </execution>
-    </executions>
-</plugin>
+    <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>3.10.4</version>
+        <configuration>
+            <java>
+                <shortenFullyQualifiedTypes/>
+                <importOrder/>
+                <removeUnusedImports/>
+                <formatAnnotations/>
+                <palantirJavaFormat>
+                    <version>2.103.0</version>
+                </palantirJavaFormat>
+            </java>
+        </configuration>
+        <executions>
+            <execution>
+                <goals><goal>check</goal></goals>
+            </execution>
+        </executions>
+    </plugin>
 ```
 
 A build-time formatter, not a runtime dependency. The generator adds it to new Maven projects and binds `check` to `validate`, so `./mvnw verify` checks formatting. Run `./mvnw spotless:apply` (or `mise run format`) to format files locally. Any consistent formatter does the job; the value is in having one, not in which. See the official [Spotless Maven guide](https://github.com/diffplug/spotless/blob/main/plugin-maven/README.md).
@@ -253,22 +253,22 @@ A build-time formatter, not a runtime dependency. The generator adds it to new M
 ### Build provenance
 
 ```xml
-<plugin>
-    <groupId>io.github.git-commit-id</groupId>
-    <artifactId>git-commit-id-maven-plugin</artifactId>
-    <configuration>
-        <failOnNoGitDirectory>false</failOnNoGitDirectory>
-        <generateGitPropertiesFile>true</generateGitPropertiesFile>
-        <includeOnlyProperties>
-            <includeOnlyProperty>^git.branch$</includeOnlyProperty>
-            <includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
-            <includeOnlyProperty>^git.commit.time$</includeOnlyProperty>
-        </includeOnlyProperties>
-    </configuration>
-    <executions>
-        <execution><goals><goal>revision</goal></goals></execution>
-    </executions>
-</plugin>
+    <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <configuration>
+            <failOnNoGitDirectory>false</failOnNoGitDirectory>
+            <generateGitPropertiesFile>true</generateGitPropertiesFile>
+            <includeOnlyProperties>
+                <includeOnlyProperty>^git.branch$</includeOnlyProperty>
+                <includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
+                <includeOnlyProperty>^git.commit.time$</includeOnlyProperty>
+            </includeOnlyProperties>
+        </configuration>
+        <executions>
+            <execution><goals><goal>revision</goal></goals></execution>
+        </executions>
+    </plugin>
 ```
 
 Surfaces the exact commit at `/actuator/info`. `failOnNoGitDirectory=false` keeps builds working from a source archive. Restrict the properties - the full set includes the committer's name and email, which you probably do not want on an endpoint.
@@ -313,49 +313,49 @@ Release versions must not end in `-SNAPSHOT`. Keep a `-SNAPSHOT` version during 
 Pin the plugin versions in properties, enable the Central Publishing Maven extension, and match `publishingServerId` to a server entry in the user's Maven `settings.xml`. Put both Central publishing and GPG signing in the same profile so a regular build or snapshot deployment does not activate a release. The referenced POM pins Central Publishing `0.10.0`; the example uses `0.12.0`, which Sonatype currently documents. Check the official release notes when selecting a version rather than carrying an old pin forward automatically:
 
 ```xml
-<properties>
-    <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
-    <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
-</properties>
+    <properties>
+        <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
+        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+    </properties>
 
-<profiles>
-    <profile>
-        <id>release</id>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.sonatype.central</groupId>
-                    <artifactId>central-publishing-maven-plugin</artifactId>
-                    <version>${central-publishing-maven-plugin.version}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <publishingServerId>central</publishingServerId>
-                        <!-- Keep false for a manual Portal approval step. -->
-                        <autoPublish>true</autoPublish>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>${maven-gpg-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>sign-artifacts</id>
-                            <phase>verify</phase>
-                            <goals><goal>sign</goal></goals>
-                            <configuration>
-                                <gpgArguments>
-                                    <arg>--pinentry-mode</arg>
-                                    <arg>loopback</arg>
-                                </gpgArguments>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
-</profiles>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <!-- Keep false for a manual Portal approval step. -->
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals><goal>sign</goal></goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 ```
 
 Store the Central Portal user token in `~/.m2/settings.xml`, not in the POM or repository:
@@ -387,12 +387,12 @@ Provision the signing key and passphrase through the developer/CI GPG environmen
 Snapshot deployment is separate from a release. For Central Portal snapshots, the namespace must first have snapshots enabled. Keep the snapshot repository in `distributionManagement` outside the `release` profile so a normal deploy can publish snapshots without activating release signing or Portal auto-publish:
 
 ```xml
-<distributionManagement>
-    <snapshotRepository>
-        <id>central</id>
-        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-    </snapshotRepository>
-</distributionManagement>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>central</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 ```
 
 The referenced POM uses this snapshot repository URL. A release uses a non-snapshot version and `./mvnw -Prelease clean deploy`. Review the effective POM, version, signing setup, target modules, and Portal behavior before running it. The Central Publishing plugin currently lists Maven 4 as unsupported; check its release notes before changing the wrapper's major version for publishing.

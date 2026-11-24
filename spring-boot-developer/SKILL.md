@@ -25,6 +25,7 @@ Use this skill for Spring Boot project creation and implementation. It includes 
 14. **Use Lambda Wrappers for entity fields.** Build entity filters and updates with `LambdaQueryWrapper<T>` and `LambdaUpdateWrapper<T>` method references. Use string-based `QueryWrapper` only for map projections or when no mapped entity property is available.
 15. **Close the feature boundary before delivery.** A feature may access its own Mapper and persistence model only. Cross-feature calls go through the owning feature's public service/facade and exchange commands, results, or read DTOs, never another feature's Mapper or entity. Enforce the dependency direction with package visibility, Modulith, or ArchUnit; see [code organization](references/architecture/code-organization.md).
 16. **Keep rate limiting cross-cutting.** Prefer a servlet filter, MVC interceptor, or service AOP boundary chosen for the policy's timing and available identity; keep counters and storage in a dedicated limiter component. Do not put limiter branches in controllers or business methods except when a quota must be atomically reserved with a business transaction. See [rate limiting](references/integration/rate-limiting.md).
+17. **Keep architecture rules executable and scoped.** Generated projects include a conservative Taikai test baseline. Extend it only with rules that match the project's package layout and framework choices; use Modulith for module boundaries and keep business-specific decisions in the project, not in a generic baseline.
 
 ## Version and Environment Discovery
 
@@ -56,7 +57,8 @@ The generator downloads a Boot 4.x project from Spring Initializr and applies th
 
 - **Options**: `--persistence jpa|mybatis-plus|none` (default `jpa`), `--database postgresql|none` (default `postgresql`), and `--license apache2|mit|none` (default `apache2`). `apache2` is the generator option name for Apache License 2.0. Use `--copyright-holder` when the copyright owner is known; otherwise the generated LICENSE contains a visible placeholder that must be replaced before distribution. `--database none` implies `--persistence none`. `--docker` requires Maven and PostgreSQL.
 - **Runtime checks**: project generation needs the Docker CLI only when adding Docker-specific assets. Before running PostgreSQL Compose, Testcontainers, or a Docker build, check that the daemon is active with `node scripts/check-environment.mjs --docker-daemon`; `--docker` checks only for the CLI.
-- **Always generated**: A root `LICENSE` with the selected license unless `--license none` is specified; a root `renovate.json` that leaves Renovate's manifest autodetection enabled, uses the generator host's IANA timezone, adds no broad dependency grouping, leaves major and 0.x updates for human review, and enables PR-based automerge for stable non-major patch/minor/pin updates after checks pass; Spotless formatting (applied once, so the first `verify` passes); a `mise.toml` with wrapper-backed `format`, `test`, and `verify` tasks and the selected Java major; and `server.port=${SERVER_PORT:8080}` so the port variable in `.env.sample` and Compose takes effect.
+- **Always generated**: A root `LICENSE` with the selected license unless `--license none` is specified; a root `renovate.json` that leaves Renovate's manifest autodetection enabled, uses the generator host's IANA timezone, adds no broad dependency grouping, leaves major and 0.x updates for human review, and enables PR-based automerge for stable non-major patch/minor/pin updates after checks pass; Spotless formatting (applied once, so the first `verify` passes); a `mise.toml` with wrapper-backed `format`, `test`, and `verify` tasks and the selected Java major; and configuration that only references environment variables and profiles generated for the selected capabilities.
+- **Generated project contract**: Run `node scripts/doctor-project.mjs --strict /path/to/project` after generation or configuration changes. It checks build descriptors, wrappers, environment-variable references, profiles, conditional JPA settings, module paths, actuator exposure, and database image drift without reading `.env`.
 - **When Docker image/build files are generated**: ensure the project has a root `.dockerignore` merged with the skill template, excluding build output, dependency directories, `.git`, and local secrets such as `.env`.
 - **With PostgreSQL**: a local `compose.yaml` and a Testcontainers configuration pinned to the same PostgreSQL image; Maven projects also run `*IT` tests through Failsafe.
 - **Not generated**: front-end, VS Code, and Dev Container files, unless their workflow is requested. The generator does not overwrite an existing target, install global tools, or initialize Git.
@@ -69,7 +71,7 @@ For changes to generated project defaults or repository files, read [project set
 2. Identify the behavior and constraints to preserve. For CRUD or REST work, establish fields, validation, pagination and ordering, status codes, error behavior, persistence changes, and client states. Do not turn unrelated observations into extra work.
 3. Read only the applicable topic guides and implement the smallest coherent change in the existing conventions. Add optional infrastructure only when the requirement calls for it.
 4. Add or update tests at the narrowest layer that proves the behavior. Use the real database or the project's established integration setup for database-specific behavior.
-5. Run relevant checks and review the final diff for unintended changes. For project generation or a change spanning multiple application layers, run the [best-practices checklist](references/checklist.md) against the generated or changed code before calling it complete. Report any exception with its evidence and reason; do not describe an unchecked convention as compliant.
+5. Run relevant checks and review the final diff for unintended changes. For project generation, run `node scripts/doctor-project.mjs --strict` before the build. For a change spanning multiple application layers, run the [best-practices checklist](references/checklist.md) against the generated or changed code before calling it complete. Report any exception with its evidence and reason; do not describe an unchecked convention as compliant.
 6. After all approved implementation slices meet their acceptance criteria, do one bounded cleanup pass against the same checklist. Fix verified deviations and simplify duplicated or needlessly indirect code without changing behavior; avoid speculative abstractions or unrelated rewrites. Re-run the affected checks after cleanup and report any remaining deviation.
 
 If a requirement is ambiguous and affects the API, data model, security, or deployment behavior, state the assumption or ask for the missing decision before locking in the implementation.
@@ -116,6 +118,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 
 - **Version selection, changes in a Boot 3.5.x project, or Boot 3.5.x to 4.x migration**: [Spring Boot version compatibility and migration](references/spring-boot-migration.md)
 - **Project generation, defaults, or repository setup assets**: [Project setup](references/tooling/project-setup.md)
+- **Generated-project contract or existing-project configuration diagnosis**: run `scripts/doctor-project.mjs`; use `--strict` for generated-project acceptance
 - **Maven build configuration**: [Maven](references/tooling/maven.md)
 - **Gradle build configuration**: [Gradle](references/tooling/gradle.md)
 - **Local development, PostgreSQL/Redis Compose, or DevTools**: [Local development](references/tooling/local-development.md) and [Docker](references/deployment/docker.md)
@@ -132,7 +135,7 @@ Load the guide that matches the task. The focused guides contain implementation 
 - **Ports and adapters**: [Hexagonal architecture](references/architecture/hexagonal-architecture.md)
 - **Spring Modulith boundaries and events**: [Spring Modulith](references/architecture/spring-modulith.md)
 - **Dependency injection, proxies, and self-invocation**: [Spring proxies and dependency injection](references/architecture/spring-proxies-and-di.md)
-- **Architecture tests**: [ArchUnit](references/architecture/archunit.md)
+- **Architecture tests**: [ArchUnit and Taikai](references/architecture/archunit.md)
 
 ### Web and API
 

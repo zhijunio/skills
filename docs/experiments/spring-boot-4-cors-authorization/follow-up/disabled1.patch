@@ -1,0 +1,197 @@
+diff -ruN -x target -x *.log -x *.tar.gz base/src/main/java/com/example/portal/PortalSecurity.java disabled1/src/main/java/com/example/portal/PortalSecurity.java
+--- base/src/main/java/com/example/portal/PortalSecurity.java	2026-11-24 09:46:28
++++ disabled1/src/main/java/com/example/portal/PortalSecurity.java	2026-11-24 09:54:59
+@@ -1,5 +1,7 @@
+ package com.example.portal;
+ 
++import java.util.List;
++
+ import org.springframework.context.annotation.Bean;
+ import org.springframework.context.annotation.Configuration;
+ import org.springframework.http.HttpStatus;
+@@ -12,13 +14,25 @@
+ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+ import org.springframework.security.web.SecurityFilterChain;
+ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
++import org.springframework.web.cors.CorsConfiguration;
++import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+ 
+ @Configuration(proxyBeanMethods = false)
+ @EnableWebSecurity
+ class PortalSecurity {
+ 	@Bean
+ 	SecurityFilterChain security(HttpSecurity http) {
+-		return http.authorizeHttpRequests(requests -> requests
++		var renameCors = new CorsConfiguration();
++		renameCors.setAllowedOrigins(List.of("https://editor.example.test"));
++		renameCors.setAllowedMethods(List.of("PATCH"));
++		renameCors.setAllowedHeaders(List.of("Content-Type", "X-CSRF-TOKEN"));
++		renameCors.setAllowCredentials(true);
++
++		var corsSource = new UrlBasedCorsConfigurationSource();
++		corsSource.registerCorsConfiguration("/api/documents/{id}", renameCors);
++
++		return http.cors(cors -> cors.configurationSource(corsSource))
++				.authorizeHttpRequests(requests -> requests
+ 						.requestMatchers("/api/csrf", "/login").permitAll()
+ 						.requestMatchers("/api/documents/**", "/api/preferences").hasRole("EDITOR")
+ 						.anyRequest().denyAll())
+diff -ruN -x target -x *.log -x *.tar.gz base/src/test/java/com/example/portal/DocumentCorsTests.java disabled1/src/test/java/com/example/portal/DocumentCorsTests.java
+--- base/src/test/java/com/example/portal/DocumentCorsTests.java	1970-01-01 08:00:00
++++ disabled1/src/test/java/com/example/portal/DocumentCorsTests.java	2026-11-24 09:54:59
+@@ -0,0 +1,155 @@
++package com.example.portal;
++
++import java.io.IOException;
++import java.net.CookieManager;
++import java.net.URI;
++import java.net.URLEncoder;
++import java.net.http.HttpClient;
++import java.net.http.HttpRequest;
++import java.net.http.HttpResponse;
++import java.nio.charset.StandardCharsets;
++import java.util.Locale;
++
++import com.jayway.jsonpath.JsonPath;
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.boot.test.context.SpringBootTest;
++
++import static org.assertj.core.api.Assertions.assertThat;
++
++@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
++class DocumentCorsTests {
++	private static final String EDITOR = "https://editor.example.test";
++	private static final String OTHER = "https://other.example.test";
++	private static final String ALICE_DOCUMENT = "/api/documents/1";
++	private static final String ALLOW_ORIGIN = "Access-Control-Allow-Origin";
++	private static final String ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
++
++	@Value("${local.server.port}")
++	private int port;
++
++	@Test
++	void allowsAnonymousPreflightForCredentialedRename() throws Exception {
++		var response = preflight(ALICE_DOCUMENT, EDITOR, "PATCH", "content-type, x-csrf-token");
++
++		assertThat(response.statusCode()).isEqualTo(200);
++		assertThat(response.headers().firstValue(ALLOW_ORIGIN)).contains(EDITOR);
++		assertThat(response.headers().firstValue(ALLOW_CREDENTIALS)).contains("true");
++		assertThat(response.headers().firstValue("Access-Control-Allow-Methods")).contains("PATCH");
++		assertThat(response.headers().firstValue("Access-Control-Allow-Headers").orElseThrow()
++				.toLowerCase(Locale.ROOT).split("\\s*,\\s*"))
++				.containsExactlyInAnyOrder("content-type", "x-csrf-token");
++	}
++
++	@Test
++	void rejectsPreflightOutsideRenamePolicy() throws Exception {
++		assertNoCors(preflight(ALICE_DOCUMENT, OTHER, "PATCH", "content-type, x-csrf-token"), 403);
++		assertNoCors(preflight(ALICE_DOCUMENT, EDITOR, "GET", "content-type"), 403);
++		assertNoCors(preflight(ALICE_DOCUMENT, EDITOR, "POST", "content-type"), 403);
++		assertNoCors(preflight(ALICE_DOCUMENT, EDITOR, "PATCH", "x-extra-header"), 403);
++		assertNoCors(preflight("/api/preferences", EDITOR, "PATCH", "content-type, x-csrf-token"), 403);
++		assertNoCors(preflight(ALICE_DOCUMENT + "/extra", EDITOR, "PATCH", "content-type"), 403);
++	}
++
++	@Test
++	void allowsAuthenticatedOwnerToRenameFromEditor() throws Exception {
++		try (var client = login()) {
++			var response = rename(client, ALICE_DOCUMENT, EDITOR, csrfToken(client), "Edited from browser");
++
++			assertThat(response.statusCode()).isEqualTo(200);
++			assertThat(response.headers().firstValue(ALLOW_ORIGIN)).contains(EDITOR);
++			assertThat(response.headers().firstValue(ALLOW_CREDENTIALS)).contains("true");
++			assertThat(response.body()).isEqualTo("{\"title\":\"Edited from browser\"}");
++			assertThat(send(client, request(ALICE_DOCUMENT)).body()).isEqualTo(response.body());
++		}
++	}
++
++	@Test
++	void preservesSessionCsrfAndOwnershipChecksForEditor() throws Exception {
++		try (var anonymous = newClient(); var alice = login()) {
++			assertThat(rename(anonymous, ALICE_DOCUMENT, EDITOR, csrfToken(anonymous), "Anonymous")
++					.statusCode()).isEqualTo(401);
++			assertThat(rename(alice, ALICE_DOCUMENT, EDITOR, null, "Missing token").statusCode()).isEqualTo(403);
++			assertThat(rename(alice, ALICE_DOCUMENT, EDITOR, "invalid", "Invalid token").statusCode()).isEqualTo(403);
++			assertThat(rename(alice, "/api/documents/2", EDITOR, csrfToken(alice), "Wrong owner")
++					.statusCode()).isEqualTo(404);
++			assertThat(rename(alice, "/api/documents/99", EDITOR, csrfToken(alice), "Missing document")
++					.statusCode()).isEqualTo(404);
++		}
++	}
++
++	@Test
++	void retainsSameOriginBehaviorAndLimitsCorsOnActualRequests() throws Exception {
++		try (var alice = login()) {
++			var token = csrfToken(alice);
++			assertNoCors(rename(alice, ALICE_DOCUMENT, OTHER, token, "Other origin"), 403);
++			assertNoCors(send(alice, request(ALICE_DOCUMENT).header("Origin", EDITOR)), 403);
++
++			var preference = send(alice, request("/api/preferences").header("Origin", EDITOR));
++			assertNoCors(preference, 200);
++
++			var sameOrigin = rename(alice, ALICE_DOCUMENT, "http://localhost:" + port, token, "Same origin");
++			assertNoCors(sameOrigin, 200);
++			assertThat(sameOrigin.body()).isEqualTo("{\"title\":\"Same origin\"}");
++		}
++	}
++
++	private HttpResponse<String> preflight(String path, String origin, String method, String headers)
++			throws IOException, InterruptedException {
++		try (var client = newClient()) {
++			return send(client, request(path)
++					.method("OPTIONS", HttpRequest.BodyPublishers.noBody())
++					.header("Origin", origin)
++					.header("Access-Control-Request-Method", method)
++					.header("Access-Control-Request-Headers", headers));
++		}
++	}
++
++	private HttpResponse<String> rename(HttpClient client, String path, String origin, String token, String title)
++			throws IOException, InterruptedException {
++		var request = request(path)
++				.method("PATCH", HttpRequest.BodyPublishers.ofString("{\"title\":\"" + title + "\"}"))
++				.header("Origin", origin)
++				.header("Content-Type", "application/json");
++		if (token != null) {
++			request.header("X-CSRF-TOKEN", token);
++		}
++		return send(client, request);
++	}
++
++	private HttpClient login() throws IOException, InterruptedException {
++		var client = newClient();
++		var token = URLEncoder.encode(csrfToken(client), StandardCharsets.UTF_8);
++		var login = send(client, request("/login")
++				.header("Content-Type", "application/x-www-form-urlencoded")
++				.POST(HttpRequest.BodyPublishers.ofString("username=alice&password=demo-password&_csrf=" + token)));
++		assertThat(login.statusCode()).isEqualTo(302);
++		assertThat(login.headers().firstValue("Location").orElseThrow()).endsWith("/");
++		return client;
++	}
++
++	private String csrfToken(HttpClient client) throws IOException, InterruptedException {
++		var response = send(client, request("/api/csrf"));
++		assertThat(response.statusCode()).isEqualTo(200);
++		return JsonPath.read(response.body(), "$.token");
++	}
++
++	private HttpClient newClient() {
++		return HttpClient.newBuilder().cookieHandler(new CookieManager()).build();
++	}
++
++	private HttpRequest.Builder request(String path) {
++		return HttpRequest.newBuilder(URI.create("http://localhost:" + port + path));
++	}
++
++	private HttpResponse<String> send(HttpClient client, HttpRequest.Builder request)
++			throws IOException, InterruptedException {
++		return client.send(request.build(), HttpResponse.BodyHandlers.ofString());
++	}
++
++	private void assertNoCors(HttpResponse<String> response, int status) {
++		assertThat(response.statusCode()).isEqualTo(status);
++		assertThat(response.headers().firstValue(ALLOW_ORIGIN)).isEmpty();
++		assertThat(response.headers().firstValue(ALLOW_CREDENTIALS)).isEmpty();
++	}
++}

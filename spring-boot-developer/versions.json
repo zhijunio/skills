@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "checkedOn": "2026-10-13",
+  "checkedOn": "2026-10-26",
   "springBoot": {
-    "default": "4.1.1",
+    "default": "4.1.2",
     "supportedLines": ["4.1.x", "3.5.x"]
   },
   "java": {
@@ -30,6 +30,10 @@
     "mavenPlugin": "3.10.4",
     "gradlePlugin": "8.10.4",
     "palantirJavaFormat": "2.102.0"
+  },
+  "taikai": {
+    "default": "2.8.0",
+    "source": "https://github.com/enofex/taikai/releases/tag/v2.8.0"
   },
   "mybatisPlus": {
     "default": "3.5.17",

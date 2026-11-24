@@ -70,6 +70,9 @@ const inlineVersions = new Map([
   ['tooling/project-setup.md', [
     [/(`\.nvmrc` \/ `\.node-version`\*\*: set `)[^`]+/, versions.node.default],
   ]],
+  ['architecture/archunit.md', [
+    [/(\*\*Taikai version:\*\* `)[^`]+/, versions.taikai.default],
+  ]],
 ])
 
 function render(rows) {

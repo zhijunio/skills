@@ -63,6 +63,24 @@ function run(command, commandArgs, cwd, env) {
   return { ok: result.status === 0, output: `${result.stdout ?? ''}${result.stderr ?? ''}` }
 }
 
+function dockerTestEnvironment() {
+  const result = spawnSync('docker', ['context', 'inspect', '--format', '{{json .Endpoints.docker.Host}}'], { encoding: 'utf8' })
+  if (result.status !== 0) return {}
+  let contextHost
+  try {
+    contextHost = JSON.parse(result.stdout.trim())
+  } catch {
+    return {}
+  }
+  if (!contextHost) return {}
+  const environment = {}
+  if (!process.env.DOCKER_HOST) environment.DOCKER_HOST = contextHost
+  if (!process.env.TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE && contextHost.startsWith('unix://')) {
+    environment.TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE = '/var/run/docker.sock'
+  }
+  return environment
+}
+
 async function waitForHealth(url, timeoutMs = 120_000) {
   const deadline = Date.now() + timeoutMs
   let status = 'no response'
@@ -91,6 +109,7 @@ async function readFileList(directory) {
 }
 
 const workDir = await mkdtemp(join(tmpdir(), 'spring-boot-developer-smoke-'))
+const containerEnvironment = dockerTestEnvironment()
 let failures = 0
 
 function report(ok, name, detail) {
@@ -113,8 +132,22 @@ try {
       report(false, `${name}: generate`, generated.output)
       continue
     }
+    const projectDir = join(workDir, name)
+    const doctor = run(process.execPath, [join(root, 'scripts', 'doctor-project.mjs'), '--strict', projectDir], root)
+    report(doctor.ok, `${name}: project contract`, doctor.output)
+    const buildFilePath = name.startsWith('gradle') ? join(projectDir, 'build.gradle.kts') : join(projectDir, 'pom.xml')
+    const buildFile = await readFile(buildFilePath, 'utf8')
+    const testFiles = await readFileList(join(projectDir, 'src', 'test', 'java'))
+    const testSources = await Promise.all(testFiles.filter((file) => file.endsWith('.java')).map((file) => readFile(file, 'utf8')))
+    const taikaiDependency = name.startsWith('gradle')
+      ? buildFile.includes(`com.enofex:taikai:${versions.taikai.default}`)
+      : buildFile.includes('<groupId>com.enofex</groupId>')
+        && buildFile.includes('<artifactId>taikai</artifactId>')
+        && buildFile.includes(`<version>${versions.taikai.default}</version>`)
+    const taikaiTest = testFiles.some((file) => file.endsWith('TaikaiArchitectureTest.java'))
+      && testSources.some((source) => source.includes('Taikai.builder()'))
+    report(taikaiDependency && taikaiTest, `${name}: Taikai architecture harness`, `dependency: ${taikaiDependency}\ntest: ${taikaiTest}`)
     if (name !== 'maven-nodb') {
-      const projectDir = join(workDir, name)
       const compose = await readFile(join(projectDir, 'compose.yaml'), 'utf8')
       const testcontainers = (await readFileList(join(projectDir, 'src', 'test', 'java')))
         .filter((file) => file.endsWith('TestcontainersConfiguration.java'))
@@ -127,17 +160,17 @@ try {
     }
     let ok = true
     for (const [command, ...commandArgs] of commands) {
-      const result = run(command, commandArgs, join(workDir, name), env)
+      const result = run(command, commandArgs, join(workDir, name), { ...containerEnvironment, ...env })
       report(result.ok, `${name}: ${[command, ...commandArgs].join(' ')}`, result.output)
       ok = result.ok
       if (!ok) break
     }
     if (ok && health) {
       const status = await waitForHealth(health)
-      const logs = status === 200 ? '' : run('docker', ['compose', '-f', 'compose.full.yaml', 'logs', '--tail', '40'], join(workDir, name), env).output
+      const logs = status === 200 ? '' : run('docker', ['compose', '-f', 'compose.full.yaml', 'logs', '--tail', '40'], join(workDir, name), { ...containerEnvironment, ...env }).output
       report(status === 200, `${name}: GET ${health}`, `last status: ${status}\n${logs}`)
     }
-    for (const [command, ...commandArgs] of cleanup) run(command, commandArgs, join(workDir, name), env)
+    for (const [command, ...commandArgs] of cleanup) run(command, commandArgs, join(workDir, name), { ...containerEnvironment, ...env })
   }
 } finally {
   if (args.includes('--keep')) console.log(`Projects kept in ${workDir}`)

@@ -366,7 +366,7 @@ The general shape of the change: the extension's XML-heavy provider configuratio
 
 | Concern | Detail |
 | ------- | ------ |
-| Boot mapping | Boot 4.1.1 manages Spring Security 7.1.1; Boot 4.1.0 manages 7.1.0; Boot 3.5.16 manages 6.5.11. The implementation details below were checked against 7.1.0; on another point release, re-check version-sensitive APIs and defaults |
+| Boot mapping | Boot 4.1.2 manages Spring Security 7.1.1; Boot 4.1.0 manages 7.1.0; Boot 3.5.16 manages 6.5.11. The implementation details below were checked against 7.1.0; on another point release, re-check version-sensitive APIs and defaults |
 | Provider class | **`OpenSaml5AuthenticationProvider`**. Earlier versions named `OpenSaml4AuthenticationProvider` or `OpenSamlAuthenticationProvider`, so any example using those predates 7.x |
 | Metadata repository | `OpenSaml5AssertingPartyMetadataRepository`. **No signature validation unless verification credentials are supplied** |
 | Logout SLO path | `/logout/saml2/slo`, with **no** `{registrationId}` by default, from the logout page and from `Saml2LogoutConfigurer` at the 7.1.0 tag. The `{registrationId}` form is a documented customisation you opt into |

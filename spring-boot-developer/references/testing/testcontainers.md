@@ -143,6 +143,10 @@ Do not rely on tests running in a particular order.
 
 Without Docker, a Testcontainers test hard-fails by default. How you handle that depends on how the container is declared. On Boot 4, import `@DataJpaTest` from `org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest`. Boot 3.5.x uses `org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest`; do not carry the old package into a Boot 4 project.
 
+### Docker contexts
+
+The Docker CLI may use a user-scoped Unix socket that Testcontainers cannot discover from its defaults. Check the active context with `docker context show`. The bundled generator smoke test passes the active context host to build processes and uses `/var/run/docker.sock` as the in-container socket override for Unix contexts. For a manual build, export the equivalent `DOCKER_HOST` and `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE` values in the shell that runs the wrapper; do not commit machine-specific socket paths to the project.
+
 ```java
 // @Testcontainers + static @Container - JUnit skips the class instead of failing
 @DataJpaTest
@@ -164,6 +168,18 @@ class OrderIntegrationTest extends BaseIntegrationTest { … }
 `@EnabledIf` takes a `Class#staticMethod` reference and cannot call the API inline. Simplest alternative: `assumeTrue(DockerClientFactory.instance().isDockerAvailable())` in `@BeforeAll`, or `@Tag("docker")` excluded in Docker-less runs.
 
 **Do not let this hide in CI.** Skipping is a convenience for local development. A Testcontainers test silently skipped in CI is false confidence - exactly the trap H2 creates. Ensure CI has Docker, or use Testcontainers Cloud.
+
+## Non-default Docker daemons
+
+When the test JVM runs on the host but Docker runs through a non-default Unix socket, configure the client socket and the socket path visible inside helper containers separately. For example, with Colima on macOS:
+
+```bash
+DOCKER_HOST=unix:///absolute/path/to/.colima/default/docker.sock \
+TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock \
+./mvnw -B verify
+```
+
+Use the equivalent Gradle command when appropriate. `TESTCONTAINERS_RYUK_DISABLED` is a local troubleshooting fallback, not a CI default; without Ryuk, failed runs can leave containers behind and require manual cleanup. Do not set `TESTCONTAINERS_HOST_OVERRIDE` for tests whose JVM runs on the host - that setting is for a test process running inside a container and can make the generated JDBC URL unreachable from the host.
 
 ## Startup cost
 

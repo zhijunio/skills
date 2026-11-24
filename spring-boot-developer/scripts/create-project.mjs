@@ -90,7 +90,7 @@ function assertOptions(options) {
   options.java ??= versions.java.default
   options.bootversion ??= versions.springBoot.default
   if (!/^\d+$/.test(options.java)) throw new Error('--java must be a Java major version, such as 21')
-  if (!/^\d+\.\d+\.\d+$/.test(options.bootversion)) throw new Error('--boot-version must be an exact stable version, such as 4.1.1')
+  if (!/^\d+\.\d+\.\d+$/.test(options.bootversion)) throw new Error('--boot-version must be an exact stable version, such as 4.1.2')
   const [bootMajor] = options.bootversion.split('.')
   if (Number(bootMajor) < 4) {
     throw new Error('Spring Initializr only generates Spring Boot 4.x projects; Boot 3.5.x is supported for existing projects only')
@@ -172,6 +172,31 @@ async function addMyBatisPlusDependency(projectDir, build) {
   await writeFile(buildPath, buildFile)
 }
 
+async function ensureTaikaiDependency(projectDir, build) {
+  if (build === 'maven') {
+    const pomPath = join(projectDir, 'pom.xml')
+    let pom = await readFile(pomPath, 'utf8')
+    if (pom.includes('<artifactId>taikai</artifactId>')) return
+    const dependency = `\n\t\t<dependency>\n\t\t\t<groupId>com.enofex</groupId>\n\t\t\t<artifactId>taikai</artifactId>\n\t\t\t<version>${versions.taikai.default}</version>\n\t\t\t<scope>test</scope>\n\t\t</dependency>`
+    const closing = pom.lastIndexOf('</dependencies>')
+    if (closing === -1) throw new Error('Cannot configure Taikai: generated pom.xml has no <dependencies> block')
+    pom = `${pom.slice(0, closing)}${dependency}\n\t${pom.slice(closing)}`
+    await writeFile(pomPath, pom)
+    return
+  }
+
+  const buildPath = ['build.gradle.kts', 'build.gradle'].map((file) => join(projectDir, file)).find((path) => existsSync(path))
+  if (!buildPath) throw new Error('Cannot configure Taikai: generated Gradle build file was not found')
+  let buildFile = await readFile(buildPath, 'utf8')
+  if (buildFile.includes('com.enofex:taikai')) return
+  const declaration = buildPath.endsWith('.kts')
+    ? `    testImplementation("com.enofex:taikai:${versions.taikai.default}")\n`
+    : `    testImplementation 'com.enofex:taikai:${versions.taikai.default}'\n`
+  if (!/dependencies\s*\{/.test(buildFile)) throw new Error('Cannot configure Taikai: generated Gradle file has no dependencies block')
+  buildFile = buildFile.replace(/(dependencies\s*\{\s*\r?\n)/, `$1${declaration}`)
+  await writeFile(buildPath, buildFile)
+}
+
 async function addDatabaseAssets(projectDir) {
   const composePath = join(projectDir, 'compose.yaml')
   if (!existsSync(composePath)) {
@@ -190,7 +215,47 @@ async function normalizeDatabaseCompose(projectDir) {
   await writeFile(composePath, compose)
 }
 
-async function addProjectSetupAssets(projectDir, packageName) {
+function renderEnvironmentSample(template, database) {
+  const sections = [template.trimEnd()]
+  if (database === 'postgresql') {
+    sections.push(`
+# PostgreSQL (used by local Compose and the generated Spring configuration)
+POSTGRES_PORT=5432
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:\${POSTGRES_PORT}/mydb
+SPRING_DATASOURCE_USERNAME=user
+SPRING_DATASOURCE_PASSWORD=password`)
+  }
+  return `${sections.join('\n')}\n`
+}
+
+function injectSpringSettings(yaml, settings) {
+  const lines = yaml.trimEnd().split(/\r?\n/)
+  const springIndex = lines.findIndex((line) => line === 'spring:')
+  if (springIndex === -1) return `${['spring:', ...settings, ...lines].join('\n')}\n`
+  lines.splice(springIndex + 1, 0, ...settings)
+  return `${lines.join('\n')}\n`
+}
+
+function ensureApplicationConfiguration(yaml, persistence, database) {
+  const settings = []
+  if (!yaml.includes('optional:file:.env[.properties]')) {
+    settings.push('  config:', '    import: optional:file:.env[.properties]')
+  }
+  if (database === 'postgresql' && !yaml.includes('SPRING_DATASOURCE_URL')) {
+    settings.push(
+      '  datasource:',
+      '    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/mydb}',
+      '    username: ${SPRING_DATASOURCE_USERNAME:user}',
+      '    password: ${SPRING_DATASOURCE_PASSWORD:password}',
+    )
+  }
+  if (persistence === 'jpa' && !yaml.includes('open-in-view:')) {
+    settings.push('  jpa:', '    open-in-view: false', '    hibernate:', '      ddl-auto: validate')
+  }
+  return settings.length === 0 ? yaml : injectSpringSettings(yaml, settings)
+}
+
+async function addProjectSetupAssets(projectDir, packageName, persistence, database) {
   const assets = join(root, 'assets')
   const gitignorePath = join(projectDir, '.gitignore')
   const existingGitignore = existsSync(gitignorePath) ? await readFile(gitignorePath, 'utf8') : ''
@@ -198,9 +263,15 @@ async function addProjectSetupAssets(projectDir, packageName) {
   const mergedGitignore = [...new Set([...existingGitignore.split(/\r?\n/).filter(Boolean), '# === spring-boot-developer additions ===', ...generatedGitignore.split(/\r?\n/).filter(Boolean)])]
   await writeFile(gitignorePath, `${mergedGitignore.join('\n')}\n`)
 
-  for (const [sourceName, targetName] of [['editorconfig', '.editorconfig'], ['gitattributes', '.gitattributes'], ['env.sample', '.env.sample']]) {
+  for (const [sourceName, targetName] of [['editorconfig', '.editorconfig'], ['gitattributes', '.gitattributes']]) {
     const target = join(projectDir, targetName)
     if (!existsSync(target)) await writeFile(target, await readFile(join(assets, sourceName)))
+  }
+
+  const envSamplePath = join(projectDir, '.env.sample')
+  if (!existsSync(envSamplePath)) {
+    const envTemplate = await readFile(join(assets, 'env.sample'), 'utf8')
+    await writeFile(envSamplePath, renderEnvironmentSample(envTemplate, database))
   }
 
   await ensureDockerignore(projectDir)
@@ -209,6 +280,7 @@ async function addProjectSetupAssets(projectDir, packageName) {
   const yamlPath = join(resourcesDirectory, 'application.yaml')
   if (!existsSync(yamlPath)) throw new Error('Spring Initializr did not generate application.yaml; check configurationFileFormat support')
   let yaml = await readFile(yamlPath, 'utf8')
+  yaml = ensureApplicationConfiguration(yaml, persistence, database)
   if (!/^\s+port\s*:/m.test(yaml.match(/^server:[ \t]*\n((?:[ \t].*\n?)*)/m)?.[1] ?? '')) {
     if (/^server:[ \t]*$/m.test(yaml)) yaml = yaml.replace(/^server:[ \t]*$/m, 'server:\n  port: ${SERVER_PORT:8080}')
     else yaml = `${yaml.trimEnd()}\nserver:\n  port: \${SERVER_PORT:8080}\n`
@@ -219,6 +291,15 @@ async function addProjectSetupAssets(projectDir, packageName) {
   await mkdir(configDirectory, { recursive: true })
   const listener = (await readFile(join(assets, 'StartupInfoListener.java.tmpl'), 'utf8')).replaceAll('__PACKAGE__', packageName)
   await writeFile(join(configDirectory, 'StartupInfoListener.java'), listener)
+}
+
+async function addTaikaiArchitectureTest(projectDir, packageName) {
+  const testsDirectory = join(projectDir, 'src', 'test', 'java', ...packageName.split('.'))
+  await mkdir(testsDirectory, { recursive: true })
+  const target = join(testsDirectory, 'TaikaiArchitectureTest.java')
+  if (existsSync(target)) return
+  const template = await readFile(join(root, 'assets', 'TaikaiArchitectureTest.java.tmpl'), 'utf8')
+  await writeFile(target, template.replaceAll('__PACKAGE__', packageName))
 }
 
 async function addLicense(projectDir, license, copyrightHolder) {
@@ -458,7 +539,10 @@ async function main() {
       await addMyBatisPlusDependency(options.projectDir, options.build)
     }
 
-    await addProjectSetupAssets(options.projectDir, options.packagename)
+    await ensureTaikaiDependency(options.projectDir, options.build)
+
+    await addProjectSetupAssets(options.projectDir, options.packagename, options.persistence, options.database)
+    await addTaikaiArchitectureTest(options.projectDir, options.packagename)
     await addLicense(options.projectDir, options.license, options.copyrightholder)
     await addDeveloperToolingAssets(options.projectDir, options.java, options.build, options.database, options.docker)
 
