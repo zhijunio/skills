@@ -37,7 +37,8 @@ new projects by default.
 6. For service-backed tests, either make Compose services available to the
    runner per [docker.md](docker.md), or ensure Docker is available for
    Testcontainers per [testing.md](testing.md). Keep service credentials
-   test-only.
+   test-only. CI must execute required container tests; do not configure them
+   to silently pass as skipped when Docker is unavailable.
 7. Keep workflow output and artifacts free of credentials and sensitive
    configuration. Do not print environment variables or upload unrestricted
    build directories.
@@ -121,7 +122,11 @@ make CI start.
 
 ## Verify
 
-Open every workflow under `.github/workflows/`. Confirm triggers match the
-request, permissions are minimal, Java matches the project, its committed
-build wrapper is used, required services are available, and no secrets are exposed.
-Report the workflow definition separately from any remote run result.
+Open the workflows changed or added under `.github/workflows/`. Confirm
+triggers match the request, permissions are minimal, Java matches the project,
+the committed build wrapper is used, required services are available, and no
+secrets are exposed. Report workflow configuration separately from any remote
+run result.
+
+The template workflow is
+[`assets/template-maven/.github/workflows/ci.yml`](../assets/template-maven/.github/workflows/ci.yml).

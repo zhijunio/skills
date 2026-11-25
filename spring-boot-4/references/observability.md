@@ -29,12 +29,19 @@ are in [configuration.md](configuration.md); async context propagation is in
    `health` by default. Expose additional endpoints only for a concrete
    operational need, and protect them with network controls or Spring
    Security. Never expose `env`, `configprops`, `beans`, `heapdump`, or
-   `threaddump` publicly.
+   `threaddump` publicly. If the application intentionally has no Spring
+   Security, configure and document the network boundary (for example, a
+   management interface bound to loopback or a private management network with
+   ingress restricted to scrapers/operators). Do not treat `access: read-only`
+   as access control. If the repository contains no deployment controls, keep
+   sensitive additional endpoints unexposed and report that external controls
+   remain unverified.
 3. Add only required endpoint dependencies and exporters. For Prometheus
    scraping, add `micrometer-registry-prometheus` with its version managed by
    the Boot parent, then expose only the `prometheus` endpoint on a protected
-   management interface. Do not add an exporter or tracing backend to every
-   project by default.
+   management interface. Do not expose it on the public application listener
+   without a verifiable network restriction or Spring Security rule. Do not
+   add an exporter or tracing backend to every project by default.
 4. Add custom metrics only when an operator can act on them. Use stable metric
    names and low-cardinality tags. Never use user IDs, request IDs, raw URLs,
    email addresses, or unbounded exception messages as metric tags. High
@@ -61,20 +68,47 @@ are in [configuration.md](configuration.md); async context propagation is in
 
 ## Examples
 
-Expose health and Prometheus only when the registry dependency and protected
-scrape path exist:
+Put safe shared endpoint defaults in
+`src/main/resources/application.yaml`. Keep health as the only exposed web
+endpoint unless the application has an operational need and a verified access
+boundary:
 
 ```yaml
 management:
   endpoints:
     web:
       exposure:
-        include: "health,prometheus"
+        include: "health"
   endpoint:
     health:
       probes:
         enabled: true
+      show-details: never
 ```
+
+When Prometheus scraping is required, add the registry dependency and put the
+additional exposure and management listener in the appropriate profile file,
+for example `src/main/resources/application-prod.yaml`:
+
+```yaml
+management:
+  server:
+    address: ${MANAGEMENT_ADDRESS:127.0.0.1}
+    port: ${MANAGEMENT_PORT:8081}
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+```
+
+The loopback default prevents the separate management listener from being
+reachable from other hosts. A deployment that needs a remote scraper must set
+`MANAGEMENT_ADDRESS` to a private interface and provide a reviewed network
+policy restricting ingress to approved scrapers/operators. Keep the profile
+activation and environment values in deployment configuration, not packaged
+defaults. If the repository has no deployment policy, do not claim remote
+endpoint protection is verified. Add `info` only for an explicit need and
+apply the same access-boundary rule.
 
 Create a custom observation around a meaningful application operation:
 
@@ -103,8 +137,18 @@ not tag by inventory item, customer, or request ID.
 
 ## Verify
 
-Open the active build configuration, management configuration, security rules, custom observations,
-and logging code. Confirm only intended endpoints are exposed, metrics tags
-are bounded, sensitive data is excluded, readiness matches service behavior,
-and custom observations do not duplicate built-in instrumentation. Report any
-exposure or backend behavior that depends on deployment configuration.
+Open `src/main/resources/application.yaml`, relevant
+`application-{profile}.yaml` files, security rules, observations, and deployment
+network policy affected by the change. Confirm the effective profile, only
+intended endpoints are exposed, and every non-health endpoint has an evidenced
+access boundary. Also confirm metrics tags are bounded, sensitive data is
+excluded, readiness matches service behavior, and custom observations do not
+duplicate built-in instrumentation. Do not mark endpoint protection verified
+based only on read-only access or a README assertion. Report deployment
+controls not present in the reviewed code.
+
+The template keeps default web exposure at health only and binds the
+production management listener to loopback while enabling info and Prometheus:
+[base configuration](../assets/template-maven/src/main/resources/application.yaml)
+and [production profile](../assets/template-maven/src/main/resources/application-prod.yaml).
+Its asynchronous executor propagates context as shown in [async.md](async.md).

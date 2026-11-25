@@ -62,21 +62,31 @@ List<OrderResponse> search(
 
 ## Pagination
 
-- Expose pagination as query parameters. Use one-based `page`, default `1`,
+- Expose pagination as query parameters. Use zero-based `page`, default `0`,
   and `size`, default `20`, with a maximum size of `100` unless the API has a
-  documented reason to differ.
-- Return a `PageResponse<T>` containing `items`, `page`, `size`, `total`, and
-  `totalPages`. Map persistence results to response DTOs; never return
-  MyBatis-Plus `Page<T>` or persistence entities from a controller.
+  documented reason to differ. This matches Spring Data's `Pageable` contract.
+- Return `org.springframework.data.domain.Page<T>` containing API response
+  DTOs. Do not create a parallel `PageResponse` type. If using MyBatis-Plus,
+  translate Spring Data's zero-based page index to MyBatis-Plus's one-based
+  current page (`page + 1`), map its `IPage` records to response DTOs, and
+  adapt the result to Spring Data's `PageImpl<T>` with the original zero-based
+  `PageRequest` and total count. Test first and subsequent pages to catch
+  off-by-one errors. Never return MyBatis-Plus page types or persistence
+  entities from a controller.
+  Add `spring-data-commons` directly if it is not on the classpath; use Boot's
+  dependency management for its version and do not add Spring Data JPA just
+  for pagination.
 - Validate page and size at the HTTP boundary. If sorting is supported, map
   public sort keys through an allowlist and append a stable tie-breaker.
 - Read [mybatis-plus.md](mybatis-plus.md) for the database pagination plugin
-  and bounded query implementation.
+  and bounded query implementation. Read [rest.md](rest.md) for the HTTP
+  response contract. Treat the serialized Spring Data `Page<T>` representation
+  as API surface and assert it in controller or integration tests.
 
 ```java
 @GetMapping
-PageResponse<OrderResponse> list(
-		@RequestParam(defaultValue = "1") @Min(1) int page,
+Page<OrderResponse> list(
+		@RequestParam(defaultValue = "0") @Min(0) int page,
 		@RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 	return orderService.list(page, size);
 }
@@ -161,7 +171,17 @@ Replace `orders` and `OrderService` with the feature. Path and type names
 follow [rest.md](rest.md). The `place` / `findById` bodies are not this
 file's job. Keep the handler empty until a domain exception needs a mapping.
 
+The template's [controller](../assets/template-maven/src/main/java/com/example/templatemaven/user/api/UserController.java),
+[service](../assets/template-maven/src/main/java/com/example/templatemaven/user/application/UserService.java),
+and [exception advice](../assets/template-maven/src/main/java/com/example/templatemaven/user/api/UserExceptionHandler.java)
+show validation, paginated reads, transactional writes, and consistent
+`ProblemDetail` responses. Request-validation messages and locale behavior are
+demonstrated in the template's
+[message bundles](../assets/template-maven/src/main/resources/messages.properties)
+and [integration tests](../assets/template-maven/src/test/java/com/example/templatemaven/user/UserIntegrationTests.java).
+
 ## Verify
 
-Every numbered Rule in this file must hold on disk. Open the controller,
-service, and exception advice; do not infer. Report each Rule that failed.
+For a new web feature, check every rule. For an existing feature, check rules
+relevant to the requested behavior. Open the controller, service, and
+exception advice as needed; do not infer. Report applicable failures.

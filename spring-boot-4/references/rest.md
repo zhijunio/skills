@@ -29,19 +29,40 @@ reference exists.
    and pagination in query parameters. Use a verb path only for a real state
    transition, such as `POST /api/orders/{id}/cancel`.
 2. Inbound is a `*Request` record with `@Valid`. Outbound is a `*Response`
-   record. Do not accept or return a Mapper entity. Do not put `@JsonFormat`
-   on Instant fields. JSON timestamp conventions are in the skill's Core
-   Rules.
+   record. Use a DTO class instead when generated OpenAPI needs a JavaDoc
+   description for a property; record-component JavaDoc is not exposed as an
+   OpenAPI property description. Do not accept or return a Mapper entity. Do
+   not put `@JsonFormat` on Instant fields. JSON timestamp conventions are in
+   the skill's Core Rules.
 3. Return the payload. Create is 201 with the `*Response` body and no
    `Location` header (`@ResponseStatus(HttpStatus.CREATED)`). Use
    `ResponseEntity` only for 202, 204, or a status chosen at runtime. Missing
    resource is 404. Validation bind failures are 400. Domain rule violations
    are 422. Conflict is 409.
-4. If the project already returns `{ success, data, error }` (or the same
+4. For paginated collection endpoints, return Spring Data Commons'
+   `org.springframework.data.domain.Page<T>` with response DTO items. Do not
+   introduce a project-specific `PageResponse` wrapper. With MyBatis-Plus,
+   map the database page records to response DTOs, then construct a Spring
+   Data `PageImpl<T>` using the matching `PageRequest` and total row count;
+   never return MyBatis-Plus `IPage`/`Page` or persistence entities from a
+   controller. Use zero-based `page` numbering to match Spring Data's
+   `Pageable` contract. Treat the serialized `Page` fields and nested page
+   metadata as part of the API contract, and assert the chosen representation
+   in API tests. Add `spring-data-commons` directly if it is not already
+   available transitively; let Spring Boot dependency management select its
+   version. Do not add Spring Data JPA for this type. Query defaults, limits,
+   and sorting rules are defined in [webmvc.md](webmvc.md).
+5. If the project already returns `{ success, data, error }` (or the same
    envelope under another name), keep that contract and stay consistent. If
    it does not, use RFC 9457 `ProblemDetail` and enable Boot's Problem
    Details. Do not mix an envelope with `ProblemDetail`.
-5. First cut is unversioned `/api/{resources}`. When the task names versions
+6. In new projects, serialize Spring Data `Page<T>` with the stable DTO
+   representation by setting
+   `spring.data.web.pageable.serialization-mode: via-dto`. Keep controller
+   return types as `Page<T>` and assert the `content` and `page` JSON fields in
+   API tests. Do not serialize `PageImpl` directly because its representation
+   is not a stable API contract.
+7. First cut is unversioned `/api/{resources}`. When the task names versions
    or a breaking change, use Boot 4 API versioning: the `version` attribute on
    `@RequestMapping` / `@GetMapping` / `@PostMapping`, and
    `spring.mvc.apiversion` in `application.yaml`. The value is a semantic
@@ -105,9 +126,15 @@ and a URI variable such as `/api/{version}/orders`. Do not also set
 `use.header`. Prefer Boot properties over a `WebMvcConfigurer`; do not
 configure both.
 
+The template exposes a Spring Data `Page<UserResponse>` for user listing and
+asserts the `content` and nested `page` metadata in its
+[controller](../assets/template-maven/src/main/java/com/example/templatemaven/user/api/UserController.java)
+and [integration test](../assets/template-maven/src/test/java/com/example/templatemaven/user/UserIntegrationTests.java).
+
 ## Verify
 
-Every numbered Rule in this file must hold on disk. Open the mappings,
-request and response types, and `application.yaml`; do not infer. If
-versioning is in the task, also open the version mappings and the single
-`apiversion` strategy. Report each Rule that failed.
+For a new API, check every rule. For an existing API, check rules relevant to
+the requested contract change. Open the mappings, request and response types,
+and `application.yaml`; do not infer. If versioning is in scope, also open the
+version mappings and the single `apiversion` strategy. Report applicable
+failures.

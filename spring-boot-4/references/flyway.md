@@ -44,5 +44,9 @@ build tool):
 
 ## Verify
 
-Every numbered Rule in this file must hold on disk. Open the active build configuration and
-`src/main/resources/db/migration`; do not infer. Report each Rule that failed.
+The template's migration is
+[`V1__create_user_account.sql`](../assets/template-maven/src/main/resources/db/migration/V1__create_user_account.sql).
+
+For a new migration setup, check every rule. For an existing project, check
+rules relevant to the schema change. Open the active build configuration and
+`src/main/resources/db/migration`; do not infer. Report applicable failures.

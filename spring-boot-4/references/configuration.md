@@ -53,6 +53,38 @@ rules.
    tests independent of the Spring context. Verify active profile and
    externalized values in the target deployment configuration.
 
+## Local `.env` files
+
+Use `.env.example` only as a documented local-development template. Never put
+real credentials or secrets in it. Add `.env` and other local secret files to
+`.gitignore`, while explicitly allowing `.env.example`:
+
+```gitignore
+.env
+.env.*
+!.env.example
+```
+
+Docker Compose reads `.env` for Compose-file variable substitution when it is
+in the Compose project directory; it can also read an explicit file through
+`docker compose --env-file`. Spring Boot does not automatically load a generic
+`.env` file. When launching the application directly, export the values into
+the process environment, configure them in the IDE, or use the deployment
+platform's environment injection. Do not add a dotenv library or custom file
+loader unless the task specifically requires one. Keep the README's startup
+commands consistent with how the process receives those values. If Task is
+used, its native `dotenv` setting can load the documented `.env` for wrapped
+commands without adding an application dependency; the template demonstrates
+this in [`Taskfile.yml`](../assets/template-maven/Taskfile.yml) and
+[`.env.example`](../assets/template-maven/.env.example).
+
+```sh
+set -a
+. ./.env
+set +a
+./mvnw spring-boot:run
+```
+
 Example typed settings:
 
 ```java
@@ -71,8 +103,8 @@ and externalization rules.
 
 ## Verify
 
-Open the application's YAML files and configuration property types. Confirm
-each property has one clear owner, secrets and deployment-only values are
-externalized, profiles contain only intentional differences, and invalid
-values fail startup. Report settings whose effective value depends on
-deployment configuration that is not available in the repository.
+Open the YAML files and configuration property types affected by the change.
+Confirm changed properties have one clear owner, secrets and deployment-only
+values are externalized, profiles contain only intentional differences, and
+invalid values fail startup. Report settings whose effective value depends on
+deployment configuration unavailable in the repository.

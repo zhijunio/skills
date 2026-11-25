@@ -59,6 +59,22 @@ and a local container in [docker.md](docker.md).
    source of truth: this skill's MyBatis-Plus convention fills them in Java;
    do not add a competing database timestamp default unless the application
    intentionally supports writes outside that path.
+9. Treat database constraints as the final authority for concurrent writes.
+   Do not implement uniqueness as `SELECT` followed by `INSERT`; two requests
+   can both pass the read. Declare the unique constraint, let the write decide
+   the winner, and translate the constraint failure into a stable application
+   conflict response after the failed transaction has rolled back. Do not
+   continue querying in a transaction after a database write has failed.
+10. Keep transactions short and limited to database work. Do not hold a
+    transaction open across email, HTTP, or other remote calls. If retry is
+    safe for the operation, retry the complete unit in a fresh transaction;
+    never retry only the failed statement inside an aborted transaction.
+11. Test constraints, optimistic-lock conflicts, and concurrent write
+    behavior against PostgreSQL Testcontainers, not H2 or mocks. Bound
+    application concurrency against the database connection pool: virtual
+    threads do not increase PostgreSQL capacity. See
+    [testing.md](testing.md), [mybatis-plus.md](mybatis-plus.md), and
+    [async.md](async.md).
 
 Example migration fragment; it assumes an earlier migration creates
 `customer(id)`:
@@ -84,6 +100,10 @@ Choose identity generation only when it matches the application's ID
 strategy.
 
 ## Verify
+
+The template's `"user"` table demonstrates explicit quoting of the reserved
+identifier in its [entity](../assets/template-maven/src/main/java/com/example/templatemaven/user/persistence/UserEntity.java)
+and [migration](../assets/template-maven/src/main/resources/db/migration/V1__create_user_account.sql).
 
 For a datasource or time-zone change, open the relevant `application.yaml`,
 `compose.yaml`, and SQL configuration; confirm the effective PostgreSQL

@@ -59,5 +59,9 @@ With Compose:
 
 ## Verify
 
-Every numbered Rule in this file must hold on disk. Open `Taskfile.yml` and
-the active build configuration; do not infer. Report each Rule that failed.
+For a new Taskfile, check every rule. For an existing Taskfile, check rules
+relevant to the requested task change. Open `Taskfile.yml` and the active
+build configuration; do not infer. Report applicable failures.
+
+The template's runnable Taskfile is
+[`assets/template-maven/Taskfile.yml`](../assets/template-maven/Taskfile.yml).

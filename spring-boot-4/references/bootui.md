@@ -92,6 +92,12 @@ port, open `http://localhost:8080/bootui`. BootUI can also auto-activate for
 `dev` or `local` profiles and when DevTools is present; keep the explicit
 profile settings so the production behavior is clear.
 
+The template enables BootUI only in its `dev` profile and makes action-capable
+panels read-only in
+[`application-dev.yaml`](../assets/template-maven/src/main/resources/application-dev.yaml);
+production disables it in
+[`application-prod.yaml`](../assets/template-maven/src/main/resources/application-prod.yaml).
+
 ## Verify
 
 Open the active build configuration, `versions.json`, profile configuration, `.gitignore`, and

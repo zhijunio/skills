@@ -22,7 +22,9 @@ or tuning are outside this reference.
    writes invalidate or refresh it.
 2. Use Spring's cache abstraction backed by Redis. Add
    `spring-boot-starter-cache` and `spring-boot-starter-data-redis`; let Spring
-   Boot manage their versions. Enable caching with `@EnableCaching` and use
+   Boot manage their versions. Enable caching with `@EnableCaching` on a
+   purpose-specific `@Configuration` class in the root `config` package. Keep
+   the application bootstrap class limited to `@SpringBootApplication`. Use
    Boot's Redis cache manager. Do not introduce a second cache abstraction.
    Read [docker.md](docker.md) for the local Redis service.
 3. Make keys deterministic, bounded, and derived from every input that can
@@ -33,9 +35,13 @@ or tuning are outside this reference.
    on provider defaults. Keep cached values immutable or treat them as
    read-only; do not expose mutable cached collections to callers.
 5. Invalidate or update cache entries in the same application operation that
-   changes their source data. For transactional writes, run eviction after a
-   successful commit when supported by the chosen integration. Handle bulk
-   changes and delete paths as well as single-record updates.
+   changes their source data. For transactional writes, defer eviction until
+   successful commit. `@CacheEvict`'s default `beforeInvocation = false` means
+   after method return, not necessarily after the surrounding database
+   transaction commits. Use a transaction-aware cache manager (for example,
+   Spring's `TransactionAwareCacheManagerProxy` around Boot's cache manager)
+   or register invalidation with transaction synchronization's `afterCommit`.
+   Handle bulk changes and delete paths as well as single-record updates.
 6. Do not cache failures, authorization decisions, or highly volatile values
    unless the domain explicitly defines their staleness and invalidation
    behavior. Avoid caching `null` by default; negative caching needs a short,
@@ -44,10 +50,20 @@ or tuning are outside this reference.
    Treat Redis as disposable cache storage, not as the authority for
    persisted business data. Do not enable Redis persistence for cache-only
    deployments unless the application has a separate durability requirement.
-8. Test cache behavior that is part of the contract: key separation,
-   expiration or invalidation, and source updates. Keep tests isolated by
-   clearing the relevant cache between cases. Use a real Redis service for
-   tests that verify Redis serialization or cache-manager integration.
+8. Configure a `RedisSerializer` for cached DTO values. Spring Data Redis
+   defaults to JDK serialization, which couples cache entries to Java class
+   serialization. Choose JSON serialization for interoperable DTO caches and
+   configure an explicit type policy for the application's value types. Test
+   serialization and deserialization against the real Redis container.
+9. Test cache behavior that is part of the contract: prove repeated equivalent
+   reads use the cache, result-affecting key inputs do not collide, TTL expiry
+   or write invalidation works, and a source update is visible after
+   invalidation. A test that only reads before and after an update also passes
+   when caching is absent, so it does not prove cache behavior by itself. Test
+   that rollback does not evict when invalidation is specified to run after
+   commit. Keep tests isolated by clearing the relevant cache between cases.
+   Use a real Redis service for tests that verify Redis serialization or
+   cache-manager integration.
 
 Example cache configuration with an explicit TTL:
 
@@ -61,13 +77,32 @@ spring:
       use-key-prefix: true
 ```
 
+Configure the Redis cache value serializer in the cache manager. Do not
+serialize arbitrary polymorphic Java types from untrusted cache contents.
+
 Use per-cache TTLs when caches have different freshness requirements. Keep
 Redis connection settings in Spring Boot's `spring.data.redis` configuration;
 the Docker Compose integration supplies the local connection details.
 
+The template configures a ten-minute `users` cache with a typed Jackson 3
+serializer for `UserResponse`, disables null caching, and uses a
+transaction-aware cache manager. Its PostgreSQL/Redis Testcontainers test
+proves a direct source update remains hidden behind the cache until the
+application service updates the entry and the next read sees the new value:
+[cache configuration](../assets/template-maven/src/main/java/com/example/templatemaven/config/CacheConfiguration.java),
+[service cache annotations](../assets/template-maven/src/main/java/com/example/templatemaven/user/application/UserService.java),
+[PostgreSQL test container](../assets/template-maven/src/test/java/com/example/templatemaven/PostgresTestcontainersConfiguration.java),
+[Redis test container](../assets/template-maven/src/test/java/com/example/templatemaven/RedisTestcontainersConfiguration.java),
+and [cache integration test](../assets/template-maven/src/test/java/com/example/templatemaven/user/CacheIntegrationTests.java).
+The test also rolls back a versioned update and verifies the existing cache
+entry remains available, covering the transaction-aware manager's after-commit
+invalidation behavior.
+
 ## Verify
 
-For every cache, inspect its configuration and call sites. Confirm the key
-contains all result-affecting scope, expiration is explicit, and each source
-write path has the intended invalidation/update behavior. Report any behavior
-that depends on a provider default or cannot be verified from the code.
+Inspect the changed cache configuration and call sites. Confirm its key
+contains all result-affecting scope, expiration is explicit, and affected
+source write paths invalidate after successful commit, including rollback and
+delete paths. Confirm tests fail if caching/invalidation is removed. Report
+any behavior that depends on a provider default or cannot be verified from
+code.

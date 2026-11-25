@@ -13,10 +13,44 @@ unit tests independent of containers.
 - Add MyBatis-Plus, Flyway, PostgreSQL, or a real service dependency
 - The user mentions tests or context loading
 
+## Test strategy
+
+Choose the cheapest test that proves the behavior at the boundary where it
+matters:
+
+- **Pure domain rules and application logic:** direct-construction unit test;
+  no Spring context or containers.
+- **MVC binding, validation, serialization, and advice:** `@WebMvcTest`; mock
+  only collaborators outside the slice.
+- **Outbound blocking HTTP request/response mapping:** `@RestClientTest` with
+  the mock request server; keep authorization-provider wiring in its own
+  integration test.
+- **SQL, migration, cache serialization/invalidation, or SMTP behavior:** a
+  service integration test with the real Testcontainer for that dependency.
+- **Cross-cutting application wiring:** retain the generated context-load
+  smoke test and keep additional full-context tests small.
+- **A complete web request path:** add a request-level test against a random
+  port when real servlet filters, server wiring, or HTTP client/server
+  interaction is part of the acceptance behavior. In Boot 4, use
+  `@SpringBootTest(webEnvironment = RANDOM_PORT)` with `RestTestClient`.
+
+Do not force every feature through `@SpringBootTest`, and do not use a slice
+to claim that database or provider integration works. Avoid arbitrary test
+counts or a fixed pyramid ratio; select by behavior and startup cost.
+
+Spring caches test contexts by their merged configuration. Different test
+configuration classes/imports, active profiles, property overrides,
+`@MockitoBean` definitions, initializers, and context customizers can create
+distinct cache entries. Reuse stable configuration and service combinations;
+add mocks only when they isolate an external boundary; avoid routine
+`@DirtiesContext`, which evicts an expensive context. Use
+`logging.level.org.springframework.test.context.cache=DEBUG` temporarily to
+diagnose unexpected context churn. Container lifecycle must cover every
+cached context that uses it.
+
 ## When not to use
 
 - Maven plugin versions or `failIfNoTests` → [maven.md](maven.md)
-- Slice-test or Failsafe conventions not required by the current task
 
 ## Rules
 
@@ -38,13 +72,17 @@ unit tests independent of containers.
    getters and setters.
 5. Do not add `src/test/resources/application.yaml`. Supply dynamic test
    endpoints with service connections or `@DynamicPropertySource`.
-6. When a datasource-backed context test runs against Compose, follow
+6. Prepare test data through the public API or application service when that
+   behavior is under test. For persistence-specific cases, use small SQL
+   fixtures (for example `@Sql`) to make the required database state explicit;
+   avoid using a Mapper or raw SQL as incidental setup for an API test.
+7. When a datasource-backed context test runs against Compose, follow
    [docker.md](docker.md). When it runs against Testcontainers, import its
    container configuration into `*ApplicationTests`. Choose one source for a
    service in a test; do not start both its Compose and Testcontainers
    instances. Do not exclude auto-configurations or remove production
    dependencies to make the context start.
-7. Add Testcontainers only for tests that need real service behavior. Use the
+8. Add Testcontainers only for tests that need real service behavior. Use the
    smallest required modules and manage their versions using the selected build
    tool and Boot dependency-management mechanism.
    Add `spring-boot-testcontainers` when using Boot's `@ServiceConnection`.
@@ -52,11 +90,17 @@ unit tests independent of containers.
    for `GenericContainer`, and `testcontainers-junit-jupiter` only when using
    the JUnit `@Testcontainers` extension. All are test-scoped. The PostgreSQL
    Testcontainers module does not supply the application's JDBC driver.
-8. For Spring context tests, prefer Spring-managed container beans so the
+9. For Spring context tests, prefer Spring-managed container beans so the
    containers live as long as the cached application context. JUnit-managed
    `@Container` fields stop at the end of their test class and can leave a
    cached Spring context pointing at a stopped service.
-9. Use Testcontainers according to the service under test:
+   Reuse the same imported configuration for tests that need the same
+   services. Keep service combinations separate when a test does not need
+   every container; distinct combinations intentionally create distinct
+   contexts. If distinct contexts must share one database, choose a lifecycle
+   that outlives all of them and use unique test data. Never depend on test
+   ordering or shared rows left by another test.
+10. Use Testcontainers according to the service under test:
    - **PostgreSQL:** use `PostgreSQLContainer` with `@ServiceConnection` to
      provide JDBC connection details. Verify migrations, SQL behavior, and
      tenant isolation against PostgreSQL itself.
@@ -64,16 +108,40 @@ unit tests independent of containers.
      `@ServiceConnection(name = "redis")` to provide Redis connection details.
      Verify Redis serialization, expiry, and cache invalidation where these
      are part of the contract.
-   - **Mailpit:** use `GenericContainer` with its SMTP port exposed and set
-     `spring.mail.host` and `spring.mail.port` using `@DynamicPropertySource`.
-     Send through `JavaMailSender` and verify the captured message through
+   - **Mailpit:** use `GenericContainer` with its SMTP port exposed and register
+     `spring.mail.host` and `spring.mail.port` through
+     `@DynamicPropertySource` or Spring `DynamicPropertyRegistrar`. Prefer the
+     registrar with Spring-managed container beans. Send through `JavaMailSender` and verify the captured message through
      Mailpit; this checks SMTP integration, not production-provider delivery.
    Start only the containers the test exercises. Use the image pins in
    `versions.json` when they match the project's supported service versions.
-10. Do not add `spring-boot-starter-test` alongside
+11. Do not add `spring-boot-starter-test` alongside
     `spring-boot-starter-webmvc-test`. Use the matching Boot 4 `-test` starter
     for the production starter under test; the web MVC test starter is
     self-contained for web-specific support.
+
+### Colima on macOS
+
+If Testcontainers connects to Colima but Ryuk fails while mounting the host
+socket path (for example, `operation not supported` for
+`~/.colima/default/docker.sock`), point Testcontainers at the Docker socket
+inside the Colima VM. Resolve the host socket for the active Colima profile
+with `colima status`, then set:
+
+```sh
+export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+```
+
+Adjust the host path for the active profile. Prefer this socket override so
+Ryuk remains enabled. Disable Ryuk only when the environment provides another
+reliable container cleanup mechanism; Testcontainers otherwise relies on
+Ryuk to clean up resources after abnormal JVM termination.
+
+Boot 4 moved web test auto-configuration annotations. Import `@WebMvcTest` and
+`@AutoConfigureMockMvc` from
+`org.springframework.boot.webmvc.test.autoconfigure`; do not use the Boot 3
+package `org.springframework.boot.test.autoconfigure.web.servlet`.
 
 ## Dependency examples
 
@@ -98,6 +166,10 @@ manages these versions.
 	<scope>test</scope>
 </dependency>
 ```
+
+For a `RestClient` slice test, use `spring-boot-starter-restclient-test`.
+For a live-server test with `RestTestClient`, add the BOM-managed
+`spring-boot-resttestclient` module in test scope.
 
 For Redis or Mailpit `GenericContainer` usage, add
 `org.testcontainers:testcontainers` if it is not already available through the
@@ -133,8 +205,8 @@ class DatabaseTestcontainersConfiguration {
 
 	@Bean
 	@ServiceConnection
-	PostgreSQLContainer<?> postgresContainer() {
-		return new PostgreSQLContainer<>(DockerImageName.parse("postgres:18-alpine"))
+	PostgreSQLContainer postgresContainer() {
+		return new PostgreSQLContainer("postgres:18-alpine")
 				.withDatabaseName("app")
 				.withUsername("test")
 				.withPassword("test");
@@ -180,7 +252,17 @@ not compile against the project's constructors and APIs.
 
 ## Verify
 
-Open `src/test` and the active build configuration; do not infer. Confirm
-unit tests do not start Spring or Docker, each integration test starts only required services,
-container lifecycle covers the Spring context lifetime, and Compose-backed
-tests follow [docker.md](docker.md). Report each Rule that failed.
+Open the changed tests and active build configuration; do not infer. Confirm
+unit tests do not start Spring or Docker, integration tests start only needed
+services, container lifecycle covers the Spring context, and Compose-backed
+tests follow [docker.md](docker.md). If CI runs Testcontainers tests, confirm
+the CI runner provides Docker and the tests execute; do not silently skip
+container tests in CI when Docker is unavailable. Report applicable failures.
+
+The template demonstrates this split with a controller validation slice in
+[UserControllerTests](../assets/template-maven/src/test/java/com/example/templatemaven/user/api/UserControllerTests.java), direct-construction unit tests for
+the user domain, user service, and email notification behavior, plus PostgreSQL-backed feature integration tests:
+[unit tests](../assets/template-maven/src/test/java/com/example/templatemaven/user),
+[email unit test](../assets/template-maven/src/test/java/com/example/templatemaven/notification/EmailNotificationServiceTests.java),
+[MVC, pagination, validation, and OpenAPI integration tests](../assets/template-maven/src/test/java/com/example/templatemaven/user/UserIntegrationTests.java), [Redis cache integration tests](../assets/template-maven/src/test/java/com/example/templatemaven/user/CacheIntegrationTests.java), and [Mailpit integration tests](../assets/template-maven/src/test/java/com/example/templatemaven/notification/EmailIntegrationTests.java),
+and a real-port [HTTP end-to-end test](../assets/template-maven/src/test/java/com/example/templatemaven/user/UserEndToEndTests.java). Test data for API behavior is created through the HTTP contract; persistence-specific fixtures can use SQL. Spring-managed service containers are [PostgreSQL](../assets/template-maven/src/test/java/com/example/templatemaven/PostgresTestcontainersConfiguration.java), [Redis](../assets/template-maven/src/test/java/com/example/templatemaven/RedisTestcontainersConfiguration.java), and [Mailpit](../assets/template-maven/src/test/java/com/example/templatemaven/MailpitTestcontainersConfiguration.java). The integration tests import only the services they exercise.

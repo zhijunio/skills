@@ -132,6 +132,15 @@ sender service with a mocked `JavaMailSender`, returning a real
 assert recipient, subject, and HTML body. Keep these tests independent of
 Spring and SMTP.
 
+The template includes a plain-text MIME notification service, reads its sender
+address from `app.mail.from`, and has a unit test for sender, recipient,
+subject, and body. Its user registration listener demonstrates
+`@TransactionalEventListener(AFTER_COMMIT)` with `@Async`; see
+[EmailNotificationService](../assets/template-maven/src/main/java/com/example/templatemaven/notification/application/EmailNotificationService.java),
+[UserRegisteredListener](../assets/template-maven/src/main/java/com/example/templatemaven/notification/application/UserRegisteredListener.java),
+the [unit test](../assets/template-maven/src/test/java/com/example/templatemaven/notification/EmailNotificationServiceTests.java),
+and [Mailpit SMTP integration test](../assets/template-maven/src/test/java/com/example/templatemaven/notification/EmailIntegrationTests.java).
+
 For an SMTP integration check, start Compose and send a message through the
 configured host and port. Verify it appears in Mailpit at `http://localhost:8025`
 with the expected recipient, subject, and rendered body. This checks the SMTP
@@ -140,7 +149,8 @@ provider.
 
 ## Verify
 
-Open the active build configuration, mail configuration, templates, sender call sites, tests, and
-`compose.yaml`. Confirm credentials are externalized, local mail routes to
-Mailpit, templates escape user content, and no production configuration
-points at the development capture service.
+Open the mail configuration, templates, sender call sites, and tests affected
+by the change, plus `compose.yaml` when local mail setup is in scope. Confirm
+credentials are externalized, local mail routes to Mailpit, templates escape
+user content, and production configuration does not point at the development
+capture service.

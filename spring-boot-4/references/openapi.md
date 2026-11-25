@@ -31,11 +31,15 @@ constraints using the project's build tool. For Maven, see [maven.md](maven.md).
    starter.
 4. Disable both OpenAPI documents and Swagger UI in the production profile.
    Keep them enabled in development unless the user requests otherwise.
-5. Write JavaDoc on controller handler methods and request/response record
-   components. The method comment describes the operation, `@return`
-   describes the successful response, and component comments describe schema
-   fields. Keep descriptions in JavaDoc; do not duplicate them with Swagger
-   annotation descriptions.
+5. Write JavaDoc on controller handler methods and response types. The method
+   comment describes the operation and `@return` describes the successful
+   response. Therapi does not expose record-component or explicit record
+   accessor JavaDoc as OpenAPI property descriptions. When a property needs a
+   generated description, model that DTO as a JavaBean class and document its
+   field. Do not add `@Schema` annotations by default; use the JavaDoc
+   integration for operation and model descriptions. Add annotations only
+   when the task requires metadata JavaDoc cannot express. Verify the
+   description in the generated OpenAPI document.
 
 Maven dependency example (use the equivalent notation for the selected build tool):
 
@@ -134,8 +138,16 @@ springdoc:
 
 Do not rely on production network isolation as the only control.
 
+The template demonstrates controller JavaDoc, Therapi's compiler processor,
+and production endpoint disabling in its
+[controller](../assets/template-maven/src/main/java/com/example/templatemaven/user/api/UserController.java),
+[Maven compiler configuration](../assets/template-maven/pom.xml),
+[profiles](../assets/template-maven/src/main/resources/application-prod.yaml),
+and [OpenAPI integration test](../assets/template-maven/src/test/java/com/example/templatemaven/user/UserIntegrationTests.java).
+
 ## Verify
 
-Every numbered Rule in this file must hold on disk. Open the active build configuration, profile
-configuration, controller JavaDoc, and a generated OpenAPI document; do not
-infer. Report each Rule that failed.
+For a new web project, check every rule. For an existing project, check rules
+relevant to the OpenAPI change. Open the active build configuration, profile
+configuration, controller JavaDoc, and generated OpenAPI document as needed;
+do not infer. Report applicable failures.

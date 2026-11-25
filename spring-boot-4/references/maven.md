@@ -35,9 +35,11 @@ the skill's Core Rules and their matching stack references.
    values from `versions.json`.
 4. Omit `<version>` on artifacts the parent already manages. A second version
    is how you get a `NoSuchMethodError` the build never reported.
-5. Keep Boot 4 starter names. Web is `spring-boot-starter-webmvc`. A matching
-   `-test` starter is self-contained. Use `spring-boot-starter-webmvc-test`
-   alone for web tests.
+5. Keep Boot 4 starter names. Web is `spring-boot-starter-webmvc`. Use
+   `spring-boot-starter-webmvc-test` for MVC slices. Add the BOM-managed
+   `spring-boot-resttestclient` module only when a test calls a live random-port
+   server through `RestTestClient`. Add `spring-boot-starter-restclient-test`
+   when testing outbound `RestClient` code with `@RestClientTest`.
 6. Keep `maven-surefire-plugin` with `failIfNoTests` true. The parent manages
    its version. Do not add Failsafe. [testing.md](testing.md) does not cover it.
 7. Keep `spotless-maven-plugin`. Pin `spotless.mavenPlugin` and
@@ -313,11 +315,13 @@ optional and is not required for Maven Release.
 
 ## Verify
 
-**Rules.** Every numbered Rule in this file must hold on disk. Open `pom.xml`;
-do not infer. Report each Rule that failed.
+**Rules.** For a new Maven project or an explicit house-style alignment, check
+every rule. For other Maven changes, check rules relevant to the requested
+build behavior. Open `pom.xml`; do not infer. Report applicable failures.
 
-**Unit tests.** SKILL Workflow's last step requires unit tests to pass once,
-after every applied reference's Rules hold. This file is how Maven does that.
+**Tests.** The SKILL Workflow's last step runs the relevant test task once,
+after applicable reference rules are checked. This file documents Maven's
+commands.
 Do not copy these commands into other stack files. Gradle projects follow
 their existing build conventions; these Maven commands do not apply. A green
 run only means unit tests (and Spotless check) passed. It does not prove the
