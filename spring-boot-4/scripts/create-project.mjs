@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process'
-import { chmod, mkdtemp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { chmod, copyFile, mkdtemp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -148,6 +148,14 @@ async function main() {
     await rm(join(extracted, 'HELP.md'), { force: true })
     await mkdir(options.outputdir, { recursive: true })
     await rename(extracted, options.projectDir)
+    await copyFile(join(root, 'assets', 'editorconfig'), join(options.projectDir, '.editorconfig'))
+    await copyFile(join(root, 'assets', 'gitattributes'), join(options.projectDir, '.gitattributes'))
+    const applicationSource = join(options.projectDir, 'src', 'main', 'java', ...options.packagename.split('.'))
+    const configDirectory = join(applicationSource, 'config')
+    await mkdir(configDirectory, { recursive: true })
+    const startupListener = (await readFile(join(root, 'assets', 'StartupInfoListener.java.tmpl'), 'utf8'))
+      .replaceAll('__PACKAGE__', options.packagename)
+    await writeFile(join(configDirectory, 'StartupInfoListener.java'), startupListener)
     const wrapper = join(options.projectDir, options.build === 'maven' ? 'mvnw' : 'gradlew')
     if (process.platform !== 'win32' && existsSync(wrapper)) await chmod(wrapper, 0o755)
     console.log(`\nProject created: ${options.projectDir}`)

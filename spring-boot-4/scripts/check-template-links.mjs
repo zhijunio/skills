@@ -31,6 +31,8 @@ function markdownDestinations(content) {
 }
 
 const assetsDirectory = path.join(root, 'assets');
+const readmePath = path.join(root, 'README.md');
+const readmeContent = await readFile(readmePath, 'utf8');
 const assetEntries = await readdir(assetsDirectory, { withFileTypes: true });
 const templates = assetEntries
   .filter((entry) => entry.isDirectory() && entry.name.startsWith('template-'))
@@ -132,16 +134,46 @@ for (const template of templates) {
     }
   }
 
-  const referenceMentionsTemplate = [...contents.entries()].some(
-    ([file, content]) => {
-      if (!file.startsWith(path.join(root, 'references') + path.sep)) return false;
-      return markdownDestinations(content).some((destination) =>
-        destination.includes(`/assets/${template}/`),
+  const templateRow = readmeContent
+    .split('\n')
+    .find((line) => line.startsWith('|') && line.includes(`(${readme})`));
+  const matchingReferences = templateRow
+    ? markdownDestinations(templateRow).filter((destination) =>
+        destination.startsWith('references/'),
+      )
+    : [];
+  if (matchingReferences.length === 0) {
+    failures.push(`README.md: no matching references listed for assets/${template}`);
+    continue;
+  }
+
+  for (const reference of matchingReferences) {
+    const referencePath = path.resolve(root, reference.split('#', 1)[0]);
+    const referenceContent = contents.get(referencePath);
+    if (!referenceContent) {
+      failures.push(`README.md: matching reference does not exist: ${reference}`);
+      continue;
+    }
+
+    const templateDirectory = path.join(assetsDirectory, template) + path.sep;
+    let linksToTemplate = false;
+    for (const destination of markdownDestinations(referenceContent)) {
+      if (/^(?:[a-z][a-z\d+.-]*:|#)/i.test(destination)) continue;
+      const target = path.resolve(path.dirname(referencePath), destination.split('#', 1)[0]);
+      if (!target.startsWith(templateDirectory)) continue;
+      try {
+        await stat(target);
+        linksToTemplate = true;
+        break;
+      } catch {
+        // All Markdown link targets are reported by the general link check above.
+      }
+    }
+    if (!linksToTemplate) {
+      failures.push(
+        `${path.relative(root, referencePath)}: no existing example link into assets/${template}`,
       );
-    },
-  );
-  if (!referenceMentionsTemplate) {
-    failures.push(`references/: no example links into assets/${template}/`);
+    }
   }
 }
 
@@ -150,6 +182,6 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    `Template links are valid; ${templates.length} runnable templates are indexed and referenced.`,
+    `Template links, reference links, and version pins are valid for ${templates.length} runnable templates. Semantic parity still requires code review.`,
   );
 }

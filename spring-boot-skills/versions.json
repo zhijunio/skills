@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-11-24",
+  "springBoot": {
+    "defaultByBuildTool": {
+      "maven": "4.2.0",
+      "gradle": "4.2.0"
+    },
+    "allowedLines": ["4.2.x", "4.1.x", "4.0.x"]
+  },
+  "java": {
+    "default": "21",
+    "minimum": "17",
+    "maximumBySpringBootMajor": {
+      "4": "27"
+    }
+  },
+  "sources": {
+    "springBootSystemRequirements": "https://docs.spring.io/spring-boot/system-requirements.html",
+    "springInitializr": "https://start.spring.io"
+  }
+}

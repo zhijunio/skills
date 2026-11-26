@@ -19,9 +19,17 @@ SMTP capacity.
 - Task CLI for the `task` commands (optional; Maven wrapper commands work
   without it)
 
-Copy `.env.example` to `.env`, then run `docker compose up -d` and
-`SPRING_PROFILES_ACTIVE=dev task run` (Task loads `.env` into the application
-process). Without Task, export `.env` before running the dev profile:
+## Local startup and shutdown
+
+Copy `.env.example` to `.env`, then start the local services and application:
+
+```sh
+docker compose up -d
+SPRING_PROFILES_ACTIVE=dev task run
+```
+
+Task loads `.env` into the application process. Without Task, export the
+environment before starting the dev profile:
 
 ```sh
 set -a
@@ -30,26 +38,20 @@ set +a
 SPRING_PROFILES_ACTIVE=dev ./mvnw -Pdev spring-boot:run
 ```
 
-Health is exposed through Actuator. API endpoints have no authentication in
-this template, so keep the service on a trusted local network. The `prod`
+Stop the local services with `task compose-down` or `docker compose down`.
+
+## Authentication and access boundary
+
+API endpoints have no authentication in this template, so keep the service on
+a trusted local network. Health is exposed through Actuator. The `prod`
 profile exposes application info and Prometheus metrics on the loopback-only
-management port. OpenAPI is available at `/swagger-ui.html` and `/v3/api-docs`
-in the `dev` profile. BootUI is read-only at `/bootui`. Mailpit captures local
-SMTP mail at `http://localhost:8025`.
+management port.
 
-Run `./mvnw verify` or `task verify` to test and package the project; Docker
-must be available for integration tests. Unit and MVC slice tests need no
-containers. JaCoCo output is written to
-`target/site/jacoco/`.
+## API examples and documentation
 
-Configuration variables include `DATABASE_NAME` (defaults to the application
-name), `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_HOST` and
-`DATABASE_PORT`; `REDIS_HOST` and `REDIS_PORT`; `SMTP_HOST`, `SMTP_PORT` and
-`MAIL_FROM`; and `MANAGEMENT_ADDRESS` and `MANAGEMENT_PORT` for the `prod`
-profile. Keep real credentials in the untracked `.env` file or your deployment
-environment. Optional SMTP authentication and STARTTLS are controlled with
-`SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_AUTH` and `SMTP_STARTTLS`. The example
-credentials are for local development only.
+OpenAPI is available at `/swagger-ui.html` and `/v3/api-docs` in the `dev`
+profile. BootUI is read-only at `/bootui`. Mailpit captures local SMTP mail at
+`http://localhost:8025`.
 
 List users with zero-based Spring Data pagination, defaulting to page `0` and
 size `20` (maximum `100`):
@@ -75,3 +77,21 @@ curl -X PUT http://localhost:8080/api/users/1 \
   -H 'Content-Type: application/json' \
   -d '{"email":"ada@example.com","displayName":"Ada Lovelace","version":0}'
 ```
+
+## Configuration
+
+Configuration variables include `DATABASE_NAME` (defaults to the application
+name), `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_HOST` and
+`DATABASE_PORT`; `REDIS_HOST` and `REDIS_PORT`; `SMTP_HOST`, `SMTP_PORT` and
+`MAIL_FROM`; and `MANAGEMENT_ADDRESS` and `MANAGEMENT_PORT` for the `prod`
+profile. Optional SMTP authentication and STARTTLS are controlled with
+`SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_AUTH` and `SMTP_STARTTLS`. Keep real
+credentials in the untracked `.env` file or your deployment environment. The
+example credentials are for local development only; see [`.env.example`](.env.example).
+
+## Build, test, formatting, and reports
+
+Run `./mvnw spotless:apply` or `task format` to format the project. Run
+`./mvnw verify` or `task verify` to test and package it; Docker must be
+available for integration tests. Unit and MVC slice tests need no containers.
+JaCoCo writes the report to `target/site/jacoco/`.

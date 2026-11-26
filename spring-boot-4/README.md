@@ -28,6 +28,10 @@ web application unless declined. Add optional stacks such as MyBatis-Plus,
 Flyway, PostgreSQL, Compose, or Taskfile only when the project needs them.
 For Spring Security filter chains, OAuth2/OIDC clients, and resource-server
 APIs, start from the matching security routes in [SKILL.md](SKILL.md).
+For a React SPA, read [React](references/react.md) and
+[Frontend integration](references/frontend-integration.md). For a Next.js
+frontend, read [Next.js](references/nextjs.md) and the shared integration
+reference.
 For runnable examples of HTTP Basic, OIDC login, JWT resource-server
 authorization, and Spring Security MFA, see the optional
 [template-security](assets/template-security/README.md) project. It is separate
@@ -51,14 +55,18 @@ template, and template changes should be checked against those references.
 Keep security optional: select `template-security` examples only when the
 application requires an authentication flow.
 
-After changing a template or its references, run the consistency check:
+After changing a template or its references, run the structural consistency
+check:
 
 ```bash
 node scripts/check-template-links.mjs
 ```
 
-The check also compares Maven template Boot/Java pins and managed Compose image
-tags with `versions.json`.
+The check confirms that every matching reference listed for a template links to
+an existing file in that template. It also checks local Markdown targets, each
+Maven template's Boot/Java pins, and managed Compose image tags against
+`versions.json`. It does not compare behavior or Java examples; review those
+against the executable template and run its build when changing either side.
 
 ## Verify
 

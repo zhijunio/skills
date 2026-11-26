@@ -1,13 +1,13 @@
 # CI/CD
 
-Read this when the user asks to add or change CI/CD for a Spring Boot project.
-This reference uses GitHub Actions. Workflows are opt-in and are not added to
-new projects by default.
+Use this reference for GitHub Actions, Renovate, and release tasks. Enable
+workflows and Renovate when requested.
 
 ## When to use
 
 - The user requests GitHub Actions workflows or CI checks
 - Change an existing workflow that builds, tests, or packages this application
+- Add or change Renovate dependency updates
 
 ## When not to use
 
@@ -45,6 +45,27 @@ new projects by default.
 8. Report exactly which workflow triggers, jobs, and checks were added. A
    workflow file added locally is not evidence that a remote GitHub Actions
    run passed.
+
+## Renovate
+
+Use [the Renovate template](../assets/renovate.json) for a new configuration.
+Copy it to `renovate.json` at the project root. If the project already has a
+Renovate configuration, edit that file and keep its existing policies.
+
+The `config:recommended` preset includes the Dependency Dashboard. The template
+labels update PRs `dependencies` and leaves them for manual review. When the
+project needs a weekly update window, set `schedule` and `timezone` for the
+team. If the project opts into automerge, limit it to the requested updates and
+require passing CI checks through branch protection.
+
+Run the [config validator](https://docs.renovatebot.com/config-validation/) from
+the project root.
+
+```bash
+npx --yes --package renovate -- renovate-config-validator --strict
+```
+
+For hosted Renovate, the Renovate GitHub App must have access to the repository.
 
 ## GitHub Tags and Releases
 

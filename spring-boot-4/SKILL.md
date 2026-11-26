@@ -31,6 +31,8 @@ progressively disclosed: open only those matching the task.
 | PostgreSQL datasource, SQL types, or database time zone | [references/postgresql.md](references/postgresql.md) |
 | SQL schema or migrations | [references/flyway.md](references/flyway.md) |
 | Local PostgreSQL, Redis, Mailpit, or Docker Compose | [references/docker.md](references/docker.md) |
+| Kubernetes workload manifests, probes, or graceful shutdown | [references/kubernetes.md](references/kubernetes.md) |
+| GraalVM Native Image, Spring AOT, or CRaC | [references/native-deployment.md](references/native-deployment.md) |
 | Redis-backed application cache | [references/cache.md](references/cache.md) |
 | Outbound email or SMTP | [references/email.md](references/email.md) |
 | Spring properties, profiles, or `@ConfigurationProperties` | [references/configuration.md](references/configuration.md) |
@@ -43,7 +45,8 @@ progressively disclosed: open only those matching the task.
 | Tests or datasource-related context loading | [references/testing.md](references/testing.md) |
 | Taskfile or `go-task` | [references/taskfile.md](references/taskfile.md) |
 | Optional local BootUI console | [references/bootui.md](references/bootui.md) |
-| GitHub Actions, CI, tags, or GitHub releases | [references/cicd.md](references/cicd.md) |
+| React SPA or Next.js frontend integrated with Spring Boot | [references/frontend-integration.md](references/frontend-integration.md), plus [references/react.md](references/react.md) or [references/nextjs.md](references/nextjs.md) |
+| GitHub Actions, CI, Renovate, tags, or GitHub releases | [references/cicd.md](references/cicd.md) |
 
 Read more than one reference when a task crosses boundaries. For example,
 schema changes that add persistence use MyBatis-Plus, Flyway, PostgreSQL, and
@@ -204,8 +207,9 @@ and managed Compose image pins against `versions.json`.
 - PostgreSQL server operations, SQL tuning, or replication:
   [postgresql-developer](../postgresql-developer/SKILL.md)
 - SAML federation, identity-provider administration, or broader identity
-  architecture:
-  [spring-sso-developer](../spring-sso-developer/SKILL.md)
+  architecture: use the matching Spring Security and OAuth2 references for
+  application-level integration; provider administration is outside this
+  skill's scope.
 - Advanced identity features outside these references, including passkey
   enrollment and credential management, a custom authorization server, and issuing local
   JWTs:

@@ -14,8 +14,18 @@ separate sample shows optional security features.
   runtime flow, and a client-credentials registration plus protected API for
   the outbound call
 
-Copy `.env.example` to `.env`, replace the identity-provider values, then run
-`docker compose up -d`. Export the environment before starting the app:
+## Local startup and shutdown
+
+This sample manages Mailpit manually with Docker Compose; the application does
+not include Spring Boot's Docker Compose lifecycle dependency. Copy
+`.env.example` to `.env`, replace the identity-provider values, and start
+Mailpit:
+
+```sh
+docker compose up -d
+```
+
+Export the environment before starting the app:
 
 ```sh
 set -a
@@ -24,12 +34,10 @@ set +a
 ./mvnw spring-boot:run
 ```
 
-Mailpit captures one-time-token email at `http://localhost:8025`. The demo
-account is configured through `DEMO_USERNAME` and `DEMO_PASSWORD`; the password
-is encoded with Spring's delegating password encoder before it enters the
-in-memory user store. The in-memory account is for local examples only.
+Stop Mailpit with `docker compose down`. It captures one-time-token email at
+`http://localhost:8025`.
 
-## Filter-based examples
+## Authentication and API examples
 
 - `GET /api/basic/report` uses HTTP Basic. The filter returns 401 with a
   `WWW-Authenticate: Basic` challenge; `/api/basic/admin/**` also requires the
@@ -55,26 +63,29 @@ disable CSRF because they accept credentials only from their authorization
 headers. API security errors use `application/problem+json` and retain the
 appropriate Basic or Bearer challenge.
 
-## Tests
+## Configuration
 
-Run `./mvnw verify`. The tests use MockMvc and Spring Security's request
+`application.yaml` reads the demo account, OIDC and partner client
+credentials, token endpoints, partner API base URL, and resource-server issuer,
+JWK Set URI, and audience from environment variables. The `.env.example`
+values are placeholders; replace provider endpoints and credentials before
+trying browser login, bearer-token validation, or outbound calls. Do not commit
+actual credentials. The demo account's password is encoded with Spring's
+delegating password encoder before it enters the in-memory user store.
+
+For production, replace the in-memory `UserDetailsService` with the
+application's account store, use a durable OTT service, enforce TLS, and
+configure a verified email delivery provider. The in-memory account and OTT
+service are for local examples only.
+
+## Build, test, formatting, and reports
+
+Run `./mvnw spotless:apply` to format the project. Run `./mvnw verify` to test
+and package it. The tests use MockMvc and Spring Security's request
 post-processors; they do not call an external identity provider. They verify
 Basic authentication and role denial, OAuth2 login, bearer scope authorization,
 MFA factor requirements, security error bodies, OTT delivery through a mock
 mail sender, and outbound client credentials against a local token/resource
 server stub. The mocked OAuth2/JWT tests exercise the filter chain, not provider
-discovery, token signatures, or issuer availability.
-Taikai checks the Spring architecture baseline, and JaCoCo writes coverage to
-`target/site/jacoco/`.
-
-## Configuration
-
-`application.yaml` reads OIDC and partner client credentials, token endpoint,
-partner API base URL, and resource-server issuer, JWK Set URI, and audience
-from environment variables.
-The example `.env` uses placeholder provider endpoints; replace them with the
-authorization server's actual metadata before trying browser login or bearer
-token validation. Do not commit actual credentials. For production, replace
-the in-memory `UserDetailsService` with the application's account store, use a
-durable OTT service, enforce TLS, and configure a verified email delivery
-provider. The in-memory OTT service is suitable only for this local demo.
+discovery, token signatures, or issuer availability. Taikai checks the Spring
+architecture baseline, and JaCoCo writes coverage to `target/site/jacoco/`.

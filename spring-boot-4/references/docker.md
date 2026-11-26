@@ -1,8 +1,8 @@
-# Docker Compose
+# Docker and Docker Compose
 
-Read this when the task needs local PostgreSQL, Redis, or Mailpit,
-`compose.yaml`, or `spring-boot-docker-compose`. The generator does not add
-them.
+Read this when the task needs an application image, local PostgreSQL, Redis, or
+Mailpit, `compose.yaml`, or `spring-boot-docker-compose`. The generator does not
+add them.
 
 ## When to use
 
@@ -10,6 +10,8 @@ them.
 - Run Redis for application caching
 - Capture outbound email locally with Mailpit
 - Add `compose.yaml` or `spring-boot-docker-compose`
+- Build and run the application as a container
+- Build a GraalVM Native Image, Spring AOT, or CRaC container
 
 ## When not to use
 
@@ -20,7 +22,23 @@ them.
 
 ## Rules
 
-1. Copy this skill's `assets/compose.yaml` to the project `compose.yaml` and
+1. For a JVM application image, start from
+   [`assets/Dockerfile`](../assets/Dockerfile) and
+   [`assets/dockerignore`](../assets/dockerignore). The template expects Maven,
+   a Java 21 toolchain, and the Spring Boot layered-jar tools. Set the build and
+   runtime images to match the Java version in the project. For Gradle, adapt
+   the wrapper and build commands to the project. Keep build-time tests in CI
+   rather than silently treating a container build as test execution.
+2. For AOT, Native Image, or CRaC image assets, read
+   [native deployment](native-deployment.md) first. Check their build profiles,
+   JDK requirements, target platform, and runtime constraints before use.
+3. Keep the runtime image on a supported JRE and run as a non-root user. Keep
+   the layered application files in separate image layers so source changes do
+   not invalidate dependency layers.
+4. Provide health checks through the orchestrator or a purpose-built probe.
+   Do not add shell-based checks to a shell-free image.
+
+5. Copy this skill's `assets/compose.yaml` to the project `compose.yaml` and
    keep only the services the application needs. Replace each retained
    service's image placeholder with its value from `versions.json`, while
    preserving the Compose `${VARIABLE}` substitutions. Do not replace these
@@ -34,7 +52,7 @@ them.
    Do not keep Initializr's Compose file. PostgreSQL 18 data is
    `/var/lib/postgresql`, not `/var/lib/postgresql/data`. For cache-only Redis,
    do not mount a persistence volume or enable Redis persistence.
-2. Add `spring-boot-docker-compose` as a development-time dependency. In
+6. Add `spring-boot-docker-compose` as a development-time dependency. In
    Maven, mark it optional to avoid exposing it transitively; the Spring Boot
    packaging plugin excludes it from repackaged archives by default. In
    Gradle, use `developmentOnly`. If Compose-backed tests need it on the test
@@ -76,7 +94,7 @@ the selected build tool.
 </dependency>
 ```
 
-3. When the context-load test needs the Compose-backed PostgreSQL datasource,
+7. When the context-load test needs the Compose-backed PostgreSQL datasource,
    Boot skips Compose during tests by default. Put this in
    `src/main/resources/application.yaml` to start the retained services during
    that test. Docker must be available when the project's test task runs. Do not add test-only auto-config excludes.

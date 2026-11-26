@@ -68,6 +68,10 @@ are in [configuration.md](configuration.md); async context propagation is in
 
 ## Examples
 
+New projects print the bound local port at startup. The optional springdoc
+URLs appear only when the matching module is present and enabled. The listener
+template lives at [`assets/StartupInfoListener.java.tmpl`](../assets/StartupInfoListener.java.tmpl).
+
 Put safe shared endpoint defaults in
 `src/main/resources/application.yaml`. Keep health as the only exposed web
 endpoint unless the application has an operational need and a verified access
