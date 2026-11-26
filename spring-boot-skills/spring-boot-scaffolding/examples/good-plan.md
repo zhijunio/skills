@@ -1,10 +1,10 @@
-# GOOD: illustrative generation plan
+# GOOD: request-only scaffolding
 
-Request: new Boot application using Gradle Kotlin DSL, Java 21 and a simple HTTP endpoint,
-without a database. Destination is new and does not contain a repository.
+Request: create a new Maven project with Java 21, PostgreSQL, MyBatis-Plus and Redis. Do not
+add Security. The destination does not exist.
 
-Plan: inspect the approved Initializr metadata, select the requested Boot major and a stable
-compatible release, request only the web/test capabilities, and stage the archive safely.
-Inspect generated build scripts and wrapper, retain the selected build tool, add the endpoint
-with positive/negative tests and minimal CI, then run the configured build.
-Report unavailable metadata or Java as blockers; do not silently change major version.
+Plan: inspect Initializr metadata, choose an advertised stable Boot 4 release, and request
+only Maven, Java 21, PostgreSQL and Redis. Add MyBatis-Plus because it was explicitly
+requested and is not an Initializr capability. Use the published version name rather than a
+metadata alias if they differ. Keep the generated application and files; add no Security,
+business code, CI or unrelated configuration. Report the project path and selected versions.
