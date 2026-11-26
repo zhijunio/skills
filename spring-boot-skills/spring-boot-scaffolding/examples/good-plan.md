@@ -1,14 +1,10 @@
-# GOOD: constrained project generation
+# GOOD: illustrative generation plan
 
-Request: create a new Spring Boot 4 web application with Maven, Java 21,
-PostgreSQL, MyBatis-Plus, Redis, and OpenAPI. Do not add authentication. The
-destination is a new directory.
+Request: new Boot application using Gradle Kotlin DSL, Java 21 and a simple HTTP endpoint,
+without a database. Destination is new and does not contain a repository.
 
-Plan: read the allowed Boot lines and Maven default in `versions.json`, then
-confirm the selected stable release and Java version are offered by Spring
-Initializr. Generate only the requested web capabilities into a fresh staging
-directory, inspect the archive before extraction, and keep the generated Maven
-wrapper. Apply the house persistence, caching, architecture-test, and OpenAPI
-defaults. Keep Security out. Run Maven verification and a bounded local startup
-check when available, then report the versions, commands, test counts, and
-checks that could not run.
+Plan: inspect the approved Initializr metadata, select the requested Boot major and a stable
+compatible release, request only the web/test capabilities, and stage the archive safely.
+Inspect generated build scripts and wrapper, retain the selected build tool, add the endpoint
+with positive/negative tests and minimal CI, then run the configured build.
+Report unavailable metadata or Java as blockers; do not silently change major version.

@@ -1,10 +1,4 @@
-# BAD: stale version and unrequested stack
+# BAD: destructive and oversized generation
 
-Request: create a new Spring Boot 4 service in a new directory using Gradle,
-Java 21, and no database or authentication.
-
-Bad plan: hard-code an old Boot version without checking `versions.json` or
-Initializr metadata, download and extract it over an existing checkout, replace
-Gradle with Maven, and add PostgreSQL, Redis, JWT, and a deployment workflow by
-habit. This ignores the version policy, destination boundary, and explicit
-feature exclusions.
+Download a hard-coded Boot release, unzip over the existing checkout, introduce Maven into
+a Gradle repository, add PostgreSQL/Redis/Lombok by habit, and push before running tests.

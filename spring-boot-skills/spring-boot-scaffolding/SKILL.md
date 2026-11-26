@@ -1,86 +1,71 @@
 ---
 name: spring-boot-scaffolding
 description: >
-  Use when creating a new Spring Boot 4 application from Spring Initializr. Select a version allowed by this repository's versions.json, preserve the requested build tool and capabilities, apply project defaults, and verify the result. Not for changing or migrating an existing application.
+  Use when creating a new Spring Boot application with a verified build, tests and minimal CI. Select compatible Spring Initializr metadata and the requested build tool; not for migrating or overwriting an existing application.
 ---
 
 # Spring Boot 4 Scaffolding
 
-Create a runnable application for the requested use case. Use the repository's
-version policy and house defaults, while honoring explicit requirements and
-exclusions.
+Create a minimal application for the requested use case, not a fixed enterprise stack.
+Target Boot 4; never silently switch major versions because a template is easier to obtain.
 
 ## Establish the generation contract
 
-Confirm that the destination is new. Establish the project name, coordinates,
-Java level, Maven or Gradle, web stack, database, and requested capabilities.
-Ask only for missing choices that materially change the generated project.
-Never overwrite an existing project.
+Confirm a new destination, project coordinates/package, Java level, Maven or Gradle and
+required capabilities. Ask only for missing consequential choices. Preserve the requested
+database, servlet/reactive stack, language and response contract. Do not add JPA, Redis,
+Lombok, JWT issuance, AI providers or telemetry services without a requirement.
 
-Read [the generation procedure](references/generation.md) before using Spring
-Initializr. Use its official UI or metadata/generation endpoints. This skill
-does not require or invoke a project-generation script. Do not send credentials
-or private source code.
+Read [the generation procedure](references/generation.md) before fetching or extracting an
+archive. Record the approved provider, metadata timestamp and exact requested inputs.
+A request to generate does not authorize publishing project details to an arbitrary provider.
 
-## Version policy
+## Version-specific checks
 
-Read the shared [versions.json](../versions.json). Use
-`springBoot.defaultByBuildTool.maven` for Maven and
-`springBoot.defaultByBuildTool.gradle` for Gradle unless the user selects
-another version on a line listed in `springBoot.allowedLines`. Check that the
-exact stable version and Java option are currently advertised by Initializr.
+Select an advertised stable Boot 4 release and compatible Java/build-tool options.
+Check the generated technology-specific starter/test-starter coordinates against that minor
+version's documentation. Use Framework 7 and the Boot-managed Jackson generation.
+Do not copy Boot 3 test annotations or dependency coordinates into the generated project.
 
-If the requested version is outside the allowed lines or is unavailable, stop
-and report the mismatch. Do not silently substitute a release. Do not select an
-RC, milestone, or snapshot. Check the JVM that will run the selected wrapper
-before building.
+Never select an RC, milestone or snapshot unless explicitly requested. Version identifiers
+must come from metadata; do not assume stable releases end with `.RELEASE`.
+Check the effective build, including the JVM actually running the wrapper, before compiling.
 
-## Apply new-project defaults
+## Build the smallest complete slice
 
-Use Java 21, Spring MVC, and Maven when the user has not selected a Java level,
-web stack, or build tool. For the default persistence stack, use PostgreSQL,
-MyBatis-Plus, Flyway, and Redis. Include ArchUnit and Taikai for architecture
-tests. Enable OpenAPI for web applications, use JavaDoc descriptions, and keep
-API documentation disabled in production. Spring Modulith is opt-in.
+Keep the Initializr wrapper, dependency management and source layout. Add one requested
+feature slice with explicit validation, error behavior and a test for success and failure.
+If no business feature was requested, keep the generated application and context test;
+do not invent Order/User/payment entities. Add service credentials only as runtime inputs,
+with disposable local test dependencies and no production defaults.
 
-Add Security, JWT issuance, AI providers, and external telemetry only when
-requested. Preserve explicit choices over defaults. Do not add the new-project
-defaults to an existing project.
-
-If no business feature was requested, keep the generated application and its
-context-load test; do not invent an Order, User, or payment domain. For a
-requested feature, implement one complete slice with success and failure
-coverage. Adapt [AGENTS.md](templates/AGENTS.md) or
-[CLAUDE.md](templates/CLAUDE.md) only when project-local guidance is useful;
-keep commands consistent with the generated build.
+Add a minimal CI job matching the verified local command/JDK and required disposable
+services. Use the repository's approved action versions and least privileges. Do not create
+a deployment job, publish artifacts, install global tools or configure external accounts.
+For local agent guidance, document real commands and constraints in AGENTS.md; Claude
+guidance may point to that shared file. Do not invent tool permissions or install other clients.
 
 ## Verify and report
 
-Inspect the generated build and configuration against the selected Boot/Java
-versions, requested capabilities, defaults, and exclusions. Run the selected
-wrapper's configured verification lifecycle. When feasible, start the app on
-loopback using an unused port and verify an actual readiness signal or requested
-endpoint.
+Run the wrapper build including the configured test lifecycle, then a bounded local startup
+check if feasible. Bind only to loopback, select an unused port and clean up only processes
+you start. Verify an actual response/readiness signal, not merely process creation.
+Report files created, exact versions, command results and missing prerequisites.
+Use the project's test policy; do not add arbitrary coverage thresholds.
 
-Report exact Boot, Java, and build-tool versions; commands and results; executed
-test counts; and checks that could not run. A successful download or compile
-alone does not complete scaffolding.
-
-[Good plan](examples/good-plan.md) and [bad plan](examples/bad-plan.md)
-illustrate scope. This workflow does not bundle a generation script. If
-Initializr is unavailable or the requested version is not advertised, report
-that blocker rather than using a stale version or unapproved source.
+[Good plan](examples/good-plan.md) and [bad plan](examples/bad-plan.md) illustrate scope.
+This workflow is guidance, not a bundled generator or a guarantee that remote generation
+will remain available.
 
 ## Official sources
 
-- [Spring Initializr metadata and generation](https://docs.spring.io/initializr/docs/current/reference/html/)
-- [Spring Boot build systems](https://docs.spring.io/spring-boot/reference/using/build-systems.html)
-- [Spring Boot testing](https://docs.spring.io/spring-boot/reference/testing/index.html)
+- [Initializr metadata and generation](https://docs.spring.io/initializr/docs/current/reference/html/)
+- [Boot 4 build systems](https://docs.spring.io/spring-boot/4.1/reference/using/build-systems.html)
+- [Boot 4 testing](https://docs.spring.io/spring-boot/4.1/reference/testing/index.html)
 
 ## Gotchas
 
-- Destination already contains a project: choose a new output directory; do not merge or overwrite it.
-- Initializr no longer advertises the pinned Boot release: stop and report the unavailable version.
-- User selected Gradle or WebFlux: preserve that choice instead of changing it to Maven or MVC.
-- User declined Security: keep authentication dependencies and configuration out of the generated project.
-- Project generation succeeded but tests or startup were not checked: report those checks as not run.
+- Agent extracts into an existing checkout - use a new staging directory and refuse destination collisions.
+- Agent hard-codes a stale Initializr version - inspect advertised capabilities and report unavailable versions.
+- Agent generates both build tools or both web stacks - preserve the user's selected architecture.
+- Agent declares completion after downloading a ZIP - verify the generated build, tests and startup separately.

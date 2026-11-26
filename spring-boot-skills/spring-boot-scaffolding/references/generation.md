@@ -1,7 +1,6 @@
 # Metadata-driven generation
 
-1. Fetch JSON metadata from the approved Initializr endpoint (normally https://start.spring.io),
-   using an available HTTP or browser tool; do not create a project-generation script.
+1. Fetch JSON metadata from the approved Initializr endpoint (normally https://start.spring.io).
    Inspect the advertised project types, languages, Boot/Java versions, packaging and dependency
    compatibility ranges. Parse JSON with a structured parser, not grep against a version string.
    On a transient fetch failure, retry at most once with a bounded timeout, then report the
@@ -9,7 +8,7 @@
 2. Select the exact approved major/release. Metadata defaults are not user approval for an
    upgrade. Stable identifiers commonly have no suffix; exclude milestone/RC/SNAPSHOT versions
    unless requested. Record the chosen identifier rather than guessing or stripping characters.
-3. Encode parameters with the HTTP tool's form/query encoder. Use timeouts and fail on HTTP
+3. Encode parameters with an HTTP client's form/query encoder. Use timeouts and fail on HTTP
    errors. Do not interpolate project names into shell code. Send no credentials/private source.
 4. Download to a new temporary location, not the target checkout. Confirm the response is the
    expected ZIP, not an HTML/JSON error. Inspect entries before extraction: reject absolute or
