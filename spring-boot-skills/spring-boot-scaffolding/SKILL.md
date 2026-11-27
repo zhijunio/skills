@@ -57,7 +57,7 @@ uses the requested, published Spring Boot version. Do not run a build, tests or 
 unless the user requests verification. Report the destination, selected versions and any
 requested capability that Initializr could not provide.
 
-[Good plan](examples/good-plan.md) and [bad plan](examples/bad-plan.md) illustrate scope.
+[Good plan](examples/requested-scope-plan.md) and [bad plan](examples/scope-overreach.md) illustrate scope.
 This workflow is guidance, not a bundled generator or a guarantee that remote generation
 will remain available.
 

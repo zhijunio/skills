@@ -14,9 +14,13 @@
    plugin uses the published coordinate. If it does not, check the corresponding artifact
    in Maven Central and stop if no matching release exists; never leave an unresolvable
    version in the project.
-4. Make the generation request, check the HTTP response and generated Boot coordinate, then
-   extract the ZIP into the new destination. Do not overwrite an existing project. Batch
-   these steps into one tool call when practical.
+4. Make the generation request and check the HTTP response and generated Boot coordinate.
+   Inspect the ZIP's top-level entries before extraction: when Initializr includes the
+   requested `baseDir` directory, extract into the destination's parent so that this directory
+   becomes the project root. Do not pre-create that project directory and extract into it, which
+   creates an accidental nested `baseDir/baseDir` tree. If the archive has no enclosing project
+   directory, create the new destination and extract its contents there. Never overwrite an
+   existing project. Batch these steps into one tool call when practical.
 5. Keep the generated wrapper and project files. Do not add dependencies, features, tests,
    CI, configuration or documentation beyond the user's request.
 
