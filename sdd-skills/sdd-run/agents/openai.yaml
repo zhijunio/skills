@@ -1,4 +1,0 @@
-interface:
-  display_name: "Run the SDD Workflow"
-  short_description: "Run or resume delivery through implementation and review"
-  default_prompt: "Use $sdd-run to run or resume the SDD workflow for this scope and pause at required approvals."

@@ -1,6 +1,0 @@
-interface:
-  display_name: "Maintain Use-Case Requirements"
-  short_description: "Derive or reconcile use cases from an approved PRD"
-  default_prompt: "Use $sdd-requirements to update the use-case inventory from the approved PRD, preserving existing IDs and implementation history."
-policy:
-  allow_implicit_invocation: false

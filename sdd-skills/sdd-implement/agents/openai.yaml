@@ -1,6 +1,0 @@
-interface:
-  display_name: "Implement and Verify Changes"
-  short_description: "Implement approved specs or verify small fixes with TDD"
-  default_prompt: "Use $sdd-implement to implement this approved spec or make a small fix that restores established behavior."
-policy:
-  allow_implicit_invocation: false

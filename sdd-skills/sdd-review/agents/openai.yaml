@@ -1,4 +1,0 @@
-interface:
-  display_name: "Review an Implementation"
-  short_description: "Review a change against its spec and coding standards"
-  default_prompt: "Use $sdd-review to review this change against its approved spec and repository standards."

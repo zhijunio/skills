@@ -1,4 +1,0 @@
-interface:
-  display_name: "Find Repository Improvements"
-  short_description: "Identify evidence-backed improvements across the codebase"
-  default_prompt: "Use $sdd-improve to scan this repository or module and report the highest-value improvements."

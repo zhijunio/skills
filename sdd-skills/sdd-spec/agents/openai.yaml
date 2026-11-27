@@ -1,6 +1,0 @@
-interface:
-  display_name: "Review Requirements and Create Specs"
-  short_description: "Complete approved use cases and generate approved feature specs"
-  default_prompt: "Use $sdd-spec after an Approved PRD and sdd-requirements document exist. Review use-case coverage, clarify behavior gaps, assess domain/API readiness, and generate the feature spec."
-policy:
-  allow_implicit_invocation: false
