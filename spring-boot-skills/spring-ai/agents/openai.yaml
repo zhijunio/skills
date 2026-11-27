@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring AI"
+  short_description: "Build, secure, and observe Spring AI capabilities"
+  default_prompt: "Use $spring-ai to integrate, secure, observe, or expose AI capabilities in this Spring Boot project."

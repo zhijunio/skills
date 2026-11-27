@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Kubernetes"
+  short_description: "Deploy Spring Boot workloads to Kubernetes"
+  default_prompt: "Use $spring-boot-kubernetes to prepare this Spring Boot workload for Kubernetes."

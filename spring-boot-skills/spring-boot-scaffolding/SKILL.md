@@ -1,7 +1,7 @@
 ---
 name: spring-boot-scaffolding
 description: >
-  Use when creating a new Spring Boot application from Spring Initializr. Select the requested build tool and capabilities; not for migrating or overwriting an existing application.
+  Generate a new Spring Boot 4 skeleton from Spring Initializr with the requested build tool, Java version, and starter dependencies.
 ---
 
 # Spring Boot 4 Scaffolding
@@ -21,6 +21,15 @@ Read [the generation procedure](references/generation.md) before fetching or ext
 archive. Use the official Spring Initializr endpoint; do not send credentials or private
 source code.
 
+## Fast path
+
+When the destination, coordinates, build tool, Java version, Boot release and requested
+capabilities are clear, proceed without clarification or extra research. If the user supplied
+an exact Boot release, request that version directly; fetch metadata only when the version
+must be selected or a requested Initializr capability is unclear. For a straightforward
+request, batch generation and the small output checks into one tool call. Do not inspect
+unrelated references or repeat checks already established by the Initializr response.
+
 ## Version-specific checks
 
 Select an advertised stable Boot 4 release and compatible Java/build-tool options. Use the
@@ -30,8 +39,9 @@ use the displayed version as the generation parameter and confirm the generated 
 or Gradle plugin uses that published coordinate. Do not assume `.RELEASE` is a valid artifact
 version. If the generated coordinate is unavailable from its repository, stop and report it.
 
-Never select an RC, milestone or snapshot unless explicitly requested. Version identifiers
-must come from metadata; do not assume stable releases end with `.RELEASE`.
+Never select an RC, milestone or snapshot unless explicitly requested. When selecting from
+metadata, distinguish its option id from the published release version; do not assume stable
+releases end with `.RELEASE`.
 Check the effective build, including the JVM actually running the wrapper, before compiling.
 
 ## Generate the requested project

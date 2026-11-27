@@ -1,0 +1,4 @@
+interface:
+  display_name: "Maintain the PRD"
+  short_description: "Clarify product scope and draft a PRD for approval"
+  default_prompt: "Use $sdd-prd to clarify this product scope and prepare the master PRD for my approval."

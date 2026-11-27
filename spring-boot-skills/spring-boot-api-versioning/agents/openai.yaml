@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot API Versioning"
+  short_description: "Version Spring MVC and WebFlux APIs safely"
+  default_prompt: "Use $spring-boot-api-versioning to configure one Spring API version-resolution strategy and verify missing, unsupported, and deprecated versions."

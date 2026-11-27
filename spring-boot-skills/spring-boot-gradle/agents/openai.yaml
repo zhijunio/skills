@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Gradle"
+  short_description: "Configure Spring Boot Gradle builds"
+  default_prompt: "Use $spring-boot-gradle to configure this Spring Boot Gradle build."

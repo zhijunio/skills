@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "order-service": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/path/to/your/order-service.jar",
+        "--spring.ai.mcp.server.stdio=true"
+      ],
+      "env": {
+        "SPRING_DATASOURCE_URL": "<database URL supplied by your secret manager>",
+        "SPRING_DATASOURCE_USERNAME": "<database username supplied by your secret manager>",
+        "SPRING_DATASOURCE_PASSWORD": "<database password supplied by your secret manager>"
+      }
+    }
+  }
+}

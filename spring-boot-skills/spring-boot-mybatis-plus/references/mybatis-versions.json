@@ -1,0 +1,8 @@
+{
+  "checkedOn": "2026-11-24",
+  "source": "../../../spring-boot-4/versions.json",
+  "mybatisPlus": {
+    "default": "3.5.18",
+    "source": "https://baomidou.com/en/getting-started/install/"
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Task Execution"
+  short_description: "Configure Spring async work and scheduled jobs"
+  default_prompt: "Use $spring-task-execution to configure and verify this Spring Boot background task."

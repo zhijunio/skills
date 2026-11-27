@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature Architecture"
+  short_description: "Organize Spring Boot code around business features"
+  default_prompt: "Use $feature-architecture to organize this Spring Boot application by business feature while preserving clear dependencies between features."

@@ -1,0 +1,24 @@
+{
+  "checkedOn": "2026-11-24",
+  "source": "../../../spring-boot-4/versions.json",
+  "springBoot": {
+    "default": "4.2.0",
+    "maven": "4.2.0"
+  },
+  "mavenMinimum": "3.6.3",
+  "spotless": {
+    "mavenPlugin": "3.12.0",
+    "palantirJavaFormat": "2.103.0"
+  },
+  "jacoco": {
+    "mavenPlugin": "0.8.16"
+  },
+  "architectureTesting": {
+    "taikai": {
+      "default": "1.67.0"
+    }
+  },
+  "mavenRelease": {
+    "plugin": "3.3.1"
+  }
+}

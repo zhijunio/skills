@@ -1,32 +1,19 @@
 # SDD skills
 
-Use these skills to move from product framing to verified implementation. Each `SKILL.md` is the authoritative procedure; this index only helps choose the next skill.
+**[sdd-prd](sdd-prd/SKILL.md) → [sdd-requirements](sdd-requirements/SKILL.md) → [sdd-spec](sdd-spec/SKILL.md) → [sdd-implement](sdd-implement/SKILL.md) → [sdd-review](sdd-review/SKILL.md)**
 
-## Choose a skill
-
-| Need | Skill |
+| Skill | Result |
 | --- | --- |
-| Clarify the problem, evidence, alternatives, or key unknowns before scope | [`sdd-discover`](sdd-discover/SKILL.md) (optional) |
-| Create or revise product goals, scope, priorities, and requirements | [`sdd-prd`](sdd-prd/SKILL.md) |
-| Assess shared domain and API contract readiness after PRD approval | [`sdd-design`](sdd-design/SKILL.md) (required before approved specs) |
-| Break approved product requirements into user-visible feature slices and acceptance criteria | [`sdd-spec`](sdd-spec/SKILL.md) |
-| Map one approved spec into verifiable implementation slices, or prepare a joint spec-and-plan approval for a small feature | [`sdd-plan`](sdd-plan/SKILL.md) |
-| Implement an approved spec and plan test-first, or fix listed review findings | [`sdd-build`](sdd-build/SKILL.md) |
-| Review a branch, PR, or defined change range | [`sdd-review`](sdd-review/SKILL.md) |
-| Scan a repository or area for systemic improvement opportunities | [`sdd-improve`](sdd-improve/SKILL.md) |
-| Orchestrate the end-to-end workflow when explicitly requested | [`sdd-yolo`](sdd-yolo/SKILL.md) |
+| [sdd-prd](sdd-prd/SKILL.md) | One master PRD with approved product scope |
+| [sdd-requirements](sdd-requirements/SKILL.md) | Use-case inventory with stable IDs and dependencies |
+| [sdd-spec](sdd-spec/SKILL.md) | Approved spec with observable ACs and readiness evidence |
+| [sdd-implement](sdd-implement/SKILL.md) | Tested delivery and verification evidence in the spec |
+| [sdd-review](sdd-review/SKILL.md) | Findings against the spec and repository standards |
 
-## Usual sequence
+Use [sdd-run](sdd-run/SKILL.md) to run or resume the entire workflow. Use [sdd-improve](sdd-improve/SKILL.md) for a broader repository scan.
 
-`sdd-discover` (when useful) → `sdd-prd` → `sdd-design` → `sdd-spec` → `sdd-plan` → `sdd-build`
+Small fixes that restore established behavior and refactors that preserve it go directly through [sdd-implement](sdd-implement/SKILL.md#small-fixes-and-refactors) and [sdd-review](sdd-review/SKILL.md).
 
-`sdd-design` is a required readiness gate after PRD approval and before approving implementation specs. `sdd-review` and `sdd-improve` are separate, on-demand activities; neither is automatically chained after build.
+Settle shared domain models, consumer-facing APIs, and key UI interactions in `sdd-spec`. Prototype when an open interaction decision would change the ACs. Design the physical schema and internal code structure in `sdd-implement`.
 
-## Approval boundaries
-
-- Keep product scope in Draft until the user explicitly approves it.
-- A Ready design result covers only its assessed, approved PRD requirements; unresolved decisions block only affected scope.
-- Approve specs and plans explicitly before implementation. A small, explicitly requested feature may present a complete spec and plan together for one approval.
-- `sdd-yolo` coordinates these stages but does not approve scope or artifacts for the user.
-
-Follow each skill's procedure and the consuming repository's conventions. See [`references/output-paths.md`](references/output-paths.md) only when that repository has no artifact path convention.
+Implement small specs in sequence and split larger specs into independent tasks when their dependencies and write scopes allow it. See [parallel implementation](sdd-implement/references/parallel-implementation.md) and the [artifact path policy](references/output-paths.md).

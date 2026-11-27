@@ -1,0 +1,4 @@
+interface:
+  display_name: "PostgreSQL"
+  short_description: "Configure PostgreSQL for Spring Boot"
+  default_prompt: "Use $postgresql to configure or review PostgreSQL behavior in this Spring Boot application."

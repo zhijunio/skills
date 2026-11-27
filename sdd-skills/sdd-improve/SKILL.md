@@ -36,4 +36,4 @@ Keep the list short; include strengths or a staged roadmap only when they help a
 
 - Stay read-only; do not edit, install, format, or fix while scanning.
 - For a branch, pull request, or fixed change range, use [`sdd-review`](../sdd-review/SKILL.md).
-- For product scope or shared design/API decisions, route to [`sdd-prd`](../sdd-prd/SKILL.md) or [`sdd-design`](../sdd-design/SKILL.md).
+- For product scope or shared design/API decisions, route to [`sdd-prd`](../sdd-prd/SKILL.md) or the design-readiness phase in [`sdd-spec`](../sdd-spec/SKILL.md).

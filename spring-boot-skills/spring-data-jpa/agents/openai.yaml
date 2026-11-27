@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Data JPA"
+  short_description: "Model efficient JPA entities, queries, and writes"
+  default_prompt: "Use $spring-data-jpa to model entities and queries for the existing schema and workload. Check transaction, fetch, pagination, and concurrency behavior."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTTP Interface Clients"
+  short_description: "Create configured declarative HTTP clients"
+  default_prompt: "Use $http-interface-clients to configure a typed outbound HTTP client with explicit timeouts and failure handling. Add retries only when the operation is safe to repeat."

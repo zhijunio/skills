@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot OpenAPI"
+  short_description: "Design Spring APIs with contract-first or code-first OpenAPI"
+  default_prompt: "Use $spring-boot-openapi to select or implement this Spring Boot OpenAPI workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "mise"
+  short_description: "Pin project tools and share Spring Boot tasks"
+  default_prompt: "Use $mise to configure project tool versions and shared tasks in mise.toml while keeping Maven or Gradle as the build source of truth."

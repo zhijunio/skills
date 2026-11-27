@@ -1,0 +1,4 @@
+interface:
+  display_name: "ArchUnit"
+  short_description: "Enforce Java architecture rules with Taikai and ArchUnit"
+  default_prompt: "Use $archunit to establish Taikai architecture checks and add focused ArchUnit rules for uncovered boundaries in this Spring Boot application."

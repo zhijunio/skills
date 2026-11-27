@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Frontend Integration"
+  short_description: "Integrate React or Next.js with Spring Boot"
+  default_prompt: "Use $spring-boot-frontend-integration to integrate this frontend with Spring Boot."

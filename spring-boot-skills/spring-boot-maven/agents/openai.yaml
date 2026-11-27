@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Maven"
+  short_description: "Configure Spring Boot Maven builds"
+  default_prompt: "Use $spring-boot-maven to configure this Spring Boot Maven build."

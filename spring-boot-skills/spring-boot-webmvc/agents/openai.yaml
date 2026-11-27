@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Web MVC"
+  short_description: "Design Spring MVC endpoints and service transactions"
+  default_prompt: "Use $spring-boot-webmvc to implement this controller or application-service change."

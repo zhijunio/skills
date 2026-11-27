@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hexagonal Architecture"
+  short_description: "Keep Spring domains behind ports and adapters"
+  default_prompt: "Use $hexagonal-architecture to shape the requested feature around domain ports and adapters. Keep web and persistence frameworks out of the domain."

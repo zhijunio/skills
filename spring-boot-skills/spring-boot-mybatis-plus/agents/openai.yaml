@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot MyBatis-Plus"
+  short_description: "Build Spring Boot MyBatis-Plus persistence"
+  default_prompt: "Use $spring-boot-mybatis-plus to implement this MyBatis-Plus change."

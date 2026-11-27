@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resilience and Retry"
+  short_description: "Retry transient failures with bounded resilience"
+  default_prompt: "Use $resilience-retry to add bounded retries or concurrency limits for classified transient failures. Respect deadlines, idempotency, and Spring proxy boundaries."

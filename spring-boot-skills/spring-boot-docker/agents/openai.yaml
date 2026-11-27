@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Docker"
+  short_description: "Build secure JVM containers and native images"
+  default_prompt: "Use $spring-boot-docker to implement this Spring Boot Docker or Compose change."

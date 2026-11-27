@@ -1,0 +1,4 @@
+interface:
+  display_name: "Multi-Tenancy"
+  short_description: "Enforce tenant identity and data isolation"
+  default_prompt: "Use $multi-tenancy to implement tenant resolution and data isolation. Derive identity from the verified caller and enforce it in every affected query and write."

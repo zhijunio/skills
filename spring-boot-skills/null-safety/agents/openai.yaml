@@ -1,0 +1,4 @@
+interface:
+  display_name: "Null Safety"
+  short_description: "Apply explicit Java and Kotlin null contracts"
+  default_prompt: "Use $null-safety to define JSpecify contracts at package boundaries and annotate only genuine nullable exceptions."

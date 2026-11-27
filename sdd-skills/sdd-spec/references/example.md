@@ -1,10 +1,12 @@
 # Device alert acknowledgement
 
 **Status:** Draft<br>
+**Implementation status:** NOT_IMPLEMENTED<br>
 **Approval record:** Pending<br>
 **Version:** 0.1<br>
 **Spec ID:** ALERT-01<br>
-**Parent PRD:** Device status and alert handling, FR-5
+**Parent PRD:** `docs/PRD.md`, approved version `0.2`, FR-5 (device status and alert handling)<br>
+**Requirements:** `docs/requirements.md`, UC-005
 
 ## Outcome and scope
 
@@ -19,13 +21,13 @@ An authorized platform operator can acknowledge a device-reported alert so the r
 
 ## Upstream contracts
 
-- Design readiness: Exploratory — Draft PRD; alert lifecycle assessment is incomplete.
-- Design / API: Not established; alert lifecycle details must be resolved before approval if they affect this behavior.
+- Design readiness: Ready — approved alert acknowledgement requirement; shared alert and API contracts cover this behavior.
+- Design / API: Canonical alert lifecycle and API contracts; repeated acknowledgement behavior remains a slice-specific open question.
 - Dependencies: None
 
 ## User cases and acceptance criteria
 
-### UC-1 — Acknowledge an alert
+### UC-005 — Acknowledge an alert
 
 As a platform operator with access to the alert's tenant, I want to confirm an open alert so responders can see it is being handled.
 
@@ -53,6 +55,6 @@ As a platform operator with access to the alert's tenant, I want to confirm an o
 
 ### Revision history
 
-| Version | Date | Change | Approval / plan impact |
+| Version | Date | Change | Approval / implementation impact |
 | --- | --- | --- | --- |
-| 0.1 | 2026-10-20 | Initial exploratory draft | Pending |
+| 0.1 | 2026-10-20 | Initial draft from approved scope | Pending |

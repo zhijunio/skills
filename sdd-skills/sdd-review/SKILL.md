@@ -1,37 +1,18 @@
 ---
 name: sdd-review
-description: Review a branch, pull request, or change range against repository standards and its originating spec when available. Use for incremental change review, not broad repository health scans.
+description: Review a delivered increment, branch, or PR against its approved spec or established behavior and repository standards. Report evidence-backed findings.
 ---
 
-# sdd-review
+# Review an increment
 
-Review a change set and report actionable findings. Read-only by default. Use the user's language.
-Reports are point-in-time outputs, not versioned contracts. Present them in chat by default; if the user asks to save one, follow the [SDD artifact path policy](../references/output-paths.md) and include its date and reviewed range.
+1. Pin the diff from the user or the `sdd-implement` handoff. Include owned uncommitted and new files in a delivery handoff and exclude unrelated edits. For a standalone review with no range, compare HEAD with the default branch. Include workspace changes when requested. State the actual range.
+2. Review the same diff from two perspectives:
+   - **Behavior:** Match behavior and verification to the approved ACs. For a small fix or refactor without a spec, use the expected behavior and evidence in the handoff. Check missing behavior, regressions, and scope expansion. Report the limit if there is no behavioral baseline.
+   - **Standards:** Check correctness, security, and the repository's coding standards. Use the [standards baseline](references/standards-baseline.md) and [code smells](references/smell-baseline.md) when warranted. Report problems introduced or worsened by the change.
+3. Report actionable findings with severity (`high`, `medium`, `low`), `path:line`, evidence, impact, and a correction. Summarize behavior coverage and verification limits. For substantial reviews, the two perspectives can run in parallel. Keep this review read-only and route accepted fixes to [sdd-implement](../sdd-implement/SKILL.md).
 
-## Review
+For a workflow review, return the spec version or behavioral baseline, [increment identifier](#increment-identifier), outcome, and remaining findings. The caller records the result in the spec when applicable. Present the full report in chat by default. Use the [path policy](../references/output-paths.md) if the user asks to save it.
 
-1. Establish the range from the user's reference. If none is given, compare `HEAD` with the repository's default branch. State the actual range. Include uncommitted changes only when the user asks for a working-tree review.
-2. Inspect the changed code and relevant repository guidance. Locate the originating issue, PRD, spec, and plan when available; use `AC-n` as the behavioral contract. If no spec is available, say so and review against repository standards only.
-3. Look for correctness, security, regressions, verification gaps, maintainability problems introduced by the change, and mismatches with the spec. Use the shared [standards baseline](references/standards-baseline.md) when it helps. Load [smell baseline](references/smell-baseline.md) for deeper structural review.
-4. Report only evidence-backed, actionable findings. Keep the report brief for small changes; broaden coverage for large, risky, or explicitly deep reviews. Parallel analysis is optional when the change has independent review areas and delegation is available.
+## Increment identifier
 
-## Output
-
-```markdown
-## Findings
-- [severity] **Title** — impact and evidence (`path:line`). Include a concrete correction.
-
-## Spec coverage
-- <ACs covered, gaps, or "No spec available">
-
-## Summary
-- <Reviewed range, important checks or limitations, and overall assessment>
-```
-
-Use `high`, `medium`, and `low` for severity. A finding belongs in the report only when it is in scope, supported by evidence, and worth acting on. Omit empty sections where appropriate. Do not invent a pass verdict when the review was limited; state coverage and gaps plainly.
-
-## Boundaries
-
-- Review the requested range; do not turn pre-existing repository debt into a finding unless the change worsens it.
-- Do not edit files or automatically start fixes, commits, pull requests, or merges.
-- Use [`sdd-improve`](../sdd-improve/SKILL.md) for a broad repository or module scan; use [`sdd-build`](../sdd-build/SKILL.md) to fix accepted findings.
+For committed work, record immutable base and head commits for the reviewed diff. For uncommitted work, use a digest of the scoped patch including the contents of owned new files. Exclude generated status and evidence entries. Use the same identifier in implementation and review records.

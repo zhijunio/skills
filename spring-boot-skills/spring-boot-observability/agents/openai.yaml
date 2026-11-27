@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Observability"
+  short_description: "Add metrics, traces, logs, health, and alerts"
+  default_prompt: "Use $spring-boot-observability to add service telemetry with bounded metric dimensions and without exposing credentials, prompts, or request data."

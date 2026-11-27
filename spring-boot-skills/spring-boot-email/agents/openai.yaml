@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Email"
+  short_description: "Send and test Spring Boot email"
+  default_prompt: "Use $spring-boot-email to implement this Spring Boot email change."

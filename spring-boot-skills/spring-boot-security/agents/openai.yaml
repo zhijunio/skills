@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Security"
+  short_description: "Configure, review, and audit Spring Boot security"
+  default_prompt: "Use $spring-boot-security to implement or review this Spring Boot security change."

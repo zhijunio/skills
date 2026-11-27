@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Testing"
+  short_description: "Choose focused tests and assess configured build readiness"
+  default_prompt: "Use $spring-boot-testing to choose tests or report build and release readiness with evidence."

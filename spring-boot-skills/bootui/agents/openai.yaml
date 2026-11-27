@@ -1,0 +1,4 @@
+interface:
+  display_name: "BootUI"
+  short_description: "Add and secure BootUI for local development"
+  default_prompt: "Use $bootui to configure BootUI as a local-only developer console."

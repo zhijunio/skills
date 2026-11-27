@@ -1,0 +1,4 @@
+interface:
+  display_name: "Event-Driven Messaging"
+  short_description: "Build reliable broker producers and consumers"
+  default_prompt: "Use $event-driven-messaging to plan or implement the requested producer/consumer flow, state broker delivery guarantees, and make side effects safe under redelivery."

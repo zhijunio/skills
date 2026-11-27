@@ -16,25 +16,15 @@ A collection of Agent Skills for agentic coding tools, covering Java, PostgreSQL
 
 ## SDD workflow skills
 
-Use these skills for a spec-driven delivery flow: optionally use `sdd-discover` to frame an unclear problem and synthesize evidence; it returns a concise summary to `sdd-prd` and is not a required document or gate. `sdd-prd` creates a Draft PRD and obtains explicit scope approval. Before `sdd-spec`, `sdd-design` checks the selected approved requirements; it updates canonical domain/API contracts only when needed. For a routine no-change result, it does not create a separate assessment file: `sdd-spec` records the Ready result and contract links in the spec. Save a standalone assessment only for substantial or multi-spec scopes, user request, or repository convention. `sdd-spec` decomposes covered requirements into feature specs; a breakdown map is needed only for multiple feature slices. `sdd-plan` creates one plan per approved spec, allowing a single verifiable slice; a small spec and plan may be approved together when requested. `sdd-build` implements the approved plan and appends verification evidence to it. Explicitly invoke `sdd-yolo` to orchestrate these stages for one requested scope; it preserves each stage's approval gates and stops for user decisions. When product direction is clear, start at `sdd-prd`. Deferred roadmap candidates are assessed only when they enter a delivery scope. A Draft PRD may support exploratory artifacts but cannot authorize accepted contracts, approved specs, plans, or implementation. Brainstorming, grilling, or interviews may use separate skills when useful; their findings feed into discovery or directly into the PRD. Review with `sdd-review` when requested; it is not an automatic build step. Use `sdd-improve` separately for a read-only, broad-scope health scan.
+`sdd-prd → sdd-requirements → sdd-spec → sdd-implement → sdd-review`
 
-When a project has no existing documentation convention, use the shared [SDD artifact path policy](sdd-skills/references/output-paths.md). Exploratory summaries and review reports remain in chat unless the user asks to persist them; implementation evidence is appended to its plan.
+Approve product scope and feature specs for new behavior. Implement small specs with sequential TDD and larger specs with independent, verifiable tasks in parallel. For small fixes and behavior-preserving refactors, use `sdd-implement` and `sdd-review` directly.
 
-| Skill | Purpose |
-| ----- | ------- |
-| [`sdd-discover`](sdd-skills/sdd-discover/SKILL.md) | Optionally frame an unclear product problem and synthesize evidence into concise input for the PRD; no mandatory intermediate artifact or approval gate. |
-| [`sdd-prd`](sdd-skills/sdd-prd/SKILL.md) | Clarify product inputs and create or revise the single product requirements document; keep it Draft until explicit scope approval. |
-| [`sdd-design`](sdd-skills/sdd-design/SKILL.md) | Required readiness check after PRD approval; update shared contracts when needed, and create a standalone assessment only for substantial or multi-spec scopes, user request, or repository convention. |
-| [`sdd-spec`](sdd-skills/sdd-spec/SKILL.md) | After a scoped Ready design assessment, decompose covered PRD requirements into traceable feature specs with user cases, acceptance criteria, edge cases, and verification. |
-| [`sdd-plan`](sdd-skills/sdd-plan/SKILL.md) | Decompose one approved feature spec into ordered, verifiable implementation slices; use parallel analysis when independent questions could materially affect the plan. |
-| [`sdd-build`](sdd-skills/sdd-build/SKILL.md) | Implement one approved spec and its plan test-first, or fix listed review findings. |
-| [`sdd-yolo`](sdd-skills/sdd-yolo/SKILL.md) | Explicitly invoked end-to-end orchestrator for one requested scope; resumes from existing artifacts and preserves all approval gates. |
-| [`sdd-review`](sdd-skills/sdd-review/SKILL.md) | Review a fixed increment against documented standards and its spec. |
-| [`sdd-improve`](sdd-skills/sdd-improve/SKILL.md) | Find improvement candidates through a read-only repository scan. |
+See the [SDD skill index](sdd-skills/README.md) for stage selection and the [artifact path policy](sdd-skills/references/output-paths.md) for output paths.
 
-Default artifact paths, naming, and persistence rules are centralized in [`sdd-skills/references/output-paths.md`](sdd-skills/references/output-paths.md); consuming repositories' existing conventions take precedence.
+## Collected skills
 
-The workflow includes [PRD, design, spec, and plan templates](sdd-skills/) and shared [review baselines](sdd-skills/sdd-review/references/). Multi-spec initiatives are planned and built one approved spec at a time; parallel analysis in `sdd-plan` is reserved for substantial independent questions and does not delegate plan ownership or implementation.
+Browse [collected-skills/](collected-skills/README.md) for skills gathered from other projects. Use the individual skill directory when installing one of them.
 
 ## Runnable samples
 

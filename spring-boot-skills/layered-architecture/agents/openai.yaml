@@ -1,0 +1,4 @@
+interface:
+  display_name: "Layered Architecture"
+  short_description: "Keep Spring web, service, and data layers clean"
+  default_prompt: "Use $layered-architecture to define controller, service, and repository responsibilities. Keep business behavior out of HTTP and persistence layers."

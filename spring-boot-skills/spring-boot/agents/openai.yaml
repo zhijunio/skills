@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot"
+  short_description: "Route Spring Boot work to focused skills"
+  default_prompt: "Use $spring-boot to coordinate the relevant Spring Boot skills for this task."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Data Redis"
+  short_description: "Design safe Redis caches and rate limits"
+  default_prompt: "Use $spring-data-redis to choose a cache, session, rate-limit, or Redis store pattern; define its failure policy, TTL, key scope, and serialization before changing code."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot CI/CD"
+  short_description: "Configure Spring Boot CI and releases"
+  default_prompt: "Use $spring-boot-cicd to implement this requested CI/CD change."
