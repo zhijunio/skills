@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Our Spring Boot 4 service has a failing endpoint involving JSON serialization and validation; diagnose it.",
+    "should_trigger": true
+  },
+  {
+    "query": "检查 Spring Boot 4 项目构建、数据访问和测试之间的配置问题。",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a generic test strategy without assuming any framework.",
+    "should_trigger": false
+  },
+  {
+    "query": "Sketch navigation options for a product mockup with no backend.",
+    "should_trigger": false
+  }
+]

@@ -1,0 +1,79 @@
+[
+  {
+    "skill": "behavior-specification",
+    "implicit_prompt": "Draft detailed behavior for UC-007.",
+    "explicit_prompt": "Use behavior-specification to clarify UC-007.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "implement-use-case",
+    "implicit_prompt": "Implement the approved UC-007.",
+    "explicit_prompt": "Use implement-use-case for UC-007.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "prd-to-use-cases",
+    "implicit_prompt": "Turn the approved PRD into a use-case index.",
+    "explicit_prompt": "Use prd-to-use-cases to decompose the approved PRD.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "project-foundation",
+    "implicit_prompt": "Recommend a technical baseline for a new project.",
+    "explicit_prompt": "Use project-foundation to discuss a baseline; do not initialize yet.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "progen",
+    "implicit_prompt": "We need a new Spring Boot project.",
+    "explicit_prompt": "Use progen to evaluate the approved Spring Boot baseline; do not generate yet.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "technical-spike",
+    "implicit_prompt": "Could this SQLite mechanism work? Explain the uncertainty.",
+    "explicit_prompt": "Use technical-spike to plan a bounded in-memory SQLite experiment; do not execute yet.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "grill-with-docs",
+    "implicit_prompt": "Stress-test this decision and discuss terminology.",
+    "explicit_prompt": "Use grill-with-docs to review this decision; ask before document edits.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "handoff",
+    "implicit_prompt": "Summarize our progress.",
+    "explicit_prompt": "Use handoff to prepare a handoff draft.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "retro",
+    "implicit_prompt": "What went well in this coding task?",
+    "explicit_prompt": "Use retro to review this coding session.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "show-me",
+    "implicit_prompt": "Explain this architecture with a diagram.",
+    "explicit_prompt": "Use show-me to explain this architecture.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  },
+  {
+    "skill": "teach",
+    "implicit_prompt": "Explain dependency injection.",
+    "explicit_prompt": "Use teach to guide me through dependency injection.",
+    "expected_implicit": "must_not_automatically_invoke",
+    "expected_explicit": "eligible_for_invocation_subject_to_prerequisites"
+  }
+]

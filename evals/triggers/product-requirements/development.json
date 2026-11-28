@@ -1,0 +1,34 @@
+[
+  {
+    "query": "Help define the complete scope of a library lending product, including users and future releases.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review our existing PRD for unclear priorities and conflicting scope.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft product goals and success criteria for a new expense reporting tool.",
+    "should_trigger": true
+  },
+  {
+    "query": "用现有已确认的产品目标整理 PRD，区分当前版本与长期规划。",
+    "should_trigger": true
+  },
+  {
+    "query": "Implement the already approved cancellation endpoint.",
+    "should_trigger": false
+  },
+  {
+    "query": "Compare PostgreSQL transaction isolation approaches for our architecture.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draw two clickable navigation prototypes for an agreed product.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write dependency-ordered tasks from this approved behavior specification.",
+    "should_trigger": false
+  }
+]

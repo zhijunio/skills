@@ -1,0 +1,34 @@
+[
+  {
+    "query": "Design a risk-driven verification strategy for an approved payment-like synthetic transaction workflow.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit whether our existing tests actually establish tenant isolation and transaction behavior.",
+    "should_trigger": true
+  },
+  {
+    "query": "为已确定的业务状态机选择测试技术，说明异常场景和所需证据。",
+    "should_trigger": true
+  },
+  {
+    "query": "Decide which checks need a real database and which can use test doubles.",
+    "should_trigger": true
+  },
+  {
+    "query": "Implement a specific JUnit MVC test using the existing test conventions.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run our existing test suite and report failures.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the product requirements and prioritize the roadmap.",
+    "should_trigger": false
+  },
+  {
+    "query": "Configure a CI pipeline to run existing tests on pull requests.",
+    "should_trigger": false
+  }
+]

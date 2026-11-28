@@ -1,0 +1,18 @@
+[
+  {
+    "query": "We have a working scheduling app; clarify which capabilities belong in the next release and which are deferred.",
+    "should_trigger": true
+  },
+  {
+    "query": "请审查产品需求文档中哪些质量目标缺少明确依据。",
+    "should_trigger": true
+  },
+  {
+    "query": "Fix a typo in an existing API response.",
+    "should_trigger": false
+  },
+  {
+    "query": "Choose a test technique for an approved state transition invariant.",
+    "should_trigger": false
+  }
+]

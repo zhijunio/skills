@@ -1,0 +1,34 @@
+[
+  {
+    "query": "Sketch two navigation flows for a booking dashboard so we can compare them before implementation.",
+    "should_trigger": true
+  },
+  {
+    "query": "Build an isolated interactive simulation of approval states using synthetic data.",
+    "should_trigger": true
+  },
+  {
+    "query": "探索一个多角色管理后台的信息架构和核心用户旅程，不要改生产代码。",
+    "should_trigger": true
+  },
+  {
+    "query": "Compare two form layouts and let reviewers try the error and recovery states.",
+    "should_trigger": true
+  },
+  {
+    "query": "Measure actual database throughput with a reproducible benchmark.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft and approve the product requirements document.",
+    "should_trigger": false
+  },
+  {
+    "query": "Implement the approved dashboard in the production application.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a system design for service boundaries and data ownership.",
+    "should_trigger": false
+  }
+]
