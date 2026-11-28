@@ -49,3 +49,24 @@ Do not import either entire workflow framework. Record exact adopted files, modi
 ## Next actions
 
 E02 resolves PRD approval, repair and status semantics. E04 and E06 require deeper candidate research for whole-system design and risk-based verification; E05 should examine complete planning instructions and supporting resources before implementation. Official skill-creator remains the existing authoring/evaluation reference, not an engineering workflow substitute.
+
+## Dedicated system design and test strategy candidates
+
+Additional source inspection on 2026-11-28:
+
+| Candidate | Revision | License evidence | Decision |
+| --- | --- | --- | --- |
+| [software-architecture](https://github.com/magnus919/agent-skills/tree/0f83b91d44d692a665b6f487c4f60fac07e632cb/software-architecture) | 0f83b91d44d692a665b6f487c4f60fac07e632cb | [MIT notice, Magnus Hedemark, 2026](https://github.com/magnus919/agent-skills/blob/0f83b91d44d692a665b6f487c4f60fac07e632cb/LICENSE.md) | Adapt selectively |
+| [test-strategy](https://github.com/l-gevity/l-gevity-skills/tree/5d5cbc523c835a6e2fb2795a914c9fa27c7e3c64/.agents/skills/test-strategy) | 5d5cbc523c835a6e2fb2795a914c9fa27c7e3c64 | [MIT notice, L-GEVITY, 2026](https://github.com/l-gevity/l-gevity-skills/blob/5d5cbc523c835a6e2fb2795a914c9fa27c7e3c64/LICENSE) | Adapt selectively |
+| [architecture-design](https://github.com/sauljabin/agentskills/tree/299fd1f1ad57450b09536b26496367ccedf15403/skills/architecture-design) | 299fd1f1ad57450b09536b26496367ccedf15403 | Repository metadata and entry point declare CC-BY-4.0; full notice not examined | Do not adopt HTML-first workflow |
+| [test-strategy-skill](https://github.com/jovd83/test-strategy-skill/tree/35f44773e790c6a25b07991a81da8260129f4221) | 35f44773e790c6a25b07991a81da8260129f4221 | Repository metadata declares MIT; full notice not examined | Do not adopt lifecycle-specific scripts and thresholds |
+
+The two preferred candidates have complete root MIT notices inspected at their pinned revisions. The architecture tree contains the entry point, README, eight references, three templates and evaluation cases. Its source index expressly excludes reproduction of purchased books and identifies external specialist and DDIA-reference dependencies. Do not import those book-derived dependencies or presume rights to them. The design brief template and source index were inspected; remaining reference contents require review before copying. The test-strategy tree contains an entry point and two references, both examined for technique and portfolio guidance. It assumes the upstream Alchemy lifecycle and named neighboring skills; remove those assumptions in an adaptation rather than importing an orchestrator.
+
+The selected design approach should cover drivers, quality scenarios, boundaries, data authority, runtime/failure behavior and tradeoffs with optional evidence and evolution planning. The selected test strategy should map requirements and risks to observable failure detection, technique, fidelity, dependency realism, data/environment and residual risk. Do not equate TDD with test strategy. Avoid fixed coverage or pass-rate percentages that lack a project requirement.
+
+Observed repository metadata: architecture candidate 197 stars, pinned commit 2026-11-27; test strategy candidate 93 stars, pinned commit 2026-11-22; HTML architecture candidate 1 star, pinned commit 2026-11-06; lifecycle test strategy candidate 0 stars, pinned commit 2026-09-28. These are snapshot observations, not verified adoption or quality indicators.
+
+## E01 decision summary
+
+Proceed to E02 with existing SDD contract adaptation; assess renames after semantics are agreed. E03 should adapt the existing product owner rather than introduce competing PRD ownership. E04 system-design, E05 implementation-planning and E06 test-strategy are justified candidate additions subject to focused source/dependency review and proportional scope. Preserve HTML planning as an optional presentation capability only if useful; assess TDD separately as an implementation technique. No imports or runtime executions have occurred. Full dependency and notice review is a prerequisite of each actual adaptation, not a completed certification.

@@ -1,6 +1,6 @@
 # Phase 02 — Engineering Workflow
 
-Status: E01 in progress on review branch; static audit and initial reuse research documented.
+Status: E01 static audit and candidate selection documented; E02 contract design in progress on review branch.
 Prerequisites: [Phase 01 review](../reviews/phase-01-review.md), [engineering workflow](../engineering-workflow.md), [design principles](../skill-design-principles.md), [authoring guide](../skill-authoring-guide.md), [skill catalog](../skill-catalog.md).
 
 ## 1. Objective
@@ -95,7 +95,7 @@ Review changed contracts, verified cases, outstanding blockers and follow-up pri
 
 ## E01 progress
 
-See the [capability audit](../audits/engineering-capability-audit.md) and [reuse research](../research/engineering-skill-reuse.md). Static responsibilities, candidate dispositions and pinned source comparisons are documented. Dedicated system-design and test-strategy candidate research remains open; no migration or runtime exercise has been performed.
+See the [capability audit](../audits/engineering-capability-audit.md) and [reuse research](../research/engineering-skill-reuse.md). Static responsibilities, candidate dispositions and pinned source comparisons are documented. Dedicated system-design and test-strategy candidates selected for selective adaptation; exact imported resources and dependencies still require review before adoption. No migration or runtime exercise has been performed.
 
 ## 5. Execution order
 
