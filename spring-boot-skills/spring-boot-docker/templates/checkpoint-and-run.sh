@@ -1,58 +1,50 @@
 #!/bin/sh
-# CRaC (Coordinated Restore at Checkpoint) entrypoint for a Spring Boot application.
-#
-# On the first start no checkpoint exists yet, so the app is launched with
-# `spring.context.checkpoint=onRefresh`: Spring boots the application context and,
-# as soon as the refresh finishes, the JVM writes a full process image into
-# $CRAC_CHECKPOINT_DIR before CRIU terminates the process. Every subsequent start
-# restores that image, bringing the application back in a few tens of milliseconds.
-#
-# Taking and restoring a checkpoint needs Linux, a CRaC-enabled JDK and elevated
-# container privileges (CRIU); see Dockerfile-crac, compose.crac.yaml, and
-# the skill's references/native-runtime.md.
-#
-# A clean checkpoint requires that nothing holds an open network socket (an open
-# JDBC/Redis connection at checkpoint time aborts CRaC). For a database-backed app,
-# take the checkpoint with an in-memory profile, or register CRaC resource handlers
-# that close pooled connections before the checkpoint and reopen them after restore.
+# Local CRaC experiment only. No automatic checkpoint promotion or restore.
+# Use an isolated directory per artifact/runtime/configuration/platform.
 set -eu
+umask 077
 
 CRAC_CHECKPOINT_DIR="${CRAC_CHECKPOINT_DIR:-/opt/crac/checkpoint}"
 APP_JAR="${APP_JAR:-/app/app.jar}"
-
-# JVM tuning flags (see Dockerfile-crac). Applied only when the checkpoint is
-# created below; a restore (-XX:CRaCRestoreFrom) replays the checkpointed JVM, so
-# heap/GC flags cannot be re-specified there. Empty by default so the script also
-# works when run outside the image.
 JAVA_OPTS="${JAVA_OPTS:-}"
+CRAC_MODE="${CRAC_MODE:-}"
+# Operator-supplied identity for the reviewed artifact/runtime/configuration/platform.
+# This is a compatibility label, not a signature or integrity proof.
+: "${CRAC_COMPATIBILITY_ID:?Set the reviewed checkpoint compatibility identity}"
+: "${CRAC_MODE:?Select create or restore explicitly}"
 
-mkdir -p "$CRAC_CHECKPOINT_DIR"
-
-# Restore immediately when a previous checkpoint is present.
-if [ -n "$(ls -A "$CRAC_CHECKPOINT_DIR" 2>/dev/null)" ]; then
-  echo "[crac] Restoring the application from the checkpoint in $CRAC_CHECKPOINT_DIR"
-  exec java -XX:CRaCRestoreFrom="$CRAC_CHECKPOINT_DIR"
-fi
-
-echo "[crac] No checkpoint found; starting the app to create one (spring.context.checkpoint=onRefresh)"
-# CRIU kills the process once the checkpoint is written, so a non-zero exit code
-# here is expected. Inspect the directory rather than the exit code to decide
-# whether the checkpoint succeeded.
-set +e
-java $JAVA_OPTS -XX:CRaCCheckpointTo="$CRAC_CHECKPOINT_DIR" \
-  -Dspring.context.checkpoint=onRefresh \
-  -jar "$APP_JAR"
-checkpoint_status=$?
-set -e
-
-if [ -z "$(ls -A "$CRAC_CHECKPOINT_DIR" 2>/dev/null)" ]; then
-  echo "[crac] Checkpoint creation failed (exit code $checkpoint_status). See the log above." >&2
-  echo "[crac] CRaC needs a CRaC-enabled JDK on Linux and CRIU privileges (run the container" >&2
-  echo "[crac] with --privileged or the CHECKPOINT_RESTORE/SYS_PTRACE/SYS_ADMIN capabilities)." >&2
-  echo "[crac] An open database/Redis connection at checkpoint time also aborts CRaC; take the" >&2
-  echo "[crac] checkpoint with an in-memory profile or close pooled connections via CRaC handlers." >&2
-  exit "$checkpoint_status"
-fi
-
-echo "[crac] Checkpoint created in $CRAC_CHECKPOINT_DIR; restoring the application"
-exec java -XX:CRaCRestoreFrom="$CRAC_CHECKPOINT_DIR"
+case "$CRAC_MODE" in
+  create)
+    mkdir -p "$CRAC_CHECKPOINT_DIR"
+    if [ -n "$(ls -A "$CRAC_CHECKPOINT_DIR")" ]; then
+      echo "[crac] Refusing to overwrite a nonempty checkpoint directory" >&2
+      exit 1
+    fi
+    echo "[crac] Creating checkpoint; inspect the result before explicitly restoring"
+    # The checkpoint operation may terminate this JVM with a nonzero status.
+    # Do not infer success from the presence of files or automatically restore.
+    # JAVA_OPTS is operator-controlled whitespace-separated JVM flags.
+    set +e
+    java $JAVA_OPTS -XX:CRaCCheckpointTo="$CRAC_CHECKPOINT_DIR" \
+      -Dspring.context.checkpoint=onRefresh -jar "$APP_JAR"
+    status=$?
+    set -e
+    echo "[crac] JVM exited with status $status; checkpoint completeness is unverified" >&2
+    echo "[crac] Inspect checkpoint using the selected runtime documentation and record the reviewed identity before restore" >&2
+    # No automatic success marker: require explicit operator review.
+    exit "$status"
+    ;;
+  restore)
+    : "${CRAC_REVIEWED_ID:?Set only after checkpoint completeness and compatibility review}"
+    if [ "$CRAC_REVIEWED_ID" != "$CRAC_COMPATIBILITY_ID" ] || \
+       [ ! -d "$CRAC_CHECKPOINT_DIR" ] || [ -z "$(ls -A "$CRAC_CHECKPOINT_DIR")" ]; then
+      echo "[crac] Missing or incompatible reviewed checkpoint" >&2
+      exit 1
+    fi
+    exec java -XX:CRaCRestoreFrom="$CRAC_CHECKPOINT_DIR"
+    ;;
+  *)
+    echo "[crac] Unsupported mode; select create or restore" >&2
+    exit 1
+    ;;
+esac
