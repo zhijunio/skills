@@ -353,6 +353,7 @@ For extraction into a common flat skill root, use SkillsJars 0.0.7 with `-DuseSk
 GitHub Actions workflows are provided for:
 
 - [Continuous Integration](.github/workflows/ci.yml)
+- [Skill Verification](.github/workflows/skill-verification.yml)
 - [Maven Snapshot Publishing](.github/workflows/maven-snapshot.yml)
 - [Maven Release](.github/workflows/maven-release.yml)
 
@@ -360,17 +361,7 @@ The workflows use JDK 17 and shared reusable workflow definitions.
 
 ## Contributing
 
-Contributions that improve correctness, clarity, and engineering practices are welcome.
-
-When adding or modifying a skill:
-
-1. Define a clear purpose and activation scope.
-2. Provide a `SKILL.md` entry point.
-3. Keep instructions focused and actionable.
-4. Move detailed reference material into supporting files where appropriate.
-5. Verify technical examples and version-specific guidance.
-6. Document upstream sources when adapting existing skills.
-7. Update the corresponding collection index.
+Contributions that improve correctness, clarity and engineering practices are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, authoring, verification and pull request expectations, and [AGENTS.md](AGENTS.md) for repository-level agent instructions.
 
 Report problems or propose improvements through [GitHub Issues](https://github.com/zhijunio/skills/issues).
 
