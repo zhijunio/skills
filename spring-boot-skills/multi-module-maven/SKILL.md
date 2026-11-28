@@ -117,9 +117,11 @@ my-app/
 Start from the [parent POM template](templates/parent-pom.xml). Compare it with the
 [module-leaking parent](examples/parent-pom-module-leaks.xml) and the
 [alternate parent example](examples/parent-pom.xml) before applying reactor configuration.
-The sample uses Spring Boot 4.2.0 and Java 21; check the shared
-[version registry](../../spring-boot-4/versions.json) before creating a new project or changing
-the pinned versions.
+The sample uses Spring Boot 4.2.0 and Java 21. Consult the collection's
+[Maven version snapshot](../spring-boot-maven/references/maven-versions.json) when available,
+and verify current Spring Boot, Java, and dependency compatibility against official documentation
+before creating a new project or changing pinned versions. If the sibling skill is not installed,
+use the official documentation directly; the snapshot is not a prerequisite or a live version registry.
 
 ## Child Module POM (domain — no Spring)
 
