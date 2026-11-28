@@ -93,6 +93,10 @@
     {
       "source": "spring-boot-skills/event-driven-messaging/examples/idempotent-consumer.java",
       "destination": "OrderCreatedConsumer.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-webmvc/templates/PageResponse.java",
+      "destination": "com/example/common/api/PageResponse.java"
     }
   ]
 }
