@@ -1,6 +1,7 @@
-// BAD — caches entities, Java serialization, no TTL, missing @EnableCaching
+// Anti-pattern fragment: entity caching and missing invalidation/expiry policy.
+// Assumes caching is enabled elsewhere when discussing cache effects.
 
-// Missing @EnableCaching on configuration — annotations silently do nothing!
+// If caching is not enabled, annotations do not establish caching behavior.
 
 @Service
 public class OrderService {
@@ -8,26 +9,26 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    @Cacheable("orders")                              // no explicit key — relies on all params
+    @Cacheable("orders")                              // default key is valid for a single-scope ID
     public Order findById(UUID id) {
         return orderRepository.findById(id)
             .orElseThrow();                           // caches JPA entity with lazy fields
-                                                      // LazyInitializationException on cache hit!
+                                                      // lazy state/serialization failures are possible
     }
 
     @Cacheable("orders")
     public Order findByIdNullable(UUID id) {
         return orderRepository.findById(id)
-            .orElse(null);                            // caches null — every miss stores null permanently
+            .orElse(null);                            // null behavior depends on cache configuration
     }
 
-    // No @CacheEvict on update — stale data served forever
+    // No invalidation on update — stale data may persist
     public Order update(UUID id, UpdateOrderRequest request) {
         Order order = orderRepository.findById(id).orElseThrow();
         order.update(request);
         return orderRepository.save(order);           // cache still has old version
     }
 
-    // No TTL configured anywhere — cache grows unbounded until OOM
-    // Using default Java serialization — slow, fragile, breaks on class changes
+    // No expiry or capacity policy can allow unbounded growth
+    // Native Java serialization has compatibility and deserialization-security risks
 }

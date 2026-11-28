@@ -50,12 +50,12 @@ public class RedisConfig {
             "users", defaultConfig.entryTtl(Duration.ofMinutes(5))
         );
 
-        // Redis 4 can otherwise schedule writes asynchronously with Lettuce.
+        // Spring Data Redis 4 can otherwise schedule writes asynchronously with Lettuce.
         var writer = RedisCacheWriter.create(connectionFactory,
             config -> config.immediateWrites().batchStrategy(BatchStrategies.scan(1000)));
         return RedisCacheManager.builder(writer)
             .cacheDefaults(defaultConfig)
-            .transactionAware()   // put/evict only after the surrounding transaction commits
+            .transactionAware()   // regular put/evict deferred until successful commit when synchronization is active
             .withInitialCacheConfigurations(cacheConfigs)
             .build();
     }
@@ -64,7 +64,8 @@ public class RedisConfig {
      * Jackson 3 (tools.jackson) JSON serializer.
      * - java.time works out of the box — no JavaTimeModule to register.
      * - Default typing is OFF by default. Enable it only when a generic cache
-     *   requires runtime types, and allow only concrete cache DTOs. Prefer a
+     *   requires runtime types. Review subtype rules and use final DTOs or an
+     *   exact-name validator where necessary. Prefer a
      *   type-specific serializer when the value type is stable.
      * - Never allow broad JDK/application packages or use an unrestricted
      *   polymorphic validator for data an attacker could write.
@@ -72,7 +73,7 @@ public class RedisConfig {
     private GenericJacksonJsonRedisSerializer jsonSerializer() {
         return GenericJacksonJsonRedisSerializer.builder()
             .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
-                // Replace with the concrete DTOs this application stores.
+                // Replace with reviewed final DTOs; class-based rules allow subtypes.
                 .allowIfSubType(OrderCacheEntry.class)
                 .allowIfSubType(ProductCacheEntry.class)
                 // Add concrete non-final JDK value types only when the payload needs them.

@@ -29,3 +29,5 @@ See [Spring Boot evaluation cases](spring-boot/README.md) for fourteen version-a
 ## Cross-host cases
 
 See [native host verification](../docs/verification/cross-host-verification.md) and host-cases.json under compatibility. These cases require actual host sessions and are not installation or description-trigger tests.
+
+S04 extends the original fourteen Spring cases with SB15–SB17 for Redis cache authorization, atomic rate limiting and transaction-aware invalidation. Current total: seventeen; the three added fixtures require manual setup and all independent runs remain NOT RUN.

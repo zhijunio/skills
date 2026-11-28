@@ -33,7 +33,9 @@ public final class AtomicWindowLimiter {
         }
         Long result = redis.execute(SCRIPT, List.of("ratelimit:v2:" + scopedBucket),
                 Integer.toString(limit), Long.toString(window.toMillis()));
-        if (result == null) throw new IllegalStateException("Missing rate-limit result");
+        if (result == null || (result != 0L && result != 1L)) {
+            throw new IllegalStateException("Invalid rate-limit result");
+        }
         return result == 1L;
     }
 }

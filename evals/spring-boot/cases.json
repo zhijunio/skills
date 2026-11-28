@@ -324,5 +324,76 @@
     ],
     "fixture_status": "MANUAL_SETUP_REQUIRED",
     "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB15",
+    "priority": "P0",
+    "skills": [
+      "spring-data-redis",
+      "spring-boot-security",
+      "multi-tenancy",
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing Boot 4 application with Redis-backed DTO cache, two synthetic tenants sharing local resource IDs, and approved authorization and staleness policy.",
+    "prompt": "Fix the cached resource read that leaks another tenant's data; preserve the API and existing authorization policy.",
+    "expectations": [
+      "Authorize before cache hit and miss",
+      "Scope keys using trusted tenant and result dimensions",
+      "Do not widen polymorphic deserialization allowlist",
+      "Verify denied reads and allowed reads on warmed and cold caches"
+    ],
+    "evidence": [
+      "Actual security boundary and real Redis integration",
+      "Cross-tenant and same-tenant assertions",
+      "Serializer and cache key diff"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB16",
+    "priority": "P1",
+    "skills": [
+      "spring-data-redis",
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing Redis-backed request limiter with approved fixed-window and fail-closed semantics, disposable real Redis.",
+    "prompt": "Correct the rate limiter's concurrent counter and expiry behavior without weakening its failure policy.",
+    "expectations": [
+      "Atomic counter and expiry initialization",
+      "Concurrent admissions bounded by approved limit within one window",
+      "Scope isolation and expiry observed",
+      "Unavailable Redis or invalid result does not grant access"
+    ],
+    "evidence": [
+      "Real Redis concurrent and expiry checks",
+      "Failure-path result and namespace assertions"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB17",
+    "priority": "P1",
+    "skills": [
+      "spring-data-redis",
+      "spring-boot-webmvc",
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing transactional database write with Redis DTO cache and approved post-commit invalidation and bounded stale-data policy.",
+    "prompt": "Fix stale cached data after updates and rollback; preserve the approved consistency contract.",
+    "expectations": [
+      "Rollback does not publish uncommitted state",
+      "Commit invalidation follows actual transaction boundary",
+      "Failed eviction after commit handled explicitly",
+      "No claim of atomic cross-store commit or unverified strong consistency"
+    ],
+    "evidence": [
+      "Real database and Redis integration",
+      "Rollback and committed-state assertions",
+      "Outage and recovery evidence"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
   }
 ]

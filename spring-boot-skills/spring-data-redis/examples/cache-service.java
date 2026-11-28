@@ -1,4 +1,6 @@
-// GOOD — caches DTOs, JSON serialization, TTL configured, proper eviction
+// Illustrative single-scope cache fragment. Requires configured TTL, serialization
+// and transaction-aware cache manager. Authorize before cache interception;
+// scope keys by trusted tenant/caller when results differ.
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,6 @@ public class OrderService {
 
     @CacheEvict(value = "orders", allEntries = true)
     public void evictAllOrders() {
-        // manual cache invalidation for admin use
+        // Invoke only through an authorized scoped administrative operation.
     }
 }

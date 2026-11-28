@@ -19,3 +19,5 @@ Run a fresh authorized host session per case, with identical starting state for 
 Preserve original acceptance tests and check changed assertions, build dependencies, security configurations, migrations and unrelated files. Record actual commands, exit codes, test reports, relevant SQL or persisted state, host/model version, loaded skills where observable, and file diff. A compiling project alone does not establish behavior. A passing module structure check does not establish durable events. A mock-only authorization test does not establish real tenant isolation.
 
 All case results remain NOT RUN. There is no executable Spring fixture or measured compatibility evidence in this change.
+
+S04 extends the original fourteen Spring cases with SB15–SB17 for Redis cache authorization, atomic rate limiting and transaction-aware invalidation. Current total: seventeen; the three added fixtures require manual setup and all independent runs remain NOT RUN.
