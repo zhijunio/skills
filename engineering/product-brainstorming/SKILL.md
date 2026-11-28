@@ -7,6 +7,10 @@ description: Facilitate product brainstorming or MVP scoping, confirm the final 
 
 Turn a product idea into a short, decision-backed summary. Use the user's language and begin with the context and decisions they have already shared.
 
+## Responsibility and handoff
+
+Own product intent, users, MVP scope and the PRD. Use grilling for a requested stress-test of a specific decision, domain-modeling for canonical terminology and domain decisions, and create-spec for detailed behavior of an individual use case. Do not start those workflows automatically or decide technical architecture here. Hand the confirmed PRD to prd-to-requirements when requested.
+
 ## Guide the discussion
 
 1. **Ground the problem.** Identify the primary user and ask about a recent occasion when they tried to achieve the outcome. Capture the trigger, current workaround, and where it falls short. Treat an unobserved problem or assumed audience as a hypothesis.
@@ -33,4 +37,4 @@ Return a concise Markdown summary with these fields once the primary user, probl
 
 Keep agreed decisions in the main summary and place material uncertainties in the final field. Keep the scope at the product level. Then ask the user to confirm the summary or request changes. If they request changes, revise the summary and ask for confirmation again. Treat an explicit confirmation with no requested changes as approval to draft the PRD.
 
-After the user confirms without changes, generate a self-contained `PRD.md` from the approved summary, following the user's requested format when provided. Otherwise start the file with YAML frontmatter containing `status: draft`, `approval: pending`, `version: 0.1`, and `date: YYYY-MM-DD` (use the date the PRD is generated), then use concise, standard sections for overview, problem, goals, target users, competitors and open-source alternatives, MVP features, out-of-scope items, success metrics, risks and assumptions, and open questions. Keep document lifecycle details in the frontmatter rather than repeating them as a title block. Preserve source links, unresolved decisions, and assumptions. Write the file in the current project directory. If `PRD.md` already exists there, preserve it and ask the user where to save the new PRD before writing. Report the file path when complete.
+After the user confirms without changes, generate a self-contained `PRD.md` from the approved summary, following the user's requested format when provided. Otherwise start the file with YAML frontmatter containing `status: draft`, `approval: pending`, `version: 0.1`, and `date: YYYY-MM-DD` (use the date the PRD is generated), then use concise, standard sections for overview, problem, goals, target users, competitors and open-source alternatives, MVP features, out-of-scope items, success metrics, risks and assumptions, and open questions. Keep document lifecycle details in the frontmatter rather than repeating them as a title block. Preserve source links, unresolved decisions, and assumptions. Honor an explicit user path or the project's established PRD location; otherwise write `docs/PRD.md` relative to the target project root. If the root-level `PRD.md` or `docs/PRD.md` already exists, inspect it and ask before creating a duplicate or overwriting it. Report the actual path for the requirements handoff. Report the file path when complete.
