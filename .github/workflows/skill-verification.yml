@@ -19,6 +19,8 @@ jobs:
           java-version: '17'
           distribution: temurin
           cache: maven
+      - name: Test verification helpers
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
       - run: ./mvnw clean install -B -ntp
       - name: Verify all skill resources in the JAR
         shell: bash
