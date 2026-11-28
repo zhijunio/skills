@@ -1,6 +1,6 @@
 # Phase 01 — Repository Foundations
 
-Status: Proposed  
+Status: In progress (review branch)  
 Parent: [Agent Skills Roadmap](../roadmap.md)
 
 ## 1. Objective
@@ -47,7 +47,7 @@ Reuse the repository's existing [AGENTS.md prompt](../prompts/create-agentsmd.pr
 
 ## 5. Work items
 
-All items are initially TODO. P0 denotes essential foundation work; P1 denotes supporting work within this phase.
+P0 denotes essential foundation work; P1 denotes supporting work within this phase. Status is recorded separately below; a completed document on the review branch does not imply merge, runtime certification or publication approval.
 
 | ID | Task | Deliverable | Priority | Dependencies |
 | --- | --- | --- | --- | --- |
@@ -156,16 +156,25 @@ Possible implementation paths (not fixed):
 
 Acceptance: chosen checks run locally and in CI, failure output is actionable, dependencies are pinned appropriately, and representative invalid inputs are detected. Document exceptions rather than silently ignoring failures.
 
-## 6. Execution order
+## 6. Execution order and progress
 
-1. Research standards and reusable tools (F01).
-2. Audit the existing inventory (F06).
-3. Establish design principles and authoring guide (F03, F04).
-4. Write repository and contribution instructions (F02, F05).
-5. Document the workflow and catalog (F07, F08).
-6. Verify distribution (F09).
-7. Integrate deterministic checks (F10).
-8. Review phase acceptance criteria and record remaining issues.
+Actual execution advanced distribution and deterministic checks early to remediate the packaging defect. Reuse that work rather than rebuilding it.
+
+| ID | Current status | Evidence / remaining scope |
+| --- | --- | --- |
+| F01 | Documented | [Compatibility](../skill-compatibility.md); runtime limitations remain |
+| F06 | Baseline documented | [Audit](../audits/initial-skill-audit.md), 59 entries |
+| F06-R | In progress | [Remediation tracker](../audits/remediation-plan.md); packaging defect resolved on review branch; provenance, authorization and behavioral gaps remain |
+| F03 | Documented, maintainer confirmed | [Design principles](../skill-design-principles.md); review branch |
+| F04 | Documented, awaiting review | [Authoring guide](../skill-authoring-guide.md); review branch |
+| F02 | TODO | AGENTS.md |
+| F05 | TODO | CONTRIBUTING.md |
+| F07 | TODO | Catalog |
+| F08 | TODO | Engineering workflow |
+| F09 | Partial verification passed | [Distribution report](../verification/distribution.md); archive, extraction and local CLI installations passed, actual agent behavior and publication remain unverified |
+| F10 | Partial verification passed | [CI workflow](../../.github/workflows/skill-verification.yml); helper tests, metadata and distribution checks passed; catalog freshness, broader reference checks and remaining validation scope pending |
+
+Next: complete F02 and F05, then F07 and F08, close remaining F09/F10 scope or document explicit limitations, and review phase acceptance. Continue provenance and publication review separately. Do not merge a publication-triggering change until the applicable rights and authorization issues are addressed. Systematic model-based evaluation remains Phase 3 work.
 
 ## 7. Target deliverables
 
@@ -210,4 +219,4 @@ Add scripts and CI configuration only after tool selection. Do not create placeh
 - Policy for upstream revisions, licenses, and updates.
 - CI enforcement thresholds and handling of pre-existing findings.
 
-No implementation or verification is claimed by this plan. Record evidence as work is completed.
+The progress register records observed implementation and verification evidence; unlisted checks remain unverified. Review-branch work is not merged or released.
