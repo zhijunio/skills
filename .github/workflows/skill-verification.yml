@@ -89,6 +89,8 @@ jobs:
         run: |
           set -o pipefail
           python scripts/generate-skill-catalog.py --check 2>&1 | tee verification-evidence/catalog.log
+      - name: Inventory explicit skill references
+        run: python scripts/analyze_skill_references.py > verification-evidence/skill-references.json
       - name: Measure static context size
         run: python scripts/measure_skill_context.py > verification-evidence/context-size.json
       - name: Upload deterministic verification evidence
