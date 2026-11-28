@@ -41,6 +41,23 @@ npx skills add https://github.com/zhijunio/skills --skill create-spec
 
 Alternatively, copy the desired skill directory into the skills location supported by your coding assistant.
 
+### Skill dependencies
+
+Some skills compose other skills. Installing only an entry point does not guarantee that its sibling skills are installed. Use a common skill root and preserve directory names. In particular:
+
+- `spring-boot` routes to focused Spring Boot skills; install the entire collection when using the router, or select the relevant focused skills and their dependencies.
+- `grill-with-docs` requires `grilling` and `domain-modeling`.
+- If a required skill is missing, install the dependency or follow the documented fallback; do not assume that a missing skill was loaded.
+
+For an approved local checkout, the following commands illustrate collection and composed-skill installation from a target project:
+
+```bash
+npx skills@1.9.1 add /path/to/skills/spring-boot-skills --skill '*'
+npx skills@1.9.1 add /path/to/skills --skill grill-with-docs --skill grilling --skill domain-modeling
+```
+
+See [distribution verification](docs/verification/distribution.md) for the tested scope and outstanding limitations, and [skill provenance](docs/skill-provenance.md) before redistributing third-party content.
+
 Each skill contains a `SKILL.md` entry point that describes its purpose, workflow, constraints, and supporting resources where applicable.
 
 ## Engineering Skills
@@ -323,7 +340,13 @@ To inspect the generated JAR:
 jar tf target/skills-0.1.0-SNAPSHOT.jar
 ```
 
-For individual skill installation, use the Skills CLI or direct directory installation. Coverage of the current nested skill layout by Maven packaging has not been verified.
+The Maven configuration packages each skill collection separately. Verify the JAR against the source tree before relying on it:
+
+```bash
+python3 scripts/verify-skill-jar.py target/skills-0.1.0-SNAPSHOT.jar
+```
+
+For extraction into a common flat skill root, use SkillsJars 0.0.7 with `-DuseSkillsNameAsDirectory=true` so sibling references can resolve. See [distribution verification](docs/verification/distribution.md). Packaging configuration is not a claim of successful verification or a published artifact; do not publish new artifacts until applicable third-party permissions and notices have been confirmed.
 
 ## Continuous Integration
 
