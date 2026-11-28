@@ -5,13 +5,13 @@ Prerequisites: [Phase 01 review](../reviews/phase-01-review.md), [engineering wo
 
 ## 1. Objective
 
-Establish a coherent, reusable software engineering workflow for new products, complex features, bounded changes and defect repair. Close material handoff gaps with the smallest justified skill changes and demonstrate representative behavior. Improve existing capabilities before adding new ones.
+Establish a coherent, reusable software engineering workflow for new products, complex features, bounded changes and defect repair. Close material handoff gaps with the smallest justified skill changes and demonstrate representative behavior. Improve existing capabilities before adding new ones. The maintainer explicitly permits refactoring and renaming existing skills when their design is unsuitable. Existing names and responsibility boundaries are not immutable.
 
 ## 2. Scope
 
 In scope: responsibility and artifact contracts, product requirements, system design, implementation planning, test strategy, change control, and representative workflow exercises. Review domain modeling and release readiness boundaries where needed.
 
-Out of scope: application-specific implementations, wholesale collection restructuring, mandatory heavyweight SDD for small changes, bulk technical skill expansion, custom evaluation infrastructure, and systematic multi-model benchmarks (Phase 03). Publication remains independently blocked by unresolved provenance and authorization.
+Out of scope: application-specific implementations, indiscriminate collection restructuring without evidence, mandatory heavyweight SDD for small changes, bulk technical skill expansion, custom evaluation infrastructure, and systematic multi-model benchmarks (Phase 03). Publication remains independently blocked by unresolved provenance and authorization.
 
 ## 3. Work items
 
@@ -35,6 +35,12 @@ Inspect existing entry points and supporting resources, including collected skil
 Research maintained upstream skills and tools against those examples. Start with the already identified Siva, Matt Pocock, official skill-creator and Agent Skills ecosystem sources; expand discovery when useful. Do not preselect any import solely by popularity. Record source revision, license evidence, maintenance, compatibility, actual capability and verification limitations. Choose adopt, adapt, compose or build with rationale for each gap.
 
 Acceptance: every proposed change has a concrete gap, an owner, alternatives and a stated reuse decision. No new skill is necessary if an existing one satisfies the contract.
+
+### Existing skill restructuring policy
+
+Maintainer direction (2026-11-28): refactor or rename existing skills when their design is unreasonable. Evaluate retain, refactor, rename, split, merge, replace, remove or build as candidate dispositions, with adopt/adapt/compose/build as reuse decisions. Splits, merges, replacements and removals that change public contracts or third-party content require explicit review before execution; permission to refactor or rename is not blanket publication or deletion authorization.
+
+For each restructuring proposal, document the concrete defect, intended responsibility and activation boundary, alternatives, before/after mapping, downstream callers and migration impact. For an approved rename, update the directory, frontmatter name, references, invocation configuration where applicable, provenance register, generated catalog, README, workflow documentation and tests. Preserve applicable upstream notices and history. Run deterministic checks and record behavioral verification limitations. Avoid duplicate alias skills unless a justified migration strategy requires them.
 
 ### E02 — SDD lifecycle and change control
 
