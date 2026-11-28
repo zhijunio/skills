@@ -7,6 +7,8 @@ description: >
 
 # Multi-Tenancy
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and release-matched official documentation, and report missing evidence.
+
 Treat tenant identity as an authorization boundary, not a query convenience.
 
 ## Choose an isolation model
@@ -18,7 +20,7 @@ Treat tenant identity as an authorization boundary, not a query convenience.
 
 ## Resolve tenant identity
 
-- Derive tenant from a verified token claim, trusted host mapping, or authenticated API key.
+- Resolve a tenant candidate from a verified token claim, trusted host mapping, or authenticated API key, then verify the caller's membership and permission. Host mapping alone is not authorization.
 - Reject missing, unknown, disabled, or conflicting tenant identifiers.
 - Never trust a public `X-Tenant-Id` header by itself.
 - Clear servlet thread-local state in `finally`; use Reactor `Context` for reactive flows.
@@ -26,7 +28,7 @@ Treat tenant identity as an authorization boundary, not a query convenience.
 ## Enforce isolation
 
 - Resolve tenant before opening a Hibernate session, transaction, or R2DBC connection.
-- Include tenant in unique constraints, cache keys, idempotency keys, and object paths.
+- Include tenant in tenant-owned unique constraints, foreign keys, cache keys, idempotency keys, and object paths; add principal scope when results depend on caller permissions.
 - Prevent cross-tenant joins and unrestricted native queries.
 - Authorize support impersonation explicitly and audit the actor, tenant, reason, and duration.
 
@@ -72,7 +74,8 @@ TenantId tenant = TenantAccess.resolve(authentication, tenantRegistry::isActive)
 try (var scope = TenantContext.open(tenant)) {
     store.find(orderId);
     String key = TenantContext.orderCacheKey(orderId);
-    executor.execute(TenantContext.capture(() -> store.find(orderId)));
+    // Context capture alone is not authorization. Recheck membership and permissions
+    // in the worker before invoking a tenant-scoped service.
 }
 ```
 
@@ -84,6 +87,8 @@ explicit context propagation too. Scope every list, join and native query, and i
 unscoped SQL: restrict database credentials and consider PostgreSQL row-level security as
 defense in depth.
 
+For PostgreSQL RLS, use a separate least-privileged application role that is not the table owner, superuser, or BYPASSRLS role. Define both visibility and write checks (USING and WITH CHECK). If using transaction-local tenant settings, set them from verified identity on the same connection inside each transaction before queries, fail closed on missing context, and test pooled connection reuse. A session-level setting may leak across borrowers; custom settings are not a defense against arbitrary SQL execution by that same role. Check owner bypass, administrative paths and referential constraints explicitly. See [PostgreSQL row security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html).
+
 Verify same-ID records in two tenants, forbidden cross-tenant reads/updates/deletes, distinct
 cache keys, missing-context rejection, exception cleanup and sequential jobs on one worker.
 
@@ -94,7 +99,7 @@ cache keys, missing-context rejection, exception cleanup and sequential jobs on 
 
 ## Verification scope
 
-The repository fixture targets Boot 4.1.0 with Java 17/21 and checks
+The pinned upstream fixture targets Boot 4.1.0 with Java 17/21 and checks
 PostgreSQL 16 shared-schema access and blocking thread context; not Hibernate schema routing or Reactor. Check the
 [coverage matrix](https://github.com/rrezartprebreza/spring-boot-skills/blob/b90c3dbd9699c0d0bfb81660c857ef58262168e6/verification/MATRIX.md)
 before treating another minor version or an illustrative snippet as verified.
