@@ -30,7 +30,7 @@ Inspect the implementation and tests to find the smallest complete change. Read 
 
 Once the contract and prerequisites are clear, make the status transition the first repository change:
 
-1. Change this use case from `TODO` to `IN_PROGRESS`, or from `DONE` to `IN_PROGRESS` for explicitly authorized repair or change after the preceding checks, in both the requirements summary row and specification frontmatter. In the summary, update the first-column icon from `❎` to `👷🏽` as well.
+1. Change this use case from `TODO` to `IN_PROGRESS`, or from `DONE` to `IN_PROGRESS` for explicitly authorized repair or change after the preceding checks, in both the requirements summary row and specification frontmatter. In the summary, update the first-column icon from `❎` (TODO) or `✅` (DONE) to `👷🏽` as well.
 2. Read both files back and confirm the canonical ID, title, and status agree before changing implementation files. Confirm the summary icon matches its status value.
 3. If both already say `IN_PROGRESS` and the summary icon is `👷🏽`, resume only when the user's intent to continue is clear; otherwise ask. If the status values disagree, stop and ask which state is correct.
 

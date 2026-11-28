@@ -115,7 +115,7 @@ Example (illustrative, not an actual project requirement):
 | ❎ | UC-007 | Cancel a pending booking | TODO |
 ```
 
-The corresponding docs/specs/007-cancel-pending-booking.md uses metadata keys UseCase ID, Title, Depends On and Status, followed by Actors, Preconditions, UseCase Details, Business Rules, Acceptance Criteria, In Scope and Out of scope. The canonical ID, title and status must agree. Record dependencies using existing conventions. Allocate new IDs after the highest existing ID; never renumber or duplicate existing IDs. If the PRD and index disagree, reconcile product scope with the human; if the index and specification disagree, stop before editing implementation.
+The corresponding docs/specs/007-cancel-pending-booking.md uses metadata keys UseCase ID, Title, Depends On and Status, followed by Actors, Preconditions, UseCase Details, Business Rules, Acceptance Criteria, In Scope and Out of scope. The canonical ID, title and status must agree. Record dependencies using existing conventions. Allocate new IDs after the highest known current or retired ID; never renumber or duplicate existing IDs. If the PRD and index disagree, reconcile product scope with the human; if the index and specification disagree, stop before editing implementation.
 
 ## 4. Approval and status lifecycle
 
@@ -124,7 +124,7 @@ The corresponding docs/specs/007-cancel-pending-booking.md uses metadata keys Us
 | Product scope | Human confirms material product decisions; distinguish approval of summary from approval of drafted PRD |
 | Foundation | Human approves technical baseline and initializer separately |
 | Behavior | Human confirms the interview outcome; review the specification before implementation |
-| Plan | Where html-plan is used, wait for the user's response to its decisions |
+| Plan | Review material implementation choices and required evidence; HTML feedback is optional and not execution authorization |
 | Start | One requested use case, consistent documents, clear prerequisites and approved behavior |
 | Completion | All in-scope acceptance criteria implemented and relevant verification passed |
 | Release | Separate explicit authorization, release criteria, credentials and applicable rights |
@@ -186,15 +186,15 @@ For handoffs across sessions, the collected handoff skill can capture context wh
 
 | Capability | Existing coverage | Candidate next step |
 | --- | --- | --- |
-| Product requirements refinement | product-requirements drafts PRD; prd-to-use-cases creates index | Refine the renamed product-requirements contract in E03 |
-| System design | project-foundation, domain-modeling, grilling and technology-specific architecture skills | Investigate cross-cutting system design covering boundaries, quality attributes, integration and trade-offs without duplicating existing owners |
+| Product requirements refinement | product-requirements and prd-to-use-cases | Implemented; runtime verification pending |
+| System design | system-design, with domain-modeling and project-foundation as adjacent owners | Implemented; runtime verification pending |
 | Implementation planning | implementation-planning with optional html-plan presentation | Implemented; runtime verification pending |
 | Test strategy | test-strategy plus stack-specific implementation and execution guidance | Implemented; runtime verification pending |
 | Prototyping | Product-prototyping UI and behavior modes | Product journey and behavior guidance and separate technical-spike implemented; runtime evaluation pending |
 | Change control | Individual PRD/index/spec reconciliation rules | Clarify reopening, impact analysis and approval semantics in the existing workflow before proposing automation |
 | Release readiness | Spring Boot build/testing and CI guidance | Investigate general release criteria and authorization; do not conflate with deployment |
 
-These are candidates for Phase 2, not new implemented skills. Compare existing open-source capabilities, license, fit, verification and maintenance before adoption or original development. Do not add an orchestration skill solely to enforce the diagram.
+Implemented capabilities above remain subject to runtime verification; general release readiness remains a candidate. Compare existing open-source capabilities, license, fit, verification and maintenance before adoption or original development. Do not add an orchestration skill solely to enforce the diagram.
 
 ## 9. Representative workflow acceptance cases
 
@@ -213,4 +213,4 @@ The following are proposed behavioral evaluation cases; they have not been execu
 | Missing delegated generator or skill | Limitation reported; no fabricated invocation or unauthorized substitution |
 | Hard regression without reproduction | Blocker reported rather than speculative implementation |
 
-Use equivalent baseline tasks and the [authoring guide](skill-authoring-guide.md) for evaluation. Record actual results separately. A documented contract is not a behavioral pass.
+Use the [Phase 02 workflow acceptance cases](verification/phase-02-workflow-acceptance.md), equivalent baseline tasks and the [authoring guide](skill-authoring-guide.md) for evaluation. Record actual results separately. A documented contract is not a behavioral pass.

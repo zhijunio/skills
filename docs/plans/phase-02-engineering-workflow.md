@@ -1,6 +1,6 @@
 # Phase 02 — Engineering Workflow
 
-Status: E01 static audit and candidate selection documented; E02 contract design in progress on review branch.
+Status: E01–E06 instruction-level changes implemented; deterministic baseline passed; E07 behavioral execution blocked in current environment.
 Prerequisites: [Phase 01 review](../reviews/phase-01-review.md), [engineering workflow](../engineering-workflow.md), [design principles](../skill-design-principles.md), [authoring guide](../skill-authoring-guide.md), [skill catalog](../skill-catalog.md).
 
 ## 1. Objective
@@ -111,13 +111,17 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
 
+## E07 progress
+
+Prepared [workflow acceptance cases](../verification/phase-02-workflow-acceptance.md) with concrete prompts, fixture requirements, observable assertions and evidence record. Independent agent runtime not available in inspected environment; all cases NOT RUN. Static contract review identified an icon transition ambiguity for reopened DONE items and stale workflow descriptions; corrected in this change. No behavioral exit criterion claimed.
+
 ## E06 progress
 
-Added test-strategy, selectively adapting the pinned L-GEVITY entry point and reviewing both upstream references. Retained the full MIT notice; local references cover technique selection, reliable evidence and strategy outline. Implementation planning and use-case implementation consume the strategy without weakening acceptance gates. Spring Boot testing retains framework-specific ownership. Deterministic and behavioral verification pending.
+Added test-strategy, selectively adapting the pinned L-GEVITY entry point and reviewing both upstream references. Retained the full MIT notice; local references cover technique selection, reliable evidence and strategy outline. Implementation planning and use-case implementation consume the strategy without weakening acceptance gates. Spring Boot testing retains framework-specific ownership. CI and Skill verification passed at ca99072 (runs 46139023202 and 46139022387); behavioral verification pending.
 
 ## E05 progress
 
-Added implementation-planning, selectively adapting Superpowers writing-plans with its original MIT notice. Local references cover dependency-ordered task decomposition, interface/file ownership, verification mapping and self-review. Narrowed html-plan to explicitly requested interactive presentation and removed automatic execution handoff; implement-use-case consumes reviewed plans without bypassing lifecycle gates. At 063b647, CI, package, discovery and local links passed; metadata catalog freshness failed (run 46138852428) because source key R was out of order. Corrected catalog ordering in E06; rerun pending. Behavioral verification pending.
+Added implementation-planning, selectively adapting Superpowers writing-plans with its original MIT notice. Local references cover dependency-ordered task decomposition, interface/file ownership, verification mapping and self-review. Narrowed html-plan to explicitly requested interactive presentation and removed automatic execution handoff; implement-use-case consumes reviewed plans without bypassing lifecycle gates. At 063b647, CI, package, discovery and local links passed; metadata catalog freshness failed (run 46138852428) because source key R was out of order. Corrected catalog ordering in E06; Skill verification passed at ca99072. Behavioral verification pending.
 
 ## E04-A progress
 
@@ -141,7 +145,7 @@ The [SDD lifecycle and artifact contract](../contracts/sdd-lifecycle.md) records
 
 ## E01 progress
 
-See the [capability audit](../audits/engineering-capability-audit.md) and [reuse research](../research/engineering-skill-reuse.md). Static responsibilities, candidate dispositions and pinned source comparisons are documented. Dedicated system-design and test-strategy candidates selected for selective adaptation; exact imported resources and dependencies still require review before adoption. No migration or runtime exercise has been performed.
+See the [capability audit](../audits/engineering-capability-audit.md) and [reuse research](../research/engineering-skill-reuse.md). Static responsibilities, candidate dispositions and pinned source comparisons are documented. Dedicated system-design and test-strategy candidates selected for selective adaptation; exact imported resources and dependencies still require review before adoption. Selected adaptations and migrations implemented as documented above; no independent runtime exercise has been performed.
 
 ## 5. Execution order
 
@@ -158,4 +162,4 @@ E01 then E02; E03 and E04/E06 may proceed after their stated dependencies and ap
 - [ ] Documentation, provenance and remediation tracker updated.
 - [ ] Remaining release blockers preserved; no publication or merge inferred from phase completion.
 
-Prototype capability research is reopened for the expanded scope; the prior E01 audit remains valid for the original scope. See the [prototype capability contract](../contracts/prototyping.md). No skill creation, runtime evaluation or publication is claimed by this plan.
+Prototype research and implementation are documented in the [prototype capability contract](../contracts/prototyping.md). Runtime evaluation and publication remain pending.
