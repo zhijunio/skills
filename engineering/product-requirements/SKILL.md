@@ -1,48 +1,50 @@
 ---
 name: product-requirements
-description: Facilitate product brainstorming or MVP scoping, draft a PRD.md from confirmed decisions, and review, approve or revise product requirements when requested.
+description: Discover, define, review, approve and revise product requirements for a complete product, MVP, release or capability increment. Use for product scope, users, journeys, capability boundaries, priorities, quality needs and PRDs; not detailed use-case behavior, technical architecture or implementation.
 ---
 
 # Product Requirements
 
-Turn a product idea into a short, decision-backed summary. Use the user's language and begin with the context and decisions they have already shared.
+Establish a reviewable product contract from grounded needs and explicit decisions. Use the user's language, existing evidence and established project conventions.
+
+## Select the task
+
+- Discovery: explore an uncertain product idea, problem or opportunity.
+- Definition: establish the scope of a complete product, MVP, release or capability increment.
+- Review: inspect an existing PRD for ambiguity, gaps and conflicting decisions.
+- Approval or change: record an explicit approval or revise an existing product contract.
+
+Do not force MVP scope when the user wants a complete product. Do not restart discovery when a supplied PRD or confirmed decisions already answer the relevant questions. Use a lightweight response for a bounded request; create or revise files only within authorized scope.
 
 ## Responsibility and handoff
 
-Own product intent, users, MVP scope and the PRD. Use grilling for a requested stress-test of a specific decision, domain-modeling for canonical terminology and domain decisions, and behavior-specification for detailed behavior of an individual use case. Do not start those workflows automatically or decide technical architecture here. Hand the PRD to prd-to-use-cases when requested and its product scope authority is established. Distinguish confirmation of the discussion summary from review of the actual drafted PRD; do not represent a newly drafted document as formally approved.
+Own product intent, users, capabilities, scope, product-level quality needs, priorities and the PRD. Use grilling for a requested stress-test, domain-modeling for canonical terminology, prototype for bounded UI or behavior exploration, and behavior-specification for detailed feature behavior. A prototype is decision evidence, not scope approval. Route technical tradeoffs and feasibility to the appropriate design owner. Do not automatically invoke other skills, choose architecture or implement features.
 
-## Guide the discussion
+## Establish product scope
 
-1. **Ground the problem.** Identify the primary user and ask about a recent occasion when they tried to achieve the outcome. Capture the trigger, current workaround, and where it falls short. Treat an unobserved problem or assumed audience as a hypothesis.
-2. **Research the landscape.** Search the web for direct and adjacent competitors, and search GitHub for existing open-source projects that solve the same or a neighboring problem. Prefer product owners' documentation and repository pages. For each relevant result, capture its name, intended users, core workflow, differentiator, and any decision-relevant limits; for GitHub projects also check license, recent activity, release history, and implementation fit. Link sources and distinguish verified facts from inference. Keep the shortlist to the few results that could change the product decision. If the idea is clearly internal or the user asks to skip research, say why the landscape check is not useful and record it as an assumption.
-3. **Compare build, reuse, and differentiation.** Use the research to identify what users can already do with competitors or existing projects. Compare two or three plausible approaches, including adopting or extending an open-source option when viable. Explain the user benefit and the costs in effort, adoption, maintenance, and complexity. Invite the user to choose or revise the options.
-4. **Set the MVP boundary.** Describe the smallest end-to-end journey that delivers the intended outcome. Agree on which capabilities it needs, how it differs from available alternatives, and which ideas to defer. Confirm proposals before recording them as commitments.
-5. **Define a success signal.** Identify an observable user behavior or outcome that would suggest the MVP works. Record unresolved decisions, risks, and assumptions for the PRD.
+Read the existing PRD, project charter, decision records and relevant user-provided context before asking questions. Separate confirmed decisions, evidence, proposals, assumptions and unknowns. Load [requirements analysis](references/requirements-analysis.md) when defining a broad product, resolving scope conflicts or reviewing complex requirements.
 
-Ask one or more related questions together when that makes the discussion easier. For each question, offer a short set of plausible answers when useful, mark one as recommended, and allow the user to provide another answer. Keep the questions focused on decisions that affect the product. Skip questions already answered. If the user asks to wrap up early, summarize what is known and carry the gaps forward as open questions.
+1. Ground the problem, users, stakeholder needs, existing workflows and desired outcomes. Treat unsupported personas or demand as hypotheses.
+2. Research direct and adjacent products or open-source alternatives when this can change a decision. Prefer primary documentation and repositories; check license, activity, relevant releases and fit before suggesting reuse. Distinguish observed capabilities from inference. If tools are unavailable or research is unnecessary, record the limitation rather than inventing findings.
+3. Compare meaningful approaches, including reuse or extending an existing product where viable. Explain tradeoffs in user value, effort and maintenance without treating an estimate as a fact.
+4. Define the target product boundary and the current delivery boundary separately. Identify capabilities, primary journeys, role responsibilities, exclusions, dependencies and deferred scope. Ask about priorities and meaningful constraints; do not assign business priorities without authority.
+5. Establish product-level quality needs and observable outcomes. Identify applicable security, accessibility, reliability, compatibility, privacy and operational constraints without designing their implementation or fabricating numerical targets.
+6. Resolve material ambiguities. Ask related questions together when useful, reuse answers, label recommendations and preserve unresolved decisions. Stop asking once there is sufficient clarity for the requested deliverable.
 
-## Produce the summary
+## Draft or revise the PRD
 
-Return a concise Markdown summary with these fields once the primary user, problem, goal, and MVP boundary are clear, or when the user asks to wrap up:
+Summarize the decisions and request confirmation before drafting a new PRD, unless the user has already explicitly authorized drafting from established scope. Confirmation of the summary is not approval of the resulting PRD. A request for a preliminary draft may leave material questions open; label it as such.
 
-- What we are going to build
-- Vision / goal
-- Problem and current workaround
-- Target users
-- Competitors and open-source alternatives
-- MVP scope and core user journey
-- Out of scope for now
-- Success signal
-- Open questions, risks, and assumptions
+Use the user's requested format or existing schema. For a new default PRD, use [the PRD outline](references/prd-outline.md). Scale the sections to the scope; do not force a full-product document for one capability. Honor explicit paths, otherwise use the established PRD path or docs/PRD.md. If both root PRD.md and docs/PRD.md exist and authority is unclear, ask before creating or overwriting a file.
 
-Keep agreed decisions in the main summary and place material uncertainties in the final field. Keep the scope at the product level. Then ask the user to confirm the summary or request changes. If they request changes, revise the summary and ask for confirmation again. Treat an explicit confirmation with no requested changes as approval to draft the PRD.
+Before finishing, check that current scope, target scope, deferred items and exclusions are distinguishable; every material capability has a stated purpose and relevant actor or consumer; priorities have a stated basis; quality needs and success measures have known sources or labeled gaps; and no unapproved proposal has become a commitment. Do not generate use-case IDs, detailed specifications, architecture or implementation plans here.
 
-After the user confirms without changes, generate a self-contained `PRD.md` from the approved summary, following the user's requested format when provided. Otherwise start the file with YAML frontmatter containing `status: draft`, `approval: pending`, `version: 0.1`, and `date: YYYY-MM-DD` (use the date the PRD is generated), then use concise, standard sections for overview, problem, goals, target users, competitors and open-source alternatives, MVP features, out-of-scope items, success metrics, risks and assumptions, and open questions. Keep document lifecycle details in the frontmatter rather than repeating them as a title block. Preserve source links, unresolved decisions, and assumptions. Honor an explicit user path or the project's established PRD location; otherwise write `docs/PRD.md` relative to the target project root. If the root-level `PRD.md` or `docs/PRD.md` already exists, inspect it and ask before creating a duplicate or overwriting it. Report the actual file path, draft status, material unresolved decisions and the next review decision needed for the requirements handoff. Do not automatically change approval fields or begin implementation.
+Report the actual artifact path (if written), revision, approval state, material open decisions and recommended next review.
 
 ## Review, approval and change
 
-When the user asks to review, approve or revise an existing PRD, read the authoritative file first. Do not restart discovery or recreate the PRD unnecessarily. Identify the exact revision and scope under review, including material unresolved decisions and proposed exclusions. Ask only about unresolved decisions that affect approval. An explicit instruction approving that exact revision is sufficient; confirmation of the earlier discussion summary is not.
+When asked to review, approve or revise an existing PRD, read the authoritative file first. Identify the exact revision and scope under review, including material unresolved decisions and exclusions. Ask only about unresolved decisions affecting approval. Explicit approval of that exact revision is sufficient; confirmation of a discussion summary is not.
 
-For documents using the default metadata convention, record `status: approved` and `approval: approved` only after the product owner explicitly approves the actual document. Preserve established alternative lifecycle conventions and legacy approved documents; do not add metadata merely to migrate them. A material scope revision becomes `status: draft`, `approval: pending` until explicitly approved again. Preserve or identify the prior approved revision and its scope in existing version history or an agreed decision record. Do not silently overwrite a previously approved baseline or downstream index; obtain the requested revision scope and record affected use cases, specifications, plans and evidence. Nonmaterial corrections do not automatically invalidate approval. Never invent unresolved product decisions or treat approval as implementation or publication authorization.
+For documents using the default metadata convention, record status: approved and approval: approved only after explicit product owner approval of the actual document. A material scope revision becomes status: draft, approval: pending until explicitly approved again. Preserve alternative lifecycle conventions and legacy approved documents; do not force metadata migration. Preserve or identify the prior approved revision and scope in existing version history or an agreed decision record. Nonmaterial corrections do not automatically invalidate approval.
 
-Report the actual approval evidence, document path and applicable revision; hand off to requirements decomposition only when authoritative scope is clear.
+Assess affected use cases, specifications, plans and evidence for material changes. Do not silently overwrite an approved baseline or downstream index, reset implementation statuses or redefine requirements to match a defect. If unresolved decisions affect the proposed scope, keep it pending or explicitly exclude those decisions from the approved scope. Report approval evidence and revision. Hand off to prd-to-use-cases when requested and authoritative scope is established. Approval is not authorization to implement or publish.

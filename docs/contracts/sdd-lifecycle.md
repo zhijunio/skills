@@ -1,6 +1,6 @@
 # SDD Lifecycle and Artifact Contract (E02)
 
-Status: Implemented as skill instructions on the review branch; deterministic and behavioral verification pending. Maintainer's instruction to continue after the three proposed lifecycle decisions was interpreted as authorization to implement them on the review branch, not to publish.
+Status: Implemented as skill instructions on the review branch; deterministic verification passed at acaa67d; behavioral verification pending. Maintainer's instruction to continue after the three proposed lifecycle decisions was interpreted as authorization to implement them on the review branch, not to publish.
 Date: 2026-11-28
 Related: [Engineering workflow](../engineering-workflow.md), [capability audit](../audits/engineering-capability-audit.md), [Phase 02 plan](../plans/phase-02-engineering-workflow.md).
 
@@ -91,6 +91,6 @@ Before implementing a use case, check product scope authority when applicable, u
 
 ## 8. Migration and decisions
 
-Current skill names: product-requirements, prd-to-use-cases, behavior-specification and implement-use-case. Name migration updates invocation configurations, references, provenance and catalog; distribution verification is pending. Preserve applicable notices; existing SDD notice gap remains unresolved and publication remains blocked.
+Current skill names: product-requirements, prd-to-use-cases, behavior-specification and implement-use-case. Name migration updates invocation configurations, references, provenance and catalog; distribution verification passed at acaa67d. Preserve applicable notices; existing SDD notice gap remains unresolved and publication remains blocked.
 
 The three lifecycle decisions are implemented on the review branch. Whether to remove the mirrored specification status in a future schema revision is deferred; preserve current target-project compatibility now. Name migration is implemented on the review branch; runtime evaluation and release remain pending.

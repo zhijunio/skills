@@ -18,6 +18,7 @@ Create `requirements.md` from `prd.md`, treating the PRD as the source of truth 
 
 ## Derive the requirements
 
+- Establish the approved current delivery scope separately from the long-term target product scope. If the requested decomposition scope is unclear, clarify before writing; target-only, proposed and deferred capabilities must not become current committed use cases. A full-product index is appropriate when explicitly approved as the decomposition scope.
 - Identify every explicit, in-scope capability in the PRD and represent it as a summary table row with an ID, a concise verb-led title, and a status.
 - Exclude items explicitly marked optional, future, later, or out of scope.
 - Keep titles grounded in the PRD without inventing behavior to fill gaps.

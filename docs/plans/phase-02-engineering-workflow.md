@@ -111,9 +111,13 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
 
+## E03 progress
+
+The existing product-requirements skill now supports full product, MVP, release and capability scope; separates target and current delivery scope; adds progressive references for requirements analysis and PRD shape. The decomposition skill explicitly excludes target-only scope. No new skill or imported third-party source. Deterministic and behavioral verification of this change remain pending.
+
 ## E02 progress
 
-The [SDD lifecycle and artifact contract](../contracts/sdd-lifecycle.md) records the proposed approval and reopening semantics, synchronization rules and twelve acceptance scenarios. Following the maintainer's instruction to continue after the three proposed lifecycle decisions, the review branch implements explicit PRD approval, authorized DONE reopening and bounded dependency exceptions, without adding status codes. Initial hardening covers scope authority, conflicts, dependency validation, safe synchronization and failed/unavailable checks. Skill-name migration is implemented; deterministic verification of this change and behavioral verification remain pending.
+The [SDD lifecycle and artifact contract](../contracts/sdd-lifecycle.md) records the proposed approval and reopening semantics, synchronization rules and twelve acceptance scenarios. Following the maintainer's instruction to continue after the three proposed lifecycle decisions, the review branch implements explicit PRD approval, authorized DONE reopening and bounded dependency exceptions, without adding status codes. Initial hardening covers scope authority, conflicts, dependency validation, safe synchronization and failed/unavailable checks. Skill-name migration passed CI and Skill verification at acaa67d (runs 46133879572 and 46133879001); behavioral verification remains pending.
 
 ## E01 progress
 
