@@ -25,6 +25,8 @@ The repository contains 59 skills organized into three collections.
 | [Spring Boot](spring-boot-skills/) | 39 | Spring Boot 4 application development and delivery |
 | [Collected Skills](collected-skills/) | 7 | Useful skills collected from other projects |
 
+See the generated [Skill Catalog](docs/skill-catalog.md) for every entry point, current activation description, source group and invocation policy.
+
 ## Quick Start
 
 Install skills using the Skills CLI:
