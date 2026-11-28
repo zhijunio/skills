@@ -15,7 +15,7 @@ Scope: the 13 engineering skills and relevant routing/testing skills. Evidence: 
 | domain-modeling | Domain terminology and significant decisions | Glossary and ADR | Confirm material decisions; no product scope ownership | Retain; avoid duplicate architectural authority |
 | grilling | Requested decision stress test | Resolved decision tree | No file writes unless authorized; frontier rounds distinct from create-spec interview | Retain |
 | grill-with-docs | Explicit request for documented interview | Grilling plus glossary/ADR updates | Requires both installed dependencies; report missing skill | Compose; retain unless evidence warrants consolidation |
-| prototype | Bounded design question | Disposable experiment and verdict | Do not treat prototype as production; authorized scratch scope | Retain |
+| prototype | UI appearance or behavior/state question | Disposable UI variants or single-file logic simulator | Current instructions assume disposable code, no tests, and branch capture; production isolation and authorization need strengthening | Adapt or split after expanded research |
 | html-plan | Planning request or explicit HTML | Interactive review artifact | Wait for user response; runtime packer and supporting references | Refactor activation to HTML review use; generic plan remains separate candidate |
 | diagnosing-bugs | Hard defect/regression | Reproduction, root cause, correction and regression evidence | Stop when red-capable loop unavailable; redact secrets | Retain |
 | java-code-review | Java diff or requested scope | Review report | No unauthorized fix or overwrite; report validation limits | Retain language-specific review |
@@ -34,11 +34,14 @@ Relevant adjacent owners: spring-boot router (select technical guidance), spring
 | G05 Test strategy | Spring Boot testing includes risk-based test mix, slice/integration examples and readiness; impl-spec verifies acceptance; diagnosing-bugs establishes feedback loops | E06: general risk-to-evidence planning contract, compose stack-specific test guidance and optional TDD; do not duplicate test execution |
 | G06 Generator routing | spring-boot router introduces scaffolding for new projects even when generator choice unresolved, later says exactly one | E02/E04: clarify routing before initializer selection; foundation remains decision owner |
 | G07 Cross-artifact validation | SDD skills stop on conflicts individually; no dedicated read-only coverage review across PRD/index/spec/plan/test evidence | E02/E05: adapt consistency checklist before adding standalone analyzer |
+| G09 Prototype coverage | UI.md explores variants on a route; LOGIC.md exercises state transitions in a standalone HTML file; blanket no-test policy and branch capture do not cover technical PoC evidence or safe authorization | E03-A/B and E04-A: distinguish product, behavior and technical experiments; compare reusable implementations before deciding skill count |
 | G08 Review and completion | Java review is language-specific, Spring testing readiness is framework-specific | Defer broad review/release capabilities unless E07 exposes material gap |
 
 ## Proposed target architecture
 
 Product discovery and product requirements establish scope; use-case decomposition establishes stable identity. System design and domain modeling resolve different design questions. Foundation establishes a runnable technical baseline when necessary. Behavior specification owns observable feature rules. Implementation planning owns execution decomposition; test strategy owns risk and evidence selection. Implementation owns code and verified status, diagnosis owns defect feedback, review owns findings. These are capability boundaries, not a mandatory sequence or a commitment to one new skill per row.
+
+Product and behavior prototyping can feed product approval or detailed specifications, while technical PoCs feed system design. See the [prototype contract](../contracts/prototyping.md). Do not confuse these decision aids with implementation or generic HTML plan presentation.
 
 ## Migration policy
 

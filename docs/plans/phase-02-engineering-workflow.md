@@ -9,7 +9,7 @@ Establish a coherent, reusable software engineering workflow for new products, c
 
 ## 2. Scope
 
-In scope: responsibility and artifact contracts, product requirements, system design, implementation planning, test strategy, change control, and representative workflow exercises. Review domain modeling and release readiness boundaries where needed.
+In scope: responsibility and artifact contracts, product requirements, product and behavior prototyping, system design, technical feasibility experiments, implementation planning, test strategy, change control, and representative workflow exercises. Review domain modeling and release readiness boundaries where needed.
 
 Out of scope: application-specific implementations, indiscriminate collection restructuring without evidence, mandatory heavyweight SDD for small changes, bulk technical skill expansion, custom evaluation infrastructure, and systematic multi-model benchmarks (Phase 03). Publication remains independently blocked by unresolved provenance and authorization.
 
@@ -20,10 +20,13 @@ Out of scope: application-specific implementations, indiscriminate collection re
 | E01 | Detailed responsibility and handoff review | P0 | Phase 01 | Contract matrix and gap decisions |
 | E02 | SDD lifecycle and change control | P0 | E01 | Clarified PRD approval, stable identities, reopen semantics and conflict handling |
 | E03 | Product requirements capability | P0 | E01, E02 | Reuse decision and focused improvement if justified |
+| E03-A | Product prototyping | P0 | E01, E03 | Prototype scope, user journeys, review and PRD feedback contract |
+| E03-B | Behavior prototyping | P0 | E01, E02 | Reuse decision for existing logic prototype and specification feedback |
 | E04 | System design capability | P0 | E01 | Reuse decision and scoped design contract |
+| E04-A | Technical prototyping / PoC | P0 | E01, E04 | Hypothesis, bounded experiment and reproducible evidence contract |
 | E05 | Implementation planning capability | P0 | E01, E02, E04 | Reuse decision and plan-to-implementation contract |
 | E06 | Test strategy capability | P0 | E01, E02 | Reuse decision and risk-based verification contract |
-| E07 | Compose representative workflows | P0 | E02–E06 | Updated workflow and actual exercise evidence |
+| E07 | Compose representative workflows | P0 | E02–E06, E03-A/B, E04-A | Updated workflow and actual exercise evidence |
 | E08 | Phase review and next priorities | P0 | E07 | Acceptance report and remaining risks |
 
 ## 4. Execution details
@@ -54,11 +57,25 @@ Assess whether the existing brainstorming and PRD decomposition contracts alread
 
 Acceptance: a representative ambiguous product requirement is clarified without invented business decisions; existing approved scope is preserved. Prefer a focused change over another competing skill.
 
+### E03-A / E03-B — Product and behavior prototyping
+
+Review the existing prototype UI and LOGIC references, then compare maintained upstream skills and tools. Product prototypes should explore information architecture, navigation, user journeys, interface states and meaningful alternatives at a fidelity matched to the decision. Behavior prototypes should exercise observable rules and transitions, including invalid transitions, using synthetic data. Use existing approved designs where available; do not require a working frontend or a UI for headless products.
+
+Evaluate whether to retain one prototype router with focused references or split independent skills. A prototype must state its question, assumptions, scope, run/review instructions, result and limitations. Capture feedback in the authoritative PRD or behavior specification through its owner; approval of an experiment does not approve product scope or production implementation. Do not edit an existing production route or publish a branch merely to make a prototype available.
+
+Acceptance: a representative user journey and an ambiguous state transition are reviewable and their feedback is reconciled without silently adding requirements; routine work bypasses unnecessary prototyping.
+
 ### E04 — System design
 
 Evaluate existing domain-modeling, grilling, project-foundation and architecture-focused skills. A missing system design capability, if confirmed, should own system boundaries, responsibilities, integration contracts, data ownership, quality attributes, trade-offs and significant risks. It must not silently choose a technology stack, redefine business behavior, generate a project or prescribe microservices. Use existing ADR and glossary mechanisms rather than creating duplicate decision records.
 
 Acceptance: given an approved product scope and material constraints, produce a reviewable design with alternatives, assumptions, decisions and unresolved risks; respect an existing architecture. Keep diagrams or artifacts proportional to complexity.
+
+### E04-A — Technical prototyping / PoC
+
+Compare available open-source feasibility/spike workflows, including existing prototype and diagnosing-bugs patterns. Define the hypothesis, decision criteria, experiment setup, isolation, dependencies, measurement method, actual results, limits and resulting architecture decision. Select experiments by risk rather than a required HTML deliverable. Real dependencies may be used only in authorized isolated environments when needed to establish the semantics; no production data or mutation by default. Tests, instrumentation and repeatability may be essential for a technical PoC. No automatic branch creation, publication, production promotion or implementation authorization.
+
+Acceptance: an experiment distinguishes observed feasibility from assumptions; failed or unavailable evidence is reported honestly and routed to the design owner. A positive PoC does not certify production readiness.
 
 ### E05 — Implementation planning
 
@@ -83,6 +100,7 @@ Use isolated, synthetic or explicitly authorized target repositories. Exercise a
 | Scope change | Stable IDs, explicit reconciliation, correct affected-spec and status handling |
 | Failure / blocked dependency | No false DONE; no unapproved expansion |
 | Defect repair | Reproduction, correction, regression evidence, approved reopening policy |
+| Prototype feedback | Product and behavior experiments use safe review scope; technical PoC records reproducible evidence or limitations; no automatic promotion |
 | Routing / composition | Relevant skills only, explicit-only policy respected, honest missing-dependency handling |
 
 Compare a baseline and changed skill where practical using the same task, model and tools. Reuse the upstream skill-creator evaluation workflow; no custom runner is required. Record actual outputs, commands and limitations. Use deterministic CI for every material skill change and regenerate the catalog when inputs change.
@@ -103,7 +121,7 @@ See the [capability audit](../audits/engineering-capability-audit.md) and [reuse
 
 ## 5. Execution order
 
-E01 then E02; E03 and E04/E06 may proceed after their stated dependencies and approved scope, E05 follows design and lifecycle contracts, then E07 and E08. Each material skill change should be a focused reviewable unit. Do not import external content before verifying applicable rights.
+E01 then E02; E03 and E04/E06 may proceed after their stated dependencies and approved scope, E03-A/B and E04-A may iterate with their owning requirements/design stages; E05 follows design and lifecycle contracts, then E07 and E08. Each material skill change should be a focused reviewable unit. Do not import external content before verifying applicable rights.
 
 ## 6. Approval and exit criteria
 
@@ -116,4 +134,4 @@ E01 then E02; E03 and E04/E06 may proceed after their stated dependencies and ap
 - [ ] Documentation, provenance and remediation tracker updated.
 - [ ] Remaining release blockers preserved; no publication or merge inferred from phase completion.
 
-No skill creation, runtime evaluation or publication is claimed by this plan.
+Prototype capability research is reopened for the expanded scope; the prior E01 audit remains valid for the original scope. See the [prototype capability contract](../contracts/prototyping.md). No skill creation, runtime evaluation or publication is claimed by this plan.

@@ -21,8 +21,16 @@ Escalate a lightweight change to specification or design when business rules, se
 ```mermaid
 flowchart TD
     A[Product discovery and scope] --> B[Draft PRD and product review]
-    B --> C[Use-case index]
-    C --> D{New foundation needed?}
+    B --> R{Product or behavior uncertainty?}
+    R -->|Yes| S[Review product or behavior prototype]
+    S -->|Feedback| B
+    R -->|No or resolved| T[Product scope approval]
+    T --> C[Use-case index]
+    C --> U{Material design uncertainty?}
+    U -->|Yes| V[Design review or technical PoC]
+    V -->|Reconcile evidence| U
+    U -->|No or resolved| D
+    D{New foundation needed?}
     D -->|Yes| E[Approve stack and initializer]
     E --> F[Initialize and verify baseline]
     D -->|No| G[Select one use case]
@@ -69,7 +77,7 @@ The foundation stage is normally needed for a new project, not every use case in
 
 Use grilling for a requested stress-test of a design decision; it asks independent frontier questions in rounds. Use create-spec for feature behavior; it asks exactly one question per turn. Do not import the grilling interview format into create-spec. Use domain-modeling for canonical terms and significant domain decisions. Grill-with-docs composes grilling and domain-modeling and needs both dependencies. Record only confirmed decisions within the authorized documentation scope.
 
-A prototype answers a bounded question and is disposable. Its verdict can inform a specification or design; the prototype is not verified production code. HTML plans present implementation decisions for review, not a second requirements authority.
+A prototype answers a bounded question and is disposable. Current prototype supports UI variants and interactive logic simulations. The expanded Phase 02 [prototype capability contract](contracts/prototyping.md) proposes product, behavior and technical feasibility modes; the full product journey and technical PoC capabilities are not yet implemented. Product feedback returns to PRD, behavior feedback to the specification/domain owner, and technical evidence to the design/ADR owner. The prototype is not verified production code or implementation authorization. HTML plans present implementation decisions for review, not a second requirements authority.
 
 ## 3. Artifact contracts
 
@@ -83,6 +91,7 @@ All paths below are relative to the target project, not this skills repository. 
 | Domain terminology | domain-modeling | GLOSSARY.md or context-local glossary |
 | Significant domain/architecture decision | domain-modeling where appropriate | docs/adr/ or context-local ADRs |
 | Detailed behavior and acceptance criteria | create-spec; approved specification | docs/specs/{number}-{feature-title}.md |
+| Prototype evidence (proposed expansion) | Prototype question, artifact and verdict; authoritative decisions stay with PRD/spec/ADR owners | Project-selected isolated location and decision record |
 | Implementation plan | html-plan when requested; otherwise existing project convention | User/project-selected HTML or plan location |
 | Review findings | java-code-review | review.md unless specified |
 | Test and build evidence | Implementing or reviewing skill and project tools | Actual test reports, logs and change summary |
@@ -173,6 +182,7 @@ For handoffs across sessions, the collected handoff skill can capture context wh
 | System design | project-foundation, domain-modeling, grilling and technology-specific architecture skills | Investigate cross-cutting system design covering boundaries, quality attributes, integration and trade-offs without duplicating existing owners |
 | Implementation planning | html-plan and impl-spec task decomposition | Assess a portable, format-neutral planning contract and reuse existing tools first |
 | Test strategy | impl-spec acceptance tests, diagnosing-bugs, spring-boot-testing | Investigate technology-neutral risk-based verification planning and measurable criteria |
+| Prototyping | Existing prototype UI and logic modes | Review full product journey and technical PoC gaps; choose composition or focused split after research |
 | Change control | Individual PRD/index/spec reconciliation rules | Clarify reopening, impact analysis and approval semantics in the existing workflow before proposing automation |
 | Release readiness | Spring Boot build/testing and CI guidance | Investigate general release criteria and authorization; do not conflate with deployment |
 
