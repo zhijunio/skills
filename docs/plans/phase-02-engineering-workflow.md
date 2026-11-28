@@ -111,9 +111,13 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
 
+## E04-A progress
+
+Added technical-spike as an explicit-only capability for bounded technical feasibility experiments, with references for experiment design and evidence and a report template. Selectively adapted the pinned Hermes spike entry point; retained the Hermes and GSD MIT notices, with the exact historical GSD revision still unknown. No upstream GSD workflow files or Hermes tools imported. Deterministic and behavioral verification pending.
+
 ## E04 progress
 
-Added system-design as a separate architecture owner with progressive references for drivers, boundaries/runtime and design briefs. Selectively adapted the pinned Magnus Hedemark software-architecture entry point and retained its MIT notice. No book-derived material or specialist sibling skills imported. Deterministic and behavioral verification pending.
+Added system-design as a separate architecture owner with progressive references for drivers, boundaries/runtime and design briefs. Selectively adapted the pinned Magnus Hedemark software-architecture entry point and retained its MIT notice. No book-derived material or specialist sibling skills imported. Deterministic verification passed at 6a327ae (runs 46138479063 and 46138478217); behavioral verification pending.
 
 ## E03-A/B progress
 

@@ -12,7 +12,7 @@ Answer a bounded product or behavior question with the least costly reviewable a
 - Product journey or interface: use [UI prototype](references/ui-prototype.md) for navigation, user flows, wireframes and interactive alternatives.
 - Business behavior: use [behavior prototype](references/behavior-prototype.md) to explore rules, data shapes and state transitions.
 - Combine the two only when the same question requires both. A headless product need not have a visual UI.
-- Technical feasibility, compatibility, capacity or performance: route architecture questions to system-design and evidence gaps to an authorized technical experiment rather than claiming that a UI mock or simulation proves real system behavior.
+- Technical feasibility, compatibility, capacity or performance: route architecture questions to system-design and evidence gaps to an explicitly authorized technical-spike experiment rather than claiming that a UI mock or simulation proves real system behavior.
 
 Read existing product scope, relevant decisions and design conventions. Identify the audience, decision owner, question, assumptions, success criteria and authorized experiment boundary. Ask only about material gaps. If a diagram or discussion can settle the question, do not build code unnecessarily.
 

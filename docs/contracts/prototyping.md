@@ -1,6 +1,6 @@
 # Prototype Capability Contract
 
-Status: product and behavior modes implemented as product-prototyping on review branch; technical PoC and verification pending.
+Status: product and behavior modes implemented as product-prototyping; technical PoC implemented as technical-spike on review branch. Runtime verification pending.
 Related: [Phase 02 plan](../plans/phase-02-engineering-workflow.md), [existing prototype](../../engineering/product-prototyping/SKILL.md), [UI reference](../../engineering/product-prototyping/references/ui-prototype.md), [logic reference](../../engineering/product-prototyping/references/behavior-prototype.md), [SDD contract](sdd-lifecycle.md).
 
 ## 1. Select the question, not the output format
@@ -25,7 +25,7 @@ The current UI reference prefers modifying an existing route and only explicitly
 
 ## 4. Proposed reuse decision
 
-Compare existing Matt Pocock prototype guidance with maintained product design/prototyping and technical spike workflows. Prefer a single focused skill plus progressive references if activation, authorization and outputs remain coherent; split only when independent invocation and distinct evidence justify it. Do not assume three abilities require three skills. Record license, fixed revision, dependencies and gaps before importing. The [prototype extension research](../research/engineering-skill-reuse.md) supports retaining product and behavior exploration together, with a separate candidate technical-spike capability for reproducible feasibility experiments. Product and behavior modes now use product-prototyping, preserving its original MIT notice; technical-spike remains a candidate pending source-chain review. No new third-party source has been imported.
+Compare existing Matt Pocock prototype guidance with maintained product design/prototyping and technical spike workflows. Prefer a single focused skill plus progressive references if activation, authorization and outputs remain coherent; split only when independent invocation and distinct evidence justify it. Do not assume three abilities require three skills. Record license, fixed revision, dependencies and gaps before importing. The [prototype extension research](../research/engineering-skill-reuse.md) supports retaining product and behavior exploration together, with a separate candidate technical-spike capability for reproducible feasibility experiments. Product and behavior modes now use product-prototyping, preserving its original MIT notice; technical-spike implements the separate technical capability via selective adaptation of Hermes spike, with both Hermes and GSD MIT notices retained. The exact GSD revision used by Hermes is unknown; no GSD workflow source is imported.
 
 ## 5. Proposed evaluation cases (NOT RUN)
 
@@ -39,4 +39,4 @@ Compare existing Matt Pocock prototype guidance with maintained product design/p
 | P06 | Approved prototype but no implementation authorization | No production edits, status transition or publication |
 | P07 | Clear bounded defect | No compulsory prototype |
 
-All cases remain pending actual runtime verification. The product-prototyping migration implements the maintainer's instruction to continue; all cases remain pending runtime evidence.
+All cases remain pending actual runtime verification; both skills are implemented on the review branch.

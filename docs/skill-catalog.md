@@ -8,10 +8,10 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 
 | Collection | Skills |
 | --- | ---: |
-| engineering | 14 |
+| engineering | 15 |
 | spring-boot-skills | 39 |
 | collected-skills | 7 |
-| Total | 60 |
+| Total | 61 |
 
 ## Source keys
 
@@ -19,6 +19,7 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 | --- | --- |
 | A | [Anthropic community plugins](https://github.com/anthropics/claude-plugins-community) |
 | E | [web-access](https://github.com/eze-is/web-access) |
+| F | [Nous Research Hermes Agent](https://github.com/NousResearch/hermes-agent) |
 | H | [HumanLayer skills](https://github.com/humanlayer/skills) |
 | M | [Siva Prasad Reddy musings](https://github.com/sivaprasadreddy/musings) |
 | N | [Magnus Hedemark agent skills](https://github.com/magnus919/agent-skills) |
@@ -45,6 +46,7 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 | [progen](../engineering/progen/SKILL.md) | Use when the user explicitly selects Progen to scaffold a Spring Boot project. Verify the selected generator supports the approved stack, derive its configuration, confirm consequential choices and generate only the agreed scope. | P | Explicit only |
 | [project-foundation](../engineering/project-foundation/SKILL.md) | Choose and record a project's technical foundation, then initialize and verify its runnable skeleton before feature specifications or implementation. | O | Explicit only |
 | [system-design](../engineering/system-design/SKILL.md) | Design or review a software system from approved product scope, architecture drivers and existing constraints. Use for system boundaries, component responsibilities, data ownership, integration, runtime and failure behavior, quality attributes and architecture tradeoffs; not stack selection, project initialization or feature implementation. | N | Not restricted |
+| [technical-spike](../engineering/technical-spike/SKILL.md) | Run bounded technical feasibility experiments or comparative proofs of concept to resolve engineering uncertainty with reproducible evidence. Use for explicit spike or PoC requests, integration compatibility, mechanism or performance hypotheses; not product UI prototypes, routine research, defect repair or production implementation. | F | Explicit only |
 
 ## spring-boot-skills
 
