@@ -9,6 +9,8 @@ description: >
 
 # Spring Boot Web MVC
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
+
 ## Project contract
 
 Inspect existing controllers, tests and OpenAPI. Preserve the established paths,
