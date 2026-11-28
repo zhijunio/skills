@@ -16,8 +16,8 @@ Use this skill for Spring Boot 4 projects built with Maven. Read
 coverage, or release configuration. Use the project's committed `./mvnw` and preserve its current
 Boot line unless the requested change requires an upgrade.
 
-For new projects or an explicit house-style alignment, apply the complete Maven defaults in the
-reference. For other changes, check only the relevant rules and avoid adding those defaults to an
+For an explicit house-style alignment, apply only the approved Maven defaults in the reference.
+For new projects, preserve the generation contract and add optional tooling only when requested or required by approved policy. For other changes, check only the relevant rules and avoid adding those defaults to an
 existing project unless requested.
 
 This skill covers the Maven build for a single runnable application. For parent/child POMs,
