@@ -113,7 +113,7 @@ Review changed contracts, verified cases, outstanding blockers and follow-up pri
 
 ## E02 progress
 
-The [SDD lifecycle and artifact contract](../contracts/sdd-lifecycle.md) records the proposed approval and reopening semantics, synchronization rules and twelve acceptance scenarios. Maintainer approval of material semantics is pending; current skill instructions remain unchanged.
+The [SDD lifecycle and artifact contract](../contracts/sdd-lifecycle.md) records the proposed approval and reopening semantics, synchronization rules and twelve acceptance scenarios. Maintainer approval of material status semantics is pending. Initial skill hardening implements existing scope authority and conflict handling, dependency validation, safe status synchronization, and explicit failed/unavailable check reporting. It does not establish new PRD approval values, authorize DONE reopening, or change status codes. Behavioral verification remains pending.
 
 ## E01 progress
 

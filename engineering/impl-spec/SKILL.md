@@ -23,7 +23,8 @@ Inspect the implementation and tests to find the smallest complete change. Check
 - Ask concise, decision-oriented questions for unresolved product or technical decisions. Do not choose business behavior or a consequential stack/platform on the user's behalf.
 - If a dependency is not `DONE`, ask whether to implement that dependency first, proceed after it is completed, or stop. Do not expand this use case to include the dependency.
 - If the use case is `DONE`, report that and stop unless the user explicitly requests repair or reimplementation.
-- Keep statuses unchanged while resolving blockers.
+- Resolve dependency IDs against the canonical index and inspect their specifications as needed to detect missing IDs, self-dependencies and dependency cycles. Report the exact conflicting IDs rather than treating an unresolved dependency as complete.
+- Check the summary icon against the canonical status before any status edit. Keep statuses unchanged while resolving blockers.
 
 ## Start implementation
 
@@ -32,6 +33,8 @@ Once the contract and prerequisites are clear, make the status transition the fi
 1. Change this use case from `TODO` to `IN_PROGRESS` in both the requirements summary row and specification frontmatter. In the summary, update the first-column icon from `❎` to `👷🏽` as well.
 2. Read both files back and confirm the canonical ID, title, and status agree before changing implementation files. Confirm the summary icon matches its status value.
 3. If both already say `IN_PROGRESS` and the summary icon is `👷🏽`, resume only when the user's intent to continue is clear; otherwise ask. If the status values disagree, stop and ask which state is correct.
+
+If updating either status document fails or read-back reveals a mismatch, stop before further implementation edits. Report which write succeeded and which did not. Restore prior consistent values only if it is safe to do so without overwriting concurrent changes; otherwise request reconciliation. Apply the same safeguard when completing a use case.
 
 Do not change another use case's status. Do not copy detailed behavior or acceptance criteria into `docs/requirements.md`.
 
@@ -42,7 +45,7 @@ Do not change another use case's status. Do not copy detailed behavior or accept
 - Add or update focused automated tests for observable acceptance behavior. Run focused tests first, then broader relevant checks when practical.
 - For a large use case, split work into independently verifiable tasks only when their file ownership and contracts can be defined without overlapping edits; integrate the results and run the relevant checks before completion.
 - If implementation reveals a material ambiguity, pause and ask. Leave both status entries `IN_PROGRESS` and the summary icon `👷🏽` while unresolved.
-- If tests fail or work remains, do not mark the use case complete. Report the failure or remaining work and the verification evidence.
+- If tests fail, required checks cannot run, or work remains, do not mark the use case complete. Distinguish PASS, FAIL and NOT RUN in the completion report; include the actual commands or evidence, remaining work and reason for unavailable checks. Do not substitute an unexecuted plan or a prototype verdict for verification.
 - Review the final diff for scope, accidental changes, and matching status values.
 
 ## Complete the use case

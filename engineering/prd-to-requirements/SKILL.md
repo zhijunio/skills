@@ -14,6 +14,7 @@ Create `requirements.md` from `prd.md`, treating the PRD as the source of truth 
 - Before writing, read the entire PRD and, when present, the entire existing `docs/requirements.md` to learn the repository's current format and conventions.
 - Treat the existing requirements document as a structural example and the canonical identity/status register for existing use cases, not as authority for product scope. Inspect matching specifications when reconciling identities. Resolve content against the PRD.
 - Write only the requested requirements file. Do not implement features or modify the PRD.
+- Establish the authoritative product scope from the user's instructions and existing project records. If the PRD is explicitly draft or pending, or authority is disputed, surface that fact and request the necessary scope decision before changing the authoritative index. A clearly labeled preview may be returned without changing files. Do not infer approval solely from a missing metadata field or force a new metadata schema on legacy projects.
 
 ## Derive the requirements
 
@@ -32,4 +33,4 @@ Create `requirements.md` from `prd.md`, treating the PRD as the source of truth 
 
 ## Verify before finishing
 
-Confirm that every in-scope PRD capability is represented in the summary, excluded scope was not promoted into requirements, IDs are unique, new IDs are sequential, and existing IDs and statuses are preserved. Keep the summary as an index; detailed behavior and acceptance criteria belong in the matching specification. If an existing specification conflicts with the proposed index, stop and request reconciliation rather than modifying it.
+Confirm that every in-scope PRD capability is represented in the summary, excluded scope was not promoted into requirements, IDs are unique, new IDs are sequential, and existing IDs and statuses are preserved. Check known retired IDs before allocating a new ID; do not reuse them. Keep the summary as an index; detailed behavior and acceptance criteria belong in the matching specification. If an existing specification conflicts with the proposed index, stop and request reconciliation rather than modifying it.

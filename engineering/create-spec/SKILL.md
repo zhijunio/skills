@@ -61,6 +61,8 @@ Use these as coverage criteria, not a fixed questionnaire. An answer may resolve
 ## Rules
 - The human owns business intent and final decisions about expected behavior.
 - Do not silently invent business rules or convert technical preferences into business requirements.
+- Distinguish clarification within established product scope from a proposed product scope change. If a PRD exists and the request conflicts with it, report the conflict and route it to the product owner before registering the requirement or writing a conflicting specification. A prototype or technical design does not override product intent.
+- When revising existing behavior, identify affected use cases, dependencies, plans and acceptance evidence where available. Report evidence that may no longer apply; do not reset implementation statuses in this drafting workflow.
 - Prefer observable behavior over prescribing classes, methods, frameworks, or internal design.
 - Reuse existing project conventions and documented decisions; call out conflicts rather than silently overriding them.
 - Keep requirements testable, specific, and concise.
