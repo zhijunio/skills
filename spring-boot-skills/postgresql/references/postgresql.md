@@ -7,7 +7,7 @@ replication.
 ## Datasource
 
 Use the PostgreSQL driver `org.postgresql:postgresql` with runtime scope. Let Spring Boot dependency
-management select a compatible version. When using MyBatis-Plus, do not add
+management select a compatible version. Check the actual server and JDBC driver independently; verify Instant mapping through the selected persistence provider (direct pgJDBC uses OffsetDateTime for timestamptz). When using MyBatis-Plus, do not add
 `spring-boot-starter-jdbc` just to connect to PostgreSQL.
 
 ## Types and time zones
@@ -40,6 +40,8 @@ consistent with nullability, such as `NOT NULL DEFAULT 0`. For audit timestamps,
 of truth: application fill or a database default, not competing defaults.
 
 ## Constraints and concurrent writes
+
+Use NOT NULL alongside CHECK when null is forbidden: a CHECK expression yielding NULL does not reject a row. UNIQUE permits multiple nulls by default; select NULLS NOT DISTINCT only when supported by the server and required by the invariant. For shared-schema tenancy, use tenant-qualified unique and foreign keys to prevent cross-tenant references. For lost updates choose a conditional update/version predicate, row lock or appropriate isolation based on the invariant; check affected row counts. Classify SQLSTATE and constraint names rather than retrying every database error. Handle serialization failures and deadlocks with bounded whole-transaction retries only for repeatable operations.
 
 Let database constraints decide concurrent uniqueness. Do not use `SELECT` followed by `INSERT` as
 a uniqueness check. Let the write encounter the unique constraint, roll back the failed transaction,
