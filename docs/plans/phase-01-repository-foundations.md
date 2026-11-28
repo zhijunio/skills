@@ -169,12 +169,12 @@ Actual execution advanced distribution and deterministic checks early to remedia
 | F04 | Documented, awaiting review | [Authoring guide](../skill-authoring-guide.md); review branch |
 | F02 | Documented, maintainer confirmed | [Agent instructions](../../AGENTS.md); review branch |
 | F05 | Documented, awaiting review | [Contribution guide](../../CONTRIBUTING.md); review branch |
-| F07 | TODO | Catalog |
+| F07 | Implemented, freshness CI pending | [Generated catalog](../skill-catalog.md), 59 entries; generator and 10 helper tests passed at 59b2275; exact CI artifact committed at 99f57fa |
 | F08 | TODO | Engineering workflow |
 | F09 | Partial verification passed | [Distribution report](../verification/distribution.md); archive, extraction and local CLI installations passed, actual agent behavior and publication remain unverified |
-| F10 | Partial verification passed | [CI workflow](../../.github/workflows/skill-verification.yml); helper tests, metadata and distribution checks passed; catalog freshness, broader reference checks and remaining validation scope pending |
+| F10 | Partial verification passed | [CI workflow](../../.github/workflows/skill-verification.yml); helper tests, metadata and distribution checks passed; catalog freshness check configured; its first enforcement run, broader reference checks and remaining validation scope pending |
 
-Next: complete F07 and F08, close remaining F09/F10 scope or document explicit limitations, and review phase acceptance. Continue provenance and publication review separately. Do not merge a publication-triggering change until the applicable rights and authorization issues are addressed. Systematic model-based evaluation remains Phase 3 work.
+Next: verify catalog freshness enforcement, complete F08, close remaining F09/F10 scope or document explicit limitations, and review phase acceptance. Continue provenance and publication review separately. Do not merge a publication-triggering change until the applicable rights and authorization issues are addressed. Systematic model-based evaluation remains Phase 3 work.
 
 ## 7. Target deliverables
 
