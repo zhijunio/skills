@@ -8,6 +8,10 @@ description: >
 
 # OpenAPI for Spring Boot
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and release-matched official documentation, and report missing evidence.
+
+Preserve the existing API paths, version resolver, security and wire contracts unless an approved change requires otherwise. Compare the authoritative contract against the previous supported release, including required fields, nullability, enum changes, status codes, media types and security requirements. Evaluate compatibility separately for requests and responses; even additive response enum values may break generated clients.
+
 Choose the API's existing source of truth or the workflow requested by the user.
 Use one workflow for each API:
 
