@@ -26,3 +26,7 @@ Candidate Java language/concurrency/JVM guidance is a discovery priority, not a 
 ## Parallel blockers
 
 Run the Phase 03 pilot when an authorized runtime is available. Resolve A04 notices and source evidence before redistribution; A13 Central authentication requires maintainer-side review. No merge, publication, global installation or paid evaluation authorized by this plan.
+
+## Spring Boot collection follow-up
+
+The [Spring Boot collection audit](../audits/spring-boot-skill-audit.md) reviews all 39 entry points and identifies focused optimization candidates before new Java or technology collections. Treat its proposed sequence as T01 input, not authorization for broad restructuring or proof of behavioral quality.
