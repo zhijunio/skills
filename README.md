@@ -17,13 +17,13 @@ Designed for AI coding assistants such as Codex, Claude Code, and Gemini CLI, th
 
 ## Skill Collections
 
-The repository contains 59 skills organized into three collections.
+The repository contains three skill collections. The generated catalog below is the authoritative inventory.
 
-| Collection | Skills | Description |
-| --- | ---: | --- |
-| [Engineering](engineering/) | 13 | Product discovery, requirements, specifications, implementation, and engineering practices |
-| [Spring Boot](spring-boot-skills/) | 39 | Spring Boot 4 application development and delivery |
-| [Collected Skills](collected-skills/) | 7 | Useful skills collected from other projects |
+| Collection | Description |
+| --- | --- |
+| [Engineering](engineering/) | Product discovery, requirements, specifications, implementation, and engineering practices |
+| [Spring Boot](spring-boot-skills/) | Spring Boot 4 application development and delivery |
+| [Collected Skills](collected-skills/) | Useful skills collected from other projects |
 
 See the generated [Skill Catalog](docs/skill-catalog.md) for every entry point, current activation description, source group and invocation policy.
 
