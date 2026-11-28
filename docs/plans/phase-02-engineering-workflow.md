@@ -111,6 +111,10 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
 
+## E08 progress
+
+Prepared the [Phase 02 review](../reviews/phase-02-review.md). Deterministic baseline passed at 4428fdd; behavioral exit criterion remains open. Added [disposable fixtures](../verification/fixtures/README.md) for selected high-risk cases; no independent agent run claimed.
+
 ## E07 progress
 
 Prepared [workflow acceptance cases](../verification/phase-02-workflow-acceptance.md) with concrete prompts, fixture requirements, observable assertions and evidence record. Independent agent runtime not available in inspected environment; all cases NOT RUN. Static contract review identified an icon transition ambiguity for reopened DONE items and stale workflow descriptions; corrected in this change. No behavioral exit criterion claimed.
@@ -154,12 +158,12 @@ E01 then E02; E03 and E04/E06 may proceed after their stated dependencies and ap
 ## 6. Approval and exit criteria
 
 - [ ] Core skill responsibilities and artifact contracts reviewed against actual source.
-- [ ] Reuse decisions recorded before new skills are introduced.
+- [x] Reuse decisions recorded before new skills are introduced.
 - [ ] Material lifecycle changes reviewed by maintainer and implemented consistently.
 - [ ] Demonstrated P0 gaps addressed or explicitly deferred with rationale.
 - [ ] Representative end-to-end cases executed and results recorded; limitations visible.
-- [ ] Deterministic validation, packaging and catalog checks pass for changed skills.
+- [x] Deterministic validation, packaging and catalog checks pass for changed skills at 4428fdd; subsequent fixture/report change pending CI.
 - [ ] Documentation, provenance and remediation tracker updated.
-- [ ] Remaining release blockers preserved; no publication or merge inferred from phase completion.
+- [x] Remaining release blockers preserved; no publication or merge inferred from phase completion.
 
 Prototype research and implementation are documented in the [prototype capability contract](../contracts/prototyping.md). Runtime evaluation and publication remain pending.

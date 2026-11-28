@@ -33,6 +33,8 @@ Use fixture paths relative to the disposable project. Text below is supplied as 
 
 W01 is deliberately a partial workflow; for full new-product acceptance, continue in a fresh authorized sandbox through system design, explicit stack and initializer approval, one reviewed behavior specification, plan/strategy as needed and explicitly authorized implementation. Verify runnable baseline and one use case with matching status and executed evidence. Record each user approval and observed tool execution. Do not count W01 alone as a full end-to-end pass.
 
+Selected high-risk cases have [disposable fixture instructions](fixtures/README.md). Other cases still require manual fixture setup.
+
 ## Evidence record
 
 For each run: case ID; fixture revision/hash; skill revision; host/model/version; start/end; exact prompts and approvals; loaded skills if observable; before/after diff; commands and results; assertion outcomes; unauthorized effects; limitations. Store sanitized evidence only. Record unavailable observations rather than inferring them.
@@ -41,4 +43,4 @@ For each run: case ID; fixture revision/hash; skill revision; host/model/version
 
 Current session inspection: Git, Python and Node v22.16.0 available; codex and claude executables not found on PATH; OPENAI_API_KEY and ANTHROPIC_API_KEY not configured in the inspected shell. No independent host session was launched. All W01–W18 and full continuation remain NOT RUN. This does not prove other host environments are unavailable. Maintainer can execute these cases in an authenticated local host; no credentials should be pasted into chat or committed.
 
-Deterministic baseline: CI 46139023202 and Skill verification 46139022387 succeeded at ca99072. Package, metadata, local-links and discovery jobs succeeded. These checks do not count as workflow behavior runs.
+Deterministic baseline: CI 46139023202 and Skill verification 46139022387 succeeded at ca99072. Package, metadata, local-links and discovery jobs succeeded. Later CI 46139156971 and Skill verification 46139156471 also passed at 4428fdd. These checks do not count as workflow behavior runs.

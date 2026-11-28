@@ -1,6 +1,6 @@
 # Agent Skills Roadmap
 
-Status: Phase 01 foundation implemented on review branch; Phase 02 proposed
+Status: Phase 01 foundation and Phase 02 instruction-level changes implemented on review branch; behavioral acceptance pending
 
 ## 1. Vision
 
@@ -229,7 +229,7 @@ This is a target layout, not an instruction to create empty directories or immed
 
 ### Immediate work
 
-Review the [Phase 01 acceptance report](reviews/phase-01-review.md) and [Phase 02 implementation plan](plans/phase-02-engineering-workflow.md). Phase 01 foundation deliverables and scoped deterministic verification are complete on the review branch; maintainer acceptance, runtime evidence and publication clearance remain separate. Begin Phase 02 with E01 responsibility analysis and reuse research after review. Systematic model-based evaluation remains Phase 3 work.
+Review the [Phase 01 acceptance report](reviews/phase-01-review.md) and [Phase 02 implementation plan](plans/phase-02-engineering-workflow.md). Phase 01 foundation deliverables and scoped deterministic verification are complete on the review branch; maintainer acceptance, runtime evidence and publication clearance remain separate. See the [Phase 02 review](reviews/phase-02-review.md) for implemented capabilities, deterministic evidence and outstanding behavioral acceptance. Systematic model-based evaluation remains Phase 3 work.
 
 ## 10. Success criteria
 
