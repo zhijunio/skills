@@ -21,3 +21,7 @@ All trigger and invocation trials are NOT RUN. No description has been tuned aga
 ## Behavior cases
 
 See [core workflow cases](behavior/README.md) for the structured registry and selected offline filesystem assertions. All independent behavior trials are NOT RUN.
+
+## Spring Boot cases
+
+See [Spring Boot evaluation cases](spring-boot/README.md) for fourteen version-aware technical and routing scenarios. Manual fixture setup and actual execution remain pending.

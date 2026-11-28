@@ -33,3 +33,7 @@ Reuse existing skill-creator or equivalent evaluation tooling rather than buildi
 Record correctness, acceptance criteria, scope violations, loaded files, input/output token usage when available, elapsed time, and tool calls. If a metric is unavailable, mark it unavailable rather than deriving it from line count. Compare quality and context efficiency jointly; do not accept a shorter skill if it reduces correctness or hides necessary constraints.
 
 Do not change the two larger skills solely based on static length. A11 remains open for behavioral evidence and a justified decision in Phase 3.
+
+## Phase 03 extension
+
+The [Spring Boot evaluation cases](../../evals/spring-boot/README.md) expand the original six scenario ideas into version-aware technical and routing cases. Historical static size measurements above are unchanged. Current token and behavioral comparisons remain NOT RUN; do not infer context savings from the dataset or line counts.

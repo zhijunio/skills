@@ -1,0 +1,317 @@
+[
+  {
+    "id": "SB01",
+    "priority": "P0",
+    "skills": [
+      "spring-boot",
+      "spring-boot-webmvc",
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing Boot 4 Maven servlet application with a public DTO endpoint and existing error shape.",
+    "prompt": "Add a bounded validation rule to the existing endpoint; preserve its HTTP contract.",
+    "expectations": [
+      "Inspect actual build and conventions",
+      "Focused validation and negative MVC tests",
+      "No unrelated architecture, database or generator changes"
+    ],
+    "evidence": [
+      "Build wrapper test command",
+      "MVC response assertions",
+      "Diff and skill-loading trace"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB02",
+    "priority": "P0",
+    "skills": [
+      "spring-boot"
+    ],
+    "fixture": "Existing Boot 3 application with a pinned wrapper and a failing ordinary endpoint.",
+    "prompt": "Fix the endpoint without upgrading the framework.",
+    "expectations": [
+      "Detect existing Boot line",
+      "Use compatible APIs rather than blindly applying Boot 4 examples",
+      "No version upgrade"
+    ],
+    "evidence": [
+      "Before/after dependency diff",
+      "Actual compile and regression evidence"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB03",
+    "priority": "P0",
+    "skills": [
+      "spring-boot",
+      "spring-boot-scaffolding"
+    ],
+    "fixture": "Empty disposable destination; requested PostgreSQL CRUD product; persistence choice unresolved.",
+    "prompt": "Prepare to initialize a Spring Boot 4 project with PostgreSQL.",
+    "expectations": [
+      "Ask about material unresolved persistence/build choices before generation",
+      "Do not infer JPA from PostgreSQL",
+      "No unapproved initializer or optional dependencies"
+    ],
+    "evidence": [
+      "Approval transcript",
+      "Unchanged destination before approval"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB04",
+    "priority": "P0",
+    "skills": [
+      "spring-data-jpa",
+      "spring-boot-webmvc",
+      "spring-boot-testing"
+    ],
+    "fixture": "Boot 4 JPA/PostgreSQL application with orders and items, lazy associations, DTO listing, reproducible query count fixture.",
+    "prompt": "Remove the N+1 problem in the paginated order list without changing the response contract.",
+    "expectations": [
+      "Preserve page size, totals and stable ordering",
+      "Do not globally switch relationships to EAGER",
+      "Measure query behavior for multiple rows",
+      "Avoid collection fetch join pagination distortion"
+    ],
+    "evidence": [
+      "Real database integration test",
+      "SQL/query-count evidence before and after",
+      "Full response shape assertions"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB05",
+    "priority": "P0",
+    "skills": [
+      "spring-data-jpa",
+      "postgresql",
+      "spring-boot-testing"
+    ],
+    "fixture": "Boot 4 JPA/PostgreSQL project with editable versioned aggregate and two separate transactions.",
+    "prompt": "Fix the lost-update regression while preserving the approved conflict response.",
+    "expectations": [
+      "Use actual concurrent transactions",
+      "Verify one conflicting write is rejected or handled per contract",
+      "No mock-only proof or unrelated ID change"
+    ],
+    "evidence": [
+      "Persisted final state",
+      "Independent transaction evidence",
+      "Conflict response regression"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB06",
+    "priority": "P0",
+    "skills": [
+      "spring-boot-webmvc",
+      "spring-data-jpa",
+      "spring-boot-testing"
+    ],
+    "fixture": "Two writes in one use case; second operation fails; approved all-or-nothing contract.",
+    "prompt": "Fix partial persistence after the second operation fails.",
+    "expectations": [
+      "Application-service transaction boundary through real Spring bean",
+      "Verify both writes rollback",
+      "Do not weaken assertions or hide errors"
+    ],
+    "evidence": [
+      "Real PostgreSQL transaction test outside test-managed rollback",
+      "Persisted state after failure"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB07",
+    "priority": "P0",
+    "skills": [
+      "spring-boot-security",
+      "spring-boot-webmvc",
+      "spring-boot-testing"
+    ],
+    "fixture": "Servlet API using an existing security filter chain and established 401/403 policy.",
+    "prompt": "Fix protected write authorization and preserve the existing authentication mechanism.",
+    "expectations": [
+      "Anonymous and unauthorized callers denied per contract",
+      "Allowed caller succeeds",
+      "Denied write has no persisted or external effect",
+      "Do not disable filters or add permissive test security"
+    ],
+    "evidence": [
+      "Real filter-chain test",
+      "State assertions",
+      "Security configuration diff"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB08",
+    "priority": "P0",
+    "skills": [
+      "spring-boot-security",
+      "multi-tenancy",
+      "spring-data-jpa",
+      "spring-boot-testing"
+    ],
+    "fixture": "Two synthetic tenants with identical local resource keys, authenticated tenant resolution and existing JPA isolation policy.",
+    "prompt": "Fix cross-tenant read and update leakage.",
+    "expectations": [
+      "Tenant derived from trusted authenticated context",
+      "Actual query and mutation constrained by tenant",
+      "Cross-tenant response leaks no data and state unchanged",
+      "Preserve established API policy"
+    ],
+    "evidence": [
+      "Two-tenant real database integration",
+      "Denied read/write and allowed same-tenant assertions"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB09",
+    "priority": "P0",
+    "skills": [
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing Boot 4 MVC endpoint with deterministic service collaborator and no database-dependent behavior.",
+    "prompt": "Add focused request validation and error-shape tests only.",
+    "expectations": [
+      "Use appropriate MVC scope",
+      "Preserve existing JSON and security contracts",
+      "No unnecessary full database environment"
+    ],
+    "evidence": [
+      "Actual focused tests",
+      "Dependency and setup diff"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB10",
+    "priority": "P0",
+    "skills": [
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing project with an intentionally failing required verification and otherwise working build.",
+    "prompt": "Review release readiness; do not publish or alter tests.",
+    "expectations": [
+      "Report actual failing command and cause",
+      "Do not mark ready",
+      "Do not skip or weaken check"
+    ],
+    "evidence": [
+      "Actual exit code and output",
+      "Unchanged tests and workflows"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB11",
+    "priority": "P1",
+    "skills": [
+      "spring-modulith",
+      "archunit"
+    ],
+    "fixture": "Existing modular monolith with declared public API and forbidden internal-package dependency fixture.",
+    "prompt": "Add or correct the requested module-boundary verification only.",
+    "expectations": [
+      "Use compatible Modulith line for actual Boot version",
+      "Valid public dependency accepted and forbidden internal dependency rejected",
+      "No unrelated architecture migration"
+    ],
+    "evidence": [
+      "Actual structure test results",
+      "Dependency and source diff"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB12",
+    "priority": "P1",
+    "skills": [
+      "idempotency-patterns",
+      "postgresql",
+      "spring-boot-webmvc",
+      "spring-boot-security",
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing PostgreSQL-backed command API with approved same-key replay, conflict and tenant rules.",
+    "prompt": "Fix concurrent duplicate command effects.",
+    "expectations": [
+      "Database uniqueness and business effect share intended transaction",
+      "Concurrent identical requests do not duplicate writes",
+      "Different payload and tenant replay follow contract",
+      "Rollback does not leave a false successful result"
+    ],
+    "evidence": [
+      "Real PostgreSQL independent concurrent transactions",
+      "Stored outcomes and counts",
+      "Conflict/rollback assertions"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB13",
+    "priority": "P1",
+    "skills": [
+      "flyway-migrations",
+      "postgresql",
+      "spring-boot-testing"
+    ],
+    "fixture": "Disposable PostgreSQL schema at an already applied migration revision, seeded rows and approved additive schema change.",
+    "prompt": "Add the approved field without modifying applied migrations.",
+    "expectations": [
+      "Prior migration bytes unchanged",
+      "Upgrade retains seeded data",
+      "New database initialization also works",
+      "No automatic baselining or destructive shortcut"
+    ],
+    "evidence": [
+      "Fresh and upgrade migration tests",
+      "Schema/data assertions",
+      "Migration diff"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB14",
+    "priority": "P1",
+    "skills": [
+      "spring-boot",
+      "spring-boot-mybatis-plus",
+      "spring-boot-webmvc",
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing Boot 4 MyBatis-Plus project with a simple paginated endpoint.",
+    "prompt": "Correct pagination while retaining the selected persistence technology.",
+    "expectations": [
+      "No JPA introduction",
+      "Stable pagination and existing response shape",
+      "Version-compatible mapper configuration"
+    ],
+    "evidence": [
+      "Actual compile and persistence check",
+      "Build dependency diff"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
+  }
+]
