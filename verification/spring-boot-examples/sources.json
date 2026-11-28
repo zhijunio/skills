@@ -81,6 +81,18 @@
     {
       "source": "spring-boot-skills/spring-data-redis/templates/OptionalCacheLookup.java",
       "destination": "com/example/config/OptionalCacheLookup.java"
+    },
+    {
+      "source": "spring-boot-skills/resilience-retry/templates/CatalogRetryService.java",
+      "destination": "com/example/clients/CatalogRetryService.java"
+    },
+    {
+      "source": "spring-boot-skills/http-interface-clients/templates/CatalogHttpClient.java",
+      "destination": "com/example/clients/CatalogHttpClient.java"
+    },
+    {
+      "source": "spring-boot-skills/event-driven-messaging/examples/idempotent-consumer.java",
+      "destination": "OrderCreatedConsumer.java"
     }
   ]
 }
