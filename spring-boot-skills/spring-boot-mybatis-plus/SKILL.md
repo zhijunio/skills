@@ -8,6 +8,10 @@ description: >
 
 # Spring Boot MyBatis-Plus
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If unavailable, inspect resolved dependencies and release-matched official documentation; report missing compatibility evidence.
+
+Check the selected starter, MyBatis-Plus release, parser module and actual MyBatis/Spring integration dependencies. Preserve compatible existing versions and verify custom SQL and tenant insertion semantics on the selected release.
+
 Read [MyBatis-Plus guidance](references/mybatis-plus.md) when adding a mapper, persistence model,
 or MyBatis-Plus configuration. Keep SQL schema changes in
 [Flyway migrations](../flyway-migrations/SKILL.md), application transactions in
