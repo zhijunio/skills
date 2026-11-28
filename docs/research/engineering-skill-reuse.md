@@ -122,3 +122,7 @@ The Hermes spike entry point and its root MIT notice were reviewed in full at 29
 ### Implementation planning adaptation
 
 Reviewed the full Superpowers writing-plans entry point and root MIT notice at 22f0b463e7a5e579904dd6211a520321035526f7. Spec Kit tasks at f2010547121b3351e4923fe467205079e4593a32 informed the comparison of story grouping and dependency ordering; no Spec Kit source, hooks or scripts imported. Adapted task boundaries, explicit interfaces, verification and self-review into implementation-planning, retaining the Superpowers notice. No mandatory execution subskills, TDD, global setup or commit cadence. html-plan is now an optional presentation owner; its existing provenance blocker remains open. Runtime evaluation pending.
+
+### Test strategy adaptation
+
+Reviewed the complete L-GEVITY test-strategy entry point, technique-selection and portfolio-governance references and root MIT notice at 5d5cbc523c835a6e2fb2795a914c9fa27c7e3c64. Adapted risk-first test selection, observable expected outcomes, sufficient fidelity, test data and evidence reliability into test-strategy. The complete MIT notice is retained. No Alchemy stages, mandatory sibling skills or scripts imported; local references rewritten. Actual agent behavior remains untested.

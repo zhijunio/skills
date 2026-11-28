@@ -84,6 +84,7 @@ The [engineering](engineering/) collection supports software development from in
 | [project-foundation](engineering/project-foundation/SKILL.md) | Select a technical foundation and verify a runnable project skeleton |
 | [system-design](engineering/system-design/SKILL.md) | Design and review system boundaries, architecture tradeoffs and runtime behavior |
 | [technical-spike](engineering/technical-spike/SKILL.md) | Resolve technical uncertainty with explicitly authorized, reproducible feasibility experiments |
+| [test-strategy](engineering/test-strategy/SKILL.md) | Define risk-driven verification obligations and select sufficient test evidence |
 | [behavior-specification](engineering/behavior-specification/SKILL.md) | Define feature behavior, business rules, and acceptance criteria |
 | [implement-use-case](engineering/implement-use-case/SKILL.md) | Implement and verify an approved use case |
 | [implementation-planning](engineering/implementation-planning/SKILL.md) | Plan dependency-ordered tasks and verification before authorized implementation |

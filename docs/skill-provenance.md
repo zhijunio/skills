@@ -17,11 +17,12 @@ Reviewed: 2026-11-28. This register distinguishes observed source declarations f
 | N | [Magnus Hedemark agent skills](https://github.com/magnus919/agent-skills) | MIT; copyright 2026 Magnus Hedemark, exact root notice retained | Selective entry-point adaptation from 0f83b91d44d692a665b6f487c4f60fac07e632cb; no upstream reference or book-derived content imported |
 | F | [Nous Research Hermes Agent](https://github.com/NousResearch/hermes-agent) | MIT, copyright 2025 Nous Research; upstream attributes GSD, MIT copyright 2025 Lex Christopherson; both notices retained | Hermes 29bbd2d97b8e5bcda44d7e02ee2239a93afd5e58; GSD license inspected at bdcaab2c752d9a33a1a1ca9acf3a3c81fb991815; exact historical GSD revision not established |
 | R | [Superpowers](https://github.com/obra/superpowers) | MIT; copyright 2025 Jesse Vincent, exact upstream notice retained | Selective writing-plans entry-point adaptation from 22f0b463e7a5e579904dd6211a520321035526f7 |
+| L | [L-GEVITY skills](https://github.com/l-gevity/l-gevity-skills) | MIT; copyright 2026 L-GEVITY, full upstream notice retained | Selective adaptation of test-strategy from 5d5cbc523c835a6e2fb2795a914c9fa27c7e3c64 |
 | O | Original skills by repository maintainer (Zhijunio) | Authorship explicitly confirmed by maintainer on 2026-11-28; repository root MIT license is the documented default | No third-party upstream identified for these skills; any separately incorporated third-party material remains subject to its own terms |
 
 ## Per-skill register
 
-The following records all 62 entry points. An identical Git blob establishes content equality, not the actual download revision. The 18 non-Spring matches compare every local file in the historical skill directory, not just SKILL.md. Two historical non-Spring skills are confirmed maintainer-authored; system-design, technical-spike and implementation-planning are new attributed adaptations.
+The following records all 63 entry points. An identical Git blob establishes content equality, not the actual download revision. The 18 non-Spring matches compare every local file in the historical skill directory, not just SKILL.md. Two historical non-Spring skills are confirmed maintainer-authored; system-design, technical-spike, implementation-planning and test-strategy are new attributed adaptations.
 
 | Skill | Source | Evidence / status |
 | --- | --- | --- |
@@ -47,6 +48,7 @@ The following records all 62 entry points. An identical Git blob establishes con
 | [project-foundation](../engineering/project-foundation/SKILL.md) | O | Maintainer-authored (explicit confirmation); local delegation changes |
 | [system-design](../engineering/system-design/SKILL.md) | N | Selective adaptation of the pinned software-architecture entry point; original MIT notice and SOURCE.md retained; local references newly authored |
 | [technical-spike](../engineering/technical-spike/SKILL.md) | F | Selective adaptation of the pinned Hermes spike entry point; both full MIT notices and SOURCE.md retained; local references and template newly authored |
+| [test-strategy](../engineering/test-strategy/SKILL.md) | L | Selective adaptation of pinned L-GEVITY test-strategy; original MIT notice and SOURCE.md retained; local references rewritten |
 | [product-prototyping](../engineering/product-prototyping/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/prototype at pinned upstream snapshot below |
 | [agent-qa-browser-regression](../spring-boot-skills/agent-qa-browser-regression/SKILL.md) | S | Historical resource matches 3/4; upstream: agent-qa-browser-regression |
 | [archunit](../spring-boot-skills/archunit/SKILL.md) | S | Historical resource matches 0/2; upstream: unresolved |

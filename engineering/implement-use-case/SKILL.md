@@ -42,7 +42,7 @@ Do not change another use case's status. Do not copy detailed behavior or accept
 
 - Follow repository instructions, existing architecture, naming, and testing conventions.
 - Implement every in-scope acceptance criterion, including validation, failures, authorization, privacy, and state transitions where specified. Do not add behavior from `Out of scope` or invent requirements.
-- Add or update focused automated tests for observable acceptance behavior. Run focused tests first, then broader relevant checks when practical.
+- Read any applicable reviewed test strategy and map its required obligations to acceptance checks. Use test-strategy for material unresolved verification choices and stack-specific guidance for test implementation. Add or update focused automated tests for observable acceptance behavior. Run focused tests first, then broader relevant checks when practical.
 - For a large use case, split work into independently verifiable tasks only when their file ownership and contracts can be defined without overlapping edits; integrate the results and run the relevant checks before completion.
 - If implementation reveals a material ambiguity, pause and ask. Leave both status entries `IN_PROGRESS` and the summary icon `👷🏽` while unresolved.
 - If tests fail, required checks cannot run, or work remains, do not mark the use case complete. Distinguish PASS, FAIL and NOT RUN in the completion report; include the actual commands or evidence, remaining work and reason for unavailable checks. Do not substitute an unexecuted plan or a prototype verdict for verification.

@@ -8,6 +8,8 @@ description: >
 
 # Spring Boot Testing
 
+Use an existing risk-driven test strategy when available. The general test-strategy skill owns cross-stack verification obligations and technique selection; this skill supplies Spring-specific test implementation and readiness evidence. Preserve required checks and distinguish planned from executed results.
+
 ## Structure
 
 ```

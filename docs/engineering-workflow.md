@@ -64,6 +64,7 @@ The flow is iterative, not a mandatory waterfall. Domain modeling, decision inte
 | Technical foundation | [project-foundation](../engineering/project-foundation/SKILL.md) | Product constraints, repository state | Approved stack and initialization method, runnable baseline, tech-stack.md and verification |
 | Domain/design exploration (optional) | [domain-modeling](../engineering/domain-modeling/SKILL.md), [grilling](../engineering/grilling/SKILL.md), [grill-with-docs](../engineering/grill-with-docs/SKILL.md), [product-prototyping](../engineering/product-prototyping/SKILL.md) | Material domain or design question | Confirmed vocabulary/decisions or disposable experiment; not implementation approval |
 | Behavior specification | [behavior-specification](../engineering/behavior-specification/SKILL.md) | Feature description or one UC ID, PRD and existing docs | Interview, confirmed behavior, one specification and new index row only if needed |
+| Test strategy (as needed) | [test-strategy](../engineering/test-strategy/SKILL.md) | Approved behavior, architecture, risks and existing evidence | Risk-to-evidence mapping, test technique and fidelity, required checks; execution separate |
 | Implementation planning (as needed) | [implementation-planning](../engineering/implementation-planning/SKILL.md) | Approved behavior, applicable design and repository context | Dependency-ordered tasks and verification plan; review and execution authorization separate |
 | Interactive HTML review (optional) | [html-plan](../engineering/html-plan/SKILL.md) | Explicit HTML review request | Interactive presentation and feedback, not a second planning authority |
 | Implementation and verification | [implement-use-case](../engineering/implement-use-case/SKILL.md) | One approved specification, consistent index and prerequisites | Verified in-scope change, tests and synchronized status |
@@ -97,6 +98,7 @@ All paths below are relative to the target project, not this skills repository. 
 | Significant domain/architecture decision | domain-modeling where appropriate | docs/adr/ or context-local ADRs |
 | Detailed behavior and acceptance criteria | behavior-specification; approved specification | docs/specs/{number}-{feature-title}.md |
 | Prototype evidence (proposed expansion) | Prototype question, artifact and verdict; authoritative decisions stay with PRD/spec/ADR owners | Project-selected isolated location and decision record |
+| Test strategy | test-strategy; verification obligations and technique selection | docs/test-strategy.md or existing convention |
 | Implementation plan | implementation-planning; html-plan only for requested interactive presentation | User/project-selected HTML or plan location |
 | Review findings | java-code-review | review.md unless specified |
 | Test and build evidence | Implementing or reviewing skill and project tools | Actual test reports, logs and change summary |
@@ -187,7 +189,7 @@ For handoffs across sessions, the collected handoff skill can capture context wh
 | Product requirements refinement | product-requirements drafts PRD; prd-to-use-cases creates index | Refine the renamed product-requirements contract in E03 |
 | System design | project-foundation, domain-modeling, grilling and technology-specific architecture skills | Investigate cross-cutting system design covering boundaries, quality attributes, integration and trade-offs without duplicating existing owners |
 | Implementation planning | implementation-planning with optional html-plan presentation | Implemented; runtime verification pending |
-| Test strategy | implement-use-case acceptance tests, diagnosing-bugs, spring-boot-testing | Investigate technology-neutral risk-based verification planning and measurable criteria |
+| Test strategy | test-strategy plus stack-specific implementation and execution guidance | Implemented; runtime verification pending |
 | Prototyping | Product-prototyping UI and behavior modes | Product journey and behavior guidance and separate technical-spike implemented; runtime evaluation pending |
 | Change control | Individual PRD/index/spec reconciliation rules | Clarify reopening, impact analysis and approval semantics in the existing workflow before proposing automation |
 | Release readiness | Spring Boot build/testing and CI guidance | Investigate general release criteria and authorization; do not conflate with deployment |

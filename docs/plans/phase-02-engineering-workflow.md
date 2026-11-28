@@ -111,9 +111,13 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
 
+## E06 progress
+
+Added test-strategy, selectively adapting the pinned L-GEVITY entry point and reviewing both upstream references. Retained the full MIT notice; local references cover technique selection, reliable evidence and strategy outline. Implementation planning and use-case implementation consume the strategy without weakening acceptance gates. Spring Boot testing retains framework-specific ownership. Deterministic and behavioral verification pending.
+
 ## E05 progress
 
-Added implementation-planning, selectively adapting Superpowers writing-plans with its original MIT notice. Local references cover dependency-ordered task decomposition, interface/file ownership, verification mapping and self-review. Narrowed html-plan to explicitly requested interactive presentation and removed automatic execution handoff; implement-use-case consumes reviewed plans without bypassing lifecycle gates. Deterministic and behavioral verification pending.
+Added implementation-planning, selectively adapting Superpowers writing-plans with its original MIT notice. Local references cover dependency-ordered task decomposition, interface/file ownership, verification mapping and self-review. Narrowed html-plan to explicitly requested interactive presentation and removed automatic execution handoff; implement-use-case consumes reviewed plans without bypassing lifecycle gates. At 063b647, CI, package, discovery and local links passed; metadata catalog freshness failed (run 46138852428) because source key R was out of order. Corrected catalog ordering in E06; rerun pending. Behavioral verification pending.
 
 ## E04-A progress
 

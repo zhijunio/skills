@@ -8,10 +8,10 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 
 | Collection | Skills |
 | --- | ---: |
-| engineering | 16 |
+| engineering | 17 |
 | spring-boot-skills | 39 |
 | collected-skills | 7 |
-| Total | 62 |
+| Total | 63 |
 
 ## Source keys
 
@@ -21,12 +21,13 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 | E | [web-access](https://github.com/eze-is/web-access) |
 | F | [Nous Research Hermes Agent](https://github.com/NousResearch/hermes-agent) |
 | H | [HumanLayer skills](https://github.com/humanlayer/skills) |
+| L | [L-GEVITY skills](https://github.com/l-gevity/l-gevity-skills) |
 | M | [Siva Prasad Reddy musings](https://github.com/sivaprasadreddy/musings) |
 | N | [Magnus Hedemark agent skills](https://github.com/magnus919/agent-skills) |
 | O | Original skills by repository maintainer (Zhijunio) |
 | P | [SivaLabs agent skills](https://github.com/sivaprasadreddy/sivalabs-agent-skills) |
-| S | [Rrezart Prebreza Spring Boot skills](https://github.com/rrezartprebreza/spring-boot-skills/tree/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4) |
 | R | [Superpowers](https://github.com/obra/superpowers) |
+| S | [Rrezart Prebreza Spring Boot skills](https://github.com/rrezartprebreza/spring-boot-skills/tree/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4) |
 | T | [Matt Pocock skills](https://github.com/mattpocock/skills) |
 
 ## engineering
@@ -49,6 +50,7 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 | [project-foundation](../engineering/project-foundation/SKILL.md) | Choose and record a project's technical foundation, then initialize and verify its runnable skeleton before feature specifications or implementation. | O | Explicit only |
 | [system-design](../engineering/system-design/SKILL.md) | Design or review a software system from approved product scope, architecture drivers and existing constraints. Use for system boundaries, component responsibilities, data ownership, integration, runtime and failure behavior, quality attributes and architecture tradeoffs; not stack selection, project initialization or feature implementation. | N | Not restricted |
 | [technical-spike](../engineering/technical-spike/SKILL.md) | Run bounded technical feasibility experiments or comparative proofs of concept to resolve engineering uncertainty with reproducible evidence. Use for explicit spike or PoC requests, integration compatibility, mechanism or performance hypotheses; not product UI prototypes, routine research, defect repair or production implementation. | F | Explicit only |
+| [test-strategy](../engineering/test-strategy/SKILL.md) | Design or audit a risk-driven test strategy from requirements, acceptance criteria, architecture and defects. Use to select test techniques, fidelity, dependencies, data, environments and required evidence; not framework-specific test implementation, test execution or CI configuration. | L | Not restricted |
 
 ## spring-boot-skills
 
