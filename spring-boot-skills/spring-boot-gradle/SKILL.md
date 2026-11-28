@@ -8,6 +8,8 @@ description: >
 
 # Spring Boot Gradle
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
+
 Use this skill for Spring Boot 4 projects built with Gradle. Read
 [Gradle guidance](references/gradle.md) before changing build files, dependencies, plugins,
 verification tasks, or packaging. Use the committed `./gradlew` wrapper and preserve the project's
