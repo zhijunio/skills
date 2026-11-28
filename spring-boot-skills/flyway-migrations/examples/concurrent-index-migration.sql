@@ -1,12 +1,14 @@
 -- GOOD — V5__index_orders_shipping_address.sql
 -- CREATE INDEX CONCURRENTLY builds the index without blocking writes on PostgreSQL.
--- Two requirements, both verified against Flyway 12 + PostgreSQL:
+-- Recommended migration setup; verify with the resolved Flyway and PostgreSQL versions:
 --   1. This statement is ALONE in the file. Flyway runs it outside a transaction;
---      adding any other statement makes Flyway reject the whole migration.
+--      mixing transactional statements is rejected by default.
 --   2. spring.flyway.postgresql.transactional-lock=false — otherwise the index
---      build waits forever on Flyway's own advisory-lock transaction.
+--      build can stall on Flyway's advisory-lock transaction. Verify binding.
 -- If a CONCURRENTLY build fails midway it leaves an INVALID index behind:
--- DROP INDEX CONCURRENTLY it and re-run, rather than editing this file.
+-- Inspect the invalid index and migration history. With approval, remove the failed
+-- artifact and reconcile failed history using Flyway's documented recovery before retry.
+-- Do not blindly repair history or use IF NOT EXISTS to hide an invalid index.
 
 CREATE INDEX CONCURRENTLY idx_orders_shipping_address
     ON orders (shipping_address)
