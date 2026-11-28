@@ -28,10 +28,10 @@ Maven:
 Gradle Kotlin DSL:
 
 ```kotlin
-runtimeOnly("com.julien-dubois.bootui:bootui-spring-boot-starter:2.0.0")
+developmentOnly("com.julien-dubois.bootui:bootui-spring-boot-starter:2.0.0")
 ```
 
-Use the project's dependency-management convention for the version. For build-file details, follow
+The Gradle example assumes Boot's developmentOnly configuration; verify the actual packaged artifact excludes the starter when required. The Maven example requires a development-only profile for artifact exclusion. Use the project's dependency-management convention for the version. For build-file details, follow
 [spring-boot-maven](../../spring-boot-maven/SKILL.md) or
 [spring-boot-gradle](../../spring-boot-gradle/SKILL.md).
 
@@ -75,7 +75,7 @@ workspace.
   panels as state-changing operations.
 - Expose only the Actuator endpoints required by enabled panels, and protect management endpoints
   independently.
-- Keep BootUI disabled in production. If the starter remains in the artifact, verify the production
+- Keep BootUI disabled outside explicitly approved local environments, including staging and deployments with no prod profile. Verify default-off behavior with no active profile and effective overrides. If the starter remains in the artifact, verify the production
   profile actually disables it.
 
 For security-chain design, use [spring-boot-security](../../spring-boot-security/SKILL.md). For
