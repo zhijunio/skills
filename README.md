@@ -1,98 +1,368 @@
 # Agent Skills
 
-A collection of Agent Skills for agentic coding tools, covering Java, PostgreSQL, Spring Boot, Spring Cloud, SSO, Java performance, and CI/CD, alongside an SDD workflow and reusable engineering prompts. Spring Boot references include frontend integration guidance where it belongs, and runnable examples live under `samples/`. Every skill has a `SKILL.md` entry point. Skills with larger guidance sets use focused reference files; Spring Cloud currently provides a version-aware entry point, with component references added incrementally. Version-sensitive guidance states its supported versions, and focused guides record common implementation mistakes.
+[![CI](https://github.com/zhijunio/skills/actions/workflows/ci.yml/badge.svg)](https://github.com/zhijunio/skills/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Available skills
+A collection of reusable agent skills for software engineering, specification-driven development, and Spring Boot applications.
 
-| Skill | What it does |
-| ----- | ------------ |
-| [`postgresql-developer`](postgresql-developer/SKILL.md) | Designs PostgreSQL schemas from requirements, makes database architecture decisions, writes SQL, and diagnoses slow queries, for **PostgreSQL 14-18**. Covers schema design from a spec, multi-tenancy (shared schema + RLS, schema-per-tenant, database-per-tenant), data types and keys, constraints, SQL authoring (joins, aggregation, window functions, CTEs, upserts, keyset pagination, full-text search, JSONB), indexing and `EXPLAIN`, statistics and the planner, transactions and isolation, locking, MVCC and vacuum, lock-aware migrations, roles and row-level security, connection pooling, configuration, backups, replication, and testing with Testcontainers. Pairs with [`java-developer`](java-developer/SKILL.md) and [`spring-boot-developer`](spring-boot-developer/SKILL.md). |
-| [`java-developer`](java-developer/SKILL.md) | Generates modern Java code and provides architectural guidance for Java 8-27: immutability, records, sealed types, pattern matching, `switch` expressions, `Optional` vs `null` **plus JSpecify nullness annotations**, `var`, text blocks, Javadoc (`///`, `{@return}`, `{@snippet}`), exceptions and resource management, JPMS modules, bean generation, data-oriented programming, **structured concurrency and scoped values** (the Java 25 `StructuredTaskScope` preview shape, later preview API changes through 27, `ScopedValue` against `ThreadLocal`, and the measured cost of `synchronized` pinning before Java 24), and version migration. Calls out preview/incubator stability and migration risks. Carries an **enforcement** map from every rule to the `javac -Xlint` key, Error Prone check or formatter that actually checks it, and records every departure from the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) in [google-style-deltas.md](java-developer/references/google-style-deltas.md). Java 8-25 feature floors were compiled at each release; Java 26/27 coverage is sourced from release notes and spot-checked on JDK 27, not exhaustively compiled. |
-| [`spring-boot-developer`](spring-boot-developer/SKILL.md) | Creates and maintains Spring Boot 4.x and 3.5.x applications: project generation, architecture, REST APIs, persistence, security, testing, integrations, observability, frontend applications, optional local BootUI diagnostics, Docker, Kubernetes, GraalVM, and Azure deployment. Includes a version-aware reference library, environment checker, generator, and full-stack workshop. Pairs with [`java-developer`](java-developer/SKILL.md), [`spring-cloud-developer`](spring-cloud-developer/SKILL.md), and [`spring-sso-developer`](spring-sso-developer/SKILL.md). |
-| [`spring-cloud-developer`](spring-cloud-developer/SKILL.md) | Guides Spring Cloud version selection and distributed-system design. Includes references for Boot/Cloud compatibility and support windows, Gateway, Config, service discovery, OpenFeign and load-balanced clients, resilience, Spring Cloud Stream, and producer/consumer contract testing. |
-| [`spring-sso-developer`](spring-sso-developer/SKILL.md) | Implements **Single Sign-On** in Java and Spring, for internal organisational SSO and for SSO-as-a-feature in multi-tenant SaaS. Spring Security as an **OIDC/OAuth2 client and resource server**, **SAML 2.0** service provider, **Spring Authorization Server**, and **SCIM provisioning** from RFC 7644. A full attack catalogue split by protocol - PKCE, `state`, `nonce`, redirect-URI matching, algorithm confusion, mix-up, XML Signature Wrapping, XXE, assertion replay, session fixation, logout propagation, deprovisioning and multi-tenant isolation - cross-checked against **OWASP ASVS 5.0**. Plus **13 provider files** (Entra ID, Okta, Keycloak, Auth0, Google Workspace, Cognito, AD FS, Ping, OneLogin, Shibboleth, WorkOS, Entra External ID and a procedure for the rest), each verified against that vendor's own documentation, indexed by cross-vendor tables showing **where role information actually lives**, which issuer strings surprise you, and what to use as a primary key. Also **SCIM provisioning** from RFC 7644, **frontend integration** for SPA-plus-BFF shapes, and both logout directions including **OIDC back-channel logout**. Covers **Boot 4.x with Spring Security 7 and Boot 3.5.x with 6.5**. As of this repository's Boot 4.1.2 baseline, Boot manages Security 7.1.1; implementation-level checks in the references are pinned to exact source versions and call out when to re-check. Spring identifiers and defaults use the Spring Security 7.1.0 reference or source at its version tag; the guides call out verification limits where they affect the recommendation. Targeted Spring CVEs and their affected feature configurations are documented by component; check resolved dependencies against current vendor advisories. The skill was then put through an **independent adversarial review**, whose 15 findings were each re-verified against primary sources before being applied; the 106-rule review checklist and the ASVS V9 and V10 cross-check came out of that pass. |
-| [`java-performance-developer`](java-performance-developer/SKILL.md) | Diagnoses and fixes Java performance problems, and writes Java that does not create them, for **Java 8 through 25**. Built as **triage-first**: a symptom-to-cause decision tree routes from what the user observed to the measurement that identifies the cause, and only then to the fix. Covers benchmarking and the statistics of regression testing, the tool surface (`jcmd`, `jstat`, JFR, JMC, async-profiler, NMT, MAT) including the **safepoint bias** that makes some profilers systematically wrong, all six collectors with a per-version availability matrix, heap and G1 tuning, the JIT and code cache, startup via CDS and the **Java 24/25 AOT cache**, native memory and containers, then the code-level half - allocation and object layout, object lifecycle and indefinite references, heap analysis and the full out-of-memory taxonomy, collections, strings, buffered I/O and serialization, exceptions and logging, lambdas and streams, and concurrency. Owns **proving** where the bottleneck is for database and server layers, then defers to [`postgresql-developer`](postgresql-developer/SKILL.md) and [`spring-boot-developer`](spring-boot-developer/SKILL.md). Its [checklist](java-performance-developer/references/checklist.md) is deliberately **split into apply-blind and measure-first halves**, because a performance audit that recommends a flag with no measurement behind it is the failure mode the skill exists to prevent. **Version-specific behaviour was verified by running it** on Temurin 8u504, 11.0.32.1, 17.0.20.1, 21.0.12 and 25.0.4.1: every flag's existence, default and removal behaviour - and crucially whether a removed flag merely warns or **stops the JVM starting**, which most do. The flag tables keep *accepted* and *effective* in separate columns, because launching a JVM proves only the first; container and cgroup flags are marked as **cited rather than measured**, since they do not exist on the Windows hosts used. Timings are **JMH with a control benchmark**: buffering unbuffered I/O at **143x read and 763x write**, a buffer above a deflater at **2.7x where the same buffer below it does nothing**, `HashMap` pre-sizing at **2.3x at 100,000 entries** while `ArrayList` pre-sizing is **not measurable at that size**, loop concatenation as a **quadratic curve** (1.3x at 10 iterations, **320x at 10,000**) rather than one multiplier, uncontended `synchronized` at **16.7ns against a 1.3ns floor**, a throw at **1,300ns from one frame down and 6,716ns from sixty** with stack-trace capture scaling **sublinearly**, object headers at **16 to 8 bytes** under Java 25 compact headers, and - re-measured with a **paired, interleaved** harness after the first method proved to be the noise source - `-Xshare:off` at **~32% of startup** and the AOT cache at **~18% on top of CDS**, both reproducing across independent passes to within half a point. Derived from both editions of Scott Oaks' *Java Performance*, which turn out to be **one book twice** - so the 1st edition is version-scoped to the Java 8 column rather than discarded. [book-deltas.md](java-performance-developer/references/book-deltas.md) records every departure, **three errata found by running the book's own flags**, and - after an adversarial audit - the figures this skill **withdrew from its own earlier drafts**, including a stream-versus-loop result that re-measurement showed was noise. |
-| [`ci-cd-developer`](ci-cd-developer/SKILL.md) | Designs, reviews and fixes **CI/CD pipelines** and the release path to production, across **GitHub Actions, Azure DevOps and GitLab CI**. Structured so the reasoning is written once and translated: a platform-neutral spine (pipeline design, gates, promotion, trunk-based delivery) plus one reference per platform and a **translation matrix** mapping every concept to its spelling on each. Six deployment targets each answer the same four questions - how an artifact becomes running code, how config is injected, what the rollback primitive is, what the zero-downtime primitive is: **Kubernetes**, **Azure App Service and Container Apps**, **AWS ECS and Fargate**, **VM and on-prem**, **Cloudflare Workers** and **Cloudflare Containers**. The security half covers action **SHA pinning** and script injection, **OIDC federation** so no cloud key is stored, **SBOM** (CycloneDX/ECMA-424 and SPDX/ISO-IEC-5962), **SLSA provenance and signing**, dependency updates and scanner placement. Verified by running it: Maven reproducibility proven **with a control** (identical hashes with `project.build.outputTimestamp`, two different hashes without), syft measured emitting **CycloneDX 1.7 but SPDX 2.3 by default** while the standard is 3.0.1, `cosign` v3 offline signing with a **tampering control** plus three v2 recipes that now fail, and action tags resolved to SHAs (`actions/checkout` is at **v7**, not the v3 every tutorial shows). Its [checklist](ci-cd-developer/references/checklist.md) splits **adopt-anywhere** from **depends-on-context**, and [book-deltas.md](ci-cd-developer/references/book-deltas.md) records what could not be verified - every cloud target is cited rather than measured, and no DORA figures are quoted because the source was not available. |
+Designed for AI coding assistants such as Codex, Claude Code, and Gemini CLI, these skills provide focused workflows, engineering conventions, reference materials, and implementation guidance for building maintainable software.
 
-## SDD workflow skills
+## Features
 
-`sdd-prd → sdd-requirements → sdd-spec → sdd-implement → sdd-review`
+- **Specification-driven development** — turn product ideas into explicit requirements, behavior specifications, and verified implementations.
+- **Engineering workflows** — support product discovery, domain modeling, project initialization, prototyping, debugging, and code review.
+- **Spring Boot development** — focused skills for application architecture, persistence, security, testing, integration, and deployment.
+- **Modular skill design** — load only the skills relevant to the current task instead of introducing unnecessary context.
+- **Reusable engineering prompts** — automate common documentation, onboarding, and code review tasks.
 
-Approve product scope and feature specs for new behavior. Implement small specs with sequential TDD and larger specs with independent, verifiable tasks in parallel. For small fixes and behavior-preserving refactors, use `sdd-implement` and `sdd-review` directly.
+## Skill Collections
 
-See the [SDD skill index](sdd-skills/README.md) for stage selection and the [artifact path policy](sdd-skills/references/output-paths.md) for output paths.
+The repository contains 59 skills organized into three collections.
 
-## Collected skills
+| Collection | Skills | Description |
+| --- | ---: | --- |
+| [Engineering](engineering/) | 13 | Product discovery, requirements, specifications, implementation, and engineering practices |
+| [Spring Boot](spring-boot-skills/) | 39 | Spring Boot 4 application development and delivery |
+| [Collected Skills](collected-skills/) | 7 | Useful skills collected from other projects |
 
-Browse [collected-skills/](collected-skills/README.md) for skills gathered from other projects. Use the individual skill directory when installing one of them.
+## Quick Start
 
-## Runnable samples
-
-The [`samples/`](samples/) directory contains runnable Spring Boot examples. Each sample has its own README; shared requirements and project prompts are in [`samples/requirements.zh-CN.md`](samples/requirements.zh-CN.md) and [`samples/spring-security-project-prompts.zh-CN.md`](samples/spring-security-project-prompts.zh-CN.md).
-
-## Reusable prompts
-
-Prompts for common tasks are in [`docs/prompts/`](docs/prompts/): [create or revise `AGENTS.md`](docs/prompts/create-agentsmd.prompt.md), [create or revise a `README.md`](docs/prompts/create-readme.prompt.md), [explain code](docs/prompts/explain-code.prompt.md), [prepare a contributor onboarding plan](docs/prompts/onboarding-plan.prompt.md), and [review code](docs/prompts/review-code.prompt.md).
-
-## Using these skills
-
-Agent Skills are designed to be used with agentic coding tools like Claude Code, Codex, Gemini CLI, Antigravity and more. Activating a skill loads the specific instructions and resources needed for that task.
-
-To use these skills in your own environment you may follow the instructions for your specific tool or use a community tool like [skills.sh](https://skills.sh).
-
-## SkillsJars packaging
-
-This repository can also package its top-level skills into a Maven JAR with [SkillsJars](https://skillsjars.com). The build scans immediate child directories of the repository root and packages each directory that contains a `SKILL.md`; nested skills under `sdd-skills/` are not included by this configuration and should be installed from their directories separately.
-
-```bash
-./mvnw clean verify
-jar tf target/skills-0.1.0-SNAPSHOT.jar | grep '^META-INF/skills/'
-```
-
-To consume an installed snapshot from another Maven project, first install it locally:
-
-```bash
-./mvnw install
-```
-
-Add the artifact as a dependency in the consuming project:
-
-```xml
-<dependency>
-  <groupId>io.github.zhijunio</groupId>
-  <artifactId>skills</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
-</dependency>
-```
-
-Then extract it into a project-local Codex skills directory:
-
-```bash
-mvn com.skillsjars:maven-plugin:extract \
-  -Ddir=.codex/skills \
-  -DuseSkillsNameAsDirectory=true
-```
-
-The artifact is a packaging format; it does not replace the existing skills CLI or direct-copy installation options. SkillsJars packaging is documented here; publishing coordinates to Maven Central requires a separate release configuration and namespace verification.
-
-<details open>
-<summary><b>pnpm</b></summary>
-
-```bash
-pnpm dlx skills add https://github.com/zhijunio/skills
-```
-
-</details>
-
-<details open>
-<summary><b>npm</b></summary>
+Install skills using the Skills CLI:
 
 ```bash
 npx skills add https://github.com/zhijunio/skills
 ```
 
-</details>
+Or select an individual skill:
+
+```bash
+npx skills add https://github.com/zhijunio/skills --skill create-spec
+```
+
+Alternatively, copy the desired skill directory into the skills location supported by your coding assistant.
+
+Each skill contains a `SKILL.md` entry point that describes its purpose, workflow, constraints, and supporting resources where applicable.
+
+## Engineering Skills
+
+The [engineering](engineering/) collection supports software development from initial product exploration through implementation and verification.
+
+### Product Discovery
+
+| Skill | Purpose |
+| --- | --- |
+| [product-brainstorming](engineering/product-brainstorming/SKILL.md) | Explore and refine product ideas |
+| [grilling](engineering/grilling/SKILL.md) | Challenge assumptions through focused questioning |
+| [grill-with-docs](engineering/grill-with-docs/SKILL.md) | Clarify decisions against existing documentation |
+| [domain-modeling](engineering/domain-modeling/SKILL.md) | Establish domain concepts and relationships |
+| [prototype](engineering/prototype/SKILL.md) | Explore ideas through prototypes |
+
+### Specification and Implementation
+
+| Skill | Purpose |
+| --- | --- |
+| [prd-to-requirements](engineering/prd-to-requirements/SKILL.md) | Transform product requirements into structured use cases |
+| [project-foundation](engineering/project-foundation/SKILL.md) | Select a technical foundation and verify a runnable project skeleton |
+| [create-spec](engineering/create-spec/SKILL.md) | Define feature behavior, business rules, and acceptance criteria |
+| [impl-spec](engineering/impl-spec/SKILL.md) | Implement and verify an approved use case |
+| [html-plan](engineering/html-plan/SKILL.md) | Present plans in HTML |
+| [progen](engineering/progen/SKILL.md) | Support project generation |
+
+### Quality and Maintenance
+
+| Skill | Purpose |
+| --- | --- |
+| [diagnosing-bugs](engineering/diagnosing-bugs/SKILL.md) | Investigate and diagnose software defects |
+| [java-code-review](engineering/java-code-review/SKILL.md) | Review Java code |
+
+## Specification-Driven Development
+
+For a new product, the following workflow illustrates how engineering skills can be combined.
+
+```mermaid
+flowchart TD
+    A[Product Discovery] --> B[Product Requirements]
+    B --> C[Use Case Requirements]
+    C --> D[Project Foundation]
+    D --> E[Behavior Specification]
+    E --> F[Implementation and Verification]
+    F --> G[Code Review]
+    G --> H{More Use Cases?}
+    H -->|Yes| E
+    H -->|No| I[Completed Scope]
+```
+
+The workflow separates product decisions, technical decisions, expected behavior, and implementation.
+
+| Stage | Skill | Expected Result |
+| --- | --- | --- |
+| Discovery | `product-brainstorming` | Refined product intent |
+| Requirements | `prd-to-requirements` | Structured use cases |
+| Foundation | `project-foundation` | Technical baseline and runnable skeleton |
+| Specification | `create-spec` | Behavior specification and acceptance criteria |
+| Implementation | `impl-spec` | Implemented and verified use case |
+| Review | `java-code-review` | Java code review findings |
+
+### Project Documentation
+
+The specification and implementation skills use a documentation structure such as:
+
+```text
+docs/
+├── requirements.md
+├── tech-stack.md
+└── specs/
+    ├── 001-initial-project-setup.md
+    ├── 002-example-feature.md
+    └── ...
+```
+
+- `requirements.md` — use-case index and implementation status.
+- `tech-stack.md` — selected technologies and versions.
+- `specs/` — individual behavior specifications.
+
+Each use case has a stable identifier, dependencies, acceptance criteria, and an implementation status.
+
+```mermaid
+stateDiagram-v2
+    [*] --> TODO
+    TODO --> IN_PROGRESS
+    IN_PROGRESS --> DONE
+```
+
+A use case is marked `DONE` only after its acceptance criteria have been implemented and relevant verification has passed.
+
+## Spring Boot Skills
+
+The [Spring Boot collection](spring-boot-skills/) provides focused guidance for Spring Boot 4 applications.
+
+Use the [spring-boot](spring-boot-skills/spring-boot/SKILL.md) entry skill for tasks that cross multiple technical areas. For focused tasks, invoke the corresponding skill directly.
+
+### Application Architecture
+
+- Project scaffolding
+- Feature-based architecture
+- Layered architecture
+- Hexagonal architecture
+- Multi-module Maven
+- Spring Modulith
+- API versioning
+
+### Web APIs and Integration
+
+- Spring MVC
+- OpenAPI
+- HTTP interface clients
+- React and Next.js integration
+- Email delivery
+- BootUI developer diagnostics
+
+### Data, Security, and Reliability
+
+- Spring Security
+- PostgreSQL
+- Spring Data JPA
+- MyBatis-Plus
+- Spring Data Redis
+- Flyway migrations
+- Multi-tenancy
+- Idempotency
+- Resilience and retry
+- Event-driven messaging
+
+### AI and Agent Integration
+
+- Spring AI
+- Agent QA browser regression
+
+### Build, Delivery, and Operations
+
+- Maven and Gradle
+- Docker and Kubernetes
+- CI/CD
+- Application configuration
+- Task execution
+- Observability
+- JVM diagnostics
+- mise
+
+### Testing and Code Quality
+
+- Spring Boot testing
+- ArchUnit
+- Null safety
+
+See the [Spring Boot skill index](spring-boot-skills/README.md) for individual skill descriptions and entry points.
+
+## Usage Examples
+
+After installing the relevant skills, describe your task to your coding assistant.
+
+### Establish a New Project
+
+```text
+Use project-foundation to establish the technical
+foundation for this project.
+
+Compare viable technology options, explain their
+trade-offs, and initialize a minimal runnable project
+after the technical decisions are confirmed.
+```
+
+### Specify a Feature
+
+```text
+Use create-spec to define the behavior of UC-001.
+
+Clarify business rules, edge cases, and failure
+scenarios before writing acceptance criteria.
+Do not implement the feature yet.
+```
+
+### Implement a Feature
+
+```text
+Use impl-spec to implement UC-001.
+
+Follow the approved specification, add relevant
+automated tests, and update the use-case status
+only after verification passes.
+```
+
+### Develop a Spring Boot Application
+
+```text
+Use the spring-boot skill to implement a REST API.
+
+Identify and load only the focused skills required
+by the task. Follow the existing project architecture
+and dependency conventions.
+```
+
+## Collected Skills
+
+The [collected-skills](collected-skills/) directory contains additional skills gathered from other projects.
+
+| Skill | Purpose |
+| --- | --- |
+| [eli5](collected-skills/eli5/SKILL.md) | Simplify complex explanations |
+| [handoff](collected-skills/handoff/SKILL.md) | Support context handoff |
+| [retro](collected-skills/retro/SKILL.md) | Support retrospective activities |
+| [show-me](collected-skills/show-me/SKILL.md) | Support visual explanations |
+| [teach](collected-skills/teach/SKILL.md) | Support learning and teaching |
+| [web-access](collected-skills/web-access/SKILL.md) | Support web access |
+| [writing-for-agents](collected-skills/writing-for-agents/SKILL.md) | Write content intended for agents |
+
+See the [collection index](collected-skills/README.md) for source references.
+
+## Reusable Prompts
+
+The repository also provides standalone engineering prompts under [docs/prompts/](docs/prompts/).
+
+| Prompt | Purpose |
+| --- | --- |
+| [Create AGENTS.md](docs/prompts/create-agentsmd.prompt.md) | Generate or revise repository instructions for agents |
+| [Create README.md](docs/prompts/create-readme.prompt.md) | Create developer-facing project documentation |
+| [Explain Code](docs/prompts/explain-code.prompt.md) | Explain existing source code |
+| [Onboarding Plan](docs/prompts/onboarding-plan.prompt.md) | Prepare contributor onboarding |
+| [Review Code](docs/prompts/review-code.prompt.md) | Perform structured code reviews |
+
+## Repository Structure
+
+```text
+skills/
+├── engineering/          # Software engineering skills
+├── spring-boot-skills/   # Spring Boot development skills
+├── collected-skills/     # Skills from other projects
+├── docs/
+│   └── prompts/          # Reusable engineering prompts
+├── .github/
+│   └── workflows/       # CI and Maven publishing
+├── pom.xml               # Maven packaging configuration
+├── mvnw
+├── mvnw.cmd
+├── renovate.json
+├── LICENSE
+└── README.md
+```
+
+## Building from Source
+
+The repository includes a Maven build configured with the [SkillsJars](https://skillsjars.com) Maven plugin.
+
+Requirements:
+
+- JDK 17
+- Maven or the included Maven Wrapper
+
+Build the project:
+
+```bash
+./mvnw clean verify
+```
+
+On Windows:
+
+```powershell
+.\mvnw.cmd clean verify
+```
+
+The current Maven coordinates are:
+
+```xml
+<dependency>
+    <groupId>io.github.zhijunio</groupId>
+    <artifactId>skills</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+To inspect the generated JAR:
+
+```bash
+jar tf target/skills-0.1.0-SNAPSHOT.jar
+```
+
+For individual skill installation, use the Skills CLI or direct directory installation. Coverage of the current nested skill layout by Maven packaging has not been verified.
+
+## Continuous Integration
+
+GitHub Actions workflows are provided for:
+
+- [Continuous Integration](.github/workflows/ci.yml)
+- [Maven Snapshot Publishing](.github/workflows/maven-snapshot.yml)
+- [Maven Release](.github/workflows/maven-release.yml)
+
+The workflows use JDK 17 and shared reusable workflow definitions.
+
+## Contributing
+
+Contributions that improve correctness, clarity, and engineering practices are welcome.
+
+When adding or modifying a skill:
+
+1. Define a clear purpose and activation scope.
+2. Provide a `SKILL.md` entry point.
+3. Keep instructions focused and actionable.
+4. Move detailed reference material into supporting files where appropriate.
+5. Verify technical examples and version-specific guidance.
+6. Document upstream sources when adapting existing skills.
+7. Update the corresponding collection index.
+
+Report problems or propose improvements through [GitHub Issues](https://github.com/zhijunio/skills/issues).
+
+## Acknowledgments
+
+This repository includes original, adapted, and collected engineering skills.
+
+The Spring Boot collection adapts selected skills from [Rrezart Prebreza's Spring Boot Skills](https://github.com/rrezartprebreza/spring-boot-skills).
+
+Additional source references are available in:
+
+- [Engineering sources](engineering/README.md)
+- [Spring Boot sources](spring-boot-skills/README.md)
+- [Collected skill sources](collected-skills/README.md)
 
 ## License
 
-[MIT](LICENSE) © 2026 Zhijunio.
+See [LICENSE](LICENSE) for the repository license and the corresponding skill directories for upstream license information.
