@@ -1,4 +1,5 @@
-// BAD — every common layering violation in one class
+// Illustrative anti-pattern — HTTP coupling and an exposed persistence model.
+// Other choices (ID type, missing-result policy, pagination, factories) depend on the contract.
 
 @Service
 public class OrderService {
@@ -14,20 +15,20 @@ public class OrderService {
         if (request.getItems().isEmpty()) {
             return ResponseEntity.badRequest().build();                     // HTTP status logic in service
         }
-        Order order = new Order();                                          // no factory method
+        Order order = new Order();                                          // construction style is not itself a layering violation
         order.setEmail(request.getEmail());
-        order.setStatus("PENDING");                                         // string instead of enum
-        Order saved = orderRepository.save(order);                          // no @Transactional
+        order.setStatus("PENDING");                                         // state representation depends on domain contract
+        Order saved = orderRepository.save(order);                          // inspect the actual use-case atomicity requirement
         return ResponseEntity.ok(saved);                                    // returns entity directly
     }
 
     @Transactional
-    public Order findById(Long id) {             // Long ID instead of UUID
+    public Order findById(Long id) {             // preserve the existing ID contract
         return orderRepository.findById(id)
-            .orElse(null);                       // returns null instead of throwing
+            .orElse(null);                       // preserve documented missing-result semantics
     }
 
-    public List<Order> findAll() {               // no pagination, no readOnly
+    public List<Order> findAll() {               // consider query bounds and transaction needs
         return orderRepository.findAll();        // unbounded query
     }
 }

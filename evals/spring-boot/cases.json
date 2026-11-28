@@ -5,14 +5,16 @@
     "skills": [
       "spring-boot",
       "spring-boot-webmvc",
-      "spring-boot-testing"
+      "spring-boot-testing",
+      "layered-architecture"
     ],
     "fixture": "Existing Boot 4 Maven servlet application with a public DTO endpoint and existing error shape.",
     "prompt": "Add a bounded validation rule to the existing endpoint; preserve its HTTP contract.",
     "expectations": [
       "Inspect actual build and conventions",
       "Focused validation and negative MVC tests",
-      "No unrelated architecture, database or generator changes"
+      "No unrelated architecture, database or generator changes",
+      "Preserve existing layer conventions and domain behavior; no forced service-per-aggregate, Lombok, stream conversion or unrelated architecture change"
     ],
     "evidence": [
       "Build wrapper test command",
@@ -298,14 +300,16 @@
       "spring-boot",
       "spring-boot-mybatis-plus",
       "spring-boot-webmvc",
-      "spring-boot-testing"
+      "spring-boot-testing",
+      "layered-architecture"
     ],
     "fixture": "Existing Boot 4 MyBatis-Plus project with a simple paginated endpoint.",
     "prompt": "Correct pagination while retaining the selected persistence technology.",
     "expectations": [
       "No JPA introduction",
       "Stable pagination and existing response shape",
-      "Version-compatible mapper configuration"
+      "Version-compatible mapper configuration",
+      "Preserve existing layer conventions and domain behavior; no forced service-per-aggregate, Lombok, stream conversion or unrelated architecture change"
     ],
     "evidence": [
       "Actual compile and persistence check",

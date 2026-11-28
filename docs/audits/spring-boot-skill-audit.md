@@ -83,3 +83,7 @@ These checks are selective, not a full version certification. The [Spring evalua
 5. Real Spring fixture pilot and evidence-based acceptance.
 
 No skill merge, extraction, rename, new collection, imported code, or publication authorized by this audit. Review material reorganizations and source/rights before implementation.
+
+## S01 implementation
+
+Revised layered-architecture to distinguish application orchestration, domain invariants, HTTP and data access; preserve existing conventions, permit appropriate SQL and mapping styles, and route transaction, retry and configuration details to existing owners. Removed mandatory service count and aggregate mapping, mandatory Lombok/streams, and absolute configuration restrictions. Updated illustrative service and mixed-boundary examples; positive example maps response within the application transaction and documents the same-transaction assumption for inventory. Removed unused mapper import. Entry description and host metadata unchanged; license retained. Entry size: 7093 to 6307 Unicode code units (not tokens). SB01/SB14 scope assertions extended; actual behavior and Java compilation NOT RUN, new CI pending. No other skill modified.

@@ -1,4 +1,7 @@
-// GOOD — proper layer separation, constructor injection, @Transactional on service
+// Illustrative fragment — application-service orchestration with domain behavior.
+// Assumes inventory uses the same transaction manager and joins this transaction.
+// For remote inventory effects, use an explicit consistency and recovery design.
+// Lombok is illustrative; keep the project's existing constructor-injection style.
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +22,12 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(CreateOrderRequest request) {
+    public OrderResponse createOrder(CreateOrderRequest request) {
         inventoryService.reserve(request.items());
         Order order = Order.create(request.customerEmail());
         request.items().forEach(item ->
             order.addItem(item.productId(), item.quantity()));
-        return orderRepository.save(order);
+        return OrderResponse.from(orderRepository.save(order));
     }
 
     @Transactional

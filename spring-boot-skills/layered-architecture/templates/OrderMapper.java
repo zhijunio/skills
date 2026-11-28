@@ -2,7 +2,6 @@ package com.example.order.dto;
 
 import com.example.order.entity.Order;
 import com.example.order.entity.OrderItem;
-import com.example.order.dto.request.CreateOrderRequest;
 import com.example.order.dto.response.OrderResponse;
 import com.example.order.dto.response.OrderResponse.LineItemResponse;
 
