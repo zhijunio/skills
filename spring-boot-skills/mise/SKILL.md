@@ -2,7 +2,7 @@
 name: mise
 description: >
   Add or change mise configuration for a Spring Boot project, including pinned tool versions and
-  shared developer tasks. Use mise tasks instead of introducing Taskfile/go-task for new workflows.
+  shared developer tasks. Preserve existing task runners; introduce mise only when requested or already selected.
 ---
 
 # mise
