@@ -163,7 +163,7 @@ If actual agent execution is unavailable, record NOT RUN with the reason, fixtur
 
 ## 4. Submit and maintain
 
-Before opening a PR, review the diff against the [design checklist](skill-design-principles.md#11-review-criteria), update affected collection indexes and the provenance register, and update the catalog when it exists. For a workflow change, synchronize affected artifact contracts and relevant documentation. Keep historical audits intact; update remediation evidence separately.
+Before opening a PR, review the diff against the [design checklist](skill-design-principles.md#11-review-criteria), update affected collection indexes and the provenance register, and regenerate the [catalog](skill-catalog.md) when skill metadata, invocation policies, inventory or provenance mappings change. Run `python scripts/generate-skill-catalog.py` and then `python scripts/generate-skill-catalog.py --check` from the repository root. Commit the generated file with its source changes. For a workflow change, synchronize affected artifact contracts and relevant documentation. Keep historical audits intact; update remediation evidence separately.
 
 The PR description should state:
 
