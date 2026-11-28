@@ -10,7 +10,7 @@ Create `requirements.md` from `prd.md`, treating the PRD as the source of truth 
 
 ## Inputs and output
 
-- Honor paths supplied by the user. Otherwise, use `docs/PRD.md` relative to the target project root as input and `docs/requirements.md` as output.
+- Honor paths supplied by the user. Otherwise, use the established PRD path relative to the target project root, preferring `docs/PRD.md` and falling back to a root-level `PRD.md` if it is the only existing PRD. If both exist and the authoritative file is unclear, ask the user. Default output is `docs/requirements.md`.
 - Before writing, read the entire PRD and, when present, the entire existing `docs/requirements.md` to learn the repository's current format and conventions.
 - Treat the existing requirements document as a structural example and the canonical identity/status register for existing use cases, not as authority for product scope. Inspect matching specifications when reconciling identities. Resolve content against the PRD.
 - Write only the requested requirements file. Do not implement features or modify the PRD.
