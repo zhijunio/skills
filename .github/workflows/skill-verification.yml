@@ -19,7 +19,7 @@ jobs:
           java-version: '17'
           distribution: temurin
           cache: maven
-      - run: ./mvnw clean verify -B -ntp
+      - run: ./mvnw clean install -B -ntp
       - name: Verify all skill resources in the JAR
         shell: bash
         run: |
@@ -29,6 +29,34 @@ jobs:
             exit 1
           fi
           python3 scripts/verify-skill-jar.py "${jars[0]}"
+      - name: Verify SkillsJars extraction using a temporary consumer
+        shell: bash
+        run: |
+          scratch="$(mktemp -d)"
+          trap 'rm -rf "$scratch"' EXIT
+          mapfile -t jars < <(find target -maxdepth 1 -type f -name 'skills-*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar')
+          test "${#jars[@]}" -eq 1
+          version="$(basename "${jars[0]}" .jar)"
+          version="${version#skills-}"
+          cat > "$scratch/pom.xml" <<'POM'
+          <project xmlns="http://maven.apache.org/POM/4.0.0">
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>local.verification</groupId>
+            <artifactId>skills-consumer</artifactId>
+            <version>1</version>
+            <dependencies>
+              <dependency>
+                <groupId>io.github.zhijunio</groupId>
+                <artifactId>skills</artifactId>
+                <version>${skills.version}</version>
+              </dependency>
+            </dependencies>
+          </project>
+          POM
+          ./mvnw -B -ntp -f "$scratch/pom.xml" \
+            "-Dskills.version=$version" "-Ddir=$scratch/extracted" \
+            -DuseSkillsNameAsDirectory=true com.skillsjars:maven-plugin:0.0.7:extract
+          python3 scripts/verify-skill-installation.py "$scratch/extracted" --extracted
 
   metadata:
     runs-on: ubuntu-latest
