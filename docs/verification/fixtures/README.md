@@ -13,3 +13,7 @@ For W02 and W07 the initial unittest command is expected to fail; after the corr
 Record the before/after diff (excluding installed skill files), exact commands and outputs, model/host versions, loaded skills where observable, approval turns and assertions in the acceptance evidence record. To inspect ordering of status writes versus code writes, capture the host's actual tool trace; a final diff alone cannot prove ordering. Reset to a newly generated fixture for each run. No independent agent execution is claimed by the generator.
 
 The generator needs Python 3 and the standard library only. It refuses an existing destination. It does not install skills, launch an agent, call a network service or create commits.
+
+## Fixture self-checks
+
+From the skills repository root, run `python -m unittest discover -s scripts -p 'test_workflow_fixtures.py' -v`. The existing PR helper-test discovery includes this file. These tests validate fixture creation and synthetic test oracles, not agent behavior. Initial execution evidence is tracked in the Phase 03 plan.

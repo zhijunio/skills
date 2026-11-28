@@ -223,13 +223,13 @@ This is a target layout, not an instruction to create empty directories or immed
 | --- | --- | --- | --- |
 | 1 | [Repository foundations](plans/phase-01-repository-foundations.md) | Standards, agent instructions, authoring and contribution guides, baseline audit, catalog, workflow documentation, distribution verification, deterministic CI checks | Conventions documented; skills audited; supported distribution verified; baseline checks integrated |
 | 2 | [Engineering workflow](plans/phase-02-engineering-workflow.md) | Responsibility audit, system design, implementation planning, test strategy, artifact contracts | Overlap resolved; representative workflow documented and exercised |
-| 3 | Quality engineering | Extend deterministic checks and introduce systematic model-based evaluations and regression testing | Initial behavioral baseline recorded; evaluation and regression processes established |
+| 3 | [Quality engineering](plans/phase-03-quality-engineering.md) | Extend deterministic checks and introduce systematic model-based evaluations and regression testing | Initial behavioral baseline recorded; evaluation and regression processes established |
 | 4 | Technical expansion | Prioritized Java, frontend, data, distributed systems, security, testing, and delivery guidance | New skills address demonstrated gaps and meet the quality standard |
 | 5 | Distribution and sustainability | Installation verification, versioning, release notes, maintenance and contribution processes | Supported distribution paths verified; maintenance responsibilities documented |
 
 ### Immediate work
 
-Review the [Phase 01 acceptance report](reviews/phase-01-review.md) and [Phase 02 implementation plan](plans/phase-02-engineering-workflow.md). Phase 01 foundation deliverables and scoped deterministic verification are complete on the review branch; maintainer acceptance, runtime evidence and publication clearance remain separate. See the [Phase 02 review](reviews/phase-02-review.md) for implemented capabilities, deterministic evidence and outstanding behavioral acceptance. Systematic model-based evaluation remains Phase 3 work.
+Review the [Phase 01 acceptance report](reviews/phase-01-review.md) and [Phase 02 implementation plan](plans/phase-02-engineering-workflow.md). Phase 01 foundation deliverables and scoped deterministic verification are complete on the review branch; maintainer acceptance, runtime evidence and publication clearance remain separate. See the [Phase 02 review](reviews/phase-02-review.md) for implemented capabilities, deterministic evidence and outstanding behavioral acceptance. Phase 03 preparation has started; see the [quality engineering plan](plans/phase-03-quality-engineering.md) and [evaluation standard](skill-evaluation-standard.md). Phase 02 behavioral acceptance remains open.
 
 ## 10. Success criteria
 

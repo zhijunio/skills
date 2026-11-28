@@ -146,6 +146,8 @@ These commands are grounded in existing CI evidence in the distribution report. 
 
 ### Representative behavior
 
+Follow the [skill evaluation standard](skill-evaluation-standard.md) for evidence layers, assertion verdicts, matched comparisons and authorization boundaries.
+
 Define expected behavior before evaluating. Use fresh sessions, equivalent inputs and the same model version, tool permissions and project baseline. Compare a new skill against no-skill behavior; for a changed skill compare against the unchanged version and, where useful, no-skill behavior.
 
 | Case | Example for project-foundation | Expected observation |
