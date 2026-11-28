@@ -1,0 +1,32 @@
+# Audit Remediation Tracker
+
+Status: Initial fixes applied; runtime verification pending
+Baseline: [Initial skill audit](initial-skill-audit.md)
+Plan: [Phase 01](../plans/phase-01-repository-foundations.md)
+
+## Status conventions
+
+OPEN: not started; IN_PROGRESS: remediation or required verification remains; RESOLVED: fix and required verification complete; DEFERRED: scheduled for later work; ACCEPTED: explicitly accepted with rationale. Static read-back is not a substitute for runtime or behavioral verification.
+
+## Findings
+
+| ID | Status | Remediation and evidence | Follow-up |
+| --- | --- | --- | --- |
+| A01 | IN_PROGRESS | Replaced missing version-registry link with existing Maven snapshot and official-documentation fallback ([7949bc1](https://github.com/zhijunio/skills/commit/7949bc15d32d044f9069ba2e9d2781285f016132)). Read-back confirms destination exists and JSON parses. | Verify template compatibility and snapshot provenance; its source field still names the upstream layout. |
+| A02 | IN_PROGRESS | Added show-me Codex manual-only policy ([ac8f139](https://github.com/zhijunio/skills/commit/ac8f139b27fb4fb9f8bc63a8d99a15e1492f55af)); read-back confirms allow_implicit_invocation: false. | F09: test explicit and implicit invocation on supported agents. |
+| A03 | DEFERRED | No change to Spring Boot router or packaging. | F09: test dependency closure and installation. |
+| A04 | OPEN | No provenance or license mapping completed. | F03/F04/F06: document and verify sources and licenses. |
+| A05 | DEFERRED | No Maven build or extraction run. | F09: compare nested inventory, JAR and extracted resources. |
+| A06 | IN_PROGRESS | Narrowed web-access activation, prioritized host tools, required explicit authorization and removed implied consent ([4871f02](https://github.com/zhijunio/skills/commit/4871f02f6154a3cb2b0dac081fe7c9c4fdfa5ab2), [2b0d984](https://github.com/zhijunio/skills/commit/2b0d98465da29481cc1bcea528123a70177a0361)). Static text checks confirm old broad trigger and implied consent removed; preflight now requires consent before connection. | Review supporting scripts and test ordinary search, authorized browser interaction, denied consent and unavailable host tools; no browser scripts executed here. |
+| A07 | IN_PROGRESS | Aligned create-spec, prd-to-requirements and impl-spec around index/spec separation and stable identities/statuses ([047357e](https://github.com/zhijunio/skills/commit/047357e9eb3a9ae2b3040968c7d45a5f1087c3e6), [2f39189](https://github.com/zhijunio/skills/commit/2f39189ce4ca49bb3cbdb9b469732d77960c78be), [67fd5ba](https://github.com/zhijunio/skills/commit/67fd5ba355de58edea026edd43a42cffa9f5b9d9)). Read-back confirms index-only requirement, preservation of existing IDs/status, and dependency consistency checks. | F08: exercise new and existing use cases, regeneration, legacy migration, and conflicting metadata. |
+| A08 | DEFERRED | No generator routing change. | F08: define project foundation, progen and scaffolding responsibilities. |
+| A09 | DEFERRED | No interview or domain skill restructuring. | F08: clarify routing and handoff. |
+| A10 | DEFERRED | No architecture skill routing change. | F08: document routing; evaluate representative cases. |
+| A11 | DEFERRED | No length-based refactoring. | Phase 3: measure context efficiency before changes. |
+| A12 | DEFERRED | No portable export or validator policy enforced. | F09/F10: verify extensions and validation. |
+
+## Verification and closure
+
+The first remediation batch changes five existing SKILL.md files and adds one agent configuration. GitHub read-back and targeted string checks were performed; the Maven JSON snapshot parsed successfully. No official validator, agent runtime, browser automation, Maven build or behavioral evaluation was executed. None of the findings is declared RESOLVED yet. Follow-up work should append reproducible commands, versions, results and commit references before changing statuses.
+
+Retain the original audit as historical evidence. Do not silently merge, remove or rewrite skills to clear warnings. Continue with F03 while tracking the remaining verification and remediation work.
