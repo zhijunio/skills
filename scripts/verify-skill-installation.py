@@ -46,20 +46,26 @@ def verify_destination(root: Path, destination: Path, label: str, expected: dict
                 errors.append(f"{label}: missing resource {name}/{path}")
             elif copied.read_bytes() != local.read_bytes():
                 errors.append(f"{label}: changed resource {name}/{path}")
-        # Only simple inline Markdown paths in the entry point that already resolve
-        # in the source tree. Full Markdown/reference validation is a separate check.
-        for link in LINK.findall((source / "SKILL.md").read_text(encoding="utf-8")):
-            try:
-                url = urlsplit(link)
-            except ValueError:
-                continue
-            if url.scheme or url.netloc or not url.path or url.path.startswith("/"):
-                continue
-            relative = unquote(url.path)
-            original = (source / relative).resolve()
-            if original.is_relative_to(root.resolve()) and original.exists():
-                if not (installed / relative).exists():
-                    errors.append(f"{label}: installed link does not resolve: {name}/{relative}")
+        # Check simple inline Markdown paths throughout installed skill resources.
+        # External URLs, fragments, reference-style links and code path mentions
+        # remain outside this lightweight parser. Source link lint runs separately.
+        for document in sorted(source.rglob("*.md")):
+            for link in LINK.findall(document.read_text(encoding="utf-8")):
+                try:
+                    url = urlsplit(link)
+                except ValueError:
+                    continue
+                if url.scheme or url.netloc or not url.path or url.path.startswith("/"):
+                    continue
+                relative = unquote(url.path)
+                original = (document.parent / relative).resolve()
+                if original.is_relative_to(root.resolve()) and original.exists():
+                    copied_document = installed / document.relative_to(source)
+                    if not (copied_document.parent / relative).exists():
+                        errors.append(
+                            f"{label}: installed link does not resolve: "
+                            f"{name}/{document.relative_to(source)} -> {relative}"
+                        )
     return errors
 
 
@@ -90,7 +96,7 @@ def main():
         print(f"ERROR: {error}")
     if errors:
         raise SystemExit(1)
-    print("Installation or extraction inventory, resources and entry-point links verified.")
+    print("Installation or extraction inventory, resources and Markdown resource links verified.")
 
 
 if __name__ == "__main__":
