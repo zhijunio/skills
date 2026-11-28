@@ -111,9 +111,13 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
 
+## E03-A/B progress
+
+The existing prototype was renamed and refactored as product-prototyping, with progressive references for user journeys/UI, behavior simulations and review. Its original MIT notice is retained. Product scope, behavior approval, code promotion and publication remain separate. Technical PoC is not implemented here. Deterministic and behavioral verification remain pending.
+
 ## E03 progress
 
-The existing product-requirements skill now supports full product, MVP, release and capability scope; separates target and current delivery scope; adds progressive references for requirements analysis and PRD shape. The decomposition skill explicitly excludes target-only scope. No new skill or imported third-party source. Deterministic and behavioral verification of this change remain pending.
+The existing product-requirements skill now supports full product, MVP, release and capability scope; separates target and current delivery scope; adds progressive references for requirements analysis and PRD shape. The decomposition skill explicitly excludes target-only scope. No new skill or imported third-party source. Deterministic verification passed at 4932a66 (runs 46135184474 and 46135183706); behavioral verification remains pending.
 
 ## E02 progress
 

@@ -41,7 +41,7 @@ The following records all 59 entry points. An identical Git blob establishes con
 | [product-requirements](../engineering/product-requirements/SKILL.md) | O | Maintainer-authored (explicit confirmation); local PRD path and routing changes |
 | [progen](../engineering/progen/SKILL.md) | P | Historical directory: 2/2 local blobs identical to skills/progen at pinned upstream snapshot below |
 | [project-foundation](../engineering/project-foundation/SKILL.md) | O | Maintainer-authored (explicit confirmation); local delegation changes |
-| [prototype](../engineering/prototype/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/prototype at pinned upstream snapshot below |
+| [product-prototyping](../engineering/product-prototyping/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/prototype at pinned upstream snapshot below |
 | [agent-qa-browser-regression](../spring-boot-skills/agent-qa-browser-regression/SKILL.md) | S | Historical resource matches 3/4; upstream: agent-qa-browser-regression |
 | [archunit](../spring-boot-skills/archunit/SKILL.md) | S | Historical resource matches 0/2; upstream: unresolved |
 | [bootui](../spring-boot-skills/bootui/SKILL.md) | S | Historical resource matches 0/3; upstream: unresolved |
@@ -132,3 +132,5 @@ Copied the existing, byte-identical upstream Spring Boot MIT notice into all 39 
 ## SDD name migration
 
 Current names preserve the provenance of their historical predecessors: product-brainstorming → product-requirements (O); prd-to-requirements → prd-to-use-cases (M); create-spec → behavior-specification (M); impl-spec → implement-use-case (M). Historical source paths and licensing evidence above remain unchanged. The outstanding SDD notice blocker remains open.
+
+The former prototype skill is now product-prototyping. Its existing Matt Pocock MIT notice is retained byte-for-byte; the historical upstream directory name remains unchanged. Product journey, isolation and review guidance are local adaptations; no new third-party source was imported.

@@ -74,7 +74,7 @@ The [engineering](engineering/) collection supports software development from in
 | [grilling](engineering/grilling/SKILL.md) | Challenge assumptions through focused questioning |
 | [grill-with-docs](engineering/grill-with-docs/SKILL.md) | Clarify decisions against existing documentation |
 | [domain-modeling](engineering/domain-modeling/SKILL.md) | Establish domain concepts and relationships |
-| [prototype](engineering/prototype/SKILL.md) | Explore ideas through prototypes |
+| [product-prototyping](engineering/product-prototyping/SKILL.md) | Explore ideas through prototypes |
 
 ### Specification and Implementation
 
@@ -388,3 +388,5 @@ See [LICENSE](LICENSE) for the repository license and the corresponding skill di
 ### SDD skill name migration
 
 On the Phase 02 review branch, `product-brainstorming`, `prd-to-requirements`, `create-spec` and `impl-spec` have been renamed to `product-requirements`, `prd-to-use-cases`, `behavior-specification` and `implement-use-case` respectively. Update explicit invocations and reinstall from the intended revision; remove obsolete installed copies only after checking local modifications. No compatibility aliases are provided.
+
+The former `prototype` skill is now `product-prototyping` for product and behavior exploration; update explicit invocations and remove obsolete installed copies only after checking local modifications.

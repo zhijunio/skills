@@ -1,7 +1,7 @@
 # Prototype Capability Contract
 
-Status: proposed Phase 02 scope; existing prototype skill has not changed.
-Related: [Phase 02 plan](../plans/phase-02-engineering-workflow.md), [existing prototype](../../engineering/prototype/SKILL.md), [UI reference](../../engineering/prototype/UI.md), [logic reference](../../engineering/prototype/LOGIC.md), [SDD contract](sdd-lifecycle.md).
+Status: product and behavior modes implemented as product-prototyping on review branch; technical PoC and verification pending.
+Related: [Phase 02 plan](../plans/phase-02-engineering-workflow.md), [existing prototype](../../engineering/product-prototyping/SKILL.md), [UI reference](../../engineering/product-prototyping/references/ui-prototype.md), [logic reference](../../engineering/product-prototyping/references/behavior-prototype.md), [SDD contract](sdd-lifecycle.md).
 
 ## 1. Select the question, not the output format
 
@@ -19,13 +19,13 @@ Establish a bounded question, existing decisions, intended audience, alternative
 
 Product exploration: select fidelity by uncertainty; cover primary journeys and relevant empty, loading, error, accessibility and responsive states where meaningful; avoid speculative product decisions. Behavior exploration: show initial state, legal/illegal transitions, outcomes and resettable scenarios; a simulation does not certify real dependency behavior. Technical feasibility: record environment, versions, workload, repeatable procedure, pass/fail threshold when authorized, observed results and uncertainty. Do not invent scale or thresholds; use NOT RUN when evidence is unavailable. Tests and instrumentation may be required. No blanket no-tests policy for PoCs.
 
-## 3. Existing implementation gaps
+## 3. Historical implementation gaps (before migration)
 
 The current UI reference prefers modifying an existing route and only explicitly hides its switcher in production. This is insufficient evidence that variants cannot ship. Prefer isolated dev-only routes or standalone artifacts; protect all variant code and data paths. The current logic reference is a useful standalone simulator with free play and guided cases; do not automatically lift experimental logic into production. Existing instructions require branch/issue capture and folding winners into real code; separate those actions from prototype authorization. The technical mode is not covered by the two current branches. These findings are source review, not runtime defects observed in a real project.
 
 ## 4. Proposed reuse decision
 
-Compare existing Matt Pocock prototype guidance with maintained product design/prototyping and technical spike workflows. Prefer a single focused skill plus progressive references if activation, authorization and outputs remain coherent; split only when independent invocation and distinct evidence justify it. Do not assume three abilities require three skills. Record license, fixed revision, dependencies and gaps before importing. The [prototype extension research](../research/engineering-skill-reuse.md) supports retaining product and behavior exploration together, with a separate candidate technical-spike capability for reproducible feasibility experiments. Exact names, full source/notice checks and implementation remain pending. No import or migration has occurred.
+Compare existing Matt Pocock prototype guidance with maintained product design/prototyping and technical spike workflows. Prefer a single focused skill plus progressive references if activation, authorization and outputs remain coherent; split only when independent invocation and distinct evidence justify it. Do not assume three abilities require three skills. Record license, fixed revision, dependencies and gaps before importing. The [prototype extension research](../research/engineering-skill-reuse.md) supports retaining product and behavior exploration together, with a separate candidate technical-spike capability for reproducible feasibility experiments. Product and behavior modes now use product-prototyping, preserving its original MIT notice; technical-spike remains a candidate pending source-chain review. No new third-party source has been imported.
 
 ## 5. Proposed evaluation cases (NOT RUN)
 
@@ -39,4 +39,4 @@ Compare existing Matt Pocock prototype guidance with maintained product design/p
 | P06 | Approved prototype but no implementation authorization | No production edits, status transition or publication |
 | P07 | Clear bounded defect | No compulsory prototype |
 
-All cases remain pending actual runtime verification. No skill addition, split, deletion or migration is authorized by the document alone.
+All cases remain pending actual runtime verification. The product-prototyping migration implements the maintainer's instruction to continue; all cases remain pending runtime evidence.

@@ -73,7 +73,7 @@ Paths are relative to the repository root. M = explicit-only intent declared in 
 | [product-brainstorming](../../engineering/product-requirements/SKILL.md) | Product discovery and PRD | A / N | Improve routing A09 |
 | [progen](../../engineering/progen/SKILL.md) | Spring Boot generator | M / C | Investigate A08 and generator availability |
 | [project-foundation](../../engineering/project-foundation/SKILL.md) | Technical choices and baseline | M / C | Improve routing A08 |
-| [prototype](../../engineering/prototype/SKILL.md) | Throwaway design experiment | A / N | Retain; distinguish from production implementation |
+| [prototype](../../engineering/product-prototyping/SKILL.md) | Throwaway design experiment | A / N | Retain; distinguish from production implementation |
 
 ### Spring Boot
 
