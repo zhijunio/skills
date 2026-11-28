@@ -70,3 +70,26 @@ Observed repository metadata: architecture candidate 197 stars, pinned commit 20
 ## E01 decision summary
 
 Proceed to E02 with existing SDD contract adaptation; assess renames after semantics are agreed. E03 should adapt the existing product owner rather than introduce competing PRD ownership. E04 system-design, E05 implementation-planning and E06 test-strategy are justified candidate additions subject to focused source/dependency review and proportional scope. Preserve HTML planning as an optional presentation capability only if useful; assess TDD separately as an implementation technique. No imports or runtime executions have occurred. Full dependency and notice review is a prerequisite of each actual adaptation, not a completed certification.
+
+
+## Prototype capability research (expanded E01 scope)
+
+Research date: 2026-11-28. Existing prototype entry point, UI.md and LOGIC.md were inspected. The UI mode compares alternative renderings; the logic mode explores state transitions. Neither provides a complete technical feasibility workflow. See the [prototype contract](../contracts/prototyping.md).
+
+| Candidate and pinned source | Repository stars | License evidence | Fit and constraints |
+| --- | ---: | --- | --- |
+| [Matt Pocock prototype](https://github.com/mattpocock/skills/tree/bbadaa631c37af594e5a05c9cefacd9956136b18/skills/engineering/prototype) | Earlier E01 snapshot | Existing pinned MIT provenance | Retain local UI and logic exploration techniques; correct blanket no-test guidance, route isolation and automatic promotion/capture assumptions |
+| [magnus919 product-design-and-ux](https://github.com/magnus919/agent-skills/blob/0f83b91d44d692a665b6f487c4f60fac07e632cb/product-design-and-ux/SKILL.md) | 197 | MIT root notice inspected earlier at same revision; entry point MIT | Strong information architecture, task/state modeling, recovery and usability planning; many sibling references and assumes approved scope; adapt to bounded draft exploration, do not import entire suite |
+| [mblode product-design](https://github.com/mblode/agent-skills/blob/56bf97e8f6078bfada4c91c23fcf7c14b6e84a07/skills/product-design/SKILL.md) | 226 | Repository metadata MIT; exact notice pending | Useful action semantics, reversibility, recovery and reachable states; references rule registry and sibling implementation skills |
+| [Hermes spike](https://github.com/NousResearch/hermes-agent/blob/29bbd2d97b8e5bcda44d7e02ee2239a93afd5e58/skills/software-development/spike/SKILL.md) | 266648 | Repository and entry point MIT declarations; entry point attributes adaptation from gsd-build/get-shit-done; complete applicable notices and upstream origin review pending | Strong standalone experiment loop, alternatives, observed verdict; remove Hermes tool assumptions, automatic delegation and blanket hardcoding/disposal defaults |
+| [tomzx validate-assumptions](https://github.com/tomzx/agents/blob/c21886950f9287841ac4c46dee793f3437f88cc3/skills/validate-assumptions/SKILL.md) | 18 | Repository metadata MIT; exact notice pending | Risk inventory, threshold before run, downstream impact; tightly coupled to .sdlc artifacts and review commands |
+| [Anthropic frontend-design](https://github.com/anthropics/skills/blob/e4bb5d960d87126ff3b3a8af1a104b7db67560ba/skills/frontend-design/SKILL.md) | 201666 | Entry point refers to skill-specific LICENSE.txt; do not assume repository-wide MIT | Visual direction and frontend implementation, not product authority or full prototype lifecycle |
+
+Repository counts are observations, not skill popularity or quality scores. Selected entry-point sections were inspected at pinned revisions; complete dependency and resource audits and behavioral tests have not been performed. No upstream material was imported.
+
+### Proposed prototype disposition
+
+Prefer two independent responsibilities over three new skills: adapt the existing prototype into a product/behavior exploration capability with progressive references, and develop a separate technical spike capability for empirical engineering questions. Candidate names: product-prototyping and technical-spike. Product/behavior exploration shares stakeholder feedback, synthetic state and reviewable artifacts; technical spikes need explicit hypotheses, isolated real dependencies where authorized, measurements, reproducibility and distinct verdicts. Keep the existing UI/logic techniques where they add value; product design decisions remain with PRD and behavior owners, technical decisions with system design/ADR. HTML planning remains a separate presentation capability. No rename or split has occurred.
+
+Before copying any candidate, inspect complete applicable licenses, dependencies and references; preserve notices and document transformations. Independently authored experiment and feedback contracts can be implemented without importing an entire upstream workflow. E03-A/B and E04-A should exercise the scenarios in the prototype contract, including unavailable environments, production isolation and separate implementation authorization.
+
