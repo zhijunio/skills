@@ -6,9 +6,13 @@ description: >
 
 # Spring Modulith
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If unavailable, inspect resolved dependencies and release-matched official documentation; report missing compatibility evidence.
+
+Check the official Boot/Modulith compatibility matrix and the resolved event registry starter. Verify listener and republication APIs against that version. Treat the pinned upstream fixture as upstream evidence only, not as a locally executed test.
+
 ## Spring Boot 4 baseline
 
-Use the Spring Modulith 2.x line matching the exact Boot 4 minor; do not import a Boot 3 Modulith 1.x BOM.
+Select a Spring Modulith 2.x release supported by the project's Boot 4 line according to the official compatibility matrix; do not infer compatibility from matching minor numbers. Do not import a Boot 3 Modulith 1.x BOM.
 
 ## Apply within the existing architecture
 
@@ -46,7 +50,7 @@ with persistent publication tracking; do not promise end-to-end exactly-once pro
 
 ## Verification scope
 
-The workflow fixture checks a valid public-API dependency and rejection of an internal
+The pinned upstream workflow fixture checks a valid public-API dependency and rejection of an internal
 package dependency using real ApplicationModules verification. It uses separate minimal
 fixture packages, not the application's Application class; durable event publication,
 listener retries and process-restart behavior are not covered.
