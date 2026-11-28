@@ -44,3 +44,5 @@ For each run: case ID; fixture revision/hash; skill revision; host/model/version
 Current session inspection: Git, Python and Node v22.16.0 available; codex and claude executables not found on PATH; OPENAI_API_KEY and ANTHROPIC_API_KEY not configured in the inspected shell. No independent host session was launched. All W01–W18 and full continuation remain NOT RUN. This does not prove other host environments are unavailable. Maintainer can execute these cases in an authenticated local host; no credentials should be pasted into chat or committed.
 
 Deterministic baseline: CI 46139023202 and Skill verification 46139022387 succeeded at ca99072. Package, metadata, local-links and discovery jobs succeeded. Later CI 46139156971 and Skill verification 46139156471 also passed at 4428fdd. These checks do not count as workflow behavior runs.
+
+Q05 adds a [structured behavior registry and offline checker](../../evals/behavior/README.md). Final-state checks do not establish ordering, execution or full behavioral completion.

@@ -17,3 +17,7 @@ The separate explicit-only.json contains paired implicit and explicit prompts fo
 Use the pinned external skill-creator only after runtime, permission and budget approval. Do not combine development and holdout datasets for optimization. Record host, model, revision, actual prompt, observation, verdict and missing evidence. A timeout or execution error is not a negative trigger observation. For cross-skill routing, install the relevant actual skills in an isolated project and record observed selection separately.
 
 All trigger and invocation trials are NOT RUN. No description has been tuned against these data. No model calls are part of ordinary PR CI.
+
+## Behavior cases
+
+See [core workflow cases](behavior/README.md) for the structured registry and selected offline filesystem assertions. All independent behavior trials are NOT RUN.
