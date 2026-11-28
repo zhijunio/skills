@@ -14,7 +14,7 @@ Implement exactly one use case, following its specification and the repository's
 2. Read the matching row in `docs/requirements.md` (or the user-supplied requirements path) and find exactly one specification whose numeric filename prefix matches the ID, such as `UC-001` → `docs/specs/001-*.md`.
 3. Read the full specification, including its `UseCase Details`, `Business Rules`, `Acceptance Criteria`, `In Scope`, `Out of scope`, metadata, and dependencies. Read the PRD and other referenced product or technical documentation only as needed for context.
 4. Treat the specification as the source of truth for behavior and acceptance. Treat the requirements summary as the canonical use-case identity and status index. Do not expect detailed use-case sections or acceptance criteria in `docs/requirements.md`.
-5. If the index row or matching specification is missing, multiple specifications match, the ID/title/status differs between the index and specification, or the specification is incomplete, stop and ask for the documents to be reconciled. Do not edit files yet.
+5. If the index row or matching specification is missing, multiple specifications match, the ID/title/status differs between the index and specification (or dependency IDs disagree where the index records them), or the specification is incomplete, stop and ask for the documents to be reconciled. Do not edit files yet.
 
 ## Resolve blockers before implementation
 
