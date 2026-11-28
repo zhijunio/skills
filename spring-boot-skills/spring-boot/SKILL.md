@@ -26,8 +26,7 @@ persistence technology, ask before generating or implementing the project. For a
 routing that does not require a decision, mark persistence as unresolved and present the relevant
 skills as options; do not recommend one as the default. Add only requested capabilities.
 
-The default skill for a new project is scaffolding plus exactly one selected build skill: Maven or
-Gradle. Read other skills only for requested capabilities and affected behavior. mise, Docker,
+For an Initializr-based new project, use scaffolding plus exactly one selected build skill: Maven or Gradle. When the user has selected another generator, such as Progen, do not also run Initializr. If technical foundation or generator selection is unresolved and the user requests that decision, hand off to project-foundation where available. Read other skills only for requested capabilities and affected behavior. mise, Docker,
 CI/CD, BootUI, and other developer tools are optional; do not add them by default. Use [mise](../mise/SKILL.md)
 when the user requests project tool-version management or shared developer tasks.
 
@@ -42,7 +41,11 @@ skill in the collection for a single task.
 | New project skeleton | [Scaffolding](../spring-boot-scaffolding/SKILL.md), then the selected build skill |
 | Maven build, plugins, dependencies, coverage, or releases | [Maven](../spring-boot-maven/SKILL.md); add [multi-module Maven](../multi-module-maven/SKILL.md) for reactor structure |
 | Gradle build, plugins, dependencies, or packaging | [Gradle](../spring-boot-gradle/SKILL.md) |
-| Feature boundaries, package structure, or module architecture | [Feature architecture](../feature-architecture/SKILL.md) for business-oriented packages; [Layered architecture](../layered-architecture/SKILL.md) for responsibilities inside a feature; [Hexagonal architecture](../hexagonal-architecture/SKILL.md) for ports and adapters; [ArchUnit](../archunit/SKILL.md) for Taikai defaults and custom static rules; [Spring Modulith](../spring-modulith/SKILL.md) for Spring module boundaries |
+| Business capability packages and cross-feature ownership | [Feature architecture](../feature-architecture/SKILL.md) |
+| Controller, service and data-access responsibilities in a layered design | [Layered architecture](../layered-architecture/SKILL.md) |
+| Framework-independent domain, ports and adapters | [Hexagonal architecture](../hexagonal-architecture/SKILL.md) |
+| Spring Modulith module APIs, dependencies or module events | [Spring Modulith](../spring-modulith/SKILL.md) |
+| Static architecture rules and enforcement tests | [ArchUnit](../archunit/SKILL.md) |
 | MVC endpoint, validation, transactions, or error response | [Web MVC](../spring-boot-webmvc/SKILL.md) for runtime HTTP behavior; add [API versioning](../spring-boot-api-versioning/SKILL.md) for version resolution or [OpenAPI](../spring-boot-openapi/SKILL.md) for the API contract and published document |
 | Authentication, authorization, MFA, or OAuth2 | [Security](../spring-boot-security/SKILL.md) for caller identity and permissions; add [multi-tenancy](../multi-tenancy/SKILL.md) when data access must be tenant-scoped |
 | MyBatis-Plus persistence | [MyBatis-Plus](../spring-boot-mybatis-plus/SKILL.md) |
@@ -66,6 +69,10 @@ skill in the collection for a single task.
 | JVM CPU, memory, GC, or thread diagnosis | [JVM diagnostics](../jvm-diagnostics/SKILL.md) |
 | Nullness contracts | [Null safety](../null-safety/SKILL.md) |
 | Spring AI models, tools, retrieval, or MCP | [Spring AI](../spring-ai/SKILL.md) |
+
+## Architecture routing boundaries
+
+Preserve the architecture already in use unless the user requests a redesign. Feature packaging and internal layering can coexist; layering and ports/adapters are design choices, not mandatory consecutive steps. Do not load all architecture skills for an ordinary endpoint change. Select Modulith only for its module facilities and ArchUnit when architecture enforcement is in scope. If architecture choices conflict, resolve the decision before editing. For unavailable sibling skills, identify the missing dependency and use relevant official documentation only when sufficient; do not claim to have loaded missing guidance.
 
 ## Coordinate combined changes
 
