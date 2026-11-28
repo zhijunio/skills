@@ -1,4 +1,6 @@
-// BAD - common Boot 4 JPA mistakes.
+// Anti-pattern fragment for Boot 4: legacy javax imports, final entity, broad @Data.
+// Long IDs and identity generation are legitimate choices; ordinal mappings and
+// primitive versions require contract-specific review, not automatic migration.
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

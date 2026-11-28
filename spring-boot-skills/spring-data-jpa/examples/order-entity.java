@@ -1,5 +1,5 @@
-// GOOD - Boot 4 / Hibernate 7: jakarta imports, UUID ID, wrapper @Version,
-// STRING enum, LAZY to-one relationship, behavior methods, and no public setters.
+// Illustrative Boot 4 / Hibernate 7 entity fragment; adapt ID, version, enum and
+// Lombok choices to the project. Domain collaborators are not included.
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -84,7 +84,10 @@ public class Order {
         if (status != OrderStatus.DRAFT) {
             throw new IllegalStateException("Cannot edit submitted order");
         }
-        items.add(OrderItem.create(this, productId, quantity, unitPrice));
+        OrderItem item = OrderItem.create(this, productId, quantity, unitPrice);
+        Money nextTotal = total.add(item.subtotal());
+        items.add(item);
+        total = nextTotal;
     }
 
     public void submit() {
