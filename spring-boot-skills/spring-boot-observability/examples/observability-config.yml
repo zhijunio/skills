@@ -1,8 +1,10 @@
+# Illustrative OTLP push configuration; verify dependencies and properties for the actual Boot release.
+# Internal collector URL assumes an approved isolated network; use TLS/auth for other deployments.
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health
   endpoint:
     health:
       probes:
@@ -11,6 +13,8 @@ management:
   tracing:
     sampling:
       probability: 0.1
+  # Requires the selected OTLP metrics registry. For Prometheus scraping use a separate
+  # approved registry and expose its endpoint only to authorized scrapers.
   otlp:
     metrics:
       export:
