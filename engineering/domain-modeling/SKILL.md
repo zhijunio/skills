@@ -7,6 +7,10 @@ description: Build and sharpen a project's domain model. Use when discussing cod
 
 Actively build and sharpen the project's domain model as you design. This is the *active* discipline: challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `GLOSSARY.md` for vocabulary is not this skill: that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
 
+## Responsibility and handoff
+
+Own domain vocabulary, conceptual boundaries and significant domain decisions, not product scope, feature acceptance criteria or implementation planning. Use the PRD and approved behavior specifications as constraints; surface contradictions rather than changing their scope. Compose with grilling when the user requests a decision interview. Record only confirmed terminology and decisions, and ask before writing if the requested task is discussion-only.
+
 ## File structure
 
 Most repos have a single context:
