@@ -93,3 +93,24 @@ Prefer two independent responsibilities over three new skills: adapt the existin
 
 Before copying any candidate, inspect complete applicable licenses, dependencies and references; preserve notices and document transformations. Independently authored experiment and feedback contracts can be implemented without importing an entire upstream workflow. E03-A/B and E04-A should exercise the scenarios in the prototype contract, including unavailable environments, production isolation and separate implementation authorization.
 
+
+## Prototype capability extension
+
+Research snapshot: 2026-11-28. Existing local prototype entry point and both UI/LOGIC references were inspected. Additional candidates:
+
+| Candidate | Fixed revision | License evidence | Fit |
+| --- | --- | --- | --- |
+| [Hermes spike](https://github.com/NousResearch/hermes-agent/blob/29bbd2d97b8e5bcda44d7e02ee2239a93afd5e58/skills/software-development/spike/SKILL.md) | 29bbd2d97b8e5bcda44d7e02ee2239a93afd5e58 | Repository metadata and skill declare MIT; entry point attributes GSD | Technical feasibility experiments and comparison verdicts |
+| [Product Manager Skills probe advisor](https://github.com/deanpeters/Product-Manager-Skills/blob/476ae12917b8e77609eb956bcc2203a4e4ec857d/skills/pol-probe-advisor/SKILL.md) | 476ae12917b8e77609eb956bcc2203a4e4ec857d | Repository metadata NOASSERTION; redistribution rights not established | Match experiment to hypothesis, not preferred tool |
+| [UX designer](https://github.com/rahulgupta2018/agent-skills/blob/0154922bf5a445de71cd5e2f775de90284b0db15/skills/ux-designer/SKILL.md) | 0154922bf5a445de71cd5e2f775de90284b0db15 | Entry point declares MIT and adaptation from awesome-llm-apps; root notice not verified | Journey, IA, interface state and usability review |
+| [robjsliwa skills](https://github.com/robjsliwa/skills/tree/fabfbca7f6017fa51f00b24ccfebbf6a2f33cda1) | fabfbca7f6017fa51f00b24ccfebbf6a2f33cda1 | Repository metadata MIT; full notice not inspected | README describes LOGIC/UI/FLOW prototypes and separate spike; implementation not yet reviewed |
+
+Observed repository stars: 266648, 8179, 0, 0 respectively. These are repository-wide snapshots, not skill-level evaluation results. Inspected selected entry-point sections for the first three and README for the last; not a full source or dependency audit.
+
+### Decision
+
+Prefer adapting the existing prototype skill into a focused product/behavior exploration owner with separate progressively loaded UI and logic references. Extend the UI reference to cover multi-screen journeys, navigation and reviewable states where appropriate, without importing a full UX methodology or requiring frontend production work. Preserve the existing logic simulator as a behavior exploration mode. Do not create a separate behavior skill unless actual usage or context measurements establish a need.
+
+Prefer a separate technical-spike capability for evidence-producing engineering experiments: its activation, measurable results, dependency setup, repeatability and failure handling differ from interactive product/behavior review. Hermes spike is a promising adaptation reference, not an approved source import. Its host-specific tool calls, default decomposition count, sample numeric thresholds, delegation, and hardcoding advice must not become universal requirements. Preserve authorized isolated execution, explicit evidence, dependency compatibility and no secrets or production mutations. Research alone is sufficient where experimentation would add no evidence.
+
+This two-owner approach is a proposed implementation direction. Keep existing prototype name until migration analysis; product-prototyping and technical-spike are candidate names. Evaluate the need for dedicated UX design separately from prototype experiments. No third-party material imported. Before copying, inspect complete source, resources, root notices and GSD attribution chain. Unclear-license UX and product sources are research-only. Existing local prototype retains its recorded Matt Pocock provenance. See [prototype contract](../contracts/prototyping.md) for acceptance cases P01–P07; all NOT RUN.

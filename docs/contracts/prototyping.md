@@ -23,9 +23,9 @@ Product exploration: select fidelity by uncertainty; cover primary journeys and 
 
 The current UI reference prefers modifying an existing route and only explicitly hides its switcher in production. This is insufficient evidence that variants cannot ship. Prefer isolated dev-only routes or standalone artifacts; protect all variant code and data paths. The current logic reference is a useful standalone simulator with free play and guided cases; do not automatically lift experimental logic into production. Existing instructions require branch/issue capture and folding winners into real code; separate those actions from prototype authorization. The technical mode is not covered by the two current branches. These findings are source review, not runtime defects observed in a real project.
 
-## 4. Reuse decision pending
+## 4. Proposed reuse decision
 
-Compare existing Matt Pocock prototype guidance with maintained product design/prototyping and technical spike workflows. Prefer a single focused skill plus progressive references if activation, authorization and outputs remain coherent; split only when independent invocation and distinct evidence justify it. Do not assume three abilities require three skills. Record license, fixed revision, dependencies and gaps before importing.
+Compare existing Matt Pocock prototype guidance with maintained product design/prototyping and technical spike workflows. Prefer a single focused skill plus progressive references if activation, authorization and outputs remain coherent; split only when independent invocation and distinct evidence justify it. Do not assume three abilities require three skills. Record license, fixed revision, dependencies and gaps before importing. The [prototype extension research](../research/engineering-skill-reuse.md) supports retaining product and behavior exploration together, with a separate candidate technical-spike capability for reproducible feasibility experiments. Exact names, full source/notice checks and implementation remain pending. No import or migration has occurred.
 
 ## 5. Proposed evaluation cases (NOT RUN)
 
