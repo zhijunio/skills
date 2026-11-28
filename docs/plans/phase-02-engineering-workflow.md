@@ -1,6 +1,6 @@
 # Phase 02 — Engineering Workflow
 
-Status: Proposed for maintainer review.
+Status: E01 in progress on review branch; static audit and initial reuse research documented.
 Prerequisites: [Phase 01 review](../reviews/phase-01-review.md), [engineering workflow](../engineering-workflow.md), [design principles](../skill-design-principles.md), [authoring guide](../skill-authoring-guide.md), [skill catalog](../skill-catalog.md).
 
 ## 1. Objective
@@ -92,6 +92,10 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 ### E08 — Review
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
+
+## E01 progress
+
+See the [capability audit](../audits/engineering-capability-audit.md) and [reuse research](../research/engineering-skill-reuse.md). Static responsibilities, candidate dispositions and pinned source comparisons are documented. Dedicated system-design and test-strategy candidate research remains open; no migration or runtime exercise has been performed.
 
 ## 5. Execution order
 
