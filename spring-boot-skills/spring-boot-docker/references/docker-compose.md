@@ -17,7 +17,7 @@ This guide covers Spring Boot container images, local PostgreSQL, Redis, Mailpit
 - Keep dependency, loader, snapshot, and application files in separate image layers so source
   changes do not invalidate dependency layers.
 - Run as a non-root user. Use a read-only filesystem where possible, and keep writable paths
-  explicit and bounded.
+  explicit and bounded, including temporary files. Keep application binaries root-owned and non-writable by the runtime user. Verify exact JAR selection; do not rely on a wildcard matching one artifact. Pin reviewed base-image digests for releases and verify the built image.
 - Run tests in CI rather than treating an image build as test execution. Provide health checks
   through the orchestrator or a purpose-built probe; do not add shell checks to shell-free images.
 - For AOT, Native Image, or CRaC, read [advanced runtime guidance](native-runtime.md) before
@@ -36,7 +36,7 @@ Compose uses `.env` for interpolation; Spring Boot does not automatically load t
 application starts directly. Follow [Spring Boot configuration](../../spring-boot-configuration/SKILL.md)
 for application properties and secret injection.
 
-Use PostgreSQL 18's `/var/lib/postgresql` data path. For cache-only Redis, do not mount a volume or
+Match the volume mount to the selected PostgreSQL image major: the official 18+ image uses `/var/lib/postgresql`, while earlier majors commonly use `/var/lib/postgresql/data`. Do not reuse a data volume across major versions without an approved upgrade procedure. For cache-only Redis, do not mount a volume or
 enable persistence. Do not keep Initializr's generated Compose file alongside the configured one.
 
 ## Start services through Spring Boot
@@ -97,4 +97,4 @@ Boot's lifecycle integration. State which mode owns service startup.
 Inspect `compose.yaml`, the active build file, and `application.yaml`. Confirm retained services,
 image pins, environment substitutions, volume paths, service-specific client dependencies, and
 whether Boot or a manual command owns startup. For new Compose services, check that `.env.example`
-and the README document the same variable names. Report any applicable failures.
+and the README document the same variable names. Verify image startup under the intended UID, filesystem and resource limits, and check the image history and final filesystem for credentials. Use an isolated local Compose project with synthetic credentials; do not print resolved secret-bearing Compose configuration. Report any applicable failures.
