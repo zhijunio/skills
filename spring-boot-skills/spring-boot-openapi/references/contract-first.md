@@ -6,7 +6,7 @@ delegate in handwritten source. Never edit generated files.
 
 ## Maven setup
 
-Use OpenAPI Generator 7.20 or later for Spring Boot 4 and Jackson 3 support.
+Select a published OpenAPI Generator release supporting the project's Boot and Jackson versions. Verify the selected Spring generator options using its release-specific documentation and config-help output; the pin below is illustrative, not an instruction to upgrade an existing project.
 Keep generator versions and package names aligned with the project. This
 configuration uses the Spring generator, delegate pattern, and distinct DTO
 names:
@@ -67,8 +67,7 @@ suffix, request-to-command mapping, created-resource `Location`, and nested page
 
 The `Dto` suffix comes from `modelNameSuffix`; keep implementation signatures aligned with the
 generated delegate. Map generated request types to application commands instead of passing them
-into the service layer. Keep `skipDefaultInterface` false with `delegatePattern` enabled. Generated
-controllers instantiate a default delegate, so true can leave operations unimplemented. Cover
+into the service layer. For this example retain `skipDefaultInterface=false` with `delegatePattern=true`. Inspect the actual generated interfaces and controller wiring; default implementations can conceal missing delegate operations. Do not infer coverage from successful compilation alone. Cover
 every operation through the generated HTTP boundary.
 
 ## Verify
@@ -76,4 +75,4 @@ every operation through the generated HTTP boundary.
 Generate from a clean checkout. Confirm generated output stays under the build
 directory, every operation has a real delegate, and the generated HTTP
 responses match the contract. Include contract checks for errors as well as
-success responses.
+success responses. Verify generation and compilation with the selected generator version and runtime dependencies; check for fallback 501 responses, omitted/null distinctions, actual decimal and date serialization, and compatibility with supported clients.
