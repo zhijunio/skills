@@ -8,6 +8,10 @@ description: >
 
 # Spring AI
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If unavailable, inspect resolved dependencies and release-matched official documentation; report missing compatibility evidence.
+
+Resolve the Spring AI BOM, provider and MCP SDK independently of Boot. Verify starter availability and configuration metadata for the selected release. Treat session, memory and native MCP examples as release-specific; never combine them across release lines.
+
 Use the reference that matches the requested boundary:
 
 - [Model integration](references/integration.md) for Spring AI dependencies,
