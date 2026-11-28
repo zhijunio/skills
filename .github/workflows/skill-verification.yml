@@ -76,7 +76,7 @@ jobs:
 
   discovery:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -97,3 +97,40 @@ jobs:
           git init -q
           npx --yes skills@1.9.1 add "$GITHUB_WORKSPACE" --skill '*' --agent codex claude-code --copy --yes
           python3 "$GITHUB_WORKSPACE/scripts/verify-skill-installation.py" "$scratch"
+
+      - name: Verify explicit dependency group installation
+        env:
+          DISABLE_TELEMETRY: '1'
+        shell: bash
+        run: |
+          scratch="$(mktemp -d)"
+          trap 'rm -rf "$scratch"' EXIT
+          cd "$scratch"
+          git init -q
+          npx --yes skills@1.9.1 add "$GITHUB_WORKSPACE" --skill grill-with-docs --skill grilling --skill domain-modeling --agent codex claude-code --copy --yes
+          python3 "$GITHUB_WORKSPACE/scripts/verify-skill-installation.py" "$scratch" --skill grill-with-docs --skill grilling --skill domain-modeling
+
+  local-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Inventory local Markdown links (initial audit)
+        id: links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          lycheeVersion: v0.24.2
+          args: "--offline --no-progress --verbose './*.md' 'docs/**/*.md' 'engineering/**/*.md' 'spring-boot-skills/**/*.md' 'collected-skills/**/*.md'"
+          fail: false
+      - name: Record initial link audit outcome
+        env:
+          LYCHEE_EXIT: ${{ steps.links.outputs.exit_code }}
+        run: |
+          echo "Lychee exit code: $LYCHEE_EXIT"
+          echo "Initial audit only; findings require triage before enforcement."
+      - name: Upload link audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-link-audit
+          path: lychee/out.md
+          if-no-files-found: error

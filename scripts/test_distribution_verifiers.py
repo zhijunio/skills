@@ -79,6 +79,27 @@ class DistributionVerifierTests(unittest.TestCase):
         self.install()
         self.assertEqual([], installation_verifier.verify(self.root, self.project))
 
+    def test_selected_installation(self):
+        for destination in (".agents/skills", ".claude/skills"):
+            shutil.copytree(self.alpha, self.project / destination / "alpha")
+        self.assertEqual([], installation_verifier.verify(
+            self.root, self.project, selected=["alpha"]))
+        self.assertTrue(any("missing skill beta" in e for e in
+                            installation_verifier.verify(self.root, self.project)))
+        self.assertTrue(any("Unknown selected skills" in e for e in
+                            installation_verifier.verify(self.root, self.project, selected=["unknown"])))
+
+    def test_selected_dependency_missing(self):
+        source_beta = self.root / "engineering/beta"
+        self.beta.rename(source_beta)
+        (self.alpha / "SKILL.md").write_text(
+            "# Alpha\n[Beta](../beta/SKILL.md)\n", encoding="utf-8"
+        )
+        for destination in (".agents/skills", ".claude/skills"):
+            shutil.copytree(self.alpha, self.project / destination / "alpha")
+        errors = installation_verifier.verify(self.root, self.project, selected=["alpha"])
+        self.assertTrue(any("installed link does not resolve" in e for e in errors))
+
     def test_missing_resource_fails(self):
         self.install()
         (self.project / ".agents/skills/alpha/references/example.md").unlink()
