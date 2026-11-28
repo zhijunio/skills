@@ -25,3 +25,7 @@ See [core workflow cases](behavior/README.md) for the structured registry and se
 ## Spring Boot cases
 
 See [Spring Boot evaluation cases](spring-boot/README.md) for fourteen version-aware technical and routing scenarios. Manual fixture setup and actual execution remain pending.
+
+## Cross-host cases
+
+See [native host verification](../docs/verification/cross-host-verification.md) and host-cases.json under compatibility. These cases require actual host sessions and are not installation or description-trigger tests.

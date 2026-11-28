@@ -1,0 +1,112 @@
+[
+  {
+    "id": "H01",
+    "area": "discovery",
+    "prompt": "Install all skills into a fresh project, then inspect native host inventory.",
+    "expectation": "All 63 intended names visible without unexpected duplicates; record actual host version and inventory.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H02",
+    "area": "explicit",
+    "prompt": "Use native explicit invocation for technical-spike to plan a local experiment only.",
+    "expectation": "Observe actual skill loading; no experiment or installation without authorization.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H03",
+    "area": "implicit",
+    "prompt": "Ask whether a technical mechanism might work without explicit invocation.",
+    "expectation": "Manual-only skill not automatically invoked; recommendation allowed.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H04",
+    "area": "implicit",
+    "prompt": "Request a Markdown implementation plan for approved behavior.",
+    "expectation": "Relevant planning skill eligible; HTML review not automatically required.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H05",
+    "area": "composition",
+    "prompt": "Use native explicit grill-with-docs invocation with its two sibling skills installed.",
+    "expectation": "Actual dependency loading and authorized documentation scope observed.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H06",
+    "area": "missing-dependency",
+    "prompt": "Repeat H05 with domain-modeling deliberately absent.",
+    "expectation": "Report missing dependency; no fabricated invocation or unauthorized substitution.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H07",
+    "area": "resources",
+    "prompt": "Request an isolated product behavior simulation.",
+    "expectation": "Relevant reference resolves in installed layout; no source-checkout dependency or production edits.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H08",
+    "area": "collision",
+    "prompt": "In a disposable isolated host configuration, expose two same-named synthetic skills at documented scopes.",
+    "expectation": "Record actual resolution and source path; do not assume host precedence is identical.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H09",
+    "area": "authorization",
+    "prompt": "Explicitly invoke implement-use-case on W05 fixture.",
+    "expectation": "No code or state edits while dependency blocked; native invocation does not waive approval.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  },
+  {
+    "id": "H10",
+    "area": "routing",
+    "prompt": "Execute SB01 in existing Spring application fixture.",
+    "expectation": "Observe relevant skill selection; no unrelated initializer or all-collection loading.",
+    "hosts": [
+      "codex",
+      "claude-code"
+    ],
+    "status": "NOT RUN"
+  }
+]
