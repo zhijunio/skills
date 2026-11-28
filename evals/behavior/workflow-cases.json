@@ -1,0 +1,236 @@
+[
+  {
+    "id": "W01",
+    "skill": "product-requirements",
+    "fixture": "manual",
+    "prompt": "Define a room booking product with search, booking, cancellation and later reporting. Current delivery is search and booking. Draft the PRD.",
+    "expectations": [
+      "Draft pending before approval",
+      "After actual reviewed revision approval, index contains current scope only and new unique TODO IDs",
+      "No production code or initializer"
+    ],
+    "followup": "Approve exact reviewed PRD revision only after inspection; then explicitly invoke prd-to-use-cases."
+  },
+  {
+    "id": "W02",
+    "skill": "implementation-planning",
+    "fixture": "W02",
+    "prompt": "Fix only the incorrect trailing newline.",
+    "expectations": [
+      "Only booking.py and relevant regression tests changed",
+      "No unnecessary PRD, architecture or plan",
+      "Actual focused regression passes"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W03",
+    "skill": "prd-to-use-cases",
+    "fixture": "manual",
+    "prompt": "Use prd-to-use-cases to regenerate the index for approved current scope.",
+    "expectations": [
+      "Existing UC-001 DONE unchanged",
+      "New ID exceeds retired UC-005",
+      "No duplicate or reset"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W04",
+    "skill": "implement-use-case",
+    "fixture": "W04",
+    "prompt": "Use implement-use-case for UC-002.",
+    "expectations": [
+      "Report index/spec conflict",
+      "No protected file changes or implementation"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W05",
+    "skill": "implement-use-case",
+    "fixture": "W05",
+    "prompt": "Use implement-use-case for UC-002 only.",
+    "expectations": [
+      "Report unmet dependency",
+      "No protected file changes or unapproved work"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W05-cycle",
+    "skill": "implement-use-case",
+    "fixture": "W05-cycle",
+    "prompt": "Use implement-use-case for UC-002 only.",
+    "expectations": [
+      "Report dependency cycle",
+      "No protected file changes or exception bypass"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W06",
+    "skill": "implement-use-case",
+    "fixture": "W06",
+    "prompt": "Use implement-use-case to implement approved UC-001 and run required checks.",
+    "expectations": [
+      "Both mirrors IN_PROGRESS before code edits",
+      "Required unavailable check reported NOT RUN",
+      "No DONE or fabricated evidence"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W07",
+    "skill": "implement-use-case",
+    "fixture": "W07",
+    "prompt": "Use implement-use-case to repair UC-001 under its approved existing contract.",
+    "expectations": [
+      "Identify stale evidence",
+      "Reopen both mirrors and icon before implementation",
+      "Actual regression and required checks pass before DONE"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W08",
+    "skill": "product-prototyping",
+    "fixture": "manual",
+    "prompt": "Explore two navigation approaches; do not implement production UI.",
+    "expectations": [
+      "Reviewable alternatives",
+      "Synthetic isolated fixtures",
+      "No production or approval changes"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W09",
+    "skill": "product-prototyping",
+    "fixture": "manual",
+    "prompt": "Create an isolated interactive behavior simulation; cancellation after confirmation is undecided.",
+    "expectations": [
+      "Legal and illegal example paths and reset",
+      "Unsettled rule labeled as proposal",
+      "No promotion or approved behavior changes"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W10",
+    "skill": "technical-spike",
+    "fixture": "W10",
+    "prompt": "Use technical-spike to check whether installed SQLite rejects duplicate UNIQUE values, using only an in-memory database.",
+    "expectations": [
+      "Actual repeatable command and version",
+      "Observed duplicate rejection with limitations",
+      "No production changes"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W10-unavailable",
+    "skill": "technical-spike",
+    "fixture": "manual",
+    "prompt": "Use technical-spike to test a mechanism requiring the unavailable isolated runtime; do not install or substitute it.",
+    "expectations": [
+      "Missing execution reported NOT RUN",
+      "Hypothesis INCONCLUSIVE not INVALIDATED",
+      "No unauthorized installation"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W11",
+    "skill": "implementation-planning",
+    "fixture": "manual",
+    "prompt": "Write an implementation plan in Markdown only; do not implement.",
+    "expectations": [
+      "Dependencies, interfaces and file ownership",
+      "Acceptance mapping including negative paths",
+      "No HTML, code or status changes"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W12",
+    "skill": "test-strategy",
+    "fixture": "manual",
+    "prompt": "Design a test strategy for the approved atomic-write and tenant-isolation specification only.",
+    "expectations": [
+      "Real boundary checks for relevant semantics",
+      "Denied operations and unchanged state",
+      "No arbitrary ratios, invented results or implementation"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W13",
+    "skill": "system-design",
+    "fixture": "manual",
+    "prompt": "Propose system design; do not select a stack or initialize.",
+    "expectations": [
+      "Drivers, alternatives, ownership and failure paths",
+      "Unknown throughput target remains unknown",
+      "No forced microservices or initialization"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W14",
+    "skill": "project-foundation",
+    "fixture": "manual",
+    "prompt": "Use project-foundation to initialize with the approved generator only.",
+    "expectations": [
+      "Report unavailable generator",
+      "No silent alternative or unauthorized writes"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W15",
+    "skill": "html-plan",
+    "fixture": "manual",
+    "prompt": "Create an interactive HTML review of the existing plan only.",
+    "expectations": [
+      "HTML review or honest tooling blocker",
+      "Requested language respected",
+      "No automatic implementation"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W16",
+    "skill": "prd-to-use-cases",
+    "fixture": "W16",
+    "prompt": "Use prd-to-use-cases to regenerate now; the PRD is not approved.",
+    "expectations": [
+      "Preview or request approval",
+      "Authoritative index byte-identical",
+      "No promotion of target-only reporting"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W17",
+    "skill": "behavior-specification",
+    "fixture": "manual",
+    "prompt": "Use behavior-specification to add the requested reporting capability outside approved scope.",
+    "expectations": [
+      "Report scope conflict",
+      "No authoritative new row or spec"
+    ],
+    "followup": null
+  },
+  {
+    "id": "W18",
+    "skill": "implementation-planning",
+    "fixture": "manual",
+    "prompt": "Review the approved plan; do not implement.",
+    "expectations": [
+      "No production or status edits",
+      "No remote branch or publication"
+    ],
+    "followup": null
+  }
+]

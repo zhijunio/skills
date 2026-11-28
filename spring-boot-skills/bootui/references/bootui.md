@@ -7,9 +7,9 @@ alerting, or APM.
 ## Compatibility and dependency
 
 The setup guide targets Spring Boot 4.x and Java 17+. The same starter supports Spring MVC and
-WebFlux; keep the application's existing web starter. Use the BootUI version recorded in the
-shared [version registry](../../../spring-boot-4/versions.json), and check the official setup guide
-for compatibility before adding or upgrading the dependency.
+WebFlux; keep the application's existing web starter. Preserve an existing compatible BootUI version. Before adding or upgrading, verify the
+version and compatibility using the [official setup guide](https://www.julien-dubois.com/boot-ui/setup)
+and the published artifact metadata. The dependency versions below are examples, not a live registry.
 
 Add `com.julien-dubois.bootui:bootui-spring-boot-starter` only when requested. If the application
 must not contain BootUI in its production artifact, put the dependency in a development-only build
@@ -28,10 +28,10 @@ Maven:
 Gradle Kotlin DSL:
 
 ```kotlin
-runtimeOnly("com.julien-dubois.bootui:bootui-spring-boot-starter:2.0.0")
+developmentOnly("com.julien-dubois.bootui:bootui-spring-boot-starter:2.0.0")
 ```
 
-Use the project's dependency-management convention for the version. For build-file details, follow
+The Gradle example assumes Boot's developmentOnly configuration; verify the actual packaged artifact excludes the starter when required. The Maven example requires a development-only profile for artifact exclusion. Use the project's dependency-management convention for the version. For build-file details, follow
 [spring-boot-maven](../../spring-boot-maven/SKILL.md) or
 [spring-boot-gradle](../../spring-boot-gradle/SKILL.md).
 
@@ -75,7 +75,7 @@ workspace.
   panels as state-changing operations.
 - Expose only the Actuator endpoints required by enabled panels, and protect management endpoints
   independently.
-- Keep BootUI disabled in production. If the starter remains in the artifact, verify the production
+- Keep BootUI disabled outside explicitly approved local environments, including staging and deployments with no prod profile. Verify default-off behavior with no active profile and effective overrides. If the starter remains in the artifact, verify the production
   profile actually disables it.
 
 For security-chain design, use [spring-boot-security](../../spring-boot-security/SKILL.md). For

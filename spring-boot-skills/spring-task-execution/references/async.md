@@ -30,17 +30,18 @@ The sample does this for `reportExecutor` and only covers that worker. Check the
 Boot minor's behavior before changing global executor configuration.
 Virtual threads do not increase database connections or remote quotas: bound outstanding work
 even without a platform-thread pool. Configure I/O timeouts and bounded shutdown separately.
-Future cancellation/timeout is not proof that an external operation stopped.
+Future cancellation/timeout is not proof that an external operation stopped. Do not release a concurrency permit or mark durable work complete merely because the waiting caller timed out; track actual completion or reconcile the unknown outcome.
 
 ## State and transactions
 
 Pass immutable IDs or snapshots, not request objects, managed entities or lazy collections.
 The caller's thread-bound transaction does not move with the task. Put any worker transaction
-on a separate proxied service and load its state there. Starting async work before commit can
+on a separate proxied service and load its state there; see
+[application transactions](../../spring-boot-webmvc/references/transactions.md). Starting async work before commit can
 observe missing data; after-commit dispatch still has a crash-loss window.
 
 Tenant, MDC and security state need deliberate propagation and cleanup. Capture only required,
-trusted context; restore prior worker state in finally. Use Spring Security's delegating
+trusted context; for durable work, persist the authorized scope and define whether execution requires reauthorization rather than retaining request credentials; restore prior worker state in finally. Use Spring Security's delegating
 executor support when the operation must run with the submitting security context. Do not
 use inheritable thread locals as a pool-wide tenant or authentication strategy.
 

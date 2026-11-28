@@ -16,7 +16,7 @@
     <packaging>jar</packaging>
 
     <name>Agent Skills</name>
-    <description>Reusable agent skills for frontend, Java, Spring Boot, Spring Cloud, and PostgreSQL development</description>
+    <description>Reusable agent skills for software engineering and Spring Boot development</description>
     <url>https://github.com/zhijunio/skills</url>
 
     <scm>
@@ -32,19 +32,47 @@
     </properties>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes><include>LICENSE</include></includes>
+                <targetPath>META-INF/skill-licenses</targetPath>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/spring-boot-skills</directory>
+                <includes><include>LICENSE</include></includes>
+                <targetPath>META-INF/skill-licenses/spring-boot-skills</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>com.skillsjars</groupId>
                 <artifactId>maven-plugin</artifactId>
                 <version>${skillsjars.version}</version>
-                <configuration>
-                    <skillsDir>${project.basedir}</skillsDir>
-                </configuration>
                 <executions>
                     <execution>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
+                        <id>package-engineering</id>
+                        <goals><goal>package</goal></goals>
+                        <configuration>
+                            <skillsDir>${project.basedir}/engineering</skillsDir>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package-spring-boot-skills</id>
+                        <goals><goal>package</goal></goals>
+                        <configuration>
+                            <skillsDir>${project.basedir}/spring-boot-skills</skillsDir>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package-collected-skills</id>
+                        <goals><goal>package</goal></goals>
+                        <configuration>
+                            <skillsDir>${project.basedir}/collected-skills</skillsDir>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

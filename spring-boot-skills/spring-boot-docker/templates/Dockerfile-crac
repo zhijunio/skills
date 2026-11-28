@@ -9,10 +9,8 @@
 # the skill's references/native-runtime.md.
 #
 # BellSoft ships CRaC-enabled Liberica only for the LTS releases (17 and 21), so
-# this image stays on JDK 21. The build below forces `-Djava.version=21` so the app
-# is compiled for Java 21 even if pom.xml otherwise targets a newer release; Spring
-# Boot 4 runs on Java 17+, so 21 is fully supported. (Remove the override if your
-# project already targets 21.)
+# this illustrative image uses JDK 21. Use only for projects already compatible
+# with that JDK; adapt both stages to the approved project toolchain otherwise.
 #
 # This image requires a `crac` profile in your pom.xml that adds the org.crac:crac
 # dependency, and the checkpoint-and-run.sh entrypoint script — see
@@ -29,9 +27,10 @@
 # Build and run (CRIU needs extra privileges; the named volume keeps the checkpoint
 # between restarts):
 #   docker build -f Dockerfile-crac -t my-spring-app-crac .
-#   docker run --rm -p 8080:8080 \
-#     --cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE --cap-add=SYS_ADMIN \
+ #   docker run --rm -p 127.0.0.1:8080:8080 \
+#     -e CRAC_MODE=create -e CRAC_COMPATIBILITY_ID=REVIEWED_ID \
 #     -v my-spring-app-crac:/opt/crac/checkpoint my-spring-app-crac
+# Add only approved runtime-required capabilities; inspect checkpoint before restore.
 
 # Build stage (a plain JDK is enough; CRaC only matters at runtime). JDK 21 to match
 # the CRaC-enabled runtime below.
@@ -49,13 +48,13 @@ WORKDIR /app
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B -Djava.version=21
+RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
 # Copy project sources. The frontend directory is optional.
 COPY . .
 
 # Build with the `crac` profile (adds org.crac:crac), compiled for Java 21.
-RUN ./mvnw -Pcrac clean package -DskipTests -B -Djava.version=21 \
+RUN ./mvnw -Pcrac clean package -DskipTests -B \
       -DnodeDownloadRoot=${NODE_DOWNLOAD_ROOT} \
       -DnpmDownloadRoot=${NPM_DOWNLOAD_ROOT}
 
@@ -75,7 +74,7 @@ ENV APP_JAR=/app/app.jar
 # (Dockerfile) minus -XX:+UseCompactObjectHeaders, which needs JDK 24+ and is
 # unavailable on this JDK 21 runtime. Override (and regenerate the checkpoint) with
 # -e JAVA_OPTS="...".
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp"
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+ExitOnOutOfMemoryError "
 
 # Copy the repackaged, runnable Spring Boot jar (the glob skips the thin
 # *.jar.original) and the checkpoint/restore entrypoint.
@@ -86,5 +85,5 @@ RUN chmod +x /app/checkpoint-and-run.sh && mkdir -p ${CRAC_CHECKPOINT_DIR}
 
 EXPOSE 8080
 
-# Take a checkpoint on the first start, then restore on every start.
+# Local experiment only: select create or restore explicitly; never auto-restore a volume.
 ENTRYPOINT ["/app/checkpoint-and-run.sh"]

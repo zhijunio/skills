@@ -51,7 +51,7 @@ CRaC restores a checkpointed JVM process. Use it only when the Linux runtime, CR
 CRIU privileges, and checkpoint storage are available. The checkpoint captures process state, so
 open database or network connections must be closed with CRaC resource handlers or avoided while
 creating the checkpoint. Revalidate secrets, credentials, DNS, and external connections after
-restore.
+restore. Checkpoints may contain secrets and personal data; use isolated synthetic checkpoint inputs, restricted encrypted storage, and approved retention. Bind each checkpoint to the exact application artifact, runtime image, configuration and platform; invalidate it when any changes. Directory contents alone do not establish completeness or compatibility. The local entrypoint requires explicit create/restore mode; never automatically trust an existing volume. Verify restore in isolation before promotion.
 
 The [`Dockerfile-crac`](../templates/Dockerfile-crac) and
 [`checkpoint-and-run.sh`](../templates/checkpoint-and-run.sh) use Java 21 and a CRaC-enabled Liberica

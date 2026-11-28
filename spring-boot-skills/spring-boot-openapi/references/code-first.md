@@ -7,15 +7,15 @@ springdoc publishes the document.
 
 When the user requests OpenAPI documentation for a new web project, add the
 documentation dependency. For an existing project, preserve a compatible
-springdoc version. Read the effective Boot version and its
-springdoc.bySpringBootLine entry in
-[spring-boot-4/versions.json](../../../spring-boot-4/versions.json). Use the
-entry's exact recommended version when adding springdoc or replacing an
-incompatible version. Declare only springdoc-openapi-starter-webmvc-ui for
-servlet MVC and follow the project's dependency-management convention.
+springdoc version. Read the effective Spring Boot version and consult the
+[official springdoc compatibility matrix](https://springdoc.org/#what-is-the-compatibility-matrix-of-springdoc-openapi-with-spring-boot).
+Verify the selected artifact version against published release metadata before adding
+springdoc or replacing an incompatible version. Choose the servlet MVC or reactive WebFlux starter according to the actual stack, and API-only or UI support according to the requested capability. Do not install both web stacks merely to publish documentation.
 
-Use Therapi runtime JavaDoc support and its compiler annotation processor,
-using the pinned version from versions.json. Merge the processor path with
+If JavaDoc extraction is selected, use Therapi runtime JavaDoc support and its compiler annotation processor,
+using compatible published versions of both artifacts; preserve existing compatible pins.
+Consult the [Therapi project documentation](https://github.com/dnault/therapi-runtime-javadoc)
+when introducing or upgrading them. Merge the processor path with
 existing compiler configuration rather than replacing it.
 
 ## Document the API
@@ -45,8 +45,7 @@ schema property descriptions. When a generated property requires a description,
 use a JavaBean DTO with documented fields. Add @Schema only for metadata that
 JavaDoc cannot express.
 
-Keep OpenAPI JSON and Swagger UI enabled in development. Disable both in the
-production profile:
+Make production documentation exposure an explicit deployment decision. Disable both by default for internal-only documentation; for an approved public or authenticated documentation endpoint, preserve its access policy and avoid exposing internal operations or example secrets. Example for internal-only documentation:
 
 ```yaml
 # application-prod.yaml
@@ -62,4 +61,4 @@ springdoc:
 Inspect the active dependency and profile configuration. Retrieve the generated
 OpenAPI document and confirm paths, request and response schemas, JavaDoc
 descriptions, error responses, and production endpoint disabling. Missing
-JavaDoc metadata can fail silently, so verify the published document itself.
+JavaDoc metadata can fail silently, so verify the published document itself. Compare it against actual HTTP responses, including security-filter errors, validation and ProblemDetail extension fields; verify exposure through the actual deployed route and active profiles.

@@ -16,7 +16,7 @@ fields. Handle empty, non-JSON, malformed, and unavailable responses. Treat a
 successful mutation and a failed follow-up refresh as separate outcomes. See
 [Spring Boot Web MVC](../../spring-boot-webmvc/SKILL.md) for the backend contract.
 
-Keep secrets out of browser-visible environment variables. Validate user
+Keep secrets out of browser-visible environment variables and generated assets. Same-origin routing does not replace authentication or CSRF protection. Do not forward credentials to arbitrary upstream URLs. Validate user
 input on the server even when the frontend also validates it. If Spring
 Security enables CSRF protection, send the CSRF token with state-changing
 requests.
@@ -48,7 +48,7 @@ Pin the plugin version in `<pluginManagement>` and track that version in the pro
             </configuration>
         </execution>
         <execution>
-            <id>frontend-checks</id>
+            <id>frontend-install</id>
             <phase>generate-resources</phase>
             <goals><goal>npm</goal></goals>
             <configuration><arguments>ci</arguments></configuration>
@@ -64,8 +64,7 @@ Pin the plugin version in `<pluginManagement>` and track that version in the pro
 ```
 
 Add lint and test executions using project scripts. Bind the production build
-before Spring Boot packages `src/main/resources/static`. Ignore that directory
-when it contains generated output only. For Gradle, use [Spring Boot Gradle](../../spring-boot-gradle/SKILL.md) and make the frontend build a dependency of `processResources` and the verification task.
+before Spring Boot packages `src/main/resources/static`. Prefer generated assets under build output with explicit resource processing; never delete handwritten static files or commit stale generated output. For Gradle, use [Spring Boot Gradle](../../spring-boot-gradle/SKILL.md) and make the frontend build a dependency of `processResources` and the verification task.
 
 ## Development and production
 
@@ -79,7 +78,7 @@ content-hashed assets can be cached while the HTML entry point is revalidated.
 
 For an SPA using history routing, a nested route must still load after browser
 refresh. Add a narrowly scoped fallback to `index.html` for frontend routes.
-Keep `/api/**`, `/actuator/**`, and real static-resource 404s as 404 responses.
+Preserve original API and management status codes (including 401/403/404/500) and real asset 404s. Restrict SPA fallback to intended GET/HEAD navigation requests accepting HTML; do not rewrite arbitrary errors or non-HTML requests.
 Verify fallback behavior against a running packaged application because
 `MockMvc` does not run the servlet error dispatch.
 

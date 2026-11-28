@@ -1,6 +1,6 @@
 # Skill Standards and Compatibility
 
-Status: F01 research baseline — documented, runtime verification pending  
+Status: local distribution and static policy verified; native runtime verification pending  
 Reviewed: 2026-11-28  
 Plan: [Phase 01](plans/phase-01-repository-foundations.md)
 
@@ -56,7 +56,7 @@ Codex documentation now describes .agents/skills as its repository and user disc
 
 ## 4. Invocation policy and existing repository risks
 
-The reviewed definitions for engineering/create-spec, engineering/impl-spec, and engineering/project-foundation use disable-model-invocation: true. This is a Claude Code extension. Their approval and scope boundaries must not depend solely on host metadata.
+The reviewed definitions for engineering/behavior-specification, engineering/implement-use-case, and engineering/project-foundation use disable-model-invocation: true. This is a Claude Code extension. Their approval and scope boundaries must not depend solely on host metadata.
 
 For Codex, the documented counterpart is a skill-local agents/openai.yaml:
 
@@ -95,8 +95,8 @@ No third-party code is imported by this document. Pin versions or revisions, rev
 Upstream describes skills-ref as a demonstration library, not a production implementation. Use it as a conformance reference and trial tool, not an unconditional enforcement dependency. Its documented commands include:
 
 ```sh
-skills-ref validate engineering/create-spec
-skills-ref read-properties engineering/create-spec
+skills-ref validate engineering/behavior-specification
+skills-ref read-properties engineering/behavior-specification
 ```
 
 Test extension handling and validator limitations before enforcing CI. Separate portable-schema findings from host-specific findings. Reuse existing parsing libraries and add minimal repository checks only where needed. Never treat a successful format check as proof of behavior.
@@ -133,12 +133,12 @@ A host extension is not automatically a defect. Do not modify skills solely to s
 | --- | --- | --- |
 | Standard and host documentation review | F01 | Reviewed |
 | Representative local metadata inspection | F01 | Reviewed |
-| Full inventory and extension audit | F06 | Pending |
-| Validator execution and invalid fixtures | F06/F10 | Pending |
-| Agent discovery, explicit and implicit invocation | F09 | Pending |
-| Nested CLI discovery and dependency closure | F09 | Pending |
-| Maven build, JAR inventory, extraction | F09 | Pending |
-| CI integration and pinned tooling | F10 | Pending |
+| Full inventory and extension audit | F06 | Static checks passed for current 63 entries |
+| Validator execution and invalid fixtures | F06/F10 | CI passed |
+| Native agent discovery, explicit and implicit invocation | Q08 | NOT RUN |
+| Nested CLI discovery and dependency closure | F09 | Full installation and selected dependency group passed; other subsets unverified |
+| Maven build, JAR inventory, extraction | F09 | CI passed |
+| CI integration and pinned tooling | F10 | Implemented |
 | Systematic model-based evaluation | Phase 3 | Pending |
 
 Record exact commands, versions, environment, exit status, and observable evidence. Distinguish documented behavior, static inspection, and runtime results. Do not publish artifacts or modify global agent configuration as part of smoke testing.
@@ -165,4 +165,8 @@ Documentation accessed 2026-11-28; these are living sources, not pinned dependen
 - [Skills CLI authoring and discovery](https://github.com/vercel-labs/skills/blob/main/docs/creating-skills.md)
 - [SkillsJars Maven plugin](https://github.com/skillsjars/skillsjars-maven-plugin)
 
-Repository evidence: [pom.xml](../pom.xml), [create-spec](../engineering/create-spec/SKILL.md), [impl-spec](../engineering/impl-spec/SKILL.md), [project-foundation](../engineering/project-foundation/SKILL.md), and [spring-boot](../spring-boot-skills/spring-boot/SKILL.md). Representative definitions were reviewed; a complete audit remains F06 work.
+Repository evidence: [pom.xml](../pom.xml), [behavior-specification](../engineering/behavior-specification/SKILL.md), [implement-use-case](../engineering/implement-use-case/SKILL.md), [project-foundation](../engineering/project-foundation/SKILL.md), and [spring-boot](../spring-boot-skills/spring-boot/SKILL.md). Representative definitions were reviewed; a complete audit remains F06 work.
+
+## 10. Q08 follow-up
+
+See [cross-host verification](verification/cross-host-verification.md) for current documentation review, native pilot cases and evidence boundaries. CI passed at 28a7616; native runtime remains NOT RUN. Hosted exports remain separate and unverified.

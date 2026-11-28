@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "description": "Explicit compile candidates; paths relative to repository root. No illustrative fragments or anti-patterns.",
+  "sources": [
+    {
+      "source": "spring-boot-skills/multi-tenancy/templates/TenantId.java",
+      "destination": "com/example/tenancy/TenantId.java"
+    },
+    {
+      "source": "spring-boot-skills/multi-tenancy/templates/TenantContext.java",
+      "destination": "com/example/tenancy/TenantContext.java"
+    },
+    {
+      "source": "spring-boot-skills/multi-tenancy/templates/TenantAccess.java",
+      "destination": "com/example/tenancy/TenantAccess.java"
+    },
+    {
+      "source": "spring-boot-skills/multi-tenancy/templates/TenantScopeFilter.java",
+      "destination": "com/example/tenancy/TenantScopeFilter.java"
+    },
+    {
+      "source": "spring-boot-skills/multi-tenancy/templates/TenantOrderStore.java",
+      "destination": "com/example/tenancy/TenantOrderStore.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-configuration/examples/ClientProperties.java",
+      "destination": "com/example/config/ClientProperties.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-observability/examples/bounded-observation.java",
+      "destination": "OrderObservation.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/SecurityConfig.java",
+      "destination": "com/example/auth/config/SecurityConfig.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/JwtFactory.java",
+      "destination": "com/example/auth/service/JwtFactory.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/ResourceServerConfig.java",
+      "destination": "com/example/config/ResourceServerConfig.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/SecurityErrorHandler.java",
+      "destination": "com/example/auth/config/SecurityErrorHandler.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/JwtClaimExtractor.java",
+      "destination": "com/example/config/JwtClaimExtractor.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/ExternalIdentity.java",
+      "destination": "com/example/config/ExternalIdentity.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/OAuth2ClientSecurityConfig.java",
+      "destination": "com/example/security/config/OAuth2ClientSecurityConfig.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/MfaSecurityConfig.java",
+      "destination": "com/example/security/config/MfaSecurityConfig.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/SecurityAuditRecord.java",
+      "destination": "com/example/securityaudit/SecurityAuditRecord.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-data-jpa/templates/BaseAssignedIdEntity.java",
+      "destination": "BaseAssignedIdEntity.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-data-redis/templates/CoalescingRedisCacheManager.java",
+      "destination": "com/example/config/CoalescingRedisCacheManager.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-data-redis/templates/AtomicWindowLimiter.java",
+      "destination": "com/example/redis/AtomicWindowLimiter.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-data-redis/templates/OptionalCacheLookup.java",
+      "destination": "com/example/config/OptionalCacheLookup.java"
+    },
+    {
+      "source": "spring-boot-skills/resilience-retry/templates/CatalogRetryService.java",
+      "destination": "com/example/clients/CatalogRetryService.java"
+    },
+    {
+      "source": "spring-boot-skills/http-interface-clients/templates/CatalogHttpClient.java",
+      "destination": "com/example/clients/CatalogHttpClient.java"
+    },
+    {
+      "source": "spring-boot-skills/event-driven-messaging/examples/idempotent-consumer.java",
+      "destination": "OrderCreatedConsumer.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-webmvc/templates/PageResponse.java",
+      "destination": "com/example/common/api/PageResponse.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-ai/templates/DocumentReadTool.java",
+      "destination": "com/example/aisecurity/DocumentReadTool.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-ai/templates/AiServiceTemplate.java",
+      "destination": "com/example/ai/service/AiServiceTemplate.java"
+    }
+  ]
+}

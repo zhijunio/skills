@@ -9,13 +9,15 @@ description: >
 
 # Spring Boot Maven
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
+
 Use this skill for Spring Boot 4 projects built with Maven. Read
 [Maven guidance](references/maven.md) before changing `pom.xml`, the wrapper, build plugins,
 coverage, or release configuration. Use the project's committed `./mvnw` and preserve its current
 Boot line unless the requested change requires an upgrade.
 
-For new projects or an explicit house-style alignment, apply the complete Maven defaults in the
-reference. For other changes, check only the relevant rules and avoid adding those defaults to an
+For an explicit house-style alignment, apply only the approved Maven defaults in the reference.
+For new projects, preserve the generation contract and add optional tooling only when requested or required by approved policy. For other changes, check only the relevant rules and avoid adding those defaults to an
 existing project unless requested.
 
 This skill covers the Maven build for a single runnable application. For parent/child POMs,

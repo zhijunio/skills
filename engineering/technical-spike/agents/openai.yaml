@@ -1,0 +1,6 @@
+interface:
+  display_name: "Technical Spike"
+  short_description: "Verify a technical hypothesis with isolated experiments"
+  default_prompt: "Use $technical-spike to investigate the stated technical feasibility question with reproducible evidence."
+policy:
+  allow_implicit_invocation: false

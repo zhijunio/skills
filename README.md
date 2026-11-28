@@ -17,13 +17,15 @@ Designed for AI coding assistants such as Codex, Claude Code, and Gemini CLI, th
 
 ## Skill Collections
 
-The repository contains 59 skills organized into three collections.
+The repository contains three skill collections. The generated catalog below is the authoritative inventory.
 
-| Collection | Skills | Description |
-| --- | ---: | --- |
-| [Engineering](engineering/) | 13 | Product discovery, requirements, specifications, implementation, and engineering practices |
-| [Spring Boot](spring-boot-skills/) | 39 | Spring Boot 4 application development and delivery |
-| [Collected Skills](collected-skills/) | 7 | Useful skills collected from other projects |
+| Collection | Description |
+| --- | --- |
+| [Engineering](engineering/) | Product discovery, requirements, specifications, implementation, and engineering practices |
+| [Spring Boot](spring-boot-skills/) | Spring Boot 4 application development and delivery |
+| [Collected Skills](collected-skills/) | Useful skills collected from other projects |
+
+See the generated [Skill Catalog](docs/skill-catalog.md) for every entry point, current activation description, source group and invocation policy.
 
 ## Quick Start
 
@@ -36,10 +38,27 @@ npx skills add https://github.com/zhijunio/skills
 Or select an individual skill:
 
 ```bash
-npx skills add https://github.com/zhijunio/skills --skill create-spec
+npx skills add https://github.com/zhijunio/skills --skill behavior-specification
 ```
 
 Alternatively, copy the desired skill directory into the skills location supported by your coding assistant.
+
+### Skill dependencies
+
+Some skills compose other skills. Installing only an entry point does not guarantee that its sibling skills are installed. Use a common skill root and preserve directory names. In particular:
+
+- `spring-boot` routes to focused Spring Boot skills; install the entire collection when using the router, or select the relevant focused skills and their dependencies.
+- `grill-with-docs` requires `grilling` and `domain-modeling`.
+- If a required skill is missing, install the dependency or follow the documented fallback; do not assume that a missing skill was loaded.
+
+For an approved local checkout, the following commands illustrate collection and composed-skill installation from a target project:
+
+```bash
+npx skills@1.9.1 add /path/to/skills/spring-boot-skills --skill '*'
+npx skills@1.9.1 add /path/to/skills --skill grill-with-docs --skill grilling --skill domain-modeling
+```
+
+See [distribution verification](docs/verification/distribution.md) for the tested scope and outstanding limitations, and [skill provenance](docs/skill-provenance.md) before redistributing third-party content.
 
 Each skill contains a `SKILL.md` entry point that describes its purpose, workflow, constraints, and supporting resources where applicable.
 
@@ -51,21 +70,25 @@ The [engineering](engineering/) collection supports software development from in
 
 | Skill | Purpose |
 | --- | --- |
-| [product-brainstorming](engineering/product-brainstorming/SKILL.md) | Explore and refine product ideas |
+| [product-requirements](engineering/product-requirements/SKILL.md) | Explore, draft, approve and revise product requirements |
 | [grilling](engineering/grilling/SKILL.md) | Challenge assumptions through focused questioning |
 | [grill-with-docs](engineering/grill-with-docs/SKILL.md) | Clarify decisions against existing documentation |
 | [domain-modeling](engineering/domain-modeling/SKILL.md) | Establish domain concepts and relationships |
-| [prototype](engineering/prototype/SKILL.md) | Explore ideas through prototypes |
+| [product-prototyping](engineering/product-prototyping/SKILL.md) | Explore ideas through prototypes |
 
 ### Specification and Implementation
 
 | Skill | Purpose |
 | --- | --- |
-| [prd-to-requirements](engineering/prd-to-requirements/SKILL.md) | Transform product requirements into structured use cases |
+| [prd-to-use-cases](engineering/prd-to-use-cases/SKILL.md) | Transform product requirements into structured use cases |
 | [project-foundation](engineering/project-foundation/SKILL.md) | Select a technical foundation and verify a runnable project skeleton |
-| [create-spec](engineering/create-spec/SKILL.md) | Define feature behavior, business rules, and acceptance criteria |
-| [impl-spec](engineering/impl-spec/SKILL.md) | Implement and verify an approved use case |
-| [html-plan](engineering/html-plan/SKILL.md) | Present plans in HTML |
+| [system-design](engineering/system-design/SKILL.md) | Design and review system boundaries, architecture tradeoffs and runtime behavior |
+| [technical-spike](engineering/technical-spike/SKILL.md) | Resolve technical uncertainty with explicitly authorized, reproducible feasibility experiments |
+| [test-strategy](engineering/test-strategy/SKILL.md) | Define risk-driven verification obligations and select sufficient test evidence |
+| [behavior-specification](engineering/behavior-specification/SKILL.md) | Define feature behavior, business rules, and acceptance criteria |
+| [implement-use-case](engineering/implement-use-case/SKILL.md) | Implement and verify an approved use case |
+| [implementation-planning](engineering/implementation-planning/SKILL.md) | Plan dependency-ordered tasks and verification before authorized implementation |
+| [html-plan](engineering/html-plan/SKILL.md) | Present a plan for interactive HTML review when requested |
 | [progen](engineering/progen/SKILL.md) | Support project generation |
 
 ### Quality and Maintenance
@@ -76,6 +99,8 @@ The [engineering](engineering/) collection supports software development from in
 | [java-code-review](engineering/java-code-review/SKILL.md) | Review Java code |
 
 ## Specification-Driven Development
+
+See the [engineering workflow](docs/engineering-workflow.md) for full SDD, lightweight changes, defect diagnosis, artifact ownership, approvals and known gaps.
 
 For a new product, the following workflow illustrates how engineering skills can be combined.
 
@@ -96,11 +121,11 @@ The workflow separates product decisions, technical decisions, expected behavior
 
 | Stage | Skill | Expected Result |
 | --- | --- | --- |
-| Discovery | `product-brainstorming` | Refined product intent |
-| Requirements | `prd-to-requirements` | Structured use cases |
+| Discovery | `product-requirements` | Refined product intent |
+| Requirements | `prd-to-use-cases` | Structured use cases |
 | Foundation | `project-foundation` | Technical baseline and runnable skeleton |
-| Specification | `create-spec` | Behavior specification and acceptance criteria |
-| Implementation | `impl-spec` | Implemented and verified use case |
+| Specification | `behavior-specification` | Behavior specification and acceptance criteria |
+| Implementation | `implement-use-case` | Implemented and verified use case |
 | Review | `java-code-review` | Java code review findings |
 
 ### Project Documentation
@@ -212,7 +237,7 @@ after the technical decisions are confirmed.
 ### Specify a Feature
 
 ```text
-Use create-spec to define the behavior of UC-001.
+Use behavior-specification to define the behavior of UC-001.
 
 Clarify business rules, edge cases, and failure
 scenarios before writing acceptance criteria.
@@ -222,7 +247,7 @@ Do not implement the feature yet.
 ### Implement a Feature
 
 ```text
-Use impl-spec to implement UC-001.
+Use implement-use-case to implement UC-001.
 
 Follow the approved specification, add relevant
 automated tests, and update the use-case status
@@ -323,13 +348,20 @@ To inspect the generated JAR:
 jar tf target/skills-0.1.0-SNAPSHOT.jar
 ```
 
-For individual skill installation, use the Skills CLI or direct directory installation. Coverage of the current nested skill layout by Maven packaging has not been verified.
+The Maven configuration packages each skill collection separately. Verify the JAR against the source tree before relying on it:
+
+```bash
+python3 scripts/verify-skill-jar.py target/skills-0.1.0-SNAPSHOT.jar
+```
+
+For extraction into a common flat skill root, use SkillsJars 0.0.7 with `-DuseSkillsNameAsDirectory=true` so sibling references can resolve. See [distribution verification](docs/verification/distribution.md). Packaging configuration is not a claim of successful verification or a published artifact; do not publish new artifacts until applicable third-party permissions and notices have been confirmed.
 
 ## Continuous Integration
 
 GitHub Actions workflows are provided for:
 
 - [Continuous Integration](.github/workflows/ci.yml)
+- [Skill Verification](.github/workflows/skill-verification.yml)
 - [Maven Snapshot Publishing](.github/workflows/maven-snapshot.yml)
 - [Maven Release](.github/workflows/maven-release.yml)
 
@@ -337,17 +369,7 @@ The workflows use JDK 17 and shared reusable workflow definitions.
 
 ## Contributing
 
-Contributions that improve correctness, clarity, and engineering practices are welcome.
-
-When adding or modifying a skill:
-
-1. Define a clear purpose and activation scope.
-2. Provide a `SKILL.md` entry point.
-3. Keep instructions focused and actionable.
-4. Move detailed reference material into supporting files where appropriate.
-5. Verify technical examples and version-specific guidance.
-6. Document upstream sources when adapting existing skills.
-7. Update the corresponding collection index.
+Contributions that improve correctness, clarity and engineering practices are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, authoring, verification and pull request expectations, and [AGENTS.md](AGENTS.md) for repository-level agent instructions.
 
 Report problems or propose improvements through [GitHub Issues](https://github.com/zhijunio/skills/issues).
 
@@ -366,3 +388,9 @@ Additional source references are available in:
 ## License
 
 See [LICENSE](LICENSE) for the repository license and the corresponding skill directories for upstream license information.
+
+### SDD skill name migration
+
+On the Phase 02 review branch, `product-brainstorming`, `prd-to-requirements`, `create-spec` and `impl-spec` have been renamed to `product-requirements`, `prd-to-use-cases`, `behavior-specification` and `implement-use-case` respectively. Update explicit invocations and reinstall from the intended revision; remove obsolete installed copies only after checking local modifications. No compatibility aliases are provided.
+
+The former `prototype` skill is now `product-prototyping` for product and behavior exploration; update explicit invocations and remove obsolete installed copies only after checking local modifications.

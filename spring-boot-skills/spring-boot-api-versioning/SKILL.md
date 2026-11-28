@@ -8,8 +8,9 @@ description: >
 
 # Spring Boot API Versioning
 
-Spring Framework 7 provides API versioning in the mapping layer. Prefer it over hand-rolled
-`/v1` prefixes, custom `HandlerMapping` implementations, or version-sniffing filters.
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and release-matched official documentation, and report missing evidence.
+
+Spring Framework 7 provides API versioning in the mapping layer. Prefer it for new versioning designs when it meets the approved contract. Preserve existing `/v1` paths, gateways, custom resolvers and client behavior unless an explicit migration is approved.
 
 ## Declare versions on mappings
 
@@ -27,7 +28,7 @@ class OrderController {
 ```
 
 Use semantic version strings. A `+` suffix means the mapping handles that version and newer
-versions, for example `version = "1.2+"`.
+supported versions, for example `version = "1.2+"`. This does not imply automatic support for arbitrary future versions. Verify supported-version detection and selection when fixed and baseline mappings overlap.
 
 ## Configure one request resolution strategy
 
@@ -44,8 +45,8 @@ class WebConfig implements WebMvcConfigurer {
 }
 ```
 
-Choose exactly one source: request header, query parameter, path segment, or media-type
-parameter. Keep the choice consistent across the application. WebFlux uses the corresponding
+For a new API choose one authoritative source: request header, query parameter, path segment, or media-type
+parameter. Keep the choice consistent across the application. For an existing API that accepts multiple sources, preserve its documented precedence or rejection behavior; test conflicting values. WebFlux uses the corresponding
 `WebFluxConfigurer` hook. For path resolution, configure the version segment index
 and declare that segment as a URI variable on versioned routes. For example, use
 index 1 with `/api/{version}/orders`.
@@ -64,14 +65,14 @@ behavior must be explicit.
 
 Configure the client version inserter and version to match the server resolver.
 Check supported versions, their response shapes, and the API's error contract for
-missing or unsupported versions. For deprecation, check the configured response headers.
+missing, malformed, conflicting or unsupported versions. Test fixed/baseline selection and unversioned endpoints. Include the resolved version in relevant application and gateway cache keys; for cacheable header-based responses configure the appropriate Vary header and verify intermediary caching. Coordinate OpenAPI documents, generated clients, security rules and deprecation policy. Do not remove a supported version without an approved migration. For deprecation, check the configured response headers.
 
 See the [versioned mapping example](examples/versioned-controller.java) and the
 [hard-coded version anti-pattern](examples/hardcoded-api-version.java).
 
 ## Gotchas
 
-- Agent hand-rolls `/api/v1` prefixes or a version filter - use the mapping `version` attribute.
+- Agent replaces a working versioned path without approval - preserve the contract; use built-in mapping versions for new designs where appropriate.
 - Agent writes `version = 1` - the value is a semantic version `String`, such as `"1.0"`.
 - Agent uses `useHeader` or `useQueryParameter` - use `useRequestHeader` or `useQueryParam`.
 - Agent enables versioning without a default or `versionRequired(false)` - un-versioned requests return 400.

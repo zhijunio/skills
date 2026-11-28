@@ -15,7 +15,7 @@
    in Maven Central and stop if no matching release exists; never leave an unresolvable
    version in the project.
 4. Make the generation request and check the HTTP response and generated Boot coordinate.
-   Inspect the ZIP's top-level entries before extraction: when Initializr includes the
+   Validate all ZIP entries before extraction: reject absolute paths, traversal, symlinks, duplicate/conflicting destinations and excessive expanded sizes. Extract into a fresh staging directory, verify paths stay inside it, then move to the intended unused destination. Inspect the ZIP's top-level entries: when Initializr includes the
    requested `baseDir` directory, extract into the destination's parent so that this directory
    becomes the project root. Do not pre-create that project directory and extract into it, which
    creates an accidental nested `baseDir/baseDir` tree. If the archive has no enclosing project

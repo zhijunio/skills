@@ -8,6 +8,10 @@ description: >
 
 # Declarative HTTP Interface Clients (Boot 4)
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If unavailable, inspect resolved dependencies and release-matched official documentation; report missing compatibility evidence.
+
+Check the selected Boot minor and Framework release for group registration, client type, starter and transport configuration metadata. Preserve working explicit proxy wiring unless changing it is requested; manual proxy registration remains supported.
+
 Define a remote API as an interface with `@HttpExchange` methods. Boot 4 registers the proxy with
 `@ImportHttpServices`, so do not create a manual factory for every client.
 
@@ -52,8 +56,7 @@ The default client type is blocking `RestClient`. Select
 `HttpServiceGroup.ClientType.WEB_CLIENT` for interfaces returning `Mono` or `Flux`, and include
 the WebClient starter. Group configurers apply to a group, not one interface.
 
-Manual `HttpServiceProxyFactory` wiring remains valid for one-off clients, but it is the Boot 3
-pattern and should not be the default in Boot 4.
+Manual `HttpServiceProxyFactory` wiring is also supported in Boot 4. Prefer group registration for new clients when appropriate; retain established explicit wiring for custom transports or existing integrations.
 
 ## Transport failure contract
 
@@ -88,7 +91,7 @@ See [Spring REST clients](https://docs.spring.io/spring-framework/reference/inte
 
 ## Verification scope
 
-The repository fixture targets Boot 4.1.0 with Java 17/21 and checks
+The pinned upstream fixture targets Boot 4.1.0 with Java 17/21 and checks
 the imperative catalog adapter against a local HTTP server; not every declarative group-registration option. Check the
 [coverage matrix](https://github.com/rrezartprebreza/spring-boot-skills/blob/b90c3dbd9699c0d0bfb81660c857ef58262168e6/verification/MATRIX.md)
 before treating another minor version or an illustrative snippet as verified.

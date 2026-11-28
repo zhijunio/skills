@@ -9,16 +9,15 @@ The plugin versions in this reference are recorded in [maven-versions.json](mave
 
 ## Build conventions
 
+The following plugin examples describe optional house-style choices, not mandatory additions to every generated project. Preserve the approved project foundation and add formatting, enforcement, metadata, architecture and coverage tooling only as requested or required by existing policy. Verify wrapper distribution integrity and review dependency repositories before execution.
+
 - Run the committed wrapper, `./mvnw`. The wrapper is part of the project.
 
-- Keep `spring-boot-starter-parent`. Read its version from `pom.xml`. Change it
-  only to `springBoot.maven` in `maven-versions.json`; `springBoot.default` is the
-  generic Boot version for non-Maven build tools. Import
-  `spring-boot-dependencies` only when the task names a corporate parent.
+- Preserve the approved parent/BOM and Spring Boot version. Treat catalog values as candidates for a new project, not mandatory upgrades. If using a custom parent, preserve its dependency and plugin management; import the Boot BOM when needed and verify the effective POM.
 
 - Put every third-party version in `<properties>` and
   `<dependencyManagement>`. Dependencies omit `<version>`. Copy property
-  values from `maven-versions.json`.
+  values from `maven-versions.json` only after checking compatibility and the project's version policy.
 
 - Omit `<version>` on artifacts the parent already manages. A second version
   is how you get a `NoSuchMethodError` the build never reported.
@@ -30,7 +29,7 @@ The plugin versions in this reference are recorded in [maven-versions.json](mave
   when testing outbound `RestClient` code with `@RestClientTest`.
 
 - Keep `maven-surefire-plugin` with `failIfNoTests` true. The parent manages
-  its version. Do not add Failsafe. For application test strategy, see
+  its version when managed. Preserve Failsafe when the project uses integration-test/verify phases; introduce it only when the verification strategy calls for separate integration tests. For application test strategy, see
   [spring-boot-testing](../../spring-boot-testing/SKILL.md).
 
 - Keep `spotless-maven-plugin`. Pin `spotless.mavenPlugin` and
@@ -49,13 +48,13 @@ The plugin versions in this reference are recorded in [maven-versions.json](mave
   the user asks for release support or a release. Pin its version from
   `maven-versions.json` in `<pluginManagement>` when it is needed.
 
-- New Maven projects include JaCoCo for test coverage reports. Pin
+- When coverage reporting is requested or part of the approved house style, configure JaCoCo. Pin
   `jacoco.mavenPlugin` from `maven-versions.json` in `<pluginManagement>`. Attach
   the agent before tests and generate the report during `verify`. Do not
   impose a minimum coverage threshold unless the user or repository policy
   defines one. Add it to an existing project only when requested.
 
-- New Maven projects include Taikai as a test-scoped architecture baseline. Pin
+- When Taikai is selected for architecture checks, configure it as a test-scoped dependency. Pin
   `architectureTesting.taikai.default` from `maven-versions.json` through
   `<properties>` and `<dependencyManagement>`. Add focused boundary rules only
   when the project has those package or dependency boundaries; add Taikai to an

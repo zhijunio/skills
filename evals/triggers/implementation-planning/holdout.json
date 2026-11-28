@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Plan the implementation of an approved import workflow, including shared schema changes and acceptance checks.",
+    "should_trigger": true
+  },
+  {
+    "query": "只制定复杂功能的实施顺序，不执行代码修改。",
+    "should_trigger": true
+  },
+  {
+    "query": "Create an interactive HTML rendering of this already completed plan without changing it.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run the existing test suite and report the results.",
+    "should_trigger": false
+  }
+]

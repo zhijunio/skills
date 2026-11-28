@@ -1,6 +1,6 @@
 # Agent Skills Roadmap
 
-Status: Proposed
+Status: Phases 01–03 deterministic infrastructure implemented on review branch; behavioral acceptance pending
 
 ## 1. Vision
 
@@ -18,7 +18,7 @@ The repository currently organizes skills into three collections:
 
 Reusable prompts live in [docs/prompts](prompts/). Maven packaging is configured in [pom.xml](../pom.xml), and CI, snapshot, and release workflows exist under [.github/workflows](../.github/workflows/).
 
-The counts describe the reviewed baseline, not a permanent inventory. Packaging coverage for nested skills, installation behavior, and CI outcomes still need verification. A full responsibility-overlap audit of the existing skills has not yet been completed.
+The counts describe the reviewed baseline, not a permanent inventory. See the [generated catalog](skill-catalog.md), [baseline audit](audits/initial-skill-audit.md), and [Phase 01 review](reviews/phase-01-review.md). Local archive, extraction and installation verification passed for the reviewed inventory; runtime behavior and publication remain unverified.
 
 ## 3. Goals and design principles
 
@@ -77,7 +77,7 @@ flowchart TD
     J -->|Verification fails| I
 ```
 
-Preserve the existing requirements index and use-case lifecycle defined by create-spec and impl-spec. A use case is complete only after its specified behavior is implemented and relevant verification passes. Design and foundation decisions may be iterative; small fixes may bypass unnecessary discovery stages.
+Preserve the existing requirements index and use-case lifecycle defined by behavior-specification and implement-use-case. A use case is complete only after its specified behavior is implemented and relevant verification passes. Design and foundation decisions may be iterative; small fixes may bypass unnecessary discovery stages.
 
 ### Engineering artifacts
 
@@ -162,7 +162,7 @@ Establish the authoring standard and evaluation approach before implementing the
 | Composition | Compatible instructions across multiple skills |
 | Regression | Stable behavior after skill changes |
 
-Start with create-spec, impl-spec, project-foundation, and the spring-boot entry skill. Include cases for ambiguous requirements, missing dependencies, failed verification, incorrect routing, and scope expansion. Compare matched tasks with and without skills, record model and tool versions, and report variability rather than treating one run as conclusive.
+Start with behavior-specification, implement-use-case, project-foundation, and the spring-boot entry skill. Include cases for ambiguous requirements, missing dependencies, failed verification, incorrect routing, and scope expansion. Compare matched tasks with and without skills, record model and tool versions, and report variability rather than treating one run as conclusive.
 
 ### 7.4 Automated checks
 
@@ -222,14 +222,14 @@ This is a target layout, not an instruction to create empty directories or immed
 | Phase | Objective | Main deliverables | Exit criteria |
 | --- | --- | --- | --- |
 | 1 | [Repository foundations](plans/phase-01-repository-foundations.md) | Standards, agent instructions, authoring and contribution guides, baseline audit, catalog, workflow documentation, distribution verification, deterministic CI checks | Conventions documented; skills audited; supported distribution verified; baseline checks integrated |
-| 2 | Engineering workflow | Responsibility audit, system design, implementation planning, test strategy, artifact contracts | Overlap resolved; representative workflow documented and exercised |
-| 3 | Quality engineering | Extend deterministic checks and introduce systematic model-based evaluations and regression testing | Initial behavioral baseline recorded; evaluation and regression processes established |
-| 4 | Technical expansion | Prioritized Java, frontend, data, distributed systems, security, testing, and delivery guidance | New skills address demonstrated gaps and meet the quality standard |
+| 2 | [Engineering workflow](plans/phase-02-engineering-workflow.md) | Responsibility audit, system design, implementation planning, test strategy, artifact contracts | Overlap resolved; representative workflow documented and exercised |
+| 3 | [Quality engineering](plans/phase-03-quality-engineering.md) | Extend deterministic checks and introduce systematic model-based evaluations and regression testing | Initial behavioral baseline recorded; evaluation and regression processes established |
+| 4 | [Technical expansion](plans/phase-04-technical-expansion.md) | Prioritized Java, frontend, data, distributed systems, security, testing, and delivery guidance | New skills address demonstrated gaps and meet the quality standard |
 | 5 | Distribution and sustainability | Installation verification, versioning, release notes, maintenance and contribution processes | Supported distribution paths verified; maintenance responsibilities documented |
 
 ### Immediate work
 
-Follow the [Phase 01 implementation plan](plans/phase-01-repository-foundations.md), beginning with standards and reusable tool research (F01), followed by the baseline skill audit (F06). Establish repository conventions, verify distribution, and integrate deterministic checks before broad expansion. Systematic model-based evaluation remains Phase 3 work.
+Review the [Phase 01 acceptance report](reviews/phase-01-review.md) and [Phase 02 implementation plan](plans/phase-02-engineering-workflow.md). Phase 01 foundation deliverables and scoped deterministic verification are complete on the review branch; maintainer acceptance, runtime evidence and publication clearance remain separate. See the [Phase 02 review](reviews/phase-02-review.md) for implemented capabilities, deterministic evidence and outstanding behavioral acceptance. See the [Phase 03 review](reviews/phase-03-review.md): deterministic infrastructure verified, behavioral acceptance still open in both Phases 02 and 03. [Phase 04 discovery plan](plans/phase-04-technical-expansion.md) is proposed; new capability implementation requires demonstrated gaps, rights and verification.
 
 ## 10. Success criteria
 

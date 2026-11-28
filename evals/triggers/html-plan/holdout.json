@@ -1,0 +1,18 @@
+[
+  {
+    "query": "We have a plan already; make a visual interactive review artifact to collect comments on the decisions.",
+    "should_trigger": true
+  },
+  {
+    "query": "明确要求 HTML 形式的方案评审，而不是普通 Markdown 文档。",
+    "should_trigger": true
+  },
+  {
+    "query": "Summarize the plan in three bullet points.",
+    "should_trigger": false
+  },
+  {
+    "query": "Create an HTML page as a production application feature.",
+    "should_trigger": false
+  }
+]

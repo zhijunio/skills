@@ -6,6 +6,8 @@ description: >
 
 # Spring Boot Configuration
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and release-matched official documentation, and report missing evidence.
+
 ## Spring Boot 4 baseline
 
 The examples use Java 17 and Jakarta APIs supported by this Boot version. Keep dependencies managed by the project's Boot BOM.
@@ -20,7 +22,7 @@ objects with Valid. A single record constructor needs no ConstructorBinding anno
 
 Use explicit units for durations and sizes. Provide defaults only when they are operationally
 safe; missing credentials or required endpoints should fail startup. Do not assume NotNull
-rejects zero or negative Duration values; add a duration constraint or an explicit invariant.
+rejects zero or negative Duration values; add a duration constraint or an explicit invariant. Validate endpoint URI scheme, host and other relevant restrictions; a syntactically valid URI alone is not a usable or trusted service endpoint.
 
 [ClientProperties](examples/ClientProperties.java) and
 [its configuration](examples/client.yml) show a validated prefix with explicit duration units.
@@ -34,7 +36,7 @@ Resolve secrets at the integration boundary or use a redacting value type.
 Document the public property keys and validate actual environment-variable binding in a test.
 Use environment variables or a mounted secret/config tree according to the deployment platform.
 Higher-precedence property sources can override packaged defaults; test the intended profile and
-override path. Avoid depending on YAML list merging: lists are generally replaced.
+override path, including command-line arguments, environment variables, external config imports and profile-specific files where applicable. Do not assume a local profile or packaged default wins. Avoid depending on YAML list merging: lists are generally replaced. For config trees and required imports, use optional imports only for genuinely optional configuration; validate required values independently. Test production endpoint exposure and security-sensitive defaults against the effective configuration.
 Keep profile activation outside documents activated by that same profile.
 
 Do not publish configprops/env actuator endpoints publicly or disable sanitization to debug.
@@ -60,7 +62,7 @@ Do not publish secret-bearing diagnostics or rewrite repository history without 
 
 Use ApplicationContextRunner with EnableConfigurationProperties to assert valid binding and
 startup failure on missing or invalid settings. Test nested validation, unit conversion and the
-override path you actually deploy. Include at least one invalid duration test.
+override path you actually deploy. Include invalid duration, malformed/relative endpoint and missing required values tests. Use a real application startup or equivalent integration check for config-data imports and profile precedence; a context runner with injected properties alone does not prove deployment binding.
 
 ## Gotchas
 

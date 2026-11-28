@@ -7,156 +7,90 @@ description: >
 
 # Layered Architecture
 
-## Layer Rules
+Use the existing application's architecture and package conventions. Apply these responsibilities
+when layered architecture is chosen; do not reorganize an unrelated feature or introduce a new
+architecture merely to satisfy a template. Layered responsibilities can coexist with feature-first
+packaging. Use [feature architecture](../feature-architecture/SKILL.md) for feature ownership and
+[hexagonal architecture](../hexagonal-architecture/SKILL.md) when ports and adapters are chosen.
 
-```
-@RestController        ← HTTP only. No business logic. No JPA entities in responses.
-      ↓ DTOs
-@Service               ← All business logic lives here. Orchestrates repositories.
-      ↓ Domain objects / Entities
-@Repository            ← Data access only. No business logic. Returns entities or projections.
-      ↓ JPA / JDBC
-Database
-```
+## Responsibilities and dependency direction
 
-## Controller Layer
-- Handles HTTP: parsing requests, validating input (`@Valid`), returning responses
-- Calls ONE service method per endpoint — no orchestration in controllers
-- Never returns `@Entity` classes directly — always map to response DTOs
-- Never injects `@Repository` — always goes through a `@Service`
-- Exception handling via `@ControllerAdvice`, never try/catch in controllers
+| Responsibility | Owns |
+| --- | --- |
+| Controller / HTTP adapter | Request binding, transport validation, response and error mapping |
+| Application service | Use-case coordination, authorization integration, transaction boundaries |
+| Domain behavior (where needed) | Business invariants, calculations and legal state transitions |
+| Repository / data adapter | Queries, persistence mapping and data access |
+| Configuration | Bean assembly, infrastructure and application wiring |
 
-```java
-// GOOD
-@PostMapping("/orders")
-public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody CreateOrderRequest request) {
-    Order order = orderService.createOrder(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponse.from(order));
-}
+Keep protocol-specific concerns out of business behavior and persistence. Keep business decisions
+out of HTTP adapters and data-access glue. Simple CRUD can use a small service and persistence
+model; introduce richer domain objects only when the behavior warrants them. Do not move existing
+entity invariants into a service simply because the application uses layers.
 
-// BAD — business logic in controller
-@PostMapping("/orders")
-public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest request) {
-    if (request.getItems().isEmpty()) throw new RuntimeException("No items");
-    Order order = orderRepository.save(new Order(request)); // direct repo access
-    return ResponseEntity.ok(order); // returning entity
-}
-```
+## Controller and application service
 
-## Service Layer
-- Contains all business logic, validation rules, and orchestration
-- `@Transactional` lives here, not in controllers or repositories
-- Constructor injection only — never `@Autowired` field injection
-- One service per aggregate root (OrderService, not OrderAndPaymentService)
-- Returns domain objects or DTOs — never `HttpServletRequest` / `HttpServletResponse`
-- Retries and concurrency caps on service methods via Framework 7's `@Retryable` / `@ConcurrencyLimit`
-  (enable with `@EnableResilientMethods`) — no spring-retry dependency
+- Validate transport inputs at the boundary and enforce business invariants in the appropriate
+  domain or application service, including calls that bypass HTTP.
+- Delegate business orchestration to an application service. One service call is often a clear
+  command boundary, not a required count for every endpoint. Multiple independent read operations
+  can be appropriate; coordinated writes belong in an explicit use case.
+- Use DTOs for new public HTTP contracts rather than serializing persistence entities or lazy
+  associations. Preserve existing public contracts; review any intentional contract migration.
+- Prefer constructor injection for new required collaborators; use existing project conventions
+  and do not introduce Lombok solely for injection.
+- Keep multi-step atomic operations in a Spring-managed application service. Use
+  [transaction guidance](../spring-boot-webmvc/references/transactions.md) for propagation,
+  rollback, proxy boundaries and commit-dependent effects. Repository-local transactions are
+  legitimate; they do not replace a use-case transaction spanning multiple operations.
+- Organize services by cohesive responsibility or use case, not a mandatory one-per-aggregate
+  rule. Avoid unrelated responsibilities in one service, but allow cross-aggregate coordination
+  where the business operation requires it.
+- Keep authentication, ownership and permission checks at the relevant enforced boundary;
+  use [security](../spring-boot-security/SKILL.md). Never rely on controller-only validation
+  or authorization when another entry point can invoke the same operation.
 
-```java
-// GOOD
-@Service
-@RequiredArgsConstructor
-public class OrderService {
-    private final OrderRepository orderRepository;
-    private final InventoryService inventoryService;
+For MVC binding, errors, pagination and response semantics, use
+[Web MVC](../spring-boot-webmvc/SKILL.md). For retries or concurrency controls, use
+[resilience](../resilience-retry/SKILL.md) and the actual framework version and existing retry
+policy. Do not add or replace a retry framework solely because this skill is loaded.
 
-    @Transactional
-    public Order createOrder(CreateOrderRequest request) {
-        inventoryService.reserve(request.items()); // records use accessor names, not getX()
-        Order order = Order.from(request);
-        return orderRepository.save(order);
-    }
-}
+## Persistence and mapping
 
-// BAD — field injection, HTTP concern in service
-@Service
-public class OrderService {
-    @Autowired private OrderRepository orderRepository;
+Preserve the selected persistence technology. Use [JPA](../spring-data-jpa/SKILL.md),
+[MyBatis-Plus](../spring-boot-mybatis-plus/SKILL.md) or the project's established JDBC/data-access
+approach. Choose derived queries, projections, explicit SQL or another supported query mechanism
+according to the contract, maintainability and database behavior. Keep business policy separate
+from query mechanics without discarding useful database constraints or atomic operations.
 
-    public ResponseEntity<Order> createOrder(...) { ... } // HTTP type in service
-}
-```
+Separate request and response models when their validation, security or compatibility needs
+differ. Prefer records for suitable immutable DTOs if the project uses them. Validate domain
+invariants independently of DTO annotations. Map responses within the appropriate data access
+scope; do not trigger lazy loads accidentally during serialization. Simple mapping may remain
+local; extract a mapper when complexity or reuse justifies it. Use readable loops, streams or
+existing mapping tools without introducing dependencies by default.
 
-## Repository Layer
-- Extends `JpaRepository<Entity, ID>` or `CrudRepository`
-- Custom queries via `@Query` or query derivation — no raw SQL unless unavoidable
-- Returns entities or Spring Data Projections — never raw `Object[]`
-- No business logic — pure data access
+The [layered service example](examples/layered-service.java) and
+[mixed-boundary example](examples/service-mixed-boundaries.java) illustrate responsibilities,
+not mandatory class names or coding styles. The request, response and mapper
+[templates](templates/CreateOrderRequest.java) are adaptable fragments; also see
+[OrderResponse](templates/OrderResponse.java) and [OrderMapper](templates/OrderMapper.java).
+Choose one mapping approach rather than duplicating it.
 
-## DTOs
-- Separate Request / Response DTOs — never use the same class for both
-- Validation annotations (`@NotNull`, `@Size`, etc.) on Request DTOs only
-- Static factory method `ResponseDto.from(Entity entity)` for mapping
-- Use records for immutable DTOs (Java 16+)
+## Configuration and cross-cutting concerns
 
-```java
-// GOOD
-public record OrderResponse(UUID id, String status, List<LineItemResponse> items, Instant createdAt) {
-    public static OrderResponse from(Order order) {
-        return new OrderResponse(order.getId(), order.getStatus().name(),
-            order.getItems().stream().map(LineItemResponse::from).toList(),
-            order.getCreatedAt());
-    }
-}
-```
+Keep configuration focused on assembly and policy. Configuration may depend on application beans
+when that is necessary to wire the chosen design; avoid circular dependencies and business side
+effects during bean creation. Use [configuration guidance](../spring-boot-configuration/SKILL.md)
+for typed properties and secrets. Follow existing logging and exception-handling conventions;
+preserve sensitive data boundaries and use centralized mapping for shared HTTP error contracts
+without requiring exactly one advice class. Use version-compatible APIs and libraries.
 
-## Mapper Pattern
-- Keep mapping logic out of controllers and services — use dedicated mapper classes or static factory methods
-- Mapper is a plain class or utility — not a Spring bean unless it needs injected dependencies
-- Entity → Response DTO: static method on the response DTO (`OrderResponse.from(order)`)
-- Request DTO → Entity: static factory on the entity (`Order.from(request)`) or a mapper class
-- Collection mapping: use `.stream().map(OrderResponse::from).toList()` — never manual loops
+## Review and verify
 
-```java
-// GOOD — dedicated mapper for complex mappings
-public class OrderMapper {
-
-    public static OrderResponse toResponse(Order order) {
-        return new OrderResponse(
-            order.getId(),
-            order.getStatus().name(),
-            order.getItems().stream().map(OrderMapper::toLineItem).toList(),
-            order.getCreatedAt()
-        );
-    }
-
-    public static Order toEntity(CreateOrderRequest request, User user) {
-        Order order = Order.create(request.customerEmail(), user);
-        request.items().forEach(item ->
-            order.addItem(item.productId(), item.quantity()));
-        return order;
-    }
-
-    private static LineItemResponse toLineItem(OrderItem item) {
-        return new LineItemResponse(item.getProductId(), item.getQuantity(), item.getPrice());
-    }
-}
-```
-
-The [layered service example](examples/layered-service.java) keeps business behavior in the
-service. The [mixed-boundary example](examples/service-mixed-boundaries.java) shows the coupling
-to remove. Reuse the request, response, and mapper shapes in
-[CreateOrderRequest](templates/CreateOrderRequest.java),
-[OrderResponse](templates/OrderResponse.java), and [OrderMapper](templates/OrderMapper.java).
-
-## Configuration Layer
-- `@Configuration` classes live in a `config/` package — never in `service/` or `controller/`
-- Configuration never imports service or controller classes
-- Use `@ConfigurationProperties` for type-safe config — never raw `@Value` for groups of related settings
-- Bean definitions for infrastructure concerns only (RestClient, JsonMapper, SecurityFilterChain)
-
-## Cross-Cutting Concerns
-- Logging: use `@Slf4j` — never `System.out.println`
-- Validation: `@Valid` on controller parameters, custom validators as `@Component`
-- Exception handling: single `@RestControllerAdvice` class, never try/catch in controllers
-- Auditing: `@CreatedDate` / `@LastModifiedDate` with `@EnableJpaAuditing`
-
-## Gotchas
-- Agent tends to put `@Transactional` on controllers — move it to services
-- Agent uses `@Autowired` field injection — always use constructor injection (`@RequiredArgsConstructor`)
-- Agent returns `List<Entity>` from controllers — always map to `List<ResponseDto>`
-- Agent creates `OrderAndInventoryService` god classes — split by aggregate
-- Agent puts mapping logic inside controllers — extract to mapper class or DTO factory method
-- Agent creates `@Configuration` classes that depend on `@Service` beans — configuration should only wire infrastructure
-- Agent defines an `ObjectMapper` bean to customize JSON — Boot 4 uses Jackson 3 (`tools.jackson`): define `JsonMapper` beans, and `@JsonComponent` is now `@JacksonComponent`
-- Agent adds spring-retry for service-level retries — built into Framework 7 (`@Retryable`, `@EnableResilientMethods`)
+Identify an actual responsibility violation before moving code. Preserve routes, response shape,
+persistence selection, package scanning, security and transaction semantics. Test the affected
+behavior and failure paths, including rollback and denied operations where relevant. Use
+[testing](../spring-boot-testing/SKILL.md) for the appropriate scope and
+[ArchUnit](../archunit/SKILL.md) only when static enforcement is relevant. Report actual checks
+and remaining gaps; a package diagram or passing architecture check alone does not prove behavior.

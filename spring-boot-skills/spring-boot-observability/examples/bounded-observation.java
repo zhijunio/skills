@@ -10,8 +10,10 @@ final class OrderObservation {
     }
 
     void createOrder(String channel, Runnable operation) {
+        String boundedChannel = "web".equals(channel) ? "web"
+            : "mobile".equals(channel) ? "mobile" : "other";
         Observation.createNotStarted("orders.create", registry)
-            .lowCardinalityKeyValue("channel", channel)
+            .lowCardinalityKeyValue("channel", boundedChannel)
             .observe(operation);
     }
 }

@@ -1,0 +1,42 @@
+# Phase 03 — Quality Engineering
+
+Status: deterministic infrastructure verified on review branch; behavioral exit criteria OPEN. Phase 02 behavioral acceptance remains open. Baseline: b8bc25ad387452158693738a2f279b49cbdeb9e5.
+
+## Objective
+
+Measure whether skills improve actual agent performance while preserving correctness, scope, authorization, compatibility and reasonable context cost. Reuse existing evaluation tooling and repository CI. Do not create new skills solely to fill a roadmap category.
+
+## Work packages
+
+| ID | Priority | Deliverable and acceptance |
+| --- | --- | --- |
+| Q01 | P0 | Evaluation standard separating static, distribution, fixture, activation, behavior and efficiency evidence; explicit verdicts and matched comparison protocol. |
+| Q02 | P0 | Verify disposable fixtures deterministically, including intended failing baselines, repeatability and destination protection; existing helper-test CI discovers tests. |
+| Q03 | P0 | Inspect pinned upstream skill-creator schemas, execution assumptions, license and host compatibility; document permitted reuse and a minimal verified invocation or blocker. |
+| Q04 | P0 | Create representative positive, negative and boundary trigger prompts; separate explicit-only cases and held-out data. |
+| Q05 | P0 | Execute core engineering workflow cases in isolated authenticated sessions; retain real evidence and fix material regressions. |
+| Q06 | P1 | Evaluate representative Spring Boot router, persistence, testing and security cases with realistic fixtures. |
+| Q07 | P1 | Compare measured context, tokens, time and tool activity for matched tasks; optimize only with correctness preserved. |
+| Q08 | P1 | Compare actual Codex and Claude Code behavior and invocation policies, distinct from installation compatibility. |
+| Q09 | P1 | Extend deterministic PR gates where justified; separately design opt-in bounded model evaluation with explicit credentials and spend controls. |
+| Q10 | P1 | Retain regression cases, review upstream drift and optimize based on observed failures. |
+| Q11 | P0 | Review evidence, unresolved blockers, maintainer acceptance and publication separation. |
+
+## Sequence and constraints
+
+Q01/Q02 establish reliable inputs. Q03 precedes runtime tooling integration. Q04/Q05 target the highest-risk workflow and activation boundaries first; Q06–Q10 expand only after evidence is available. No custom agent runner unless an evidenced gap and maintainer review justify it. Reuse the pinned Anthropic skill-creator evaluation workflow where compatible, not its host-specific instructions as universal requirements. Inspect its license before copying any resources.
+
+Use the [evaluation standard](../skill-evaluation-standard.md). Keep fixtures and evaluation workspaces outside packaged skills. Ordinary PR CI must not require model credentials or incur model charges. Paid evaluation requires a chosen host/model, explicit budget, authorized tools and isolated targets. Do not use real project credentials or publish experiments.
+
+## Progress
+
+Q01: evaluation standard drafted. Q02: fixture helper tests integrated; CI 46139568079 and Skill verification 46139566960 passed at cdbd336 (metadata job 140962266042). Q03: [pinned upstream integration review](../verification/skill-creator-integration.md) documents supported use and evidence limitations; CLI smoke and actual runtime still NOT RUN. Q04: [seed trigger and invocation datasets](../../evals/README.md) added for seven unrestricted and eleven explicit-only skills, with development/holdout separation and deterministic schema/coverage tests. All model trials NOT RUN; CI 46139829268 and Skill verification 46139828725 passed at 20c6c84. Q05: [structured behavior cases](../../evals/behavior/README.md) cover W01–W18 plus two variants; eight generated fixtures and selected offline checks for six cases. Helper tests passed at d6763a3 (CI 46139966275 and Skill verification 46139965809). Actual independent runs remain blocked, and twelve cases require manual setup. Q06: [Spring Boot seed cases](../../evals/spring-boot/README.md) cover fourteen technical/routing scenarios; pinned upstream fixture tree returned 404, no fixture imported, all require manual setup and independent runs are NOT RUN. Dataset CI passed at 76ffd8c (CI 46140106724 and Skill verification 46140106157). Q07: [context efficiency baseline](../verification/context-efficiency.md) measures all 63 entry points from Git blob sizes; reproducible local helper and tests added. Actual token/behavior comparison NOT RUN; helper CI passed at 28a7616 (runs 46140369160 and 46140368602). Q08: [cross-host verification](../verification/cross-host-verification.md) reviews current documentation and adds ten native host cases plus metadata checks. Actual host execution NOT RUN; dataset CI passed at 8d87923 (runs 46140478132 and 46140477609). Q09: [quality gates](../verification/quality-gates.md) documents deterministic, model and release gates; metadata evidence artifacts and evals link coverage added to existing CI. CI passed at 35b80f6 (runs 46140687456 and 46140686825); paid model workflow deliberately not enabled. Q10: [maintenance and regression protocol](../verification/skill-maintenance.md) and offline checker hardening added; regression CI passed at 3c5862b (runs 46141139465 and 46141138834; 36 helper tests OK). Independent agent regressions NOT RUN. Q11: [review prepared](../reviews/phase-03-review.md); full acceptance OPEN. [Phase 04 discovery plan](phase-04-technical-expansion.md) proposed. Phase 02 W01–W18 remain NOT RUN in independent agents.
+
+## Exit criteria
+
+- Evaluation standard reviewed and applicable cases reproducible.
+- Deterministic fixture and distribution checks pass.
+- Representative activation and behavior cases actually executed, compared and recorded, with missing evidence visible.
+- Critical authorization/correctness regressions resolved or explicitly blocked; no missing required check counted as passing.
+- Cross-host and efficiency claims limited to actual observations.
+- Review and release decisions remain separate; A04 and A13 remain open until resolved.

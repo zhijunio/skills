@@ -1,0 +1,18 @@
+[
+  {
+    "query": "We need to understand how an asynchronous workflow should recover from partial failure before approving a design.",
+    "should_trigger": true
+  },
+  {
+    "query": "评审现有系统的数据归属和跨模块依赖是否合理。",
+    "should_trigger": true
+  },
+  {
+    "query": "Fix a null pointer exception in one existing method.",
+    "should_trigger": false
+  },
+  {
+    "query": "Convert the agreed architecture into ordered coding tasks.",
+    "should_trigger": false
+  }
+]

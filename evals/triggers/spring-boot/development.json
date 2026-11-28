@@ -1,0 +1,34 @@
+[
+  {
+    "query": "Create a Spring Boot 4 application with an approved Maven baseline and a REST endpoint.",
+    "should_trigger": true
+  },
+  {
+    "query": "Debug a Spring Boot 4 issue involving security filters and repository transactions.",
+    "should_trigger": true
+  },
+  {
+    "query": "在现有 Spring Boot 4 项目添加分页查询，保留现有架构和安全约束。",
+    "should_trigger": true
+  },
+  {
+    "query": "Review Spring Boot 4 application configuration and integration-test wiring.",
+    "should_trigger": true
+  },
+  {
+    "query": "Design a technology-neutral product PRD for a booking system.",
+    "should_trigger": false
+  },
+  {
+    "query": "Fix a Python CLI's trailing newline.",
+    "should_trigger": false
+  },
+  {
+    "query": "Compare architecture styles without selecting an implementation framework.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain a TypeScript type error in a standalone frontend project.",
+    "should_trigger": false
+  }
+]

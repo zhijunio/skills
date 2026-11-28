@@ -8,6 +8,8 @@ description: >
 
 # Core Resilience (Boot 4 / Framework 7)
 
+For version-sensitive APIs and configuration, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and matching official documentation and report missing evidence.
+
 Spring Framework 7 provides core declarative retry and concurrency limiting. This is not a
 repackaging of the separate `spring-retry` project; attribute names and recovery behavior differ.
 
@@ -36,8 +38,9 @@ class CatalogClient {
     CatalogItem find(UUID id) { ... } // idempotent read
 }
 
+// On a Spring-managed bean method invoked through its proxy:
 @ConcurrencyLimit(4)
-Report generateReport(UUID id) { ... }
+public Report generateReport(UUID id) { ... }
 ```
 
 `maxRetries` counts retries after the first call, so four retries means five total attempts.
@@ -46,7 +49,9 @@ Backoff attributes are flat on `@Retryable`; `multiplier = 1.0` means fixed dela
 Core resilience has no `@Recover`. When attempts are exhausted, the last exception reaches the
 caller. Catch it at the orchestration boundary or use a listener. Because the implementation is
 proxy-based, self-invocation bypasses advice. Put retry outside a transactional bean when each
-attempt needs a fresh transaction.
+attempt needs a fresh transaction. See [application transactions](../spring-boot-webmvc/references/transactions.md#retrying-transient-failures)
+for retry/transaction coordination; a caller with an active outer transaction can defeat a
+fresh REQUIRED attempt.
 
 ## Failure and deadline policy
 
@@ -58,7 +63,7 @@ attempt needs a fresh transaction.
 - Budget all attempts, backoff, connection-pool acquisition and downstream work within the
   caller's deadline. Per-attempt connect/read timeouts are not a total operation deadline.
   A retry timeout is not a mechanism for killing an already-running blocking call.
-- Preserve interruption/cancellation and stop scheduling attempts when the budget is exhausted.
+- Preserve interruption/cancellation and stop scheduling attempts when the budget is exhausted. Do not classify cancellation as transient, including when wrapped. Check the actual retry advisor ordering and test that each database retry opens a fresh transaction.
   Do not layer independent retries at gateway, HTTP client and service without a shared budget.
 - Treat authentication/authorization errors and validation errors as permanent. Handle 409
   according to the API contract. Honor bounded `Retry-After` for 429/503 only when policy permits;
@@ -77,7 +82,7 @@ retried blindly.
 
 ## Verification scope
 
-The repository fixture targets Boot 4.1.0 with Java 17/21 and checks
+The pinned upstream fixture targets Boot 4.1.0 with Java 17/21 and checks
 bounded attempts through real Spring proxies; not a complete deadline-aware payment workflow. Check the
 [coverage matrix](https://github.com/rrezartprebreza/spring-boot-skills/blob/b90c3dbd9699c0d0bfb81660c857ef58262168e6/verification/MATRIX.md)
 before treating another minor version or an illustrative snippet as verified.

@@ -1,13 +1,12 @@
 ---
 name: archunit
 description: >
-  Add or review static architecture tests in a Spring Boot codebase. Use Taikai's ready-made
-  rules as the baseline and ArchUnit for project-specific package and dependency constraints.
+  Add or review static architecture tests in a Spring Boot codebase. Use existing architecture checks, ArchUnit for package and dependency constraints, or Taikai when its ready-made conventions are selected.
 ---
 
 # Architecture Rules with Taikai and ArchUnit
 
-Use Taikai as the default architecture check for this Spring Boot collection. Taikai provides
+Preserve the project's existing architecture-testing tool. For new checks Taikai is an optional convention library, not a mandatory dependency. Taikai provides
 ready-made Java and Spring rules on top of ArchUnit and runs as a normal test. Add an ArchUnit rule
 when a project-specific package or dependency boundary is not covered by Taikai. Both analyze
 compiled classes; neither proves runtime behavior or that a rule matches the business intent.
@@ -17,7 +16,7 @@ For Maven, use the Taikai pin in
 
 ## Choose the right boundary tool
 
-- Use Taikai's built-in rules first for common Java and Spring conventions.
+- Use existing ArchUnit rules or selected Taikai conventions when they fit the approved boundaries.
 - Use ArchUnit for class and package dependencies, layer access, package cycles, and feature slices
   that the selected Taikai rules do not express.
 - Use [feature architecture](../feature-architecture/SKILL.md) to choose business package ownership.
@@ -44,7 +43,7 @@ class ArchUnitTests {
 
     @BeforeAll
     static void importApplicationClasses() {
-        importedClasses = new ClassFileImporter().importPackages(BASE_PACKAGE);
+        importedClasses = new ClassFileImporter().withImportOption(new ImportOption.DoNotIncludeTests()).importPackages(BASE_PACKAGE);
     }
 
     @Test
@@ -59,7 +58,7 @@ class ArchUnitTests {
 }
 ```
 
-Use the actual application base package. Import classes once when multiple custom rules inspect the
+Use the actual application base package; the example requires ArchUnit's ImportOption import. Assert the intended production classes were imported and verify that custom rules are not vacuously satisfied by an empty selection. Import classes once when multiple custom rules inspect the
 same package tree, then reuse that `JavaClasses` value in focused tests. Inspect Taikai rules and
 configure only those that fit the project's conventions. The [HelpDesk architecture test](https://github.com/sivaprasadreddy/HelpDesk/blob/main/src/test/java/dev/sivalabs/helpdesk/ArchUnitTests.java)
 shows this split between one Taikai convention test and separate custom rules.

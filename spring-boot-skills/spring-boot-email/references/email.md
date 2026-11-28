@@ -8,7 +8,7 @@ locally.
 
 Add `spring-boot-starter-mail` and let Spring Boot manage its compatible version. Keep host, port,
 credentials, sender address, and TLS settings in external configuration. Never commit credentials
-or point production at Mailpit.
+or point production at Mailpit. Configure bounded connect/read/write timeouts and require TLS with certificate/hostname verification according to the provider transport. Do not disable verification to make delivery work.
 
 Local configuration can target Mailpit on the host:
 
@@ -32,11 +32,11 @@ When the application runs inside Compose, use `mailpit` as the host. Mailpit acc
 
 Send through a constructor-injected `JavaMailSender` in an application service. Keep composition
 out of controllers. Set the sender, recipient, subject, and text or HTML body explicitly, and
-validate user-controlled addresses.
+validate user-controlled addresses, reject header control characters, and authorize recipients and attachments. Bound message size and recipient count; avoid exposing recipient lists or message bodies in logs.
 
 Treat delivery as an external side effect. Do not send before a transaction commits when the email
 describes committed state. Use bounded retries for transient failures; use an outbox when durable
-delivery or duplicate prevention is required.
+delivery is required. An outbox alone does not prevent duplicate SMTP delivery: a crash after provider acceptance but before marking sent leaves an uncertain outcome. Use provider idempotency when available, otherwise define reconciliation or an explicit duplicate-tolerance policy. SMTP acceptance is not proof of inbox delivery.
 
 ## HTML templates
 

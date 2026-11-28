@@ -3,7 +3,7 @@
 Use the [Spring Boot entry skill](spring-boot/SKILL.md) for application work that
 crosses skill boundaries. For a focused change, invoke the matching skill below
 directly. Skills are focused references and workflows; load only those relevant
-to the task.
+to the task. Preserve the approved project foundation; optional build, architecture, and developer tools are not mandatory defaults. See [version resolution](spring-boot/references/version-resolution.md) for version-sensitive guidance.
 
 ## Application structure and design
 
@@ -57,7 +57,7 @@ to the task.
 ## Verification and code quality
 
 - [Testing](spring-boot-testing/SKILL.md) — choose tests and report evidence-based readiness.
-- [ArchUnit](archunit/SKILL.md) — use Taikai defaults and ArchUnit rules to enforce Java architecture in tests.
+- [ArchUnit](archunit/SKILL.md) — enforce selected architecture constraints with ArchUnit or optional Taikai.
 - [Null safety](null-safety/SKILL.md) — make nullability contracts explicit.
 - [MyBatis-Plus](spring-boot-mybatis-plus/SKILL.md) — persistence with MyBatis-Plus.
 

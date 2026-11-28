@@ -13,6 +13,11 @@ import org.springframework.validation.annotation.Validated;
 public record ClientProperties(@NotNull URI baseUrl, @NotNull Duration timeout,
         @Min(1) @Max(5) int maxAttempts) {
     public ClientProperties {
+        if (baseUrl != null && (!"https".equalsIgnoreCase(baseUrl.getScheme())
+                || baseUrl.getHost() == null || baseUrl.getUserInfo() != null
+                || baseUrl.getFragment() != null)) {
+            throw new IllegalArgumentException("app.client.base-url must be an HTTPS endpoint without user info or fragment");
+        }
         if (timeout != null && (timeout.isZero() || timeout.isNegative())) {
             throw new IllegalArgumentException("app.client.timeout must be positive");
         }

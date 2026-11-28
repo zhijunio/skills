@@ -9,6 +9,8 @@ description: >
 
 # Event-Driven Messaging
 
+For version-sensitive APIs and configuration, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and matching official documentation and report missing evidence.
+
 Design for at-least-once delivery unless the complete system proves stronger semantics.
 Spring Boot 4.2 deprecates its Apache Pulsar support. Do not add a new Boot-managed Pulsar
 integration by default; check the [4.2 release guidance](https://spring.io/blog/2026/11/19/spring-boot-4-2-0-available-now/)
@@ -28,7 +30,7 @@ and the Spring Pulsar compatibility line first.
 
 ## Producer rules
 
-- Publish only after the originating state is durable.
+- For database-backed events, persist the outbox record in the originating transaction and publish committed records only. An after-commit send alone has a crash-loss window.
 - Use a [transactional outbox](../spring-boot-webmvc/references/transactions.md#side-effects-after-commit) when a database write and
   message must agree.
 - Choose a stable aggregate key when per-aggregate ordering matters.
@@ -38,17 +40,19 @@ and the Spring Pulsar compatibility line first.
 
 - Make every handler idempotent with a durable marker or naturally idempotent state transition;
   see [idempotency patterns](../idempotency-patterns/SKILL.md) for duplicate-effect guarantees.
-- Commit the state change and idempotency marker in one transaction.
+- Commit the state change and idempotency marker in one transaction. Read
+  [application transactions](../spring-boot-webmvc/references/transactions.md) for the
+  consumer's local transaction boundary; broker acknowledgement is a separate concern.
 - Retry only transient failures with bounded exponential backoff; see
   [resilience and retry](../resilience-retry/SKILL.md) for exception classification,
   attempt budgets, and deadlines.
-- Route permanent or exhausted failures to a dead-letter destination with diagnostic headers.
+- Acknowledge or advance the offset only after the local transaction commits; ensure no enclosing transaction can still roll back. Configure the listener/container and error handler together. For dead-letter recovery, confirm durable publication before treating the original delivery as recovered; a failed dead-letter send must not silently advance the offset. Bound and sanitize diagnostic headers.
 - Build replay as an explicit operation with authorization and auditability.
 
 ## Testing
 
 - Use broker-specific test support or Testcontainers for broker integration.
-- Test duplicate, reordered, delayed, incompatible, and poison events.
+- Test duplicate, reordered, delayed, incompatible, and poison events, including crashes after database commit but before acknowledgement, failed dead-letter publication, and outbox send success followed by a crash before marking sent.
 - Verify schema compatibility independently from handler tests.
 
 ## Examples
@@ -72,7 +76,7 @@ and the Spring Pulsar compatibility line first.
 
 ## Verification scope
 
-The workflow fixture compiles idempotent-consumer.java directly and checks duplicate delivery,
+The pinned upstream workflow fixture compiles idempotent-consumer.java directly and checks duplicate delivery,
 concurrent invocation and claim/effect rollback against PostgreSQL. It calls the consumer
 directly: broker serialization, listener wiring, offsets, retries and dead-letter delivery
 are not covered. The examples focus on Kafka; broker-specific delivery guarantees and test

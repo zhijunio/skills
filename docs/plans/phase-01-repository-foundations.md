@@ -1,6 +1,6 @@
 # Phase 01 — Repository Foundations
 
-Status: Proposed  
+Status: Foundation deliverables implemented; review and scoped verification complete on review branch; maintainer acceptance pending  
 Parent: [Agent Skills Roadmap](../roadmap.md)
 
 ## 1. Objective
@@ -47,7 +47,7 @@ Reuse the repository's existing [AGENTS.md prompt](../prompts/create-agentsmd.pr
 
 ## 5. Work items
 
-All items are initially TODO. P0 denotes essential foundation work; P1 denotes supporting work within this phase.
+P0 denotes essential foundation work; P1 denotes supporting work within this phase. Status is recorded separately below; a completed document on the review branch does not imply merge, runtime certification or publication approval.
 
 | ID | Task | Deliverable | Priority | Dependencies |
 | --- | --- | --- | --- | --- |
@@ -156,16 +156,25 @@ Possible implementation paths (not fixed):
 
 Acceptance: chosen checks run locally and in CI, failure output is actionable, dependencies are pinned appropriately, and representative invalid inputs are detected. Document exceptions rather than silently ignoring failures.
 
-## 6. Execution order
+## 6. Execution order and progress
 
-1. Research standards and reusable tools (F01).
-2. Audit the existing inventory (F06).
-3. Establish design principles and authoring guide (F03, F04).
-4. Write repository and contribution instructions (F02, F05).
-5. Document the workflow and catalog (F07, F08).
-6. Verify distribution (F09).
-7. Integrate deterministic checks (F10).
-8. Review phase acceptance criteria and record remaining issues.
+Actual execution advanced distribution and deterministic checks early to remediate the packaging defect. Reuse that work rather than rebuilding it.
+
+| ID | Current status | Evidence / remaining scope |
+| --- | --- | --- |
+| F01 | Documented | [Compatibility](../skill-compatibility.md); runtime limitations remain |
+| F06 | Baseline documented | [Audit](../audits/initial-skill-audit.md), 59 entries |
+| F06-R | In progress | [Remediation tracker](../audits/remediation-plan.md); packaging defect resolved on review branch; provenance, authorization and behavioral gaps remain |
+| F03 | Documented, maintainer confirmed | [Design principles](../skill-design-principles.md); review branch |
+| F04 | Documented, awaiting review | [Authoring guide](../skill-authoring-guide.md); review branch |
+| F02 | Documented, maintainer confirmed | [Agent instructions](../../AGENTS.md); review branch |
+| F05 | Documented, awaiting review | [Contribution guide](../../CONTRIBUTING.md); review branch |
+| F07 | Verified on review branch | [Generated catalog](../skill-catalog.md), 59 entries; generator and 10 helper tests passed at 59b2275; catalog freshness enforcement passed at [9209fae](https://github.com/zhijunio/skills/actions/runs/46120989867) |
+| F08 | Documented, awaiting review | [Engineering workflow](../engineering-workflow.md); representative behavioral cases proposed, not executed |
+| F09 | Verified within declared local distribution scope | [Distribution report](../verification/distribution.md); full and selected CLI installation, archive and extraction passed; host runtime, hosted export and publication remain unverified |
+| F10 | Verified deterministic baseline | [CI workflow](../../.github/workflows/skill-verification.yml); 12 helper tests, metadata, catalog freshness, distribution and offline Markdown link checks passed; broader reference types, style lint and external links outside current scope |
+
+See the [Phase 01 review](../reviews/phase-01-review.md) for evidence, remaining risks and acceptance boundaries. Proposed next work: [Phase 02 engineering workflow](phase-02-engineering-workflow.md). Continue provenance and publication review independently; do not merge or publish while applicable rights and authorization issues remain.
 
 ## 7. Target deliverables
 
@@ -191,15 +200,15 @@ Add scripts and CI configuration only after tool selection. Do not create placeh
 
 ## 8. Phase acceptance checklist
 
-- [ ] Standards, compatibility, and reuse decisions documented.
-- [ ] Repository instructions, design principles, authoring and contribution guides established.
-- [ ] All discovered skills audited and findings prioritized.
-- [ ] Catalog matches the actual inventory.
-- [ ] Current engineering workflow and handoffs documented.
-- [ ] Installation and packaging verified for declared supported methods, with limitations recorded.
-- [ ] Deterministic checks integrated into CI and demonstrated.
-- [ ] Upstream sources and applicable licenses traceable, or unresolved cases explicitly recorded and restricted from redistribution as appropriate.
-- [ ] Phase review records verification evidence, remaining blockers, and follow-up tasks.
+- [x] Standards, compatibility, and reuse decisions documented.
+- [x] Repository instructions, design principles, authoring and contribution guides established.
+- [x] All discovered skills audited and findings prioritized.
+- [x] Catalog matches the actual inventory.
+- [x] Current engineering workflow and handoffs documented.
+- [x] Installation and packaging verified for declared supported local methods, with limitations recorded.
+- [x] Deterministic baseline checks integrated into CI and demonstrated.
+- [ ] Upstream sources and applicable licenses traceable, or unresolved cases explicitly recorded and restricted from redistribution as appropriate (register complete for inventory, applicable grants/notices and enforceable release restriction still unresolved).
+- [x] Phase review records verification evidence, remaining blockers, and follow-up tasks.
 
 ## 9. Decisions to resolve during implementation
 
@@ -210,4 +219,4 @@ Add scripts and CI configuration only after tool selection. Do not create placeh
 - Policy for upstream revisions, licenses, and updates.
 - CI enforcement thresholds and handling of pre-existing findings.
 
-No implementation or verification is claimed by this plan. Record evidence as work is completed.
+The progress register records observed implementation and verification evidence; unlisted checks remain unverified. Review-branch work is not merged or released.

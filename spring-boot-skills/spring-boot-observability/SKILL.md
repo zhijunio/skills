@@ -7,11 +7,13 @@ description: >
 
 # Spring Boot Observability
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and release-matched official documentation, and report missing evidence.
+
 Instrument user-visible operations and operational boundaries, not every method.
 
 ## Baseline
 
-- Add the Boot 4 Actuator starter and one metrics registry selected by the platform.
+- Preserve existing instrumentation and select the metrics registry/export path required by the platform. Add Actuator and only the dependencies needed for the approved signals; Prometheus scraping and OTLP push are distinct choices.
 - For OpenTelemetry tracing over OTLP, use `spring-boot-starter-opentelemetry` and Boot's
   `management.opentelemetry.tracing.export.otlp.*` properties.
 - Use Micrometer Observation for application metrics and traces.
@@ -22,18 +24,22 @@ Instrument user-visible operations and operational boundaries, not every method.
 ## Observation conventions
 
 - Name observations by stable operation, such as `orders.create`.
-- Use low-cardinality key values for metrics and high-cardinality values only for traces.
+- Use bounded low-cardinality values for metrics. High-cardinality trace attributes are not automatically safe: minimize sensitive identifiers and control retention, sampling and access. Map unknown or untrusted label values to a bounded fallback before recording.
 - Never tag metrics with user IDs, entity IDs, URLs containing IDs, or exception messages.
-- Register a `ContextPropagatingTaskDecorator` for async executor boundaries.
+- For async boundaries, verify whether context propagation is already configured. Apply a compatible `ContextPropagatingTaskDecorator` to the actual executor when needed; test context restoration/cleanup and do not assume telemetry propagation conveys authorization.
 - Enable Reactor automatic context propagation only deliberately and test it.
 - Avoid annotating already instrumented MVC controllers or repositories with `@Observed`.
 
 ## Health and readiness
 
 - Keep liveness independent from remote dependencies.
-- Put traffic-critical dependencies in readiness groups.
+- Include external dependencies in readiness only when their failure makes this instance unable to serve useful traffic. Evaluate shared-dependency outages and fleet-wide removal risk; do not make readiness a blanket dependency checklist. When management uses a separate port, verify probes also reflect the serving connector's availability.
 - Give custom health checks strict timeouts and stable detail keys.
 - Keep sensitive health details hidden from unauthenticated callers.
+
+## Export and endpoint safety
+
+Exposure, endpoint access and authentication are separate controls. Verify the actual security filter chains, management port, ingress and network policy. A custom security chain can change Boot's default protection. Never expose heap dumps, environment values, configuration properties or runtime log-level changes publicly. Select TLS, authentication, bounded buffering and export timeouts for the actual collector. Avoid duplicate instrumentation or duplicate export when combining a Java agent, Boot tracing and registries. Sampling is a policy, not a guarantee that sensitive data is absent; sanitize before export, including baggage and MDC.
 
 ## Logging and alerts
 
@@ -41,6 +47,10 @@ Instrument user-visible operations and operational boundaries, not every method.
 - Redact credentials, tokens, personal data, prompts, and request bodies by default.
 - Alert on service-objective symptoms: error ratio, latency, saturation, or queue lag.
 - Include a runbook and service/dependency identity in every actionable alert.
+
+## Verify
+
+Test the effective configuration against the selected registry and tracing exporter. Check allowed and denied management routes, health status and probe behavior under dependency failure, bounded metric series for arbitrary inputs, trace continuity across async work, and synthetic secret redaction in exported telemetry. Simulate an unavailable collector in an isolated environment; ensure bounded resource use and document telemetry loss behavior. Do not claim successful export from configuration alone.
 
 ## Examples
 

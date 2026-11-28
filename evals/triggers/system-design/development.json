@@ -1,0 +1,34 @@
+[
+  {
+    "query": "Propose the architecture for an approved booking system, comparing a modular application with separate services.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review service boundaries, data ownership and failure recovery for our existing architecture.",
+    "should_trigger": true
+  },
+  {
+    "query": "设计系统的模块职责、集成边界和运行时协作，先不要选技术栈。",
+    "should_trigger": true
+  },
+  {
+    "query": "Compare design alternatives against our availability and consistency requirements.",
+    "should_trigger": true
+  },
+  {
+    "query": "Initialize a Spring Boot repository using our approved generator.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a PRD defining target users and product scope.",
+    "should_trigger": false
+  },
+  {
+    "query": "Implement the approved use case in the existing architecture.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run an isolated SQLite experiment to see whether duplicate values are rejected.",
+    "should_trigger": false
+  }
+]

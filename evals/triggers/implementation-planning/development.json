@@ -1,0 +1,34 @@
+[
+  {
+    "query": "Write a Markdown implementation plan for this approved feature spanning three components.",
+    "should_trigger": true
+  },
+  {
+    "query": "Break our agreed migration into reviewable tasks, dependencies, integration checks and rollback considerations.",
+    "should_trigger": true
+  },
+  {
+    "query": "根据已批准的行为规格拆分实施任务，标注文件归属与验证方式。",
+    "should_trigger": true
+  },
+  {
+    "query": "Review an existing implementation plan for missing prerequisites and conflicting parallel changes.",
+    "should_trigger": true
+  },
+  {
+    "query": "Decide whether to use a monolith or services; the architecture is not agreed.",
+    "should_trigger": false
+  },
+  {
+    "query": "Define the product's target users and feature priorities.",
+    "should_trigger": false
+  },
+  {
+    "query": "Fix this one spelling mistake in a constant.",
+    "should_trigger": false
+  },
+  {
+    "query": "Choose the smallest test scope for database transaction correctness, without planning code changes.",
+    "should_trigger": false
+  }
+]

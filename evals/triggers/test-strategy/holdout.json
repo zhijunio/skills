@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Review this test portfolio for flaky assertions, missing failure paths and redundant end-to-end checks.",
+    "should_trigger": true
+  },
+  {
+    "query": "设计接口兼容性和并发风险的测试方案，不需要编写测试代码。",
+    "should_trigger": true
+  },
+  {
+    "query": "Fix a known arithmetic defect with a focused regression test.",
+    "should_trigger": false
+  },
+  {
+    "query": "Choose deployment boundaries and service ownership.",
+    "should_trigger": false
+  }
+]

@@ -10,8 +10,10 @@ models to API response types; do not expose mapper entities directly over HTTP.
 
 ## Dependency and configuration
 
-- Copy `mybatisPlus.default` from [mybatis-versions.json](mybatis-versions.json) into the project's normal
-  version catalog or property mechanism. Declare
+- Preserve an existing compatible MyBatis-Plus version. For a new Boot 4 project, treat
+  `mybatisPlus.default` in [mybatis-versions.json](mybatis-versions.json) as a candidate only;
+  confirm the starter and resolved dependencies against the official release documentation
+  before adding it to the project's version catalog or property mechanism. Declare
   `mybatis-plus-spring-boot4-starter` using the selected build tool. Do not
   add `mybatis-spring-boot-starter` or a second MyBatis artifact beside it.
 
@@ -86,8 +88,11 @@ models to API response types; do not expose mapper entities directly over HTTP.
   `TenantLineInnerInterceptor`, implement a `TenantLineHandler`
   and register it on the shared `MybatisPlusInterceptor`. Keep
   `ignoreTable` false by default and allowlist only genuinely global tables.
-  Populate `tenant_id` on inserts with a `MetaObjectHandler`; the tenant
-  interceptor does not fill the inserted column. Scope unique constraints
+  The tenant interceptor can inject a missing tenant column into supported INSERT SQL;
+  its default `ignoreInsert` skips injection when the column is already present.
+  Never rely on it to overwrite or validate an explicit tenant value. Use a trusted
+  application-owned fill policy and reject or replace mismatched explicit values before
+  persistence, including custom and batch inserts. See the [official tenant plugin](https://baomidou.com/en/plugins/tenant/). Scope unique constraints
   and indexes by `tenant_id` when uniqueness is per tenant.
 
 - When row-level multi-tenancy is enabled, write custom SQL with aliases
@@ -241,7 +246,12 @@ private Long tenantId;
 The insert-fill handler obtains that value from the trusted context:
 
 ```java
-strictInsertFill(metaObject, "tenantId", Long.class, tenantContext.requireTenantId());
+Long tenantId = tenantContext.requireTenantId();
+Object supplied = getFieldValByName("tenantId", metaObject);
+if (supplied != null && !tenantId.equals(supplied)) {
+    throw new IllegalArgumentException("Tenant mismatch");
+}
+setFieldValByName("tenantId", tenantId, metaObject);
 ```
 
 ```java
@@ -285,4 +295,5 @@ For a new persistence feature, check every rule. For an existing feature,
 check rules relevant to the requested persistence change. Inspect its active
 build configuration, `Application` class, Mapper interfaces, persistence
 models, and `MetaObjectHandler`. When tenancy is in scope, inspect its handler
-and tenant-sensitive services. Do not infer; report applicable failures.
+and tenant-sensitive services. Test explicitly supplied mismatched tenant IDs, absent tenant
+context, custom SQL and batch inserts against the actual database. Do not infer; report applicable failures.

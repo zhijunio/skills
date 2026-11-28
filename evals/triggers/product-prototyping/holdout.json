@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Can we try an interactive state-machine model to resolve whether a rejected request can be resubmitted?",
+    "should_trigger": true
+  },
+  {
+    "query": "画出两个低保真页面流程，帮助我们选择交互方式。",
+    "should_trigger": true
+  },
+  {
+    "query": "Diagnose why the existing production form returns HTTP 500.",
+    "should_trigger": false
+  },
+  {
+    "query": "Turn an approved feature into dependency-ordered implementation tasks.",
+    "should_trigger": false
+  }
+]

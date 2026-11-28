@@ -30,7 +30,7 @@ lock or call Redis SETNX without ownership, expiry and stale-owner handling.
 
 A lease can expire while the original worker is still running. Use idempotent effects and,
 where stale owners can corrupt state, fencing checked by the protected resource. A lock alone
-does not provide exactly-once effects. Persist progress and retry intent for mandatory work;
+does not provide exactly-once effects. Use a stable occurrence or business-work identifier when duplicate triggers can create the same job. Persist progress and retry intent for mandatory work;
 Spring's in-process schedule does not replay missed fires after downtime.
 
 Keep the scheduling adapter small. Let a separate service claim a bounded batch and enforce

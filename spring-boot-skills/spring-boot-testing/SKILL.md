@@ -8,296 +8,52 @@ description: >
 
 # Spring Boot Testing
 
-## Structure
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
 
-```
-Unit Tests         — fast domain logic checks without a Spring context
-Slice Tests        — focused web or persistence infrastructure checks
-Integration Tests  — cross-boundary behavior with real dependencies
-```
+Implement or review Spring-specific tests and collect readiness evidence. Use an existing
+risk-driven strategy; test-strategy owns cross-stack
+verification obligations where installed. If that skill is unavailable, use the approved
+acceptance criteria and existing test policy. Do not require a separate strategy for a small
+change. Preserve the project's Boot/JDK line, dependencies, test conventions and required gates.
 
-## Unit Tests — Services
+## Select the smallest sufficient test scope
 
-Choose the mix by risk, not a fixed percentage. Use real database/Redis tests for concurrency,
-serialization and transaction semantics that mocks cannot establish. Preserve the project's
-JUnit/AssertJ and mocking conventions; changing assertion libraries is not a correctness fix.
+| Need to establish | Read |
+| --- | --- |
+| Domain invariants, calculations, service decisions without framework behavior | [Unit testing](references/unit-testing.md) |
+| HTTP binding, validation, JSON, response or MVC error mapping | [MVC testing](references/mvc-testing.md) |
+| Mapping, repository queries, constraints, flush behavior | [Persistence testing](references/persistence-testing.md) |
+| Application wiring, real transactions, concurrency, external protocol or real HTTP | [Integration testing](references/integration-testing.md) |
+| Authentication, permissions, tenant isolation or denied side effects | [Security testing](references/security-testing.md), plus the relevant MVC or integration guide |
+| Build, PR or release readiness | [Build verification](references/build-verification.md) |
 
-```java
-@ExtendWith(MockitoExtension.class)
-class OrderServiceTest {
+Read only the relevant guides. Inspect existing tests and the effective dependencies before
+selecting an annotation, test starter or client. Examples target Boot 4; verify the actual
+minor, managed versions and imports. Do not migrate an existing Boot 3 project merely to use
+these examples. Preserve the existing JUnit, assertion library, mocking and test naming
+conventions unless changing them is requested.
 
-    @Mock private OrderRepository orderRepository;
-    @Mock private InventoryService inventoryService;
+## Protect correctness and evidence
 
-    @InjectMocks private OrderService orderService;
+- Start from approved behavior and material risks; exercise negative paths and assert observable
+  outcomes. Do not invent fixed layer ratios, coverage thresholds or arbitrary test counts.
+- Mocks are useful for pure decisions and delegation, not proof of real transactions, database
+  isolation, serialization, security wiring or concurrency. Use compatible real dependencies
+  when their semantics determine correctness. Do not infer PostgreSQL semantics from H2.
+- Preserve actual security policy, including CSRF where applicable; test denied operations and
+  unchanged persisted state when relevant. A test principal does not prove JWT decoding.
+- Use isolated synthetic data. Real HTTP writes occur outside the test thread's transaction;
+  clean only owned fixtures using the project's approved mechanism. Do not use production
+  services as a fallback.
+- Verify test discovery and actual execution, including required negative cases. Do not disable
+  tests, weaken assertions, alter thresholds or introduce permissive security to obtain green CI.
+- Record PASS, FAIL or NOT RUN for required checks, with the blocking reason separately.
+  Missing required evidence means readiness is unestablished.
 
-    @Test
-    void createOrder_whenItemsAvailable_shouldSaveAndReturnOrder() {
-        // Given
-        var request = new CreateOrderRequest("user@example.com", List.of(new OrderItemRequest(UUID.randomUUID(), 2)));
-        var savedOrder = Order.create("user@example.com");
-        when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
-        doNothing().when(inventoryService).reserve(any());
-
-        // When
-        Order result = orderService.createOrder(request);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getCustomerEmail()).isEqualTo("user@example.com");
-        verify(inventoryService).reserve(request.items());
-        verify(orderRepository).save(any(Order.class));
-    }
-
-    @Test
-    void createOrder_whenInventoryUnavailable_shouldThrowException() {
-        // Given
-        var request = new CreateOrderRequest("user@example.com", List.of());
-        doThrow(new InsufficientInventoryException("Out of stock"))
-            .when(inventoryService).reserve(any());
-
-        // When / Then
-        assertThatThrownBy(() -> orderService.createOrder(request))
-            .isInstanceOf(InsufficientInventoryException.class)
-            .hasMessage("Out of stock");
-    }
-}
-```
-
-## Slice Tests — Controllers (@WebMvcTest)
-
-```java
-// When Spring Security is on the test classpath and its filters are enabled,
-// POSTs need .with(csrf()) if CSRF protection is enabled; @WithMockUser only authenticates.
-// Import the application's SecurityFilterChain to test its actual rules.
-// import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-@WebMvcTest(OrderController.class)
-@Import(ProblemDetailExceptionHandler.class)
-class OrderControllerTest {
-
-    @Autowired MockMvc mockMvc;
-    @Autowired tools.jackson.databind.json.JsonMapper jsonMapper;
-    @MockitoBean OrderService orderService;
-
-    @Test
-    @WithMockUser(roles = "USER")
-    void createOrder_withValidRequest_shouldReturn201() throws Exception {
-        // Given
-        var request = new CreateOrderRequest("user@example.com",
-            List.of(new OrderItemRequest(UUID.randomUUID(), 1))); // items are @NotEmpty
-        var order = Order.create("user@example.com");
-        when(orderService.createOrder(any())).thenReturn(order);
-
-        // When / Then
-        mockMvc.perform(post("/api/v1/orders").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(request)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.customerEmail").value("user@example.com"));
-    }
-
-    @Test
-    @WithMockUser
-    void createOrder_withInvalidRequest_shouldReturn400() throws Exception {
-        mockMvc.perform(post("/api/v1/orders").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}")) // missing required fields
-            .andExpect(status().isBadRequest())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.status").value(400))
-            .andExpect(jsonPath("$.errorCode").value("VALIDATION_FAILED"));
-    }
-}
-```
-
-Use the focused [controller slice example](examples/controller-test.java) for MVC behavior.
-The [full-context controller test](examples/controller-test-full-context.java) illustrates
-the extra startup and fixture coupling to avoid for a simple endpoint.
-
-## Slice Tests — Repositories (@DataJpaTest)
-
-```java
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = Replace.NONE) // use real DB (Testcontainers)
-@Import(TestcontainersConfig.class)
-class OrderRepositoryTest {
-
-    @Autowired OrderRepository orderRepository;
-
-    @Test
-    void findByStatus_shouldReturnMatchingOrders() {
-        // Given
-        var order1 = orderRepository.save(Order.create("a@example.com"));
-        var order2 = orderRepository.save(Order.create("b@example.com"));
-        order2.ship(); // change status
-        orderRepository.save(order2);
-
-        // When
-        List<Order> pending = orderRepository.findByStatus(OrderStatus.PENDING, Pageable.unpaged()).getContent();
-
-        // Then
-        assertThat(pending).hasSize(1);
-        assertThat(pending.get(0).getCustomerEmail()).isEqualTo("a@example.com");
-    }
-}
-```
-
-## Integration Tests — Testcontainers
-
-This application-level example assumes the first-party JWT setup and order API from
-the related skills. Supply `src/test/resources/fixtures/order-user-and-product.sql` for
-your application's schema: an enabled USER named `buyer@example.com` and an in-stock
-product with ID `00000000-0000-0000-0000-000000000001`. Run it only against the disposable
-test database. Adapt the fixtures and response DTO to your application.
-
-Load the real persisted user before signing the token. `@WithMockUser` does not authenticate
-a request sent over HTTP to a random-port server. For OAuth2 resource servers, use a test
-issuer instead of introducing this application's JWT service.
-
-```java
-// Shared config — reuse container across tests
-@TestConfiguration(proxyBeanMethods = false)
-public class TestcontainersConfig {
-
-    @Bean
-    @ServiceConnection
-    PostgreSQLContainer postgresContainer() { // org.testcontainers.postgresql.PostgreSQLContainer (TC 2)
-        return new PostgreSQLContainer("postgres:16-alpine");
-    }
-}
-
-// Full integration test
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureRestTestClient
-@Import(TestcontainersConfig.class)
-class OrderIntegrationTest {
-
-    @Autowired RestTestClient restTestClient;
-    @Autowired OrderRepository orderRepository;
-    @Autowired JwtFactory jwtFactory;
-    @Autowired UserDetailsService userDetailsService;
-
-    private static final UUID PRODUCT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
-    private static final ParameterizedTypeReference<OrderResponse> RESPONSE_TYPE =
-        new ParameterizedTypeReference<>() {};
-
-    @Test
-    @Sql("/fixtures/order-user-and-product.sql")
-    void createAndRetrieveOrder_endToEnd() {
-        var user = userDetailsService.loadUserByUsername("buyer@example.com");
-        String token = jwtFactory.generateAccessToken(user);
-        var createRequest = new CreateOrderRequest("buyer@example.com",
-            List.of(new CreateOrderRequest.OrderItemRequest(PRODUCT_ID, 1)));
-        var created = restTestClient.post()
-            .uri("/api/v1/orders")
-            .headers(headers -> headers.setBearerAuth(token))
-            .body(createRequest)
-            .exchange()
-            .expectStatus().isCreated()
-            .expectBody(RESPONSE_TYPE)
-            .returnResult().getResponseBody();
-        assertThat(created).isNotNull();
-        UUID id = created.id();
-        assertThat(id).isNotNull();
-        assertThat(orderRepository.findById(id)).isPresent();
-
-        var retrieved = restTestClient.get()
-            .uri("/api/v1/orders/{id}", id)
-            .headers(headers -> headers.setBearerAuth(token))
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(RESPONSE_TYPE)
-            .returnResult().getResponseBody();
-        assertThat(retrieved).isNotNull();
-        assertThat(retrieved.id()).isEqualTo(id);
-        assertThat(retrieved.status()).isEqualTo(created.status());
-        assertThat(retrieved.items()).hasSize(1);
-        assertThat(retrieved.items().get(0).productId()).isEqualTo(PRODUCT_ID);
-        assertThat(retrieved.items().get(0).quantity()).isEqualTo(1);
-    }
-}
-```
-
-## Security regression matrix
-
-For protected reads and writes, cover anonymous requests, invalid/expired credentials,
-missing authority, same-tenant wrong owner, cross-tenant access, and the allowed caller.
-Exercise the real SecurityFilterChain and method-security proxy where those enforce policy;
-a mock Authentication or direct service call does not validate JWT decoding or proxy wiring.
-Preserve the application's 401/403/404 contract instead of imposing one globally.
-
-For denied writes, assert unchanged persisted state and no external effect, not just the
-response status. For denied reads, assert that no other owner's data reaches the response.
-Use the actual database query for tenant/owner isolation tests; mocks only prove delegation.
-Keep CSRF enabled for cookie-authenticated browser flows and explicitly test missing/invalid
-CSRF tokens. Do not disable filters or add permissive test security merely to get green tests.
-
-Include secret-free error/log assertions, audit rollback/sink-failure cases, and bounded
-AI-tool calls where those features exist. Keep adversarial fixtures synthetic and offline.
-Running active scans or provider-backed evaluations requires the relevant scope and approval.
-
-## Naming convention
-
-```
-// Method name: methodName_condition_expectedBehavior
-createOrder_whenItemsAvailable_shouldSaveOrder()
-findById_whenOrderNotFound_shouldThrowNotFoundException()
-login_withInvalidCredentials_shouldReturn401()
-```
-
-## Testcontainers Dependencies
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-testcontainers</artifactId>
-    <scope>test</scope>
-</dependency>
-<dependency>
-    <groupId>org.testcontainers</groupId>
-    <artifactId>testcontainers-postgresql</artifactId> <!-- Testcontainers 2 renamed every module -->
-    <scope>test</scope>
-</dependency>
-```
-
-## Build and release verification
-
-When asked to assess readiness, inspect the repository's build files, wrapper,
-CI workflow, profiles, and contribution instructions before choosing commands.
-Use the project's configured wrapper and quality gates. Preserve module
-boundaries, thresholds, and scanner configuration. A verification request does
-not authorize production access, credential uploads, deployment, or unrelated
-code changes.
-
-- Confirm the effective Boot/JDK/toolchain versions and the JVM used by the build.
-- For Maven, use the configured wrapper lifecycle. The verify lifecycle includes
-  integration-test verification only when Failsafe is bound. Do not stop at
-  integration-test.
-- For Gradle, inspect task dependencies. The check task does not guarantee a
-  separately registered integration-test task runs.
-- Run configured lint, static analysis, coverage, secret, and dependency checks.
-  A generated coverage report is not a gate unless a threshold is enforced.
-- Compare discovered tests and run-specific reports with expected suites. Expose
-  zero tests, disabled tests, skipped suites, stale reports, scan failures, and
-  exclusions even when the build exits successfully.
-- Record the source revision and dirty state, versions, exact commands, exit
-  status, test counts, report locations, and remaining risks. Mark each gate
-  PASS, FAIL, BLOCKED, or NOT RUN. A blocked required check means readiness is
-  unestablished.
-- After a deterministic failure, stop dependent checks. Retry a proven transient
-  infrastructure failure at most once and retain both outcomes. Do not weaken
-  gates or modify thresholds to get a green result.
-
-Use the [readiness report examples](examples/readiness-report.md) to keep claims tied to evidence.
-
-## Gotchas
-- Agent uses `org.testcontainers:postgresql` on Boot 4 — Testcontainers 2 (managed by Boot 4.1) publishes `testcontainers-postgresql`; the old artifact has no managed version. Import `org.testcontainers.postgresql.PostgreSQLContainer` (non-generic); the old `containers` package is deprecated
-- Agent uses `@SpringBootTest` for everything — use slices for speed
-- Agent uses `H2` in-memory DB for `@DataJpaTest` — use Testcontainers for accuracy
-- Agent uses `@MockBean` — removed in Boot 4; use `@MockitoBean` (and `@MockitoSpyBean` for spies)
-- Agent uses `TestRestTemplate` by habit — prefer `RestTestClient` with `@AutoConfigureRestTestClient` for Boot 4 HTTP integration tests
-- Agent relies only on mocks for transaction or concurrency guarantees - test those boundaries with real infrastructure.
-- Agent forgets `@WithMockUser` on controller tests — security filter blocks all requests with 401
-- Agent POSTs in a secured `@WebMvcTest` without `.with(csrf())` — when CSRF protection is enabled, authentication from `@WithMockUser` does not supply the CSRF token
-- Agent checks only a response status - also assert persisted state, ownership and the relevant failure effects.
-- Agent names tests `test_createOrder()` — use `createOrder_condition_expected()` pattern
+Read [Web MVC](../spring-boot-webmvc/SKILL.md) for HTTP contracts,
+[JPA](../spring-data-jpa/SKILL.md) for persistence mapping,
+[security](../spring-boot-security/SKILL.md) for policy, and
+[browser regression](../agent-qa-browser-regression/SKILL.md) only for requested browser journeys.
+Follow existing build commands; use the selected Maven or Gradle skill when build changes are
+authorized. Test design or verification alone does not authorize publication, deployments,
+production access, active scans or paid external evaluations.
