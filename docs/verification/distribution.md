@@ -94,3 +94,9 @@ A05 packaging defect is verified fixed on the PR branch. A03 complete-installati
 - [Skill verification 46120989867](https://github.com/zhijunio/skills/actions/runs/46120989867) and [regular CI](https://github.com/zhijunio/skills/actions/runs/46120990337), head 9209fae: both passed with checked-in catalog freshness enforcement enabled. No actual agent invocation or deployment was performed.
 
 Remaining scope: representative selected-skill installation, full local reference validation, runtime invocation and strict hosted export checks, and publication authorization. Keep those limitations distinct from verified distribution behavior.
+
+## 9. Selected installation and local reference audit
+
+[Skill verification 46122566174](https://github.com/zhijunio/skills/actions/runs/46122566174), head eb7d88a: metadata job ran 12 helper tests successfully; discovery job verified the explicit grill-with-docs, grilling and domain-modeling group (3/3 in each Codex and Claude Code layout), as well as the complete installation. This is a representative explicit dependency group, not proof of automatic dependency resolution or runtime invocation.
+
+The initial Lychee 0.24.2 offline audit reported 949 links: 692 successful, 255 excluded, 2 errors (exit code 2). Both errors referenced the removed spring-boot-4/versions.json from BootUI and OpenAPI supporting references. The Maven-specific snapshot does not contain either dependency's version data; replace the stale references with primary-source compatibility guidance rather than redirecting to an unrelated snapshot. The next revision enables blocking offline link checks; its result remains pending. External URLs, anchors (unless explicitly enabled), non-link path mentions and actual technical compatibility are outside this check's scope.

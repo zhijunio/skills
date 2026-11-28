@@ -7,15 +7,16 @@ springdoc publishes the document.
 
 When the user requests OpenAPI documentation for a new web project, add the
 documentation dependency. For an existing project, preserve a compatible
-springdoc version. Read the effective Boot version and its
-springdoc.bySpringBootLine entry in
-[spring-boot-4/versions.json](../../../spring-boot-4/versions.json). Use the
-entry's exact recommended version when adding springdoc or replacing an
-incompatible version. Declare only springdoc-openapi-starter-webmvc-ui for
+springdoc version. Read the effective Spring Boot version and consult the
+[official springdoc compatibility matrix](https://springdoc.org/#what-is-the-compatibility-matrix-of-springdoc-openapi-with-spring-boot).
+Verify the selected artifact version against published release metadata before adding
+springdoc or replacing an incompatible version. Declare only springdoc-openapi-starter-webmvc-ui for
 servlet MVC and follow the project's dependency-management convention.
 
 Use Therapi runtime JavaDoc support and its compiler annotation processor,
-using the pinned version from versions.json. Merge the processor path with
+using compatible published versions of both artifacts; preserve existing compatible pins.
+Consult the [Therapi project documentation](https://github.com/dnault/therapi-runtime-javadoc)
+when introducing or upgrading them. Merge the processor path with
 existing compiler configuration rather than replacing it.
 
 ## Document the API

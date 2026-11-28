@@ -7,9 +7,9 @@ alerting, or APM.
 ## Compatibility and dependency
 
 The setup guide targets Spring Boot 4.x and Java 17+. The same starter supports Spring MVC and
-WebFlux; keep the application's existing web starter. Use the BootUI version recorded in the
-shared [version registry](../../../spring-boot-4/versions.json), and check the official setup guide
-for compatibility before adding or upgrading the dependency.
+WebFlux; keep the application's existing web starter. Preserve an existing compatible BootUI version. Before adding or upgrading, verify the
+version and compatibility using the [official setup guide](https://www.julien-dubois.com/boot-ui/setup)
+and the published artifact metadata. The dependency versions below are examples, not a live registry.
 
 Add `com.julien-dubois.bootui:bootui-spring-boot-starter` only when requested. If the application
 must not contain BootUI in its production artifact, put the dependency in a development-only build
