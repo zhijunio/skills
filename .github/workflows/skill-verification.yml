@@ -68,11 +68,37 @@ jobs:
           python-version: '3.12'
       - name: Install pinned upstream reference implementation
         run: python -m pip install 'skills-ref @ git+https://github.com/agentskills/agentskills.git@83021e2be457a9b6679148719c1f6074f0ad975e#subdirectory=skills-ref'
-      - run: python scripts/validate-skill-metadata.py
-      - name: Test verification helpers
-        run: python -m unittest discover -s scripts -p 'test_*.py'
+      - name: Prepare verification evidence
+        run: |
+          mkdir -p verification-evidence
+          git rev-parse HEAD > verification-evidence/revision.txt
+          python --version > verification-evidence/python-version.txt 2>&1
+          python -m pip show skills-ref > verification-evidence/validator-version.txt
+      - name: Validate skill metadata
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/validate-skill-metadata.py 2>&1 | tee verification-evidence/metadata.log
+      - name: Test verification helpers and evaluation inputs
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m unittest discover -s scripts -p 'test_*.py' -v 2>&1 | tee verification-evidence/helper-tests.log
       - name: Check generated skill catalog is current
-        run: python scripts/generate-skill-catalog.py --check
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/generate-skill-catalog.py --check 2>&1 | tee verification-evidence/catalog.log
+      - name: Measure static context size
+        run: python scripts/measure_skill_context.py > verification-evidence/context-size.json
+      - name: Upload deterministic verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deterministic-verification-evidence
+          path: verification-evidence/
+          retention-days: 14
+          if-no-files-found: warn
 
   discovery:
     runs-on: ubuntu-latest
@@ -120,7 +146,7 @@ jobs:
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           lycheeVersion: v0.24.2
-          args: "--offline --no-progress --verbose './*.md' 'docs/**/*.md' 'engineering/**/*.md' 'spring-boot-skills/**/*.md' 'collected-skills/**/*.md'"
+          args: "--offline --no-progress --verbose './*.md' 'docs/**/*.md' 'evals/**/*.md' 'engineering/**/*.md' 'spring-boot-skills/**/*.md' 'collected-skills/**/*.md'"
           fail: true
       - name: Record link check outcome
         if: always()

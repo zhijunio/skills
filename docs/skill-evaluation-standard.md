@@ -46,3 +46,5 @@ No universal pass-rate, token or latency threshold is established by this standa
 ## Upstream tooling
 
 Use the [skill-creator integration review](verification/skill-creator-integration.md) before using upstream evaluation results. Keep the local evidence ledger authoritative: upstream boolean trigger outcomes can hide execution errors, and missing metrics or skipped grading records must not become successful or zero-cost observations.
+
+See [quality gates](verification/quality-gates.md) for deterministic CI evidence and the separate opt-in model evaluation approval and budget requirements.

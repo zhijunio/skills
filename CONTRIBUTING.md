@@ -57,7 +57,7 @@ Choose checks according to the risk and scope of the change.
 
 Actual agent behavior is distinct from installing files into an agent's skills directory. Use the upstream skill-creator evaluation workflow when feasible and compare against the old skill or no-skill baseline. Record the model, input, expected behavior, observed result and limitations. If a required check cannot run, mark it NOT RUN with the reason; do not substitute a successful static check for runtime evidence.
 
-CI runs regular Maven verification and skill verification on pull requests. Check the actual run results, not just a locally successful command. The existing distribution report documents tested versions and coverage. A green CI does not clear outstanding license or publishing blockers.
+CI runs regular Maven verification and skill verification on pull requests. See [quality gates](docs/verification/quality-gates.md) for evidence artifacts, applicable behavioral review and separate publication requirements. Check the actual run results, not just a locally successful command. The existing distribution report documents tested versions and coverage. A green CI does not clear outstanding license or publishing blockers.
 
 ## Commit and submit a pull request
 
