@@ -42,45 +42,45 @@ The following records all 59 entry points. An identical Git blob establishes con
 | [progen](../engineering/progen/SKILL.md) | P | Historical directory: 2/2 local blobs identical to skills/progen at pinned upstream snapshot below |
 | [project-foundation](../engineering/project-foundation/SKILL.md) | U | Source unresolved; local delegation changes |
 | [prototype](../engineering/prototype/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/prototype at pinned upstream snapshot below |
-| [agent-qa-browser-regression](../spring-boot-skills/agent-qa-browser-regression/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [archunit](../spring-boot-skills/archunit/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [bootui](../spring-boot-skills/bootui/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [event-driven-messaging](../spring-boot-skills/event-driven-messaging/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [feature-architecture](../spring-boot-skills/feature-architecture/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [flyway-migrations](../spring-boot-skills/flyway-migrations/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [hexagonal-architecture](../spring-boot-skills/hexagonal-architecture/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [http-interface-clients](../spring-boot-skills/http-interface-clients/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [idempotency-patterns](../spring-boot-skills/idempotency-patterns/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [jvm-diagnostics](../spring-boot-skills/jvm-diagnostics/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [layered-architecture](../spring-boot-skills/layered-architecture/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [mise](../spring-boot-skills/mise/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [multi-module-maven](../spring-boot-skills/multi-module-maven/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [multi-tenancy](../spring-boot-skills/multi-tenancy/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [null-safety](../spring-boot-skills/null-safety/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [postgresql](../spring-boot-skills/postgresql/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [resilience-retry](../spring-boot-skills/resilience-retry/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-ai](../spring-boot-skills/spring-ai/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-api-versioning](../spring-boot-skills/spring-boot-api-versioning/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-cicd](../spring-boot-skills/spring-boot-cicd/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-configuration](../spring-boot-skills/spring-boot-configuration/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-docker](../spring-boot-skills/spring-boot-docker/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-email](../spring-boot-skills/spring-boot-email/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-frontend-integration](../spring-boot-skills/spring-boot-frontend-integration/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-gradle](../spring-boot-skills/spring-boot-gradle/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-kubernetes](../spring-boot-skills/spring-boot-kubernetes/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-maven](../spring-boot-skills/spring-boot-maven/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-mybatis-plus](../spring-boot-skills/spring-boot-mybatis-plus/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-observability](../spring-boot-skills/spring-boot-observability/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-openapi](../spring-boot-skills/spring-boot-openapi/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-scaffolding](../spring-boot-skills/spring-boot-scaffolding/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-security](../spring-boot-skills/spring-boot-security/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-testing](../spring-boot-skills/spring-boot-testing/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot-webmvc](../spring-boot-skills/spring-boot-webmvc/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-boot](../spring-boot-skills/spring-boot/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-data-jpa](../spring-boot-skills/spring-data-jpa/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-data-redis](../spring-boot-skills/spring-data-redis/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-modulith](../spring-boot-skills/spring-modulith/SKILL.md) | S | Collection attribution; exact file mapping pending |
-| [spring-task-execution](../spring-boot-skills/spring-task-execution/SKILL.md) | S | Collection attribution; exact file mapping pending |
+| [agent-qa-browser-regression](../spring-boot-skills/agent-qa-browser-regression/SKILL.md) | S | Historical resource matches 3/4; upstream: agent-qa-browser-regression |
+| [archunit](../spring-boot-skills/archunit/SKILL.md) | S | Historical resource matches 0/2; upstream: unresolved |
+| [bootui](../spring-boot-skills/bootui/SKILL.md) | S | Historical resource matches 0/3; upstream: unresolved |
+| [event-driven-messaging](../spring-boot-skills/event-driven-messaging/SKILL.md) | S | Historical resource matches 3/5; upstream: event-driven-messaging |
+| [feature-architecture](../spring-boot-skills/feature-architecture/SKILL.md) | S | Historical resource matches 0/2; upstream: unresolved |
+| [flyway-migrations](../spring-boot-skills/flyway-migrations/SKILL.md) | S | Historical resource matches 3/7; upstream: flyway-migrations |
+| [hexagonal-architecture](../spring-boot-skills/hexagonal-architecture/SKILL.md) | S | Historical resource matches 4/6; upstream: hexagonal-architecture |
+| [http-interface-clients](../spring-boot-skills/http-interface-clients/SKILL.md) | S | Historical resource matches 3/5; upstream: http-interface-clients |
+| [idempotency-patterns](../spring-boot-skills/idempotency-patterns/SKILL.md) | S | Historical resource matches 3/4; upstream: idempotency-patterns |
+| [jvm-diagnostics](../spring-boot-skills/jvm-diagnostics/SKILL.md) | S | Historical resource matches 4/5; upstream: jvm-diagnostics |
+| [layered-architecture](../spring-boot-skills/layered-architecture/SKILL.md) | S | Historical resource matches 5/7; upstream: layered-architecture |
+| [mise](../spring-boot-skills/mise/SKILL.md) | S | Historical resource matches 0/3; upstream: unresolved |
+| [multi-module-maven](../spring-boot-skills/multi-module-maven/SKILL.md) | S | Historical resource matches 0/5; upstream: multi-module-maven (name only) |
+| [multi-tenancy](../spring-boot-skills/multi-tenancy/SKILL.md) | S | Historical resource matches 8/10; upstream: multi-tenancy |
+| [null-safety](../spring-boot-skills/null-safety/SKILL.md) | S | Historical resource matches 2/4; upstream: null-safety |
+| [postgresql](../spring-boot-skills/postgresql/SKILL.md) | S | Historical resource matches 0/3; upstream: unresolved |
+| [resilience-retry](../spring-boot-skills/resilience-retry/SKILL.md) | S | Historical resource matches 3/5; upstream: resilience-retry |
+| [spring-ai](../spring-boot-skills/spring-ai/SKILL.md) | S | Historical resource matches 0/11; upstream: unresolved |
+| [spring-boot-api-versioning](../spring-boot-skills/spring-boot-api-versioning/SKILL.md) | S | Historical resource matches 2/4; upstream: api-versioning |
+| [spring-boot-cicd](../spring-boot-skills/spring-boot-cicd/SKILL.md) | S | Historical resource matches 0/4; upstream: unresolved |
+| [spring-boot-configuration](../spring-boot-skills/spring-boot-configuration/SKILL.md) | S | Historical resource matches 3/5; upstream: configuration-properties |
+| [spring-boot-docker](../spring-boot-skills/spring-boot-docker/SKILL.md) | S | Historical resource matches 1/14; upstream: container-native-deployment |
+| [spring-boot-email](../spring-boot-skills/spring-boot-email/SKILL.md) | S | Historical resource matches 0/3; upstream: unresolved |
+| [spring-boot-frontend-integration](../spring-boot-skills/spring-boot-frontend-integration/SKILL.md) | S | Historical resource matches 0/5; upstream: unresolved |
+| [spring-boot-gradle](../spring-boot-skills/spring-boot-gradle/SKILL.md) | S | Historical resource matches 0/4; upstream: unresolved |
+| [spring-boot-kubernetes](../spring-boot-skills/spring-boot-kubernetes/SKILL.md) | S | Historical resource matches 0/3; upstream: unresolved |
+| [spring-boot-maven](../spring-boot-skills/spring-boot-maven/SKILL.md) | S | Historical resource matches 0/4; upstream: unresolved |
+| [spring-boot-mybatis-plus](../spring-boot-skills/spring-boot-mybatis-plus/SKILL.md) | S | Historical resource matches 0/4; upstream: unresolved |
+| [spring-boot-observability](../spring-boot-skills/spring-boot-observability/SKILL.md) | S | Historical resource matches 3/5; upstream: production-observability |
+| [spring-boot-openapi](../spring-boot-skills/spring-boot-openapi/SKILL.md) | S | Historical resource matches 1/7; upstream: openapi-first |
+| [spring-boot-scaffolding](../spring-boot-skills/spring-boot-scaffolding/SKILL.md) | S | Historical resource matches 0/5; upstream: spring-boot-scaffolding (name only) |
+| [spring-boot-security](../spring-boot-skills/spring-boot-security/SKILL.md) | S | Historical resource matches 5/21; upstream: security-audit-logging; oauth2-resource-server; spring-security-jwt |
+| [spring-boot-testing](../spring-boot-skills/spring-boot-testing/SKILL.md) | S | Historical resource matches 1/5; upstream: testing-pyramid |
+| [spring-boot-webmvc](../spring-boot-skills/spring-boot-webmvc/SKILL.md) | S | Historical resource matches 8/16; upstream: problem-details-rfc9457; rest-api-conventions; transactional-patterns |
+| [spring-boot](../spring-boot-skills/spring-boot/SKILL.md) | S | Historical resource matches 0/2; upstream: unresolved |
+| [spring-data-jpa](../spring-boot-skills/spring-data-jpa/SKILL.md) | S | Historical resource matches 3/5; upstream: spring-data-jpa |
+| [spring-data-redis](../spring-boot-skills/spring-data-redis/SKILL.md) | S | Historical resource matches 5/8; upstream: spring-data-redis |
+| [spring-modulith](../spring-boot-skills/spring-modulith/SKILL.md) | S | Historical resource matches 3/4; upstream: spring-modulith |
+| [spring-task-execution](../spring-boot-skills/spring-task-execution/SKILL.md) | S | Historical resource matches 4/11; upstream: scheduled-tasks; async-execution |
 
 ## Required follow-up
 
@@ -115,3 +115,7 @@ The matching 18 historical directories cover 68 local files (including SKILL.md 
 - product-brainstorming, project-foundation: confirm authorship and source/license.
 - Spring Boot collection: distinguish verified resource matches from local additions; confirm all remaining files' provenance.
 - Ensure source and distributed archives preserve applicable notices, including files copied by individual installation and extraction. No publication while blockers remain.
+
+## Spring Boot historical resource comparison
+
+Compared all 230 files under the 39 skill directories at local [aa2459c](https://github.com/zhijunio/skills/tree/aa2459c28bc8bdbc7d37a3f5d8bce09070e44a7d) against all blobs under upstream skills/spring-boot-4 at b90c3db. 80 local files have an exact blob match anywhere under that upstream collection. 23 skill directories have at least one match; 16 have none. The per-skill table above records candidate upstream directories from the matching blobs, or name-only matches explicitly marked as such. None of these counts establishes authorship of unmatched files, including rewritten entry points. The local Spring Boot LICENSE has the exact same blob as the upstream root LICENSE at the pinned revision. Preserve it and investigate remaining files.
