@@ -49,7 +49,7 @@ Avoid duplicating lifecycle logic that already belongs in the build file.
   credentials in it.
 - Leave secrets out of `mise.toml`; use the project's established secret store and environment
   injection.
-- Review `mise.toml` before trusting it. Tasks and configuration can run commands or change the
+- Review `mise.toml`, inherited configuration, plugins and referenced scripts before trusting it. Do not automatically run mise trust/install for an unreviewed checkout; obtain approval for tool installation or state-changing tasks. Tasks and configuration can run commands or change the
   environment when mise loads them.
 
 ## Compose tasks
