@@ -63,8 +63,13 @@ def verify_destination(root: Path, destination: Path, label: str, expected: dict
     return errors
 
 
-def verify(root: Path, project: Path, extracted: bool = False) -> list[str]:
+def verify(root: Path, project: Path, extracted: bool = False, selected=None) -> list[str]:
     expected, errors = inventory(root)
+    if selected is not None:
+        unknown = set(selected) - expected.keys()
+        if unknown:
+            return errors + [f"Unknown selected skills: {', '.join(sorted(unknown))}"]
+        expected = {name: expected[name] for name in selected}
     if extracted:
         errors.extend(verify_destination(root, project, "SkillsJars extraction", expected))
     else:
@@ -78,8 +83,9 @@ def main():
     parser.add_argument("project", type=Path)
     parser.add_argument("--extracted", action="store_true",
                         help="Check a flat SkillsJars extraction directory")
+    parser.add_argument('--skill', action='append', help='Expected selected skill; repeat for a group')
     args = parser.parse_args()
-    errors = verify(ROOT, args.project, args.extracted)
+    errors = verify(ROOT, args.project, args.extracted, args.skill)
     for error in errors:
         print(f"ERROR: {error}")
     if errors:
