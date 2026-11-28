@@ -15,7 +15,8 @@ Use this skill for Spring Boot 4 projects built with Gradle. Read
 verification tasks, or packaging. Use the committed `./gradlew` wrapper and preserve the project's
 existing DSL and conventions.
 
-For new projects or an explicit house-style alignment, apply the full defaults in the reference.
+For an explicit house-style alignment, apply only approved defaults in the reference.
+For new projects, preserve the generation contract and add optional tooling only when requested or required by approved policy.
 For other changes, check only the rules relevant to the requested build behavior.
 
 For Maven builds, use [spring-boot-maven](../spring-boot-maven/SKILL.md). For Maven multi-module
