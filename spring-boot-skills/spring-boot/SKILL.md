@@ -8,6 +8,8 @@ description: >
 
 # Spring Boot
 
+For version-sensitive changes, follow [shared version resolution](references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
+
 Use this skill to route Spring Boot application work to the focused skills in this collection. Keep
 the request's scope and project conventions; the focused skills own their domain rules.
 
