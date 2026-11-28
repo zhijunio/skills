@@ -35,7 +35,7 @@ On Windows, use mvnw.cmd instead of the shell wrapper. See the [authoring guide]
 
 Use the appropriate collection and retain directory-matching skill names. Follow the existing file conventions. Reuse existing capabilities before building new ones. Keep essential instructions in SKILL.md, load references on demand, and avoid unrelated formatting or structural changes.
 
-If changing a skill contract, check adjacent skills, dependency paths and shared artifacts. Preserve existing invocation policies unless the change explicitly revises them. Update affected collection indexes, README summaries, provenance and catalog or workflow documentation when present. Do not rewrite historical audit reports to conceal defects; append evidence to the remediation tracker instead.
+If changing a skill contract, check adjacent skills, dependency paths and shared artifacts. Preserve existing invocation policies unless the change explicitly revises them. Update affected collection indexes, README summaries, provenance and workflow documentation when relevant. Regenerate the [skill catalog](docs/skill-catalog.md) with `python scripts/generate-skill-catalog.py` after changing its inputs; CI checks it with `--check`. Commit the generated file with the source changes. Do not rewrite historical audit reports to conceal defects; append evidence to the remediation tracker instead.
 
 ## Licensing and attribution
 
