@@ -1,6 +1,6 @@
 # Distribution Verification
 
-Status: Remediation under review; post-change CI results and actual agent behavior remain to be recorded.
+Status: Post-change distribution CI passed; actual agent behavior and publication authorization remain pending.
 
 ## 1. Verified pre-change evidence
 
@@ -57,11 +57,11 @@ The [skill verification workflow](../../.github/workflows/skill-verification.yml
 | --- | --- |
 | Pre-change Maven build | Passed in cited CI |
 | Pre-change nested packaging | Defect confirmed in cited logs |
-| Post-change Maven packaging and resource equality | CI pending |
-| Post-change local Maven extraction | CI pending |
-| CLI discovery and target project installation | CI pending |
-| Installed entry-point dependency links | CI pending |
-| Portable metadata projection and extension policy | CI pending |
+| Post-change Maven packaging and resource equality | Passed: 59/59 |
+| Post-change local Maven extraction | Passed: 59/59 |
+| CLI discovery and target project installation | Passed: 59/59 for each target |
+| Installed entry-point dependency links | Passed for checked links |
+| Portable metadata projection and extension policy | Passed: 59 entries, 10 with known extensions |
 | Actual Codex and Claude Code invocation behavior | Not run |
 | Full reference/script audit and strict exports | Not run |
 | Snapshot publishing | HTTP 401; authorization review needed |
@@ -74,3 +74,15 @@ Record post-change job URLs and results before closing findings. Keep the distri
 The maintainer should confirm that the Maven Central Portal namespace matches io.github.zhijunio, snapshots are enabled for the intended namespace, the configured GitHub Actions secrets contain a valid Central Portal token pair, and the reusable workflow supplies the corresponding Maven server ID. The logs identify a 401 but do not prove which condition failed. Do not expose, rotate or request secret values in repository files.
 
 Before merging a packaging change that makes previously omitted third-party skills distributable, confirm applicable permissions, notice preservation, intended publication scope, and release authorization. See [provenance register](../skill-provenance.md).
+
+## 7. Post-change CI evidence
+
+Tested PR head: 487ca8c76e0bcbfa9c174f2a4e7197d1cd8b77c9. Both [regular CI](https://github.com/zhijunio/skills/actions/runs/46108124589) and [Skill verification](https://github.com/zhijunio/skills/actions/runs/46108124101) completed successfully.
+
+| Job | Evidence |
+| --- | --- |
+| [Package](https://github.com/zhijunio/skills/actions/runs/46108124101/job/140865370886) | Six helper tests passed; Maven build succeeded; 59 distinct archive skill names matched source and resources; extraction found 59 skills and passed resource and entry-point link checks. |
+| [Discovery](https://github.com/zhijunio/skills/actions/runs/46108124101/job/140865370565) | CLI installed 59 skills; both Codex and Claude Code destinations contained all 59 and passed checked resource and entry-point link comparisons. |
+| [Metadata](https://github.com/zhijunio/skills/actions/runs/46108124101/job/140865370852) | 59 distinct names, 10 entries with known host extensions; portable metadata projection and local extension policy checks passed. |
+
+A05 packaging defect is verified fixed on the PR branch. A03 complete-installation checks and A12 local metadata checks passed within the documented scope. Actual agent invocation, individual-install dependency closure, strict hosted exports, historical license permissions and publication authorization are not established by these results. PR remains draft pending redistribution review; no publication was attempted by this verification workflow.
