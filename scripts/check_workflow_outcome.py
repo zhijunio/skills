@@ -2,6 +2,7 @@
 """Check selected final-state assertions; never execute candidate code."""
 import argparse
 import json
+import stat
 from pathlib import Path
 
 PROTECTED = ("booking.py", "test_booking.py", "docs/PRD.md", "docs/requirements.md")
@@ -16,7 +17,29 @@ def read(root, name):
             break
         if part.is_symlink():
             raise ValueError(f"Symlink not accepted: {name}")
+    if not stat.S_ISREG(path.lstat().st_mode):
+        raise ValueError(f"Not a regular file: {name}")
     return path.read_bytes()
+
+
+def fixture_paths(root):
+    """Inventory fixture files without descending into symlinks or host metadata."""
+    ignored = {".git", ".agents", ".claude", "__pycache__"}
+    paths = set()
+    pending = [root]
+    while pending:
+        directory = pending.pop()
+        for path in directory.iterdir():
+            if path.name in ignored:
+                continue
+            mode = path.lstat().st_mode
+            if stat.S_ISDIR(mode):
+                pending.append(path)
+            elif stat.S_ISREG(mode):
+                paths.add(path.relative_to(root).as_posix())
+            else:
+                raise ValueError(f"Unexpected file type: {path.relative_to(root)}")
+    return paths
 
 
 def checks(case, before, after):
@@ -37,10 +60,14 @@ def checks(case, before, after):
             assertion(name + " unchanged", False)
 
     if case in ("W04", "W05", "W05-cycle", "W16"):
-        for name in PROTECTED:
-            unchanged(name)
-        for path in sorted((before / "docs/specs").glob("*.md")):
-            unchanged(path.relative_to(before).as_posix())
+        try:
+            original_paths = fixture_paths(before)
+            candidate_paths = fixture_paths(after)
+            assertion("fixture file inventory unchanged", original_paths == candidate_paths)
+            for name in sorted(original_paths | set(PROTECTED)):
+                unchanged(name)
+        except (OSError, ValueError):
+            assertion("fixture inventory readable and regular", False)
     else:
         unchanged("docs/PRD.md")
         unchanged("test_booking.py")
@@ -51,6 +78,11 @@ def checks(case, before, after):
             expected = f"| {icon} | UC-001 | Book a room | {status} |"
             matches = [line for line in index.splitlines() if "| UC-001 |" in line]
             assertion("canonical index status and icon", matches == [expected])
+            old_status, old_icon = ("TODO", "❎") if case == "W06" else ("DONE", "✅")
+            old_row = f"| {old_icon} | UC-001 | Book a room | {old_status} |"
+            original_index = read(before, "docs/requirements.md").decode("utf-8")
+            assertion("index otherwise unchanged", original_index.count(old_row) == 1
+                      and index == original_index.replace(old_row, expected, 1))
             frontmatter = spec.split("---", 2)
             metadata = frontmatter[1].splitlines() if len(frontmatter) == 3 and not frontmatter[0] else []
             assertion("specification mirror status", [line for line in metadata if line.startswith("Status:")] == [f"Status: {status}"])

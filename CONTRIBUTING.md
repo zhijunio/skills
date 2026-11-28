@@ -86,3 +86,5 @@ Address review findings with focused commits. A contribution is ready for review
 Do not run Maven deploy, manually dispatch release workflows or merge a publication-triggering change merely to test it. Pushes to main trigger the snapshot workflow. Publishing requires maintainer authorization, appropriate credentials, resolved redistribution permissions and applicable verification. Review existing [distribution limitations](docs/verification/distribution.md) before release.
 
 Report suspected security problems without exposing credentials, private data or exploit details in public issues. Coordinate a suitable private disclosure channel with the maintainer when necessary.
+
+For changes to existing skills or verification tools, follow the [maintenance and regression protocol](docs/verification/skill-maintenance.md).

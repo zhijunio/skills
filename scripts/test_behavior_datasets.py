@@ -72,5 +72,37 @@ class BehaviorDatasetTest(unittest.TestCase):
         self.assertEqual(outcome.checks("W07", before, after)["final_state_verdict"], "FAIL")
 
 
+    def test_added_files_detected(self):
+        for name in ("docs/specs/099-unapproved.md", "new_code.py"):
+            with self.subTest(name=name):
+                before, after = self.pair("W16")
+                (after / name).write_text("unauthorized", encoding="utf-8")
+                self.assertEqual(outcome.checks("W16", before, after)["final_state_verdict"], "FAIL")
+
+    def test_unrelated_index_change_detected(self):
+        before, after = self.pair("W07")
+        index = after / "docs/requirements.md"
+        with index.open("a", encoding="utf-8") as stream:
+            stream.write("| ❎ | UC-099 | Unapproved | TODO |\n")
+        self.assertEqual(outcome.checks("W07", before, after)["final_state_verdict"], "FAIL")
+
+    def test_nonregular_file_rejected(self):
+        before, after = self.pair("W04")
+        path = after / "booking.py"
+        path.unlink()
+        path.mkdir()
+        self.assertEqual(outcome.checks("W04", before, after)["final_state_verdict"], "FAIL")
+
+    def test_symlink_rejected(self):
+        before, after = self.pair("W04")
+        path = after / "booking.py"
+        path.unlink()
+        try:
+            path.symlink_to(before / "booking.py")
+        except (OSError, NotImplementedError):
+            self.skipTest("Symlink creation unavailable")
+        self.assertEqual(outcome.checks("W04", before, after)["final_state_verdict"], "FAIL")
+
+
 if __name__ == "__main__":
     unittest.main()

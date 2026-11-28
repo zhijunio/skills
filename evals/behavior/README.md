@@ -17,3 +17,5 @@ A PASS means only that the selected filesystem assertion passed. The checker alw
 The baseline and candidate must be separate directories. The checker does not follow symlinks in protected files and fails closed for missing files. It is not a security sandbox and cannot detect remote effects. No agent runs or model spending are authorized by this document.
 
 All cases remain NOT RUN in independent agents.
+
+For blocked cases the checker compares the entire fixture file inventory and bytes, excluding host metadata (.git, .agents, .claude, __pycache__). Keep evidence outside the candidate directory. For W06/W07 the entire index must match the expected status-only change. These remain selected final-state assertions; they do not establish full behavioral completion.
