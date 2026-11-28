@@ -96,7 +96,7 @@ All paths below are relative to the target project, not this skills repository. 
 | Review findings | java-code-review | review.md unless specified |
 | Test and build evidence | Implementing or reviewing skill and project tools | Actual test reports, logs and change summary |
 
-The product brainstorming summary confirmation authorizes drafting the PRD; the resulting default PRD still has draft/pending approval metadata. Obtain or establish product scope approval before treating it as committed implementation scope. This is a workflow gate, not a claim that the current PRD conversion skill enforces approval metadata automatically.
+The product brainstorming summary confirmation authorizes drafting the PRD; the resulting default PRD still has draft/pending approval metadata. Obtain or establish product scope approval before treating it as committed implementation scope. The PRD owner records explicit approval of the reviewed revision; the conversion skill checks scope authority and does not modify the PRD. Legacy authority conventions remain supported.
 
 The requirements index contains summary rows (Icon, UseCase ID, Use Case Title, Status). Detailed behavior belongs in the specification; do not duplicate it in the index. Dependencies belong in specification metadata and in the index only when its existing convention includes them.
 
@@ -128,6 +128,7 @@ stateDiagram-v2
     TODO --> IN_PROGRESS: Approved contract and prerequisites
     IN_PROGRESS --> IN_PROGRESS: Unresolved decision or failed check
     IN_PROGRESS --> DONE: Acceptance and verification passed
+    DONE --> IN_PROGRESS: Authorized repair or approved change
 ```
 
 | Status | Index icon | Meaning |
@@ -136,9 +137,9 @@ stateDiagram-v2
 | IN_PROGRESS | 👷🏽 | Started; incomplete or verification blocked |
 | DONE | ✅ | Specified behavior implemented and relevant verification passed |
 
-For impl-spec, the first repository change after resolving blockers is to set both the index row and specification status to IN_PROGRESS, and read both back. Resume an existing IN_PROGRESS use case only when intent is clear. Do not update unrelated rows. If a dependency is not DONE, ask how to proceed; do not silently implement the dependency. If checks fail or required work remains, keep IN_PROGRESS and report evidence. When criteria pass, update both to DONE and read back both documents and the summary icon.
+For impl-spec, the first repository change after resolving blockers is to set both the index row and specification status to IN_PROGRESS, and read both back. Resume an existing IN_PROGRESS use case only when intent is clear. Do not update unrelated rows. If a required dependency is incomplete or its evidence is stale, stop or arrange separately authorized prerequisite work; a specific explicitly authorized exception must record risk and remaining verification obligations. Do not silently implement the dependency or waive acceptance evidence. If checks fail or required work remains, keep IN_PROGRESS and report evidence. When criteria pass, update both to DONE and read back both documents and the summary icon.
 
-DONE is not a release or deployment approval. For a DONE use case with a new defect, explicit repair authorization is required. Current impl-spec does not define a complete DONE-to-IN_PROGRESS reopening protocol; agree on status handling before editing and do not invent additional status codes.
+DONE is not a release or deployment approval. For a DONE use case with a new defect, explicit repair authorization is required. For authorized repair or approved change, reconcile behavior, identify stale evidence and affected dependents, then reopen both status records to IN_PROGRESS before implementation edits. Refresh affected evidence before DONE; do not invent additional status codes.
 
 ## 5. Change and failure handling
 

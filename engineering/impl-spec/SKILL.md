@@ -21,8 +21,8 @@ Implement exactly one use case, following its specification and the repository's
 Inspect the implementation and tests to find the smallest complete change. Check the specification for missing behavior, contradictory rules, acceptance criteria that cannot be observed or implemented, significant technical decisions that the repository does not settle, and unmet dependencies.
 
 - Ask concise, decision-oriented questions for unresolved product or technical decisions. Do not choose business behavior or a consequential stack/platform on the user's behalf.
-- If a dependency is not `DONE`, ask whether to implement that dependency first, proceed after it is completed, or stop. Do not expand this use case to include the dependency.
-- If the use case is `DONE`, report that and stop unless the user explicitly requests repair or reimplementation.
+- Required dependencies must be `DONE` with evidence applicable to the current contract. If a dependency is incomplete or its evidence is stale, normally stop or arrange separately authorized prerequisite work. An exception requires explicit authorization for the specific dependency, a recorded rationale, risk, boundaries and remaining verification obligations; do not mark the dependency DONE or bypass missing/cyclic identity checks. An exception cannot waive a necessary acceptance check or justify claiming behavior verified without evidence. Do not expand this use case to include the dependency.
+- If the use case is `DONE`, report that and stop unless the user explicitly requests repair, reimplementation or an approved behavior change. Identify the affected prior completion evidence and downstream use cases; reconcile any changed behavior with the authoritative specification before reopening. Defect repair restores the existing contract, not an invented replacement. A defect report alone does not authorize reopening.
 - Resolve dependency IDs against the canonical index and inspect their specifications as needed to detect missing IDs, self-dependencies and dependency cycles. Report the exact conflicting IDs rather than treating an unresolved dependency as complete.
 - Check the summary icon against the canonical status before any status edit. Keep statuses unchanged while resolving blockers.
 
@@ -30,7 +30,7 @@ Inspect the implementation and tests to find the smallest complete change. Check
 
 Once the contract and prerequisites are clear, make the status transition the first repository change:
 
-1. Change this use case from `TODO` to `IN_PROGRESS` in both the requirements summary row and specification frontmatter. In the summary, update the first-column icon from `❎` to `👷🏽` as well.
+1. Change this use case from `TODO` to `IN_PROGRESS`, or from `DONE` to `IN_PROGRESS` for explicitly authorized repair or change after the preceding checks, in both the requirements summary row and specification frontmatter. In the summary, update the first-column icon from `❎` to `👷🏽` as well.
 2. Read both files back and confirm the canonical ID, title, and status agree before changing implementation files. Confirm the summary icon matches its status value.
 3. If both already say `IN_PROGRESS` and the summary icon is `👷🏽`, resume only when the user's intent to continue is clear; otherwise ask. If the status values disagree, stop and ask which state is correct.
 
@@ -46,7 +46,7 @@ Do not change another use case's status. Do not copy detailed behavior or accept
 - For a large use case, split work into independently verifiable tasks only when their file ownership and contracts can be defined without overlapping edits; integrate the results and run the relevant checks before completion.
 - If implementation reveals a material ambiguity, pause and ask. Leave both status entries `IN_PROGRESS` and the summary icon `👷🏽` while unresolved.
 - If tests fail, required checks cannot run, or work remains, do not mark the use case complete. Distinguish PASS, FAIL and NOT RUN in the completion report; include the actual commands or evidence, remaining work and reason for unavailable checks. Do not substitute an unexecuted plan or a prototype verdict for verification.
-- Review the final diff for scope, accidental changes, and matching status values.
+- Review the final diff for scope, accidental changes, and matching status values. For reopened work, refresh affected acceptance and regression evidence and report downstream verification needs without changing unrelated use-case statuses.
 
 ## Complete the use case
 

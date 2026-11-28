@@ -1,6 +1,6 @@
 # SDD Lifecycle and Artifact Contract (E02)
 
-Status: Proposed for maintainer approval; not yet enforced by skill instructions.
+Status: Implemented as skill instructions on the review branch; deterministic and behavioral verification pending. Maintainer's instruction to continue after the three proposed lifecycle decisions was interpreted as authorization to implement them on the review branch, not to publish.
 Date: 2026-11-28
 Related: [Engineering workflow](../engineering-workflow.md), [capability audit](../audits/engineering-capability-audit.md), [Phase 02 plan](../plans/phase-02-engineering-workflow.md).
 
@@ -28,7 +28,7 @@ For new documents using the existing default metadata convention:
 | Exact PRD revision explicitly approved by product owner | approved | approved |
 | Material scope revision awaiting approval | draft | pending |
 
-The second row proposes a new explicit convention. Summary approval authorizes drafting, not the approval of text that has not yet been reviewed. The approval request must identify the actual document and scope; an unambiguous instruction explicitly approving that revision is sufficient. Do not require redundant confirmation.
+The second row defines the default convention for new PRDs; existing project-specific conventions remain supported. Summary approval authorizes drafting, not the approval of text that has not yet been reviewed. The approval request must identify the actual document and scope; an unambiguous instruction explicitly approving that revision is sufficient. Do not require redundant confirmation.
 
 Preserve legacy approved documents and project-specific lifecycle fields where their authority is clear. A missing metadata field is not proof of rejection or approval. Ask about authority only when it cannot be established from the user's instructions or documented evidence. Never auto-migrate existing documents solely to add metadata.
 
@@ -53,7 +53,7 @@ No new BLOCKED, TESTING or REVIEWING codes are proposed. Record blockers and che
 ## 4. Identity, synchronization and dependency rules
 
 - Keep IDs unique and stable across index, specs, plans and tests. Allocate a new ID after the highest known ID, including retired IDs when a register exists; do not reuse retired IDs. Do not silently renumber, delete or merge existing use cases.
-- Resolve each dependency to a canonical ID; identify self-dependencies, missing IDs and cycles before proceeding. Dependencies required for implementation must be DONE with applicable evidence; resolve approved exceptions explicitly without silently changing scope.
+- Resolve each dependency to a canonical ID; identify self-dependencies, missing IDs and cycles before proceeding. Dependencies required for implementation must be DONE with applicable evidence; resolve approved exceptions explicitly by recording the specific dependency, rationale, risk, limits and outstanding verification obligations. Exceptions do not waive required acceptance evidence or permit unresolved or cyclic identities.
 - Before modifying status, verify both documents and the icon agree. Update the intended index row and mirror together as one logical change, then read both back before editing code or reporting completion.
 - If a partial write occurs, stop; report the mismatch and restore the prior consistent values only if no concurrent edits would be overwritten. Otherwise obtain reconciliation. Never report a successful transition until verified.
 - Do not reset statuses during regeneration or specification edits. A changed behavior that invalidates acceptance evidence requires an explicit change decision and a reopening plan, not automatic status mutation by the drafting skill.
@@ -91,6 +91,6 @@ Before implementing a use case, check product scope authority when applicable, u
 
 ## 8. Migration and decisions
 
-Proposed skill names: product-requirements, prd-to-use-cases, behavior-specification and implement-use-case. Rename after semantics are approved, update invocation configurations, references, provenance and catalog, and verify distribution. Preserve applicable notices; existing SDD notice gap remains unresolved and publication remains blocked.
+Proposed skill names: product-requirements, prd-to-use-cases, behavior-specification and implement-use-case. Rename after contract implementation and migration review, update invocation configurations, references, provenance and catalog, and verify distribution. Preserve applicable notices; existing SDD notice gap remains unresolved and publication remains blocked.
 
-Maintainer decisions required before enforcing material lifecycle semantics: approve or revise the proposed PRD approval values, DONE reopening rule, and dependency exception policy. Whether to remove the mirrored specification status in a future schema revision is deferred; preserve current target-project compatibility now. No runtime evaluation, skill migration or release is claimed by this proposal.
+The three lifecycle decisions are implemented on the review branch. Whether to remove the mirrored specification status in a future schema revision is deferred; preserve current target-project compatibility now. No runtime evaluation, skill migration or release is claimed.
