@@ -9,6 +9,10 @@ description: >
 
 # Spring Boot Security
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If unavailable, inspect resolved dependencies and release-matched official documentation; report missing compatibility evidence.
+
+Check the resolved Security release's servlet DSL, JWT decoder and encoder APIs, OAuth client support, and test annotations. Do not weaken the existing filter chain or token validation to accommodate an example.
+
 Trace each affected operation from request to security decision, data access,
 and audit outcome. For implementation, apply the steps to the affected
 operations. For review, follow the same path through the existing code and
