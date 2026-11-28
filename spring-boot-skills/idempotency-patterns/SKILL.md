@@ -6,6 +6,8 @@ description: >
 
 # Idempotency Patterns
 
+For version-sensitive APIs and configuration, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and matching official documentation and report missing evidence.
+
 ## Spring Boot 4 baseline
 
 The examples use Java 17 and Jakarta APIs supported by this Boot version. Keep dependencies managed by the project's Boot BOM.
@@ -13,7 +15,7 @@ The examples use Java 17 and Jakarta APIs supported by this Boot version. Keep d
 ## Define the contract
 
 Identify the authenticated tenant/principal, operation, idempotency key, canonical request hash,
-retention window and replayable result. Scope uniqueness by principal/tenant and operation;
+retention window and replayable result. Scope uniqueness by tenant, authenticated principal (where results are caller-specific), and operation;
 a raw client key must never allow reading another user's result. Authenticate and authorize
 before both initial execution and replay. Bound key length and stored response size.
 Document what same-key/different-payload and still-in-progress requests return.
@@ -31,7 +33,7 @@ waits on the uniqueness constraint; bound lock waits and return a documented ret
 on timeout. With snapshot isolation, serialization failures require retrying the whole transaction.
 Do not catch a unique-constraint violation and continue in an already-aborted transaction.
 
-A result row and business write must use the same transaction manager and database.
+Reject incomplete result rows rather than executing the command again or replaying a null response. Check that exactly one completed result is persisted before commit. A result row and business write must use the same transaction manager and database.
 See [application transactions](../spring-boot-webmvc/references/transactions.md) for
 propagation and rollback boundaries. Return
 the stored result rather than reconstructing it from mutable current entity state.
@@ -51,7 +53,7 @@ application data and delete them according to the project's retention policy.
 
 ## Verification
 
-Test simultaneous identical requests, conflicting payloads, tenant separation, rollback after
+Test simultaneous identical requests, conflicting payloads, tenant separation, different principals in the same tenant, incomplete results, rollback after
 claim, response replay after a lost connection and retries following a worker crash.
 Use the production database engine for lock and isolation tests, not H2 compatibility mode.
 [The bad example](examples/check-then-act.java) illustrates the check-then-act race.
