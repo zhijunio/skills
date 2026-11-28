@@ -7,6 +7,8 @@ description: >
 
 # Spring Data Redis
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
+
 Inspect the actual Boot, Spring Data Redis, driver, Jackson, Redis server and topology.
 Preserve existing dependencies, key formats and stored-value compatibility. Identify Redis's
 role before choosing TTL, serialization, consistency or failure policies. Do not add a
