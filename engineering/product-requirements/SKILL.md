@@ -1,15 +1,15 @@
 ---
-name: product-brainstorming
+name: product-requirements
 description: Facilitate product brainstorming or MVP scoping, draft a PRD.md from confirmed decisions, and review, approve or revise product requirements when requested.
 ---
 
-# Product Brainstorming
+# Product Requirements
 
 Turn a product idea into a short, decision-backed summary. Use the user's language and begin with the context and decisions they have already shared.
 
 ## Responsibility and handoff
 
-Own product intent, users, MVP scope and the PRD. Use grilling for a requested stress-test of a specific decision, domain-modeling for canonical terminology and domain decisions, and create-spec for detailed behavior of an individual use case. Do not start those workflows automatically or decide technical architecture here. Hand the PRD to prd-to-requirements when requested and its product scope authority is established. Distinguish confirmation of the discussion summary from review of the actual drafted PRD; do not represent a newly drafted document as formally approved.
+Own product intent, users, MVP scope and the PRD. Use grilling for a requested stress-test of a specific decision, domain-modeling for canonical terminology and domain decisions, and behavior-specification for detailed behavior of an individual use case. Do not start those workflows automatically or decide technical architecture here. Hand the PRD to prd-to-use-cases when requested and its product scope authority is established. Distinguish confirmation of the discussion summary from review of the actual drafted PRD; do not represent a newly drafted document as formally approved.
 
 ## Guide the discussion
 

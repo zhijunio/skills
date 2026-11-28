@@ -91,6 +91,6 @@ Before implementing a use case, check product scope authority when applicable, u
 
 ## 8. Migration and decisions
 
-Proposed skill names: product-requirements, prd-to-use-cases, behavior-specification and implement-use-case. Rename after contract implementation and migration review, update invocation configurations, references, provenance and catalog, and verify distribution. Preserve applicable notices; existing SDD notice gap remains unresolved and publication remains blocked.
+Current skill names: product-requirements, prd-to-use-cases, behavior-specification and implement-use-case. Name migration updates invocation configurations, references, provenance and catalog; distribution verification is pending. Preserve applicable notices; existing SDD notice gap remains unresolved and publication remains blocked.
 
-The three lifecycle decisions are implemented on the review branch. Whether to remove the mirrored specification status in a future schema revision is deferred; preserve current target-project compatibility now. No runtime evaluation, skill migration or release is claimed.
+The three lifecycle decisions are implemented on the review branch. Whether to remove the mirrored specification status in a future schema revision is deferred; preserve current target-project compatibility now. Name migration is implemented on the review branch; runtime evaluation and release remain pending.

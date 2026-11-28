@@ -1,5 +1,5 @@
 ---
-name: impl-spec
+name: implement-use-case
 description: Implement and verify one approved use case from its specification file, using docs/requirements.md as the use-case index and status register. Use when the user asks to implement a specific UC-###; do not draft specifications or implement an unspecified group of use cases.
 disable-model-invocation: true
 ---

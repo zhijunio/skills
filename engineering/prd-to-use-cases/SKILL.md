@@ -1,10 +1,10 @@
 ---
-name: prd-to-requirements
+name: prd-to-use-cases
 description: Generate or regenerate a requirements.md use-case summary from a product requirements document (PRD.md). Use when translating a PRD into implementable use cases and statuses; do not use for implementation or implementation-status audits.
 disable-model-invocation: true
 ---
 
-# PRD to Requirements
+# PRD to Use Cases
 
 Create `requirements.md` from `prd.md`, treating the PRD as the source of truth and the repository's existing requirements document as the format reference.
 

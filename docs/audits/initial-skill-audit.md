@@ -61,16 +61,16 @@ Paths are relative to the repository root. M = explicit-only intent declared in 
 
 | Skill | Responsibility | Activation / Codex | Disposition / finding |
 | --- | --- | --- | --- |
-| [create-spec](../../engineering/create-spec/SKILL.md) | Behavior and acceptance specification | M / C | Improve A07 |
+| [create-spec](../../engineering/behavior-specification/SKILL.md) | Behavior and acceptance specification | M / C | Improve A07 |
 | [diagnosing-bugs](../../engineering/diagnosing-bugs/SKILL.md) | Evidence-led diagnosis | A / N | Retain; delegate JVM diagnosis when relevant |
 | [domain-modeling](../../engineering/domain-modeling/SKILL.md) | Glossary and domain decisions | A / N | Improve routing A09 |
 | [grill-with-docs](../../engineering/grill-with-docs/SKILL.md) | Interview with ADR/glossary updates | M / C | Improve routing A09 |
 | [grilling](../../engineering/grilling/SKILL.md) | Challenge assumptions | A / N | Improve routing A09 |
 | [html-plan](../../engineering/html-plan/SKILL.md) | Interactive implementation plan | A / N | Retain; distinguish behavior spec from plan |
-| [impl-spec](../../engineering/impl-spec/SKILL.md) | Implement one approved use case | M / C | Improve A07 |
+| [impl-spec](../../engineering/implement-use-case/SKILL.md) | Implement one approved use case | M / C | Improve A07 |
 | [java-code-review](../../engineering/java-code-review/SKILL.md) | Java review | A / N | Retain; compose with focused technical skills |
-| [prd-to-requirements](../../engineering/prd-to-requirements/SKILL.md) | PRD to use-case index | M / C | Retain; reconcile contract A07 |
-| [product-brainstorming](../../engineering/product-brainstorming/SKILL.md) | Product discovery and PRD | A / N | Improve routing A09 |
+| [prd-to-requirements](../../engineering/prd-to-use-cases/SKILL.md) | PRD to use-case index | M / C | Retain; reconcile contract A07 |
+| [product-brainstorming](../../engineering/product-requirements/SKILL.md) | Product discovery and PRD | A / N | Improve routing A09 |
 | [progen](../../engineering/progen/SKILL.md) | Spring Boot generator | M / C | Investigate A08 and generator availability |
 | [project-foundation](../../engineering/project-foundation/SKILL.md) | Technical choices and baseline | M / C | Improve routing A08 |
 | [prototype](../../engineering/prototype/SKILL.md) | Throwaway design experiment | A / N | Retain; distinguish from production implementation |

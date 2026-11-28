@@ -56,7 +56,7 @@ Codex documentation now describes .agents/skills as its repository and user disc
 
 ## 4. Invocation policy and existing repository risks
 
-The reviewed definitions for engineering/create-spec, engineering/impl-spec, and engineering/project-foundation use disable-model-invocation: true. This is a Claude Code extension. Their approval and scope boundaries must not depend solely on host metadata.
+The reviewed definitions for engineering/behavior-specification, engineering/implement-use-case, and engineering/project-foundation use disable-model-invocation: true. This is a Claude Code extension. Their approval and scope boundaries must not depend solely on host metadata.
 
 For Codex, the documented counterpart is a skill-local agents/openai.yaml:
 
@@ -95,8 +95,8 @@ No third-party code is imported by this document. Pin versions or revisions, rev
 Upstream describes skills-ref as a demonstration library, not a production implementation. Use it as a conformance reference and trial tool, not an unconditional enforcement dependency. Its documented commands include:
 
 ```sh
-skills-ref validate engineering/create-spec
-skills-ref read-properties engineering/create-spec
+skills-ref validate engineering/behavior-specification
+skills-ref read-properties engineering/behavior-specification
 ```
 
 Test extension handling and validator limitations before enforcing CI. Separate portable-schema findings from host-specific findings. Reuse existing parsing libraries and add minimal repository checks only where needed. Never treat a successful format check as proof of behavior.
@@ -165,4 +165,4 @@ Documentation accessed 2026-11-28; these are living sources, not pinned dependen
 - [Skills CLI authoring and discovery](https://github.com/vercel-labs/skills/blob/main/docs/creating-skills.md)
 - [SkillsJars Maven plugin](https://github.com/skillsjars/skillsjars-maven-plugin)
 
-Repository evidence: [pom.xml](../pom.xml), [create-spec](../engineering/create-spec/SKILL.md), [impl-spec](../engineering/impl-spec/SKILL.md), [project-foundation](../engineering/project-foundation/SKILL.md), and [spring-boot](../spring-boot-skills/spring-boot/SKILL.md). Representative definitions were reviewed; a complete audit remains F06 work.
+Repository evidence: [pom.xml](../pom.xml), [behavior-specification](../engineering/behavior-specification/SKILL.md), [implement-use-case](../engineering/implement-use-case/SKILL.md), [project-foundation](../engineering/project-foundation/SKILL.md), and [spring-boot](../spring-boot-skills/spring-boot/SKILL.md). Representative definitions were reviewed; a complete audit remains F06 work.

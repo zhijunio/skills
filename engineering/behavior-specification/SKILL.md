@@ -1,5 +1,5 @@
 ---
-name: create-spec
+name: behavior-specification
 description: Accept a feature description or a UseCase ID from docs/requirements.md, interview the human one question at a time to clarify intent and business rules, then write reviewable behavioral requirements and acceptance criteria before implementation.
 disable-model-invocation: true
 ---

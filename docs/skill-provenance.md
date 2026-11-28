@@ -29,16 +29,16 @@ The following records all 59 entry points. An identical Git blob establishes con
 | [teach](../collected-skills/teach/SKILL.md) | T | Historical directory: 6/6 local blobs identical to skills/productivity/teach at pinned upstream snapshot below |
 | [web-access](../collected-skills/web-access/SKILL.md) | E | Historical directory: 23/23 local blobs identical to repository root at pinned upstream snapshot below |
 | [writing-for-agents](../collected-skills/writing-for-agents/SKILL.md) | T | Historical directory: 3/3 local blobs identical to skills/productivity/writing-for-agents at pinned upstream snapshot below |
-| [create-spec](../engineering/create-spec/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/create-spec at pinned upstream snapshot below |
+| [behavior-specification](../engineering/behavior-specification/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/create-spec at pinned upstream snapshot below |
 | [diagnosing-bugs](../engineering/diagnosing-bugs/SKILL.md) | T | Historical directory: 3/3 local blobs identical to skills/engineering/diagnosing-bugs at pinned upstream snapshot below |
 | [domain-modeling](../engineering/domain-modeling/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/domain-modeling at pinned upstream snapshot below |
 | [grill-with-docs](../engineering/grill-with-docs/SKILL.md) | T | Historical directory: 2/2 local blobs identical to skills/engineering/grill-with-docs at pinned upstream snapshot below |
 | [grilling](../engineering/grilling/SKILL.md) | T | Historical directory: 2/2 local blobs identical to skills/productivity/grilling at pinned upstream snapshot below |
 | [html-plan](../engineering/html-plan/SKILL.md) | A | Historical directory: 6/6 local blobs identical to html-plan/skills/html-plan at pinned upstream snapshot below |
-| [impl-spec](../engineering/impl-spec/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/impl-spec at pinned upstream snapshot below |
+| [implement-use-case](../engineering/implement-use-case/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/impl-spec at pinned upstream snapshot below |
 | [java-code-review](../engineering/java-code-review/SKILL.md) | M / P | Historical directory: 1/1 local blobs identical to .agents/skills/java-code-review and skills/java-code-review at pinned upstream snapshot below |
-| [prd-to-requirements](../engineering/prd-to-requirements/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/prd-to-requirements at pinned upstream snapshot below |
-| [product-brainstorming](../engineering/product-brainstorming/SKILL.md) | O | Maintainer-authored (explicit confirmation); local PRD path and routing changes |
+| [prd-to-use-cases](../engineering/prd-to-use-cases/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/prd-to-requirements at pinned upstream snapshot below |
+| [product-requirements](../engineering/product-requirements/SKILL.md) | O | Maintainer-authored (explicit confirmation); local PRD path and routing changes |
 | [progen](../engineering/progen/SKILL.md) | P | Historical directory: 2/2 local blobs identical to skills/progen at pinned upstream snapshot below |
 | [project-foundation](../engineering/project-foundation/SKILL.md) | O | Maintainer-authored (explicit confirmation); local delegation changes |
 | [prototype](../engineering/prototype/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/prototype at pinned upstream snapshot below |
@@ -128,3 +128,7 @@ Copied the exact MIT LICENSE text from the pinned upstream snapshots into the in
 Added individual SOURCE.md evidence files for eli5, html-plan and web-access. The pinned upstream web-access README, plugin manifest and SKILL.md each explicitly declare MIT; no standalone LICENSE was found. For eli5 and html-plan, the specific plugin manifests declare MIT while the repository root LICENSE is Apache-2.0. No substitute copyright notice was fabricated.
 
 Copied the existing, byte-identical upstream Spring Boot MIT notice into all 39 Spring Boot skill directories ([c819a31](https://github.com/zhijunio/skills/commit/c819a312f49ee88ba10e901528078a9744d52369)) so it can travel with individually copied or extracted skills. This preserves the collection's upstream attribution for any incorporated upstream material; it does not assert that Rrezart authored every local addition or that all unmatched content is cleared. Keep the collection-level notice as well. New files must pass archive, extraction and installation checks before closure. No publication authorized.
+
+## SDD name migration
+
+Current names preserve the provenance of their historical predecessors: product-brainstorming → product-requirements (O); prd-to-requirements → prd-to-use-cases (M); create-spec → behavior-specification (M); impl-spec → implement-use-case (M). Historical source paths and licensing evidence above remain unchanged. The outstanding SDD notice blocker remains open.

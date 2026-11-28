@@ -77,7 +77,7 @@ flowchart TD
     J -->|Verification fails| I
 ```
 
-Preserve the existing requirements index and use-case lifecycle defined by create-spec and impl-spec. A use case is complete only after its specified behavior is implemented and relevant verification passes. Design and foundation decisions may be iterative; small fixes may bypass unnecessary discovery stages.
+Preserve the existing requirements index and use-case lifecycle defined by behavior-specification and implement-use-case. A use case is complete only after its specified behavior is implemented and relevant verification passes. Design and foundation decisions may be iterative; small fixes may bypass unnecessary discovery stages.
 
 ### Engineering artifacts
 
@@ -162,7 +162,7 @@ Establish the authoring standard and evaluation approach before implementing the
 | Composition | Compatible instructions across multiple skills |
 | Regression | Stable behavior after skill changes |
 
-Start with create-spec, impl-spec, project-foundation, and the spring-boot entry skill. Include cases for ambiguous requirements, missing dependencies, failed verification, incorrect routing, and scope expansion. Compare matched tasks with and without skills, record model and tool versions, and report variability rather than treating one run as conclusive.
+Start with behavior-specification, implement-use-case, project-foundation, and the spring-boot entry skill. Include cases for ambiguous requirements, missing dependencies, failed verification, incorrect routing, and scope expansion. Compare matched tasks with and without skills, record model and tool versions, and report variability rather than treating one run as conclusive.
 
 ### 7.4 Automated checks
 

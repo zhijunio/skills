@@ -38,7 +38,7 @@ npx skills add https://github.com/zhijunio/skills
 Or select an individual skill:
 
 ```bash
-npx skills add https://github.com/zhijunio/skills --skill create-spec
+npx skills add https://github.com/zhijunio/skills --skill behavior-specification
 ```
 
 Alternatively, copy the desired skill directory into the skills location supported by your coding assistant.
@@ -70,7 +70,7 @@ The [engineering](engineering/) collection supports software development from in
 
 | Skill | Purpose |
 | --- | --- |
-| [product-brainstorming](engineering/product-brainstorming/SKILL.md) | Explore and refine product ideas |
+| [product-requirements](engineering/product-requirements/SKILL.md) | Explore, draft, approve and revise product requirements |
 | [grilling](engineering/grilling/SKILL.md) | Challenge assumptions through focused questioning |
 | [grill-with-docs](engineering/grill-with-docs/SKILL.md) | Clarify decisions against existing documentation |
 | [domain-modeling](engineering/domain-modeling/SKILL.md) | Establish domain concepts and relationships |
@@ -80,10 +80,10 @@ The [engineering](engineering/) collection supports software development from in
 
 | Skill | Purpose |
 | --- | --- |
-| [prd-to-requirements](engineering/prd-to-requirements/SKILL.md) | Transform product requirements into structured use cases |
+| [prd-to-use-cases](engineering/prd-to-use-cases/SKILL.md) | Transform product requirements into structured use cases |
 | [project-foundation](engineering/project-foundation/SKILL.md) | Select a technical foundation and verify a runnable project skeleton |
-| [create-spec](engineering/create-spec/SKILL.md) | Define feature behavior, business rules, and acceptance criteria |
-| [impl-spec](engineering/impl-spec/SKILL.md) | Implement and verify an approved use case |
+| [behavior-specification](engineering/behavior-specification/SKILL.md) | Define feature behavior, business rules, and acceptance criteria |
+| [implement-use-case](engineering/implement-use-case/SKILL.md) | Implement and verify an approved use case |
 | [html-plan](engineering/html-plan/SKILL.md) | Present plans in HTML |
 | [progen](engineering/progen/SKILL.md) | Support project generation |
 
@@ -117,11 +117,11 @@ The workflow separates product decisions, technical decisions, expected behavior
 
 | Stage | Skill | Expected Result |
 | --- | --- | --- |
-| Discovery | `product-brainstorming` | Refined product intent |
-| Requirements | `prd-to-requirements` | Structured use cases |
+| Discovery | `product-requirements` | Refined product intent |
+| Requirements | `prd-to-use-cases` | Structured use cases |
 | Foundation | `project-foundation` | Technical baseline and runnable skeleton |
-| Specification | `create-spec` | Behavior specification and acceptance criteria |
-| Implementation | `impl-spec` | Implemented and verified use case |
+| Specification | `behavior-specification` | Behavior specification and acceptance criteria |
+| Implementation | `implement-use-case` | Implemented and verified use case |
 | Review | `java-code-review` | Java code review findings |
 
 ### Project Documentation
@@ -233,7 +233,7 @@ after the technical decisions are confirmed.
 ### Specify a Feature
 
 ```text
-Use create-spec to define the behavior of UC-001.
+Use behavior-specification to define the behavior of UC-001.
 
 Clarify business rules, edge cases, and failure
 scenarios before writing acceptance criteria.
@@ -243,7 +243,7 @@ Do not implement the feature yet.
 ### Implement a Feature
 
 ```text
-Use impl-spec to implement UC-001.
+Use implement-use-case to implement UC-001.
 
 Follow the approved specification, add relevant
 automated tests, and update the use-case status
@@ -384,3 +384,7 @@ Additional source references are available in:
 ## License
 
 See [LICENSE](LICENSE) for the repository license and the corresponding skill directories for upstream license information.
+
+### SDD skill name migration
+
+On the Phase 02 review branch, `product-brainstorming`, `prd-to-requirements`, `create-spec` and `impl-spec` have been renamed to `product-requirements`, `prd-to-use-cases`, `behavior-specification` and `implement-use-case` respectively. Update explicit invocations and reinstall from the intended revision; remove obsolete installed copies only after checking local modifications. No compatibility aliases are provided.

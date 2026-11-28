@@ -56,13 +56,13 @@ The flow is iterative, not a mandatory waterfall. Domain modeling, decision inte
 
 | Stage | Existing skill | Input | Output and gate |
 | --- | --- | --- | --- |
-| Product discovery | [product-brainstorming](../engineering/product-brainstorming/SKILL.md) | Idea, users, problem and constraints | Confirmed summary; drafts PRD after confirmation |
-| Requirements decomposition | [prd-to-requirements](../engineering/prd-to-requirements/SKILL.md) | Authoritative PRD, existing index if any | Use-case summary, preserved identities/statuses; resolve scope conflicts before writing |
+| Product discovery | [product-requirements](../engineering/product-requirements/SKILL.md) | Idea, users, problem and constraints | Confirmed summary; drafts PRD after confirmation |
+| Requirements decomposition | [prd-to-use-cases](../engineering/prd-to-use-cases/SKILL.md) | Authoritative PRD, existing index if any | Use-case summary, preserved identities/statuses; resolve scope conflicts before writing |
 | Technical foundation | [project-foundation](../engineering/project-foundation/SKILL.md) | Product constraints, repository state | Approved stack and initialization method, runnable baseline, tech-stack.md and verification |
 | Domain/design exploration (optional) | [domain-modeling](../engineering/domain-modeling/SKILL.md), [grilling](../engineering/grilling/SKILL.md), [grill-with-docs](../engineering/grill-with-docs/SKILL.md), [prototype](../engineering/prototype/SKILL.md) | Material domain or design question | Confirmed vocabulary/decisions or disposable experiment; not implementation approval |
-| Behavior specification | [create-spec](../engineering/create-spec/SKILL.md) | Feature description or one UC ID, PRD and existing docs | Interview, confirmed behavior, one specification and new index row only if needed |
+| Behavior specification | [behavior-specification](../engineering/behavior-specification/SKILL.md) | Feature description or one UC ID, PRD and existing docs | Interview, confirmed behavior, one specification and new index row only if needed |
 | Implementation planning (optional) | [html-plan](../engineering/html-plan/SKILL.md) | Approved behavior or requested design change, project context | Reviewable interactive HTML plan; await response before building |
-| Implementation and verification | [impl-spec](../engineering/impl-spec/SKILL.md) | One approved specification, consistent index and prerequisites | Verified in-scope change, tests and synchronized status |
+| Implementation and verification | [implement-use-case](../engineering/implement-use-case/SKILL.md) | One approved specification, consistent index and prerequisites | Verified in-scope change, tests and synchronized status |
 | Technology guidance | [spring-boot](../spring-boot-skills/spring-boot/SKILL.md) and relevant focused skills | Existing or approved Spring Boot context | Technical guidance, implementation constraints and checks |
 | Code review | [java-code-review](../engineering/java-code-review/SKILL.md) | Requested Java diff or scope | Findings in review.md or requested path; no fixes without authorization |
 | Release readiness | [spring-boot-testing](../spring-boot-skills/spring-boot-testing/SKILL.md), [spring-boot-cicd](../spring-boot-skills/spring-boot-cicd/SKILL.md) when relevant | Verified change and project release criteria | Scoped build/readiness evidence or requested CI configuration; no generic release owner yet |
@@ -75,7 +75,7 @@ The foundation stage is normally needed for a new project, not every use case in
 
 ### Optional decision work
 
-Use grilling for a requested stress-test of a design decision; it asks independent frontier questions in rounds. Use create-spec for feature behavior; it asks exactly one question per turn. Do not import the grilling interview format into create-spec. Use domain-modeling for canonical terms and significant domain decisions. Grill-with-docs composes grilling and domain-modeling and needs both dependencies. Record only confirmed decisions within the authorized documentation scope.
+Use grilling for a requested stress-test of a design decision; it asks independent frontier questions in rounds. Use behavior-specification for feature behavior; it asks exactly one question per turn. Do not import the grilling interview format into behavior-specification. Use domain-modeling for canonical terms and significant domain decisions. Grill-with-docs composes grilling and domain-modeling and needs both dependencies. Record only confirmed decisions within the authorized documentation scope.
 
 A prototype answers a bounded question and is disposable. Current prototype supports UI variants and interactive logic simulations. The expanded Phase 02 [prototype capability contract](contracts/prototyping.md) proposes product, behavior and technical feasibility modes; the full product journey and technical PoC capabilities are not yet implemented. Product feedback returns to PRD, behavior feedback to the specification/domain owner, and technical evidence to the design/ADR owner. The prototype is not verified production code or implementation authorization. HTML plans present implementation decisions for review, not a second requirements authority.
 
@@ -85,12 +85,12 @@ All paths below are relative to the target project, not this skills repository. 
 
 | Artifact | Owner / authority | Default or existing location |
 | --- | --- | --- |
-| Product intent and scope | PRD; product-brainstorming drafts it | docs/PRD.md; legacy root PRD.md supported |
-| Use-case identity and status | Requirements index; prd-to-requirements, create-spec and impl-spec update within their scope | docs/requirements.md |
+| Product intent and scope | PRD; product-requirements drafts it | docs/PRD.md; legacy root PRD.md supported |
+| Use-case identity and status | Requirements index; prd-to-use-cases, behavior-specification and implement-use-case update within their scope | docs/requirements.md |
 | Technical baseline | project-foundation | docs/tech-stack.md |
 | Domain terminology | domain-modeling | GLOSSARY.md or context-local glossary |
 | Significant domain/architecture decision | domain-modeling where appropriate | docs/adr/ or context-local ADRs |
-| Detailed behavior and acceptance criteria | create-spec; approved specification | docs/specs/{number}-{feature-title}.md |
+| Detailed behavior and acceptance criteria | behavior-specification; approved specification | docs/specs/{number}-{feature-title}.md |
 | Prototype evidence (proposed expansion) | Prototype question, artifact and verdict; authoritative decisions stay with PRD/spec/ADR owners | Project-selected isolated location and decision record |
 | Implementation plan | html-plan when requested; otherwise existing project convention | User/project-selected HTML or plan location |
 | Review findings | java-code-review | review.md unless specified |
@@ -137,7 +137,7 @@ stateDiagram-v2
 | IN_PROGRESS | 👷🏽 | Started; incomplete or verification blocked |
 | DONE | ✅ | Specified behavior implemented and relevant verification passed |
 
-For impl-spec, the first repository change after resolving blockers is to set both the index row and specification status to IN_PROGRESS, and read both back. Resume an existing IN_PROGRESS use case only when intent is clear. Do not update unrelated rows. If a required dependency is incomplete or its evidence is stale, stop or arrange separately authorized prerequisite work; a specific explicitly authorized exception must record risk and remaining verification obligations. Do not silently implement the dependency or waive acceptance evidence. If checks fail or required work remains, keep IN_PROGRESS and report evidence. When criteria pass, update both to DONE and read back both documents and the summary icon.
+For implement-use-case, the first repository change after resolving blockers is to set both the index row and specification status to IN_PROGRESS, and read both back. Resume an existing IN_PROGRESS use case only when intent is clear. Do not update unrelated rows. If a required dependency is incomplete or its evidence is stale, stop or arrange separately authorized prerequisite work; a specific explicitly authorized exception must record risk and remaining verification obligations. Do not silently implement the dependency or waive acceptance evidence. If checks fail or required work remains, keep IN_PROGRESS and report evidence. When criteria pass, update both to DONE and read back both documents and the summary icon.
 
 DONE is not a release or deployment approval. For a DONE use case with a new defect, explicit repair authorization is required. For authorized repair or approved change, reconcile behavior, identify stale evidence and affected dependents, then reopen both status records to IN_PROGRESS before implementation edits. Refresh affected evidence before DONE; do not invent additional status codes.
 
@@ -179,10 +179,10 @@ For handoffs across sessions, the collected handoff skill can capture context wh
 
 | Capability | Existing coverage | Candidate next step |
 | --- | --- | --- |
-| Product requirements refinement | product-brainstorming drafts PRD; prd-to-requirements creates index | Assess whether improving the current contract suffices before adding product-requirements |
+| Product requirements refinement | product-requirements drafts PRD; prd-to-use-cases creates index | Refine the renamed product-requirements contract in E03 |
 | System design | project-foundation, domain-modeling, grilling and technology-specific architecture skills | Investigate cross-cutting system design covering boundaries, quality attributes, integration and trade-offs without duplicating existing owners |
-| Implementation planning | html-plan and impl-spec task decomposition | Assess a portable, format-neutral planning contract and reuse existing tools first |
-| Test strategy | impl-spec acceptance tests, diagnosing-bugs, spring-boot-testing | Investigate technology-neutral risk-based verification planning and measurable criteria |
+| Implementation planning | html-plan and implement-use-case task decomposition | Assess a portable, format-neutral planning contract and reuse existing tools first |
+| Test strategy | implement-use-case acceptance tests, diagnosing-bugs, spring-boot-testing | Investigate technology-neutral risk-based verification planning and measurable criteria |
 | Prototyping | Existing prototype UI and logic modes | Review full product journey and technical PoC gaps; choose composition or focused split after research |
 | Change control | Individual PRD/index/spec reconciliation rules | Clarify reopening, impact analysis and approval semantics in the existing workflow before proposing automation |
 | Release readiness | Spring Boot build/testing and CI guidance | Investigate general release criteria and authorization; do not conflate with deployment |

@@ -47,7 +47,7 @@ For each restructuring proposal, document the concrete defect, intended responsi
 
 ### E02 — SDD lifecycle and change control
 
-Review product-brainstorming, prd-to-requirements, create-spec and impl-spec together. Specify the difference between summary confirmation and PRD approval; preserve legacy document conventions, IDs, status and dependencies. Resolve how a DONE use case is reopened for approved changes or repairs, what evidence invalidates prior completion, and how to handle affected dependents. Obtain maintainer approval for material status semantics before editing skills.
+Review product-requirements, prd-to-use-cases, behavior-specification and implement-use-case together. Specify the difference between summary confirmation and PRD approval; preserve legacy document conventions, IDs, status and dependencies. Resolve how a DONE use case is reopened for approved changes or repairs, what evidence invalidates prior completion, and how to handle affected dependents. Obtain maintainer approval for material status semantics before editing skills.
 
 Acceptance: testable rules cover new use case, regeneration, legacy migration, conflicting metadata, unapproved scope changes, unmet dependencies, failed tests and repair of DONE work. No silent deletion, renumbering or status reset.
 
@@ -79,13 +79,13 @@ Acceptance: an experiment distinguishes observed feasibility from assumptions; f
 
 ### E05 — Implementation planning
 
-Assess html-plan and existing impl-spec decomposition, plus maintained external planning skills. Define a format-neutral plan contract only if a gap remains: approved behavior, affected components, dependencies, implementation tasks, test coverage, integration order, migration/rollback considerations where relevant and completion criteria. Planning does not authorize implementation. Prefer existing project conventions and avoid plans for trivial changes.
+Assess html-plan and existing implement-use-case decomposition, plus maintained external planning skills. Define a format-neutral plan contract only if a gap remains: approved behavior, affected components, dependencies, implementation tasks, test coverage, integration order, migration/rollback considerations where relevant and completion criteria. Planning does not authorize implementation. Prefer existing project conventions and avoid plans for trivial changes.
 
 Acceptance: a complex approved use case yields independently verifiable tasks, no conflicting file ownership, explicit prerequisites and a verification path; a simple fix bypasses unnecessary ceremony.
 
 ### E06 — Test strategy
 
-Evaluate spring-boot-testing, impl-spec and diagnosing-bugs before adding a technology-neutral capability. Define risk-based unit, integration, contract, end-to-end and non-functional coverage as applicable; map acceptance criteria to evidence, prioritize failure paths, and distinguish missing tests from executed results. Reuse the project's actual tools.
+Evaluate spring-boot-testing, implement-use-case and diagnosing-bugs before adding a technology-neutral capability. Define risk-based unit, integration, contract, end-to-end and non-functional coverage as applicable; map acceptance criteria to evidence, prioritize failure paths, and distinguish missing tests from executed results. Reuse the project's actual tools.
 
 Acceptance: strategy covers material risks and negative scenarios without mandating irrelevant test types or inventing execution evidence. Failed or unavailable required checks prevent verified completion.
 
@@ -113,7 +113,7 @@ Review changed contracts, verified cases, outstanding blockers and follow-up pri
 
 ## E02 progress
 
-The [SDD lifecycle and artifact contract](../contracts/sdd-lifecycle.md) records the proposed approval and reopening semantics, synchronization rules and twelve acceptance scenarios. Following the maintainer's instruction to continue after the three proposed lifecycle decisions, the review branch implements explicit PRD approval, authorized DONE reopening and bounded dependency exceptions, without adding status codes. Initial hardening covers scope authority, conflicts, dependency validation, safe synchronization and failed/unavailable checks. Skill-name migration, deterministic verification of this change and behavioral verification remain pending.
+The [SDD lifecycle and artifact contract](../contracts/sdd-lifecycle.md) records the proposed approval and reopening semantics, synchronization rules and twelve acceptance scenarios. Following the maintainer's instruction to continue after the three proposed lifecycle decisions, the review branch implements explicit PRD approval, authorized DONE reopening and bounded dependency exceptions, without adding status codes. Initial hardening covers scope authority, conflicts, dependency validation, safe synchronization and failed/unavailable checks. Skill-name migration is implemented; deterministic verification of this change and behavioral verification remain pending.
 
 ## E01 progress
 
