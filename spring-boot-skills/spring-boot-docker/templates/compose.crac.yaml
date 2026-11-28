@@ -3,10 +3,10 @@
 #
 #   docker compose -f compose.crac.yaml up --build
 #
-# On the very first start the app boots once to write a CRaC checkpoint; every
-# start after that restores the warmed-up JVM in a few tens of milliseconds. The
-# checkpoint is kept in the `crac-checkpoint` named volume so it survives down/up
-# cycles (delete the volume to force a fresh checkpoint).
+# Set CRAC_MODE=create and CRAC_COMPATIBILITY_ID before creating a checkpoint.
+# Review completeness and compatibility before setting CRAC_MODE=restore and
+# CRAC_REVIEWED_ID to the reviewed identity. Use a separate volume for each
+# artifact/runtime/configuration/platform; never delete evidence automatically.
 #
 # CRaC only works on a Linux host: CRIU snapshots and restores the live process,
 # which is why the local example requests broad privileges. A clean checkpoint also requires that
@@ -30,14 +30,19 @@ services:
     # narrower set (cap_add: CHECKPOINT_RESTORE, SYS_PTRACE, SYS_ADMIN and
     # security_opt: seccomp:unconfined) works on most hosts; `privileged` is the
     # most portable choice for a local demo.
-    privileged: true
+    privileged: false
+    # Add only explicitly approved, runtime-required capabilities locally.
     environment:
       SERVER_PORT: ${SERVER_PORT:-8080}
+      CRAC_MODE: ${CRAC_MODE:?Select create or restore}
+      CRAC_COMPATIBILITY_ID: ${CRAC_COMPATIBILITY_ID:?Set reviewed compatibility identity}
+      CRAC_REVIEWED_ID: ${CRAC_REVIEWED_ID:-}
     ports:
-      - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
+      - "127.0.0.1:${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
     volumes:
       - crac-checkpoint:/opt/crac/checkpoint
-    restart: unless-stopped
+    restart: "no"
 
 volumes:
   crac-checkpoint:
+    name: ${CRAC_VOLUME_NAME:?Choose an isolated checkpoint volume}
