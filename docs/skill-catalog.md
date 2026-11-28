@@ -8,10 +8,10 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 
 | Collection | Skills |
 | --- | ---: |
-| engineering | 13 |
+| engineering | 14 |
 | spring-boot-skills | 39 |
 | collected-skills | 7 |
-| Total | 59 |
+| Total | 60 |
 
 ## Source keys
 
@@ -21,6 +21,7 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 | E | [web-access](https://github.com/eze-is/web-access) |
 | H | [HumanLayer skills](https://github.com/humanlayer/skills) |
 | M | [Siva Prasad Reddy musings](https://github.com/sivaprasadreddy/musings) |
+| N | [Magnus Hedemark agent skills](https://github.com/magnus919/agent-skills) |
 | O | Original skills by repository maintainer (Zhijunio) |
 | P | [SivaLabs agent skills](https://github.com/sivaprasadreddy/sivalabs-agent-skills) |
 | S | [Rrezart Prebreza Spring Boot skills](https://github.com/rrezartprebreza/spring-boot-skills/tree/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4) |
@@ -43,6 +44,7 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 | [product-requirements](../engineering/product-requirements/SKILL.md) | Discover, define, review, approve and revise product requirements for a complete product, MVP, release or capability increment. Use for product scope, users, journeys, capability boundaries, priorities, quality needs and PRDs; not detailed use-case behavior, technical architecture or implementation. | O | Not restricted |
 | [progen](../engineering/progen/SKILL.md) | Use when the user explicitly selects Progen to scaffold a Spring Boot project. Verify the selected generator supports the approved stack, derive its configuration, confirm consequential choices and generate only the agreed scope. | P | Explicit only |
 | [project-foundation](../engineering/project-foundation/SKILL.md) | Choose and record a project's technical foundation, then initialize and verify its runnable skeleton before feature specifications or implementation. | O | Explicit only |
+| [system-design](../engineering/system-design/SKILL.md) | Design or review a software system from approved product scope, architecture drivers and existing constraints. Use for system boundaries, component responsibilities, data ownership, integration, runtime and failure behavior, quality attributes and architecture tradeoffs; not stack selection, project initialization or feature implementation. | N | Not restricted |
 
 ## spring-boot-skills
 

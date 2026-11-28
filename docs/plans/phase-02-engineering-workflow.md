@@ -111,9 +111,13 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
 
+## E04 progress
+
+Added system-design as a separate architecture owner with progressive references for drivers, boundaries/runtime and design briefs. Selectively adapted the pinned Magnus Hedemark software-architecture entry point and retained its MIT notice. No book-derived material or specialist sibling skills imported. Deterministic and behavioral verification pending.
+
 ## E03-A/B progress
 
-The existing prototype was renamed and refactored as product-prototyping, with progressive references for user journeys/UI, behavior simulations and review. Its original MIT notice is retained. Product scope, behavior approval, code promotion and publication remain separate. Technical PoC is not implemented here. Deterministic and behavioral verification remain pending.
+The existing prototype was renamed and refactored as product-prototyping, with progressive references for user journeys/UI, behavior simulations and review. Its original MIT notice is retained. Product scope, behavior approval, code promotion and publication remain separate. Technical PoC is not implemented here. Deterministic verification passed at 1573234 (runs 46136978494 and 46136978006); behavioral verification remains pending.
 
 ## E03 progress
 

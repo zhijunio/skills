@@ -10,7 +10,7 @@ Choose the project's technical options and establish a small, runnable baseline.
 
 ## Responsibility and delegation
 
-This skill owns technology selection, approval of the initialization method, and verification of the runnable baseline. It does not own generator-specific instructions. For an approved Spring Boot stack, use `spring-boot-scaffolding` when Spring Initializr is selected or `progen` only when the user selects Progen and its capabilities match the approved stack. Use exactly one generator for a destination. If a delegated skill is unavailable, report that limitation and use the approved method's official documentation; do not silently switch generators. Pass the approved stack, destination, scope and required verification to the selected generator, then verify the baseline here.
+This skill owns technology selection, approval of the initialization method, and verification of the runnable baseline. Read approved system-design decisions when available; route material unresolved architecture boundaries or tradeoffs to system-design rather than settling them during initialization. Existing approved constraints remain authoritative. It does not own generator-specific instructions. For an approved Spring Boot stack, use `spring-boot-scaffolding` when Spring Initializr is selected or `progen` only when the user selects Progen and its capabilities match the approved stack. Use exactly one generator for a destination. If a delegated skill is unavailable, report that limitation and use the approved method's official documentation; do not silently switch generators. Pass the approved stack, destination, scope and required verification to the selected generator, then verify the baseline here.
 
 ## Inputs
 

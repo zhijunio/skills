@@ -82,6 +82,7 @@ The [engineering](engineering/) collection supports software development from in
 | --- | --- |
 | [prd-to-use-cases](engineering/prd-to-use-cases/SKILL.md) | Transform product requirements into structured use cases |
 | [project-foundation](engineering/project-foundation/SKILL.md) | Select a technical foundation and verify a runnable project skeleton |
+| [system-design](engineering/system-design/SKILL.md) | Design and review system boundaries, architecture tradeoffs and runtime behavior |
 | [behavior-specification](engineering/behavior-specification/SKILL.md) | Define feature behavior, business rules, and acceptance criteria |
 | [implement-use-case](engineering/implement-use-case/SKILL.md) | Implement and verify an approved use case |
 | [html-plan](engineering/html-plan/SKILL.md) | Present plans in HTML |

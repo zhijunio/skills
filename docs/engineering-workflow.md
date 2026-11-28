@@ -29,7 +29,8 @@ flowchart TD
     C --> U{Material design uncertainty?}
     U -->|Yes| V[Design review or technical PoC]
     V -->|Reconcile evidence| U
-    U -->|No or resolved| D
+    U -->|No or resolved| W[Review system design when needed]
+    W --> D
     D{New foundation needed?}
     D -->|Yes| E[Approve stack and initializer]
     E --> F[Initialize and verify baseline]
@@ -58,6 +59,7 @@ The flow is iterative, not a mandatory waterfall. Domain modeling, decision inte
 | --- | --- | --- | --- |
 | Product discovery | [product-requirements](../engineering/product-requirements/SKILL.md) | Idea, users, problem and constraints | Confirmed summary; drafts PRD after confirmation |
 | Requirements decomposition | [prd-to-use-cases](../engineering/prd-to-use-cases/SKILL.md) | Authoritative PRD, existing index if any | Use-case summary, preserved identities/statuses; resolve scope conflicts before writing |
+| System design (as needed) | [system-design](../engineering/system-design/SKILL.md) | Product scope, existing architecture, constraints and quality drivers | Reviewable boundaries, tradeoffs, runtime and failure behavior, approved material decisions |
 | Technical foundation | [project-foundation](../engineering/project-foundation/SKILL.md) | Product constraints, repository state | Approved stack and initialization method, runnable baseline, tech-stack.md and verification |
 | Domain/design exploration (optional) | [domain-modeling](../engineering/domain-modeling/SKILL.md), [grilling](../engineering/grilling/SKILL.md), [grill-with-docs](../engineering/grill-with-docs/SKILL.md), [product-prototyping](../engineering/product-prototyping/SKILL.md) | Material domain or design question | Confirmed vocabulary/decisions or disposable experiment; not implementation approval |
 | Behavior specification | [behavior-specification](../engineering/behavior-specification/SKILL.md) | Feature description or one UC ID, PRD and existing docs | Interview, confirmed behavior, one specification and new index row only if needed |
@@ -87,6 +89,7 @@ All paths below are relative to the target project, not this skills repository. 
 | --- | --- | --- |
 | Product intent and scope | PRD; product-requirements drafts it | docs/PRD.md; legacy root PRD.md supported |
 | Use-case identity and status | Requirements index; prd-to-use-cases, behavior-specification and implement-use-case update within their scope | docs/requirements.md |
+| System design | system-design; approved architecture and existing ADRs | docs/system-design.md or established design location |
 | Technical baseline | project-foundation | docs/tech-stack.md |
 | Domain terminology | domain-modeling | GLOSSARY.md or context-local glossary |
 | Significant domain/architecture decision | domain-modeling where appropriate | docs/adr/ or context-local ADRs |

@@ -14,11 +14,12 @@ Reviewed: 2026-11-28. This register distinguishes observed source declarations f
 | P | [SivaLabs agent skills](https://github.com/sivaprasadreddy/sivalabs-agent-skills) | Current root MIT, copyright 2026 K Siva Prasad Reddy | Historical content matches for progen and java-code-review; see pinned comparison below |
 | T | [Matt Pocock skills](https://github.com/mattpocock/skills) | Current root MIT, copyright 2026 Matt Pocock; repository descriptions identify several matching skill names | Nine historical directories match all local blobs; see pinned comparison below |
 | S | [Rrezart Prebreza Spring Boot skills](https://github.com/rrezartprebreza/spring-boot-skills/tree/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4) | Local [upstream MIT notice](../spring-boot-skills/LICENSE) retained | Collection declares b90c3dbd9699c0d0bfb81660c857ef58262168e6; exact mapping and later additions pending |
+| N | [Magnus Hedemark agent skills](https://github.com/magnus919/agent-skills) | MIT; copyright 2026 Magnus Hedemark, exact root notice retained | Selective entry-point adaptation from 0f83b91d44d692a665b6f487c4f60fac07e632cb; no upstream reference or book-derived content imported |
 | O | Original skills by repository maintainer (Zhijunio) | Authorship explicitly confirmed by maintainer on 2026-11-28; repository root MIT license is the documented default | No third-party upstream identified for these skills; any separately incorporated third-party material remains subject to its own terms |
 
 ## Per-skill register
 
-The following records all 59 entry points. An identical Git blob establishes content equality, not the actual download revision. The 18 non-Spring matches compare every local file in the historical skill directory, not just SKILL.md. The remaining two non-Spring skills are confirmed maintainer-authored. No new third-party content is imported here.
+The following records all 60 entry points. An identical Git blob establishes content equality, not the actual download revision. The 18 non-Spring matches compare every local file in the historical skill directory, not just SKILL.md. Two historical non-Spring skills are confirmed maintainer-authored; system-design is a new attributed adaptation.
 
 | Skill | Source | Evidence / status |
 | --- | --- | --- |
@@ -41,6 +42,7 @@ The following records all 59 entry points. An identical Git blob establishes con
 | [product-requirements](../engineering/product-requirements/SKILL.md) | O | Maintainer-authored (explicit confirmation); local PRD path and routing changes |
 | [progen](../engineering/progen/SKILL.md) | P | Historical directory: 2/2 local blobs identical to skills/progen at pinned upstream snapshot below |
 | [project-foundation](../engineering/project-foundation/SKILL.md) | O | Maintainer-authored (explicit confirmation); local delegation changes |
+| [system-design](../engineering/system-design/SKILL.md) | N | Selective adaptation of the pinned software-architecture entry point; original MIT notice and SOURCE.md retained; local references newly authored |
 | [product-prototyping](../engineering/product-prototyping/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/prototype at pinned upstream snapshot below |
 | [agent-qa-browser-regression](../spring-boot-skills/agent-qa-browser-regression/SKILL.md) | S | Historical resource matches 3/4; upstream: agent-qa-browser-regression |
 | [archunit](../spring-boot-skills/archunit/SKILL.md) | S | Historical resource matches 0/2; upstream: unresolved |

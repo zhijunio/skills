@@ -18,7 +18,7 @@ Do not force MVP scope when the user wants a complete product. Do not restart di
 
 ## Responsibility and handoff
 
-Own product intent, users, capabilities, scope, product-level quality needs, priorities and the PRD. Use grilling for a requested stress-test, domain-modeling for canonical terminology, product-prototyping for bounded UI or behavior exploration, and behavior-specification for detailed feature behavior. A prototype is decision evidence, not scope approval. Route technical tradeoffs and feasibility to the appropriate design owner. Do not automatically invoke other skills, choose architecture or implement features.
+Own product intent, users, capabilities, scope, product-level quality needs, priorities and the PRD. Use grilling for a requested stress-test, domain-modeling for canonical terminology, product-prototyping for bounded UI or behavior exploration, and behavior-specification for detailed feature behavior. A prototype is decision evidence, not scope approval. Route system architecture tradeoffs to system-design and feasibility questions to the appropriate experiment owner. Do not automatically invoke other skills, choose architecture or implement features.
 
 ## Establish product scope
 
