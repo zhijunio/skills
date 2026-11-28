@@ -163,3 +163,35 @@ jobs:
           name: local-link-audit
           path: lychee/out.md
           if-no-files-found: error
+
+  spring-boot-examples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: verification/spring-boot-examples/pom.xml
+      - name: Stage and compile selected skill examples
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p example-evidence
+          git rev-parse HEAD > example-evidence/revision.txt
+          java -version > example-evidence/java-version.txt 2>&1
+          ./mvnw -version > example-evidence/maven-version.txt 2>&1
+          python3 scripts/prepare_spring_boot_examples.py > example-evidence/sources.json
+          ./mvnw -B -ntp -f verification/spring-boot-examples/pom.xml compile 2>&1 | tee example-evidence/compile.log
+      - name: Upload example compilation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-boot-example-compilation
+          path: example-evidence/
+          retention-days: 14
+          if-no-files-found: warn
