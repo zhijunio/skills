@@ -1,0 +1,321 @@
+{
+  "revision": "76ffd8cb79e28fb605c83a6bb7251320f7c979cc",
+  "measurement": "Git blob byte size, full SKILL.md only",
+  "skills": [
+    {
+      "path": "collected-skills/eli5/SKILL.md",
+      "bytes": 321,
+      "blob_sha": "ff6b33c9b3277c493e03e47fad327c6ad318e1d5"
+    },
+    {
+      "path": "collected-skills/handoff/SKILL.md",
+      "bytes": 940,
+      "blob_sha": "a224edc643a20ddb989f9bca1547440169159810"
+    },
+    {
+      "path": "collected-skills/retro/SKILL.md",
+      "bytes": 4369,
+      "blob_sha": "12149acf2dd23b4514dec57b04a6293eaa1352fa"
+    },
+    {
+      "path": "collected-skills/show-me/SKILL.md",
+      "bytes": 3328,
+      "blob_sha": "f0ccd047c136d7b702b385e0ecad775ccb773eae"
+    },
+    {
+      "path": "collected-skills/teach/SKILL.md",
+      "bytes": 9733,
+      "blob_sha": "493fa3bae0dada971c4dfb965790e56920b1dced"
+    },
+    {
+      "path": "collected-skills/web-access/SKILL.md",
+      "bytes": 23989,
+      "blob_sha": "5f5114d15e90b918c103b1e4ef7ed474fd5325b1"
+    },
+    {
+      "path": "collected-skills/writing-for-agents/SKILL.md",
+      "bytes": 10886,
+      "blob_sha": "a37608daf6e835e767deecfb498facecaaba82ba"
+    },
+    {
+      "path": "engineering/behavior-specification/SKILL.md",
+      "bytes": 8000,
+      "blob_sha": "9bafdfb68ee3a51a60a0572c5fbcaf894f66b48a"
+    },
+    {
+      "path": "engineering/diagnosing-bugs/SKILL.md",
+      "bytes": 8664,
+      "blob_sha": "d039541ddd1c46e6ddbd662fe99d49b686fc5e12"
+    },
+    {
+      "path": "engineering/domain-modeling/SKILL.md",
+      "bytes": 3835,
+      "blob_sha": "d092f232e4331ad43da07729c3836913118fea27"
+    },
+    {
+      "path": "engineering/grill-with-docs/SKILL.md",
+      "bytes": 773,
+      "blob_sha": "593cb57ffd5482c661c9ec08e6e64203f4f77396"
+    },
+    {
+      "path": "engineering/grilling/SKILL.md",
+      "bytes": 2297,
+      "blob_sha": "ecf638dbe6084f951e80c447a789bf2ce5d01e15"
+    },
+    {
+      "path": "engineering/html-plan/SKILL.md",
+      "bytes": 12596,
+      "blob_sha": "8b55749eea1aab7ad99f3311a6c285590c62b383"
+    },
+    {
+      "path": "engineering/implement-use-case/SKILL.md",
+      "bytes": 7841,
+      "blob_sha": "74b6db3e3e809a7036a8c0ae611a122ae4c03b7d"
+    },
+    {
+      "path": "engineering/implementation-planning/SKILL.md",
+      "bytes": 4271,
+      "blob_sha": "034f2304e099e6d37b6b96e71d05c76c9bb2e095"
+    },
+    {
+      "path": "engineering/java-code-review/SKILL.md",
+      "bytes": 4845,
+      "blob_sha": "b471076e73469b78e1d53e2534931309141c8485"
+    },
+    {
+      "path": "engineering/prd-to-use-cases/SKILL.md",
+      "bytes": 4628,
+      "blob_sha": "20f3957590f4ec7c8ddf2d1f0dd4bf596fb4bce9"
+    },
+    {
+      "path": "engineering/product-prototyping/SKILL.md",
+      "bytes": 3430,
+      "blob_sha": "0fe4797a45a19b61d141837fcc3e6d47b8069386"
+    },
+    {
+      "path": "engineering/product-requirements/SKILL.md",
+      "bytes": 6425,
+      "blob_sha": "c4c5f37d3f4c88fdff018fab80920ae5e5e758ca"
+    },
+    {
+      "path": "engineering/progen/SKILL.md",
+      "bytes": 11927,
+      "blob_sha": "53f74a1994da1cf3f99a7c187324911e9796a536"
+    },
+    {
+      "path": "engineering/project-foundation/SKILL.md",
+      "bytes": 7424,
+      "blob_sha": "552529972ff3a9de3d268a49ce8f8eb009531a7c"
+    },
+    {
+      "path": "engineering/system-design/SKILL.md",
+      "bytes": 4544,
+      "blob_sha": "624aec85f368771fdf70d5dfb97b1446a28f7f64"
+    },
+    {
+      "path": "engineering/technical-spike/SKILL.md",
+      "bytes": 3717,
+      "blob_sha": "62bf13d73629bc44ed8e260afb6d85b3bbe85732"
+    },
+    {
+      "path": "engineering/test-strategy/SKILL.md",
+      "bytes": 4025,
+      "blob_sha": "ac8bf21100adf8d2bdb9ab8b96485097fb7f2580"
+    },
+    {
+      "path": "spring-boot-skills/agent-qa-browser-regression/SKILL.md",
+      "bytes": 6647,
+      "blob_sha": "1bb9bef6616b6607f5e40c3a84dfd8bb0e3e801a"
+    },
+    {
+      "path": "spring-boot-skills/archunit/SKILL.md",
+      "bytes": 7770,
+      "blob_sha": "71d120a0ed4e41e5a4a5f21b93214270276b8000"
+    },
+    {
+      "path": "spring-boot-skills/bootui/SKILL.md",
+      "bytes": 895,
+      "blob_sha": "b90ca102fd69c4e714c76ec280e341e12f526ddd"
+    },
+    {
+      "path": "spring-boot-skills/event-driven-messaging/SKILL.md",
+      "bytes": 4958,
+      "blob_sha": "f3731908a830394c24a162da59702d951140c36a"
+    },
+    {
+      "path": "spring-boot-skills/feature-architecture/SKILL.md",
+      "bytes": 4877,
+      "blob_sha": "3b0a81dd2c6361c26aeb6d2ea87dfe06fa862483"
+    },
+    {
+      "path": "spring-boot-skills/flyway-migrations/SKILL.md",
+      "bytes": 9196,
+      "blob_sha": "e3dc071c77bcde1c2ee80bc773e3e4dd0251976b"
+    },
+    {
+      "path": "spring-boot-skills/hexagonal-architecture/SKILL.md",
+      "bytes": 6250,
+      "blob_sha": "d0875d9691366989d597e7f87299b9da64abeeed"
+    },
+    {
+      "path": "spring-boot-skills/http-interface-clients/SKILL.md",
+      "bytes": 4814,
+      "blob_sha": "1bf90def49d3c7c6ce66193b9d1b40a81ac5b857"
+    },
+    {
+      "path": "spring-boot-skills/idempotency-patterns/SKILL.md",
+      "bytes": 4002,
+      "blob_sha": "643809eb040d718fc40251f41361e935fc5d7e1d"
+    },
+    {
+      "path": "spring-boot-skills/jvm-diagnostics/SKILL.md",
+      "bytes": 4042,
+      "blob_sha": "f736dfefa9fb135640338d9aad8b0a204706343a"
+    },
+    {
+      "path": "spring-boot-skills/layered-architecture/SKILL.md",
+      "bytes": 7163,
+      "blob_sha": "84353520b961e166629362a2366c831d3b4c8e55"
+    },
+    {
+      "path": "spring-boot-skills/mise/SKILL.md",
+      "bytes": 818,
+      "blob_sha": "3efc6a2cbe848cd3c38b99f95590de3232f7d8cc"
+    },
+    {
+      "path": "spring-boot-skills/multi-module-maven/SKILL.md",
+      "bytes": 9324,
+      "blob_sha": "f3d9c0346874e68ed37ed47d05c94f46fef5f4a5"
+    },
+    {
+      "path": "spring-boot-skills/multi-tenancy/SKILL.md",
+      "bytes": 5819,
+      "blob_sha": "f964d0d209e0ef897bedf9175979b6b9e7907fac"
+    },
+    {
+      "path": "spring-boot-skills/null-safety/SKILL.md",
+      "bytes": 2142,
+      "blob_sha": "4282f6bad6fbd9aac3113ffec198fe17fc801a36"
+    },
+    {
+      "path": "spring-boot-skills/postgresql/SKILL.md",
+      "bytes": 1025,
+      "blob_sha": "5d03c72f9b1aec00fa0ee4bb9e05104fa6640f85"
+    },
+    {
+      "path": "spring-boot-skills/resilience-retry/SKILL.md",
+      "bytes": 4769,
+      "blob_sha": "39a5d716c6e024124d48ed32227589fdab2100b3"
+    },
+    {
+      "path": "spring-boot-skills/spring-ai/SKILL.md",
+      "bytes": 1704,
+      "blob_sha": "5dbdd97d60107da2b6923edaae3c7fe461a5bad4"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-api-versioning/SKILL.md",
+      "bytes": 3293,
+      "blob_sha": "593d2e61f59a7a26bbca006b4545c38e468d0846"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-cicd/SKILL.md",
+      "bytes": 821,
+      "blob_sha": "a164a736283c912f89c31614e1bb959f529b8413"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-configuration/SKILL.md",
+      "bytes": 4474,
+      "blob_sha": "e891cf9b43afd448b36e01e2eaa8e48260063144"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-docker/SKILL.md",
+      "bytes": 4251,
+      "blob_sha": "89cd26846cb5edaedfc32c052932ce52897f30ec"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-email/SKILL.md",
+      "bytes": 798,
+      "blob_sha": "676f5ab3c763f51308e18b62d8ac77a543581d69"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-frontend-integration/SKILL.md",
+      "bytes": 1189,
+      "blob_sha": "ee3ba65c97a88b28ff5a9a715353444e20e1d3df"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-gradle/SKILL.md",
+      "bytes": 996,
+      "blob_sha": "e20f11d08ec00196c89ef5367d61333c70aae8ab"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-kubernetes/SKILL.md",
+      "bytes": 1035,
+      "blob_sha": "dce16aed641f22a37ce214d3fe18b8b894212f9c"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-maven/SKILL.md",
+      "bytes": 1279,
+      "blob_sha": "ee31957ae727638bc4f076f2c5c3109b57633737"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-mybatis-plus/SKILL.md",
+      "bytes": 891,
+      "blob_sha": "4147ba57733b4d22328f5977a5bb75b345dec109"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-observability/SKILL.md",
+      "bytes": 3196,
+      "blob_sha": "02e635536b179bfa19d69d8a9a0f8e297d5d957a"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-openapi/SKILL.md",
+      "bytes": 1278,
+      "blob_sha": "ebba32486584c20333274cb47bc96a2efb2afaa3"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-scaffolding/SKILL.md",
+      "bytes": 4545,
+      "blob_sha": "cfe33a99166a2cbec7e422e4483312bbb4ac586b"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-security/SKILL.md",
+      "bytes": 4484,
+      "blob_sha": "83efdc8af33d141b0230f51e7b604b66ca535caf"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-testing/SKILL.md",
+      "bytes": 13869,
+      "blob_sha": "17139432056b77a533d79f4f5febf856944fc8da"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot-webmvc/SKILL.md",
+      "bytes": 3941,
+      "blob_sha": "252fae0dc694bb92ce3447e0196e0f6fa36563a4"
+    },
+    {
+      "path": "spring-boot-skills/spring-boot/SKILL.md",
+      "bytes": 8202,
+      "blob_sha": "fa5a6ec19eed13dd0a09fda7de5019dfc447ba91"
+    },
+    {
+      "path": "spring-boot-skills/spring-data-jpa/SKILL.md",
+      "bytes": 12402,
+      "blob_sha": "7a16b4290ee3b05935d4fceba75a8e28de82c239"
+    },
+    {
+      "path": "spring-boot-skills/spring-data-redis/SKILL.md",
+      "bytes": 12392,
+      "blob_sha": "90585199bc52e700a408c58455770d3a66689f5e"
+    },
+    {
+      "path": "spring-boot-skills/spring-modulith/SKILL.md",
+      "bytes": 3529,
+      "blob_sha": "f8c7c408b9010c8bdaf44005437516afb7c9347f"
+    },
+    {
+      "path": "spring-boot-skills/spring-task-execution/SKILL.md",
+      "bytes": 1378,
+      "blob_sha": "3a78f0d7c10ad5ba756c62af8f1a2c8639c3d089"
+    }
+  ]
+}

@@ -37,3 +37,5 @@ Do not change the two larger skills solely based on static length. A11 remains o
 ## Phase 03 extension
 
 The [Spring Boot evaluation cases](../../evals/spring-boot/README.md) expand the original six scenario ideas into version-aware technical and routing cases. Historical static size measurements above are unchanged. Current token and behavioral comparisons remain NOT RUN; do not infer context savings from the dataset or line counts.
+
+The [full inventory context baseline](context-efficiency.md) records actual Git blob byte sizes at 76ffd8c and a reproducible measurement helper. It does not replace runtime token evidence.
