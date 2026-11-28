@@ -9,6 +9,8 @@ description: >
 
 # Spring Data JPA (Boot 4 / Hibernate 7)
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
+
 Inspect the actual Boot, Hibernate, Spring Data, database and migration versions. Preserve
 the existing persistence technology, schema, ID strategy and public contracts. For Boot 4
 use Jakarta persistence and validation imports and Boot-managed dependencies; do not
