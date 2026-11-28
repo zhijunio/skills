@@ -1,18 +1,24 @@
 ---
 name: progen
-description: Use when the user wants to create/generate/scaffold a new Spring Boot project (Maven or Gradle, REST API / Web App / Spring Boot + Angular full stack). Derives progen CLI inputs from the user's plain-English project description, asks for any missing mandatory info, ensures the progen binary is available, and runs it to generate the project. If the user asks for features progen doesn't support natively, generate the base project first, then add those features on top of the generated code.
+description: Use when the user explicitly selects Progen to scaffold a Spring Boot project. Verify the selected generator supports the approved stack, derive its configuration, confirm consequential choices and generate only the agreed scope.
 disable-model-invocation: true
 ---
 
 # progen: Spring Boot Project Generator
 
 `progen` is an offline, single-binary Go CLI (https://github.com/sivaprasadreddy/progen) that
-scaffolds a complete, production-ready Spring Boot project: build files, Java source, tests,
+can scaffold a Spring Boot project with: build files, Java source, tests,
 Docker Compose, GitHub Actions, DB migrations, security, and more.
 
 This skill's job: turn a user's description of the app they want into a `.progen.json` config,
 fill gaps by asking the user, run `progen` to generate the project, and — if the user asked for
 anything progen can't do natively — layer that on afterward by editing the generated code.
+
+## Responsibility and prerequisites
+
+Progen is one optional generator, not the default technical foundation. For unresolved stack or generator decisions, use project-foundation first. Do not override approved Java, Spring Boot, build, persistence, database, migration, frontend or deployment choices with Progen defaults. Confirm consequential defaults and generated extras before execution. If the selected version cannot represent the agreed scope, stop and discuss alternatives rather than generating an incompatible project. Generate into a new destination; never run a second generator over it. Add unsupported capabilities only when separately requested and approved; foundation work must not implement product use cases.
+
+Check the installed or selected pinned version and its actual schema. Prefer an existing binary or approved project-local installation; obtain explicit approval before downloads, system-wide installation or privileged operations. Verify the upstream release and integrity where available. Do not bypass operating-system security controls. The installation examples below are informational and must not override these constraints.
 
 ## Step 1 — Ensure `progen` is available
 
@@ -22,7 +28,7 @@ Check for a working binary:
 progen --version
 ```
 
-If not found (or version looks outdated and the user wants latest), download the right asset for
+If not found, or an upgrade is explicitly requested, propose a compatible pinned release and, after approval, download the right asset for
 the current OS/arch from the latest release:
 
 ```bash
@@ -31,19 +37,18 @@ curl -L -o progen.tar.gz \
   "https://github.com/sivaprasadreddy/progen/releases/latest/download/progen_<os>_<arch>.tar.gz"
 tar -xzf progen.tar.gz
 chmod +x progen
-sudo mv progen /usr/local/bin/   # or anywhere on PATH
+mkdir -p "$HOME/.local/bin"
+mv progen "$HOME/.local/bin/" # approved user-local destination
 progen --version
 ```
 
 If the exact asset naming isn't obvious, fetch the releases page
 (`https://github.com/sivaprasadreddy/progen/releases`) to find the correct filename for the
 user's OS/architecture before downloading. If a Go toolchain is available, `go install
-github.com/sivaprasadreddy/progen@latest` also works and avoids the asset-naming problem
+github.com/sivaprasadreddy/progen@<approved-version>` also works and avoids the asset-naming problem
 entirely.
 
-On macOS, downloaded binaries may trigger a Gatekeeper "cannot be opened because the developer
-cannot be verified" error — tell the user to right-click → Open once in Finder to approve it (or
-`xattr -d com.apple.quarantine progen` if working non-interactively is fine with them).
+On macOS, if Gatekeeper blocks the binary, stop and explain the warning. Use a trusted, verified distribution or let the user resolve the operating-system approval through its supported interface; do not remove quarantine attributes.
 
 ## Step 2 — Config schema (`.progen.json`)
 
