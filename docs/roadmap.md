@@ -1,6 +1,6 @@
 # Agent Skills Roadmap
 
-Status: Proposed
+Status: Phase 01 foundation implemented on review branch; Phase 02 proposed
 
 ## 1. Vision
 
@@ -18,7 +18,7 @@ The repository currently organizes skills into three collections:
 
 Reusable prompts live in [docs/prompts](prompts/). Maven packaging is configured in [pom.xml](../pom.xml), and CI, snapshot, and release workflows exist under [.github/workflows](../.github/workflows/).
 
-The counts describe the reviewed baseline, not a permanent inventory. Packaging coverage for nested skills, installation behavior, and CI outcomes still need verification. A full responsibility-overlap audit of the existing skills has not yet been completed.
+The counts describe the reviewed baseline, not a permanent inventory. See the [generated catalog](skill-catalog.md), [baseline audit](audits/initial-skill-audit.md), and [Phase 01 review](reviews/phase-01-review.md). Local archive, extraction and installation verification passed for the reviewed inventory; runtime behavior and publication remain unverified.
 
 ## 3. Goals and design principles
 
@@ -222,14 +222,14 @@ This is a target layout, not an instruction to create empty directories or immed
 | Phase | Objective | Main deliverables | Exit criteria |
 | --- | --- | --- | --- |
 | 1 | [Repository foundations](plans/phase-01-repository-foundations.md) | Standards, agent instructions, authoring and contribution guides, baseline audit, catalog, workflow documentation, distribution verification, deterministic CI checks | Conventions documented; skills audited; supported distribution verified; baseline checks integrated |
-| 2 | Engineering workflow | Responsibility audit, system design, implementation planning, test strategy, artifact contracts | Overlap resolved; representative workflow documented and exercised |
+| 2 | [Engineering workflow](plans/phase-02-engineering-workflow.md) | Responsibility audit, system design, implementation planning, test strategy, artifact contracts | Overlap resolved; representative workflow documented and exercised |
 | 3 | Quality engineering | Extend deterministic checks and introduce systematic model-based evaluations and regression testing | Initial behavioral baseline recorded; evaluation and regression processes established |
 | 4 | Technical expansion | Prioritized Java, frontend, data, distributed systems, security, testing, and delivery guidance | New skills address demonstrated gaps and meet the quality standard |
 | 5 | Distribution and sustainability | Installation verification, versioning, release notes, maintenance and contribution processes | Supported distribution paths verified; maintenance responsibilities documented |
 
 ### Immediate work
 
-Follow the [Phase 01 implementation plan](plans/phase-01-repository-foundations.md), beginning with standards and reusable tool research (F01), followed by the baseline skill audit (F06). Establish repository conventions, verify distribution, and integrate deterministic checks before broad expansion. Systematic model-based evaluation remains Phase 3 work.
+Review the [Phase 01 acceptance report](reviews/phase-01-review.md) and [Phase 02 implementation plan](plans/phase-02-engineering-workflow.md). Phase 01 foundation deliverables and scoped deterministic verification are complete on the review branch; maintainer acceptance, runtime evidence and publication clearance remain separate. Begin Phase 02 with E01 responsibility analysis and reuse research after review. Systematic model-based evaluation remains Phase 3 work.
 
 ## 10. Success criteria
 

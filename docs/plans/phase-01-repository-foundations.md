@@ -1,6 +1,6 @@
 # Phase 01 — Repository Foundations
 
-Status: In progress (review branch)  
+Status: Foundation deliverables implemented; review and scoped verification complete on review branch; maintainer acceptance pending  
 Parent: [Agent Skills Roadmap](../roadmap.md)
 
 ## 1. Objective
@@ -171,10 +171,10 @@ Actual execution advanced distribution and deterministic checks early to remedia
 | F05 | Documented, awaiting review | [Contribution guide](../../CONTRIBUTING.md); review branch |
 | F07 | Verified on review branch | [Generated catalog](../skill-catalog.md), 59 entries; generator and 10 helper tests passed at 59b2275; catalog freshness enforcement passed at [9209fae](https://github.com/zhijunio/skills/actions/runs/46120989867) |
 | F08 | Documented, awaiting review | [Engineering workflow](../engineering-workflow.md); representative behavioral cases proposed, not executed |
-| F09 | Partial verification passed | [Distribution report](../verification/distribution.md); archive, extraction and local CLI installations passed, actual agent behavior and publication remain unverified |
-| F10 | Partial verification passed | [CI workflow](../../.github/workflows/skill-verification.yml); helper tests, metadata and distribution checks passed; catalog freshness enforcement passed; broader reference checks and remaining validation scope pending |
+| F09 | Verified within declared local distribution scope | [Distribution report](../verification/distribution.md); full and selected CLI installation, archive and extraction passed; host runtime, hosted export and publication remain unverified |
+| F10 | Verified deterministic baseline | [CI workflow](../../.github/workflows/skill-verification.yml); 12 helper tests, metadata, catalog freshness, distribution and offline Markdown link checks passed; broader reference types, style lint and external links outside current scope |
 
-Next: close remaining F09/F10 scope or document explicit limitations, and review phase acceptance. Continue provenance and publication review separately. Do not merge a publication-triggering change until the applicable rights and authorization issues are addressed. Systematic model-based evaluation remains Phase 3 work.
+See the [Phase 01 review](../reviews/phase-01-review.md) for evidence, remaining risks and acceptance boundaries. Proposed next work: [Phase 02 engineering workflow](phase-02-engineering-workflow.md). Continue provenance and publication review independently; do not merge or publish while applicable rights and authorization issues remain.
 
 ## 7. Target deliverables
 
@@ -205,10 +205,10 @@ Add scripts and CI configuration only after tool selection. Do not create placeh
 - [x] All discovered skills audited and findings prioritized.
 - [x] Catalog matches the actual inventory.
 - [x] Current engineering workflow and handoffs documented.
-- [ ] Installation and packaging verified for declared supported methods, with limitations recorded.
-- [ ] Deterministic checks integrated into CI and demonstrated.
-- [ ] Upstream sources and applicable licenses traceable, or unresolved cases explicitly recorded and restricted from redistribution as appropriate.
-- [ ] Phase review records verification evidence, remaining blockers, and follow-up tasks.
+- [x] Installation and packaging verified for declared supported local methods, with limitations recorded.
+- [x] Deterministic baseline checks integrated into CI and demonstrated.
+- [ ] Upstream sources and applicable licenses traceable, or unresolved cases explicitly recorded and restricted from redistribution as appropriate (register complete for inventory, applicable grants/notices and enforceable release restriction still unresolved).
+- [x] Phase review records verification evidence, remaining blockers, and follow-up tasks.
 
 ## 9. Decisions to resolve during implementation
 
