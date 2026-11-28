@@ -10,7 +10,7 @@ Reviewed: 2026-11-28. This register distinguishes observed source declarations f
 | A | [Anthropic community plugins](https://github.com/anthropics/claude-plugins-community) | Current root LICENSE is Apache-2.0; eli5 and html-plan plugin manifests declare MIT | Exact imported revision and applicable plugin notices unresolved |
 | H | [HumanLayer skills](https://github.com/humanlayer/skills) | Current root MIT, copyright 2026 HumanLayer; plugin-specific LICENSE fetch returned 404 | Historical revision and applicable notices pending |
 | E | [web-access](https://github.com/eze-is/web-access) | Upstream SKILL.md declares MIT, author 一泽Eze, version 2.6.0; root LICENSE fetch returned 404 | Confirm revision, full copyright/permission notice, and supporting script licenses |
-| M | [Siva Prasad Reddy musings](https://github.com/sivaprasadreddy/musings) | Maintainer explicitly confirmed Siva as source of the three SDD skills; historical directory blobs match the pinned musings snapshot; no LICENSE/NOTICE/COPYING found | No license inferred for create-spec, impl-spec or prd-to-requirements; java-code-review also matches MIT-licensed SivaLabs source |
+| M | [Siva Prasad Reddy musings](https://github.com/sivaprasadreddy/musings) | Maintainer explicitly confirmed Siva as source of the three SDD skills; historical directory blobs match the pinned musings snapshot; no LICENSE/NOTICE/COPYING found | Maintainer confirms MIT for create-spec, impl-spec and prd-to-requirements; upstream license text or author grant remains to be independently located; java-code-review also matches MIT-licensed SivaLabs source |
 | P | [SivaLabs agent skills](https://github.com/sivaprasadreddy/sivalabs-agent-skills) | Current root MIT, copyright 2026 K Siva Prasad Reddy | Historical content matches for progen and java-code-review; see pinned comparison below |
 | T | [Matt Pocock skills](https://github.com/mattpocock/skills) | Current root MIT, copyright 2026 Matt Pocock; repository descriptions identify several matching skill names | Nine historical directories match all local blobs; see pinned comparison below |
 | S | [Rrezart Prebreza Spring Boot skills](https://github.com/rrezartprebreza/spring-boot-skills/tree/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4) | Local [upstream MIT notice](../spring-boot-skills/LICENSE) retained | Collection declares b90c3dbd9699c0d0bfb81660c857ef58262168e6; exact mapping and later additions pending |
@@ -29,15 +29,15 @@ The following records all 59 entry points. An identical Git blob establishes con
 | [teach](../collected-skills/teach/SKILL.md) | T | Historical directory: 6/6 local blobs identical to skills/productivity/teach at pinned upstream snapshot below |
 | [web-access](../collected-skills/web-access/SKILL.md) | E | Historical directory: 23/23 local blobs identical to repository root at pinned upstream snapshot below |
 | [writing-for-agents](../collected-skills/writing-for-agents/SKILL.md) | T | Historical directory: 3/3 local blobs identical to skills/productivity/writing-for-agents at pinned upstream snapshot below |
-| [create-spec](../engineering/create-spec/SKILL.md) | M | Maintainer-confirmed Siva origin; historical directory: 2/2 local blobs identical to .agents/skills/create-spec at pinned upstream snapshot below |
+| [create-spec](../engineering/create-spec/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/create-spec at pinned upstream snapshot below |
 | [diagnosing-bugs](../engineering/diagnosing-bugs/SKILL.md) | T | Historical directory: 3/3 local blobs identical to skills/engineering/diagnosing-bugs at pinned upstream snapshot below |
 | [domain-modeling](../engineering/domain-modeling/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/domain-modeling at pinned upstream snapshot below |
 | [grill-with-docs](../engineering/grill-with-docs/SKILL.md) | T | Historical directory: 2/2 local blobs identical to skills/engineering/grill-with-docs at pinned upstream snapshot below |
 | [grilling](../engineering/grilling/SKILL.md) | T | Historical directory: 2/2 local blobs identical to skills/productivity/grilling at pinned upstream snapshot below |
 | [html-plan](../engineering/html-plan/SKILL.md) | A | Historical directory: 6/6 local blobs identical to html-plan/skills/html-plan at pinned upstream snapshot below |
-| [impl-spec](../engineering/impl-spec/SKILL.md) | M | Maintainer-confirmed Siva origin; historical directory: 2/2 local blobs identical to .agents/skills/impl-spec at pinned upstream snapshot below |
+| [impl-spec](../engineering/impl-spec/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/impl-spec at pinned upstream snapshot below |
 | [java-code-review](../engineering/java-code-review/SKILL.md) | M / P | Historical directory: 1/1 local blobs identical to .agents/skills/java-code-review and skills/java-code-review at pinned upstream snapshot below |
-| [prd-to-requirements](../engineering/prd-to-requirements/SKILL.md) | M | Maintainer-confirmed Siva origin; historical directory: 2/2 local blobs identical to .agents/skills/prd-to-requirements at pinned upstream snapshot below |
+| [prd-to-requirements](../engineering/prd-to-requirements/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/prd-to-requirements at pinned upstream snapshot below |
 | [product-brainstorming](../engineering/product-brainstorming/SKILL.md) | O | Maintainer-authored (explicit confirmation); local PRD path and routing changes |
 | [progen](../engineering/progen/SKILL.md) | P | Historical directory: 2/2 local blobs identical to skills/progen at pinned upstream snapshot below |
 | [project-foundation](../engineering/project-foundation/SKILL.md) | O | Maintainer-authored (explicit confirmation); local delegation changes |
@@ -101,7 +101,7 @@ Local baseline [7c9b05d](https://github.com/zhijunio/skills/tree/7c9b05def794b4a
 | T | [bbadaa6](https://github.com/mattpocock/skills/tree/bbadaa631c37af594e5a05c9cefacd9956136b18) | [MIT](https://github.com/mattpocock/skills/blob/bbadaa631c37af594e5a05c9cefacd9956136b18/LICENSE) |
 | H | [4d69d20](https://github.com/humanlayer/skills/tree/4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329) | [MIT](https://github.com/humanlayer/skills/blob/4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329/LICENSE) |
 | P | [6a3a8f2](https://github.com/sivaprasadreddy/sivalabs-agent-skills/tree/6a3a8f2043373a1b8d6c3051bc28aa7a91731f6a) | [MIT](https://github.com/sivaprasadreddy/sivalabs-agent-skills/blob/6a3a8f2043373a1b8d6c3051bc28aa7a91731f6a/LICENSE) |
-| M | [6852f2c](https://github.com/sivaprasadreddy/musings/tree/6852f2c8b60196279cdfafe6c8809f7ecf6eeb69) | No LICENSE/NOTICE/COPYING file found in recursive tree; no grant inferred |
+| M | [6852f2c](https://github.com/sivaprasadreddy/musings/tree/6852f2c8b60196279cdfafe6c8809f7ecf6eeb69) | No LICENSE/NOTICE/COPYING file found in recursive tree; maintainer confirms MIT for the three SDD skills, but the upstream grant and exact notice remain unverified |
 | A | [24479d5](https://github.com/anthropics/claude-plugins-community/tree/24479d5a1fb7a1c4f068a6d3b74d0c0fbc1acfda) | Both plugin manifests declare MIT and name Thariq Shihipar; root Apache-2.0; confirm applicable notice text |
 | E | [d173a75](https://github.com/eze-is/web-access/tree/d173a75978ceb2c63fa0b27f7408cd2bf7fe4310) | SKILL.md declares MIT; no LICENSE/NOTICE/COPYING file found in recursive tree |
 
@@ -109,7 +109,7 @@ The matching 18 historical directories cover 68 local files (including SKILL.md 
 
 ## Release blockers
 
-- create-spec, impl-spec, prd-to-requirements: origin confirmed by the maintainer on 2026-11-28 as Siva; exact historical content match corroborates the source. No explicit license found in the pinned musings tree. Source identification is resolved; redistribution permission remains unresolved. Obtain permission or independently replace with appropriately licensed implementation.
+- create-spec, impl-spec, prd-to-requirements: origin confirmed by the maintainer on 2026-11-28 as Siva; exact historical content match corroborates the source. Maintainer confirmed MIT licensing on 2026-11-28. No explicit license file was found in the pinned musings tree. Record MIT as maintainer-confirmed, not independently verified; locate the author’s license declaration or permission and preserve the applicable notice before closing the publication review.
 - eli5, html-plan: confirm plugin-specific MIT grant and applicable copyright/permission notices, reconcile root Apache-2.0 evidence.
 - web-access: confirm complete MIT notice and any additional script/resource terms.
 - Spring Boot collection: distinguish verified resource matches from local additions; confirm all remaining files' provenance.
@@ -118,3 +118,7 @@ The matching 18 historical directories cover 68 local files (including SKILL.md 
 ## Spring Boot historical resource comparison
 
 Compared all 230 files under the 39 skill directories at local [aa2459c](https://github.com/zhijunio/skills/tree/aa2459c28bc8bdbc7d37a3f5d8bce09070e44a7d) against all blobs under upstream skills/spring-boot-4 at b90c3db. 80 local files have an exact blob match anywhere under that upstream collection. 23 skill directories have at least one match; 16 have none. The per-skill table above records candidate upstream directories from the matching blobs, or name-only matches explicitly marked as such. None of these counts establishes authorship of unmatched files, including rewritten entry points. The local Spring Boot LICENSE has the exact same blob as the upstream root LICENSE at the pinned revision. Preserve it and investigate remaining files.
+
+## Notice preservation batch
+
+Copied the exact MIT LICENSE text from the pinned upstream snapshots into the individual skill directories for the nine Matt Pocock skills (diagnosing-bugs, domain-modeling, grill-with-docs, grilling, prototype, handoff, retro, teach, writing-for-agents), HumanLayer show-me, and SivaLabs progen and java-code-review. These are 12 notices with independently located upstream license text. The maintainer-confirmed MIT classification of the three musings SDD skills is recorded separately; their exact upstream notice has not yet been located, so no substitute copyright statement was fabricated. The existing Spring Boot collection notice remains in place. New individual notice files must be covered by the next package and installation verification run.
