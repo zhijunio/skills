@@ -167,14 +167,14 @@ Actual execution advanced distribution and deterministic checks early to remedia
 | F06-R | In progress | [Remediation tracker](../audits/remediation-plan.md); packaging defect resolved on review branch; provenance, authorization and behavioral gaps remain |
 | F03 | Documented, maintainer confirmed | [Design principles](../skill-design-principles.md); review branch |
 | F04 | Documented, awaiting review | [Authoring guide](../skill-authoring-guide.md); review branch |
-| F02 | TODO | AGENTS.md |
-| F05 | TODO | CONTRIBUTING.md |
+| F02 | Documented, maintainer confirmed | [Agent instructions](../../AGENTS.md); review branch |
+| F05 | Documented, awaiting review | [Contribution guide](../../CONTRIBUTING.md); review branch |
 | F07 | TODO | Catalog |
 | F08 | TODO | Engineering workflow |
 | F09 | Partial verification passed | [Distribution report](../verification/distribution.md); archive, extraction and local CLI installations passed, actual agent behavior and publication remain unverified |
 | F10 | Partial verification passed | [CI workflow](../../.github/workflows/skill-verification.yml); helper tests, metadata and distribution checks passed; catalog freshness, broader reference checks and remaining validation scope pending |
 
-Next: complete F02 and F05, then F07 and F08, close remaining F09/F10 scope or document explicit limitations, and review phase acceptance. Continue provenance and publication review separately. Do not merge a publication-triggering change until the applicable rights and authorization issues are addressed. Systematic model-based evaluation remains Phase 3 work.
+Next: complete F07 and F08, close remaining F09/F10 scope or document explicit limitations, and review phase acceptance. Continue provenance and publication review separately. Do not merge a publication-triggering change until the applicable rights and authorization issues are addressed. Systematic model-based evaluation remains Phase 3 work.
 
 ## 7. Target deliverables
 
