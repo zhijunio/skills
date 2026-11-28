@@ -29,6 +29,42 @@
     {
       "source": "spring-boot-skills/spring-boot-observability/examples/bounded-observation.java",
       "destination": "OrderObservation.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/SecurityConfig.java",
+      "destination": "com/example/auth/config/SecurityConfig.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/JwtFactory.java",
+      "destination": "com/example/auth/service/JwtFactory.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/ResourceServerConfig.java",
+      "destination": "com/example/config/ResourceServerConfig.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/SecurityErrorHandler.java",
+      "destination": "com/example/auth/config/SecurityErrorHandler.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/JwtClaimExtractor.java",
+      "destination": "com/example/config/JwtClaimExtractor.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/ExternalIdentity.java",
+      "destination": "com/example/config/ExternalIdentity.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/OAuth2ClientSecurityConfig.java",
+      "destination": "com/example/security/config/OAuth2ClientSecurityConfig.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/MfaSecurityConfig.java",
+      "destination": "com/example/security/config/MfaSecurityConfig.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-boot-security/templates/SecurityAuditRecord.java",
+      "destination": "com/example/securityaudit/SecurityAuditRecord.java"
     }
   ]
 }
