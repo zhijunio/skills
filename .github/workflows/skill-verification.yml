@@ -71,14 +71,8 @@ jobs:
       - run: python scripts/validate-skill-metadata.py
       - name: Test verification helpers
         run: python -m unittest discover -s scripts -p 'test_*.py'
-      - name: Generate skill catalog for review
-        run: python scripts/generate-skill-catalog.py
-      - name: Upload generated catalog
-        uses: actions/upload-artifact@v4
-        with:
-          name: skill-catalog
-          path: docs/skill-catalog.md
-          if-no-files-found: error
+      - name: Check generated skill catalog is current
+        run: python scripts/generate-skill-catalog.py --check
 
   discovery:
     runs-on: ubuntu-latest
