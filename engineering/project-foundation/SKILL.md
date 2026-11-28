@@ -8,6 +8,10 @@ disable-model-invocation: true
 
 Choose the project's technical options and establish a small, runnable baseline. This step follows product requirements and precedes feature-level behavior specifications. It decides how the product will be built and prepares the project; it does not implement product features.
 
+## Responsibility and delegation
+
+This skill owns technology selection, approval of the initialization method, and verification of the runnable baseline. It does not own generator-specific instructions. For an approved Spring Boot stack, use `spring-boot-scaffolding` when Spring Initializr is selected or `progen` only when the user selects Progen and its capabilities match the approved stack. Use exactly one generator for a destination. If a delegated skill is unavailable, report that limitation and use the approved method's official documentation; do not silently switch generators. Pass the approved stack, destination, scope and required verification to the selected generator, then verify the baseline here.
+
 ## Inputs
 
 - Accept a project directory, product brief, PRD, requirements document, or a combination.
