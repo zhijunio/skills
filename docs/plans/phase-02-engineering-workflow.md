@@ -111,9 +111,13 @@ If runtime execution is unavailable, record NOT RUN and the blocker, keep the co
 
 Review changed contracts, verified cases, outstanding blockers and follow-up priorities. Update roadmap, workflow, catalog, provenance and remediation tracker as appropriate. Maintain the separate publication gate. Recommend Phase 03 only with transparent evidence and explicitly recorded outstanding behavior work.
 
+## E05 progress
+
+Added implementation-planning, selectively adapting Superpowers writing-plans with its original MIT notice. Local references cover dependency-ordered task decomposition, interface/file ownership, verification mapping and self-review. Narrowed html-plan to explicitly requested interactive presentation and removed automatic execution handoff; implement-use-case consumes reviewed plans without bypassing lifecycle gates. Deterministic and behavioral verification pending.
+
 ## E04-A progress
 
-Added technical-spike as an explicit-only capability for bounded technical feasibility experiments, with references for experiment design and evidence and a report template. Selectively adapted the pinned Hermes spike entry point; retained the Hermes and GSD MIT notices, with the exact historical GSD revision still unknown. No upstream GSD workflow files or Hermes tools imported. Deterministic and behavioral verification pending.
+Added technical-spike as an explicit-only capability for bounded technical feasibility experiments, with references for experiment design and evidence and a report template. Selectively adapted the pinned Hermes spike entry point; retained the Hermes and GSD MIT notices, with the exact historical GSD revision still unknown. No upstream GSD workflow files or Hermes tools imported. Deterministic verification passed at 3149293 (runs 46138678540 and 46138677958); behavioral verification pending.
 
 ## E04 progress
 

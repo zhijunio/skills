@@ -16,11 +16,12 @@ Reviewed: 2026-11-28. This register distinguishes observed source declarations f
 | S | [Rrezart Prebreza Spring Boot skills](https://github.com/rrezartprebreza/spring-boot-skills/tree/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4) | Local [upstream MIT notice](../spring-boot-skills/LICENSE) retained | Collection declares b90c3dbd9699c0d0bfb81660c857ef58262168e6; exact mapping and later additions pending |
 | N | [Magnus Hedemark agent skills](https://github.com/magnus919/agent-skills) | MIT; copyright 2026 Magnus Hedemark, exact root notice retained | Selective entry-point adaptation from 0f83b91d44d692a665b6f487c4f60fac07e632cb; no upstream reference or book-derived content imported |
 | F | [Nous Research Hermes Agent](https://github.com/NousResearch/hermes-agent) | MIT, copyright 2025 Nous Research; upstream attributes GSD, MIT copyright 2025 Lex Christopherson; both notices retained | Hermes 29bbd2d97b8e5bcda44d7e02ee2239a93afd5e58; GSD license inspected at bdcaab2c752d9a33a1a1ca9acf3a3c81fb991815; exact historical GSD revision not established |
+| R | [Superpowers](https://github.com/obra/superpowers) | MIT; copyright 2025 Jesse Vincent, exact upstream notice retained | Selective writing-plans entry-point adaptation from 22f0b463e7a5e579904dd6211a520321035526f7 |
 | O | Original skills by repository maintainer (Zhijunio) | Authorship explicitly confirmed by maintainer on 2026-11-28; repository root MIT license is the documented default | No third-party upstream identified for these skills; any separately incorporated third-party material remains subject to its own terms |
 
 ## Per-skill register
 
-The following records all 61 entry points. An identical Git blob establishes content equality, not the actual download revision. The 18 non-Spring matches compare every local file in the historical skill directory, not just SKILL.md. Two historical non-Spring skills are confirmed maintainer-authored; system-design and technical-spike are new attributed adaptations.
+The following records all 62 entry points. An identical Git blob establishes content equality, not the actual download revision. The 18 non-Spring matches compare every local file in the historical skill directory, not just SKILL.md. Two historical non-Spring skills are confirmed maintainer-authored; system-design, technical-spike and implementation-planning are new attributed adaptations.
 
 | Skill | Source | Evidence / status |
 | --- | --- | --- |
@@ -38,6 +39,7 @@ The following records all 61 entry points. An identical Git blob establishes con
 | [grilling](../engineering/grilling/SKILL.md) | T | Historical directory: 2/2 local blobs identical to skills/productivity/grilling at pinned upstream snapshot below |
 | [html-plan](../engineering/html-plan/SKILL.md) | A | Historical directory: 6/6 local blobs identical to html-plan/skills/html-plan at pinned upstream snapshot below |
 | [implement-use-case](../engineering/implement-use-case/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/impl-spec at pinned upstream snapshot below |
+| [implementation-planning](../engineering/implementation-planning/SKILL.md) | R | Selective adaptation of pinned Superpowers writing-plans; original MIT notice and SOURCE.md retained; local references newly authored |
 | [java-code-review](../engineering/java-code-review/SKILL.md) | M / P | Historical directory: 1/1 local blobs identical to .agents/skills/java-code-review and skills/java-code-review at pinned upstream snapshot below |
 | [prd-to-use-cases](../engineering/prd-to-use-cases/SKILL.md) | M | Maintainer-confirmed Siva origin and MIT license; historical directory: 2/2 local blobs identical to .agents/skills/prd-to-requirements at pinned upstream snapshot below |
 | [product-requirements](../engineering/product-requirements/SKILL.md) | O | Maintainer-authored (explicit confirmation); local PRD path and routing changes |

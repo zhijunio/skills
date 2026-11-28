@@ -8,10 +8,10 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 
 | Collection | Skills |
 | --- | ---: |
-| engineering | 15 |
+| engineering | 16 |
 | spring-boot-skills | 39 |
 | collected-skills | 7 |
-| Total | 61 |
+| Total | 62 |
 
 ## Source keys
 
@@ -26,6 +26,7 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 | O | Original skills by repository maintainer (Zhijunio) |
 | P | [SivaLabs agent skills](https://github.com/sivaprasadreddy/sivalabs-agent-skills) |
 | S | [Rrezart Prebreza Spring Boot skills](https://github.com/rrezartprebreza/spring-boot-skills/tree/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4) |
+| R | [Superpowers](https://github.com/obra/superpowers) |
 | T | [Matt Pocock skills](https://github.com/mattpocock/skills) |
 
 ## engineering
@@ -37,8 +38,9 @@ Invocation labels describe configuration, not proven runtime behavior. Source ke
 | [domain-modeling](../engineering/domain-modeling/SKILL.md) | Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a GLOSSARY.md, or recording or editing an ADR. | T | Not restricted |
 | [grill-with-docs](../engineering/grill-with-docs/SKILL.md) | A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go. | T | Explicit only |
 | [grilling](../engineering/grilling/SKILL.md) | Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases. | T | Not restricted |
-| [html-plan](../engineering/html-plan/SKILL.md) | Write an implementation plan as one interactive HTML page - a tree of claims (why › what › how › where), each proved by one exhibit (UI mockup, state machine, call stack, schema or code), with the decisions the user has to make placed on the claim they change. Use when the user types /html-plan, or asks for a plan, RFC or design before building something that touches more than a couple of files. | A | Not restricted |
+| [html-plan](../engineering/html-plan/SKILL.md) | Present a proposed or existing implementation plan as an interactive HTML review artifact when the user explicitly requests HTML or visual interactive review. Use exhibits and decision feedback; not general planning, architecture ownership or implementation. | A | Not restricted |
 | [implement-use-case](../engineering/implement-use-case/SKILL.md) | Implement and verify one approved use case from its specification file, using docs/requirements.md as the use-case index and status register. Use when the user asks to implement a specific UC-###; do not draft specifications or implement an unspecified group of use cases. | M | Explicit only |
+| [implementation-planning](../engineering/implementation-planning/SKILL.md) | Plan a multi-step software change from approved requirements or behavior and applicable design constraints. Use for implementation plans, dependency-ordered tasks, file ownership, integration sequencing and verification mapping; not product scope, architecture decisions, HTML presentation or execution. | R | Not restricted |
 | [java-code-review](../engineering/java-code-review/SKILL.md) | Review Java code for bugs, duplicate code, correctness risks, maintainability improvements, and missing tests. By default review files modified in git; when the user explicitly names files, classes, packages, or a diff, review that scope instead. Generate a detailed review.md report with actionable comments and fixes. | M / P | Not restricted |
 | [prd-to-use-cases](../engineering/prd-to-use-cases/SKILL.md) | Generate or regenerate a requirements.md use-case summary from a product requirements document (PRD.md). Use when translating a PRD into implementable use cases and statuses; do not use for implementation or implementation-status audits. | M | Explicit only |
 | [product-prototyping](../engineering/product-prototyping/SKILL.md) | Explore product journeys, information architecture, interface alternatives and business behavior through reviewable wireframes, interactive UI prototypes or isolated state simulations. Use to resolve product or behavior uncertainty before implementation; not production UI delivery, implementation planning or technical feasibility experiments. | T | Not restricted |

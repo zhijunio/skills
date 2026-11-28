@@ -86,7 +86,8 @@ The [engineering](engineering/) collection supports software development from in
 | [technical-spike](engineering/technical-spike/SKILL.md) | Resolve technical uncertainty with explicitly authorized, reproducible feasibility experiments |
 | [behavior-specification](engineering/behavior-specification/SKILL.md) | Define feature behavior, business rules, and acceptance criteria |
 | [implement-use-case](engineering/implement-use-case/SKILL.md) | Implement and verify an approved use case |
-| [html-plan](engineering/html-plan/SKILL.md) | Present plans in HTML |
+| [implementation-planning](engineering/implementation-planning/SKILL.md) | Plan dependency-ordered tasks and verification before authorized implementation |
+| [html-plan](engineering/html-plan/SKILL.md) | Present a plan for interactive HTML review when requested |
 | [progen](engineering/progen/SKILL.md) | Support project generation |
 
 ### Quality and Maintenance

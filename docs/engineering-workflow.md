@@ -64,7 +64,8 @@ The flow is iterative, not a mandatory waterfall. Domain modeling, decision inte
 | Technical foundation | [project-foundation](../engineering/project-foundation/SKILL.md) | Product constraints, repository state | Approved stack and initialization method, runnable baseline, tech-stack.md and verification |
 | Domain/design exploration (optional) | [domain-modeling](../engineering/domain-modeling/SKILL.md), [grilling](../engineering/grilling/SKILL.md), [grill-with-docs](../engineering/grill-with-docs/SKILL.md), [product-prototyping](../engineering/product-prototyping/SKILL.md) | Material domain or design question | Confirmed vocabulary/decisions or disposable experiment; not implementation approval |
 | Behavior specification | [behavior-specification](../engineering/behavior-specification/SKILL.md) | Feature description or one UC ID, PRD and existing docs | Interview, confirmed behavior, one specification and new index row only if needed |
-| Implementation planning (optional) | [html-plan](../engineering/html-plan/SKILL.md) | Approved behavior or requested design change, project context | Reviewable interactive HTML plan; await response before building |
+| Implementation planning (as needed) | [implementation-planning](../engineering/implementation-planning/SKILL.md) | Approved behavior, applicable design and repository context | Dependency-ordered tasks and verification plan; review and execution authorization separate |
+| Interactive HTML review (optional) | [html-plan](../engineering/html-plan/SKILL.md) | Explicit HTML review request | Interactive presentation and feedback, not a second planning authority |
 | Implementation and verification | [implement-use-case](../engineering/implement-use-case/SKILL.md) | One approved specification, consistent index and prerequisites | Verified in-scope change, tests and synchronized status |
 | Technology guidance | [spring-boot](../spring-boot-skills/spring-boot/SKILL.md) and relevant focused skills | Existing or approved Spring Boot context | Technical guidance, implementation constraints and checks |
 | Code review | [java-code-review](../engineering/java-code-review/SKILL.md) | Requested Java diff or scope | Findings in review.md or requested path; no fixes without authorization |
@@ -96,7 +97,7 @@ All paths below are relative to the target project, not this skills repository. 
 | Significant domain/architecture decision | domain-modeling where appropriate | docs/adr/ or context-local ADRs |
 | Detailed behavior and acceptance criteria | behavior-specification; approved specification | docs/specs/{number}-{feature-title}.md |
 | Prototype evidence (proposed expansion) | Prototype question, artifact and verdict; authoritative decisions stay with PRD/spec/ADR owners | Project-selected isolated location and decision record |
-| Implementation plan | html-plan when requested; otherwise existing project convention | User/project-selected HTML or plan location |
+| Implementation plan | implementation-planning; html-plan only for requested interactive presentation | User/project-selected HTML or plan location |
 | Review findings | java-code-review | review.md unless specified |
 | Test and build evidence | Implementing or reviewing skill and project tools | Actual test reports, logs and change summary |
 
@@ -169,7 +170,7 @@ For a clear, bounded change in an existing project:
 4. Implement the smallest complete change, add relevant tests, run checks and review the diff.
 5. Report results and limitations; update existing documentation or specification status only when the task actually changes its contract and the relevant lifecycle applies.
 
-If a change touches security, migration, cross-service compatibility or uncertain business rules, expand the review and specification effort accordingly. Use html-plan only when the user asks for that format or the skill's planning trigger applies; do not create redundant plans for routine edits.
+If a change touches security, migration, cross-service compatibility or uncertain business rules, expand the review and specification effort accordingly. Use implementation-planning for material multi-step planning; use html-plan only for explicitly requested interactive HTML review. Do not create redundant plans for routine edits.
 
 ## 7. Defect diagnosis and review
 
@@ -185,7 +186,7 @@ For handoffs across sessions, the collected handoff skill can capture context wh
 | --- | --- | --- |
 | Product requirements refinement | product-requirements drafts PRD; prd-to-use-cases creates index | Refine the renamed product-requirements contract in E03 |
 | System design | project-foundation, domain-modeling, grilling and technology-specific architecture skills | Investigate cross-cutting system design covering boundaries, quality attributes, integration and trade-offs without duplicating existing owners |
-| Implementation planning | html-plan and implement-use-case task decomposition | Assess a portable, format-neutral planning contract and reuse existing tools first |
+| Implementation planning | implementation-planning with optional html-plan presentation | Implemented; runtime verification pending |
 | Test strategy | implement-use-case acceptance tests, diagnosing-bugs, spring-boot-testing | Investigate technology-neutral risk-based verification planning and measurable criteria |
 | Prototyping | Product-prototyping UI and behavior modes | Product journey and behavior guidance and separate technical-spike implemented; runtime evaluation pending |
 | Change control | Individual PRD/index/spec reconciliation rules | Clarify reopening, impact analysis and approval semantics in the existing workflow before proposing automation |

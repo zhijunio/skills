@@ -118,3 +118,7 @@ This two-owner approach is a proposed implementation direction. Keep existing pr
 ### Technical spike implementation
 
 The Hermes spike entry point and its root MIT notice were reviewed in full at 29bbd2d97b8e5bcda44d7e02ee2239a93afd5e58. The entry point attributes GSD (MIT, Lex Christopherson); the GSD root license at bdcaab2c752d9a33a1a1ca9acf3a3c81fb991815 corroborates the stated notice but not the historical source revision. The new technical-spike adapts the entry-point workflow, retains both complete notices, and imports no GSD workflow or host-specific runtime commands. Local references and template are newly authored. Actual experiment behavior is not yet tested.
+
+### Implementation planning adaptation
+
+Reviewed the full Superpowers writing-plans entry point and root MIT notice at 22f0b463e7a5e579904dd6211a520321035526f7. Spec Kit tasks at f2010547121b3351e4923fe467205079e4593a32 informed the comparison of story grouping and dependency ordering; no Spec Kit source, hooks or scripts imported. Adapted task boundaries, explicit interfaces, verification and self-review into implementation-planning, retaining the Superpowers notice. No mandatory execution subskills, TDD, global setup or commit cadence. html-plan is now an optional presentation owner; its existing provenance blocker remains open. Runtime evaluation pending.
