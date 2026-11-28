@@ -14,11 +14,11 @@ Reviewed: 2026-11-28. This register distinguishes observed source declarations f
 | P | [SivaLabs agent skills](https://github.com/sivaprasadreddy/sivalabs-agent-skills) | Current root MIT, copyright 2026 K Siva Prasad Reddy | Historical content matches for progen and java-code-review; see pinned comparison below |
 | T | [Matt Pocock skills](https://github.com/mattpocock/skills) | Current root MIT, copyright 2026 Matt Pocock; repository descriptions identify several matching skill names | Nine historical directories match all local blobs; see pinned comparison below |
 | S | [Rrezart Prebreza Spring Boot skills](https://github.com/rrezartprebreza/spring-boot-skills/tree/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4) | Local [upstream MIT notice](../spring-boot-skills/LICENSE) retained | Collection declares b90c3dbd9699c0d0bfb81660c857ef58262168e6; exact mapping and later additions pending |
-| U | Unknown or locally authored candidate | No independent attribution established | Inspect history and obtain maintainer confirmation; do not assume original authorship |
+| O | Original skills by repository maintainer (Zhijunio) | Authorship explicitly confirmed by maintainer on 2026-11-28; repository root MIT license is the documented default | No third-party upstream identified for these skills; any separately incorporated third-party material remains subject to its own terms |
 
 ## Per-skill register
 
-The following records all 59 entry points. An identical Git blob establishes content equality, not the actual download revision. The 18 non-Spring matches compare every local file in the historical skill directory, not just SKILL.md. Two remaining non-Spring skills have unresolved origins. No new third-party content is imported here.
+The following records all 59 entry points. An identical Git blob establishes content equality, not the actual download revision. The 18 non-Spring matches compare every local file in the historical skill directory, not just SKILL.md. The remaining two non-Spring skills are confirmed maintainer-authored. No new third-party content is imported here.
 
 | Skill | Source | Evidence / status |
 | --- | --- | --- |
@@ -38,9 +38,9 @@ The following records all 59 entry points. An identical Git blob establishes con
 | [impl-spec](../engineering/impl-spec/SKILL.md) | M | Historical directory: 2/2 local blobs identical to .agents/skills/impl-spec at pinned upstream snapshot below |
 | [java-code-review](../engineering/java-code-review/SKILL.md) | M / P | Historical directory: 1/1 local blobs identical to .agents/skills/java-code-review and skills/java-code-review at pinned upstream snapshot below |
 | [prd-to-requirements](../engineering/prd-to-requirements/SKILL.md) | M | Historical directory: 2/2 local blobs identical to .agents/skills/prd-to-requirements at pinned upstream snapshot below |
-| [product-brainstorming](../engineering/product-brainstorming/SKILL.md) | U | Source unresolved; local PRD path and routing changes |
+| [product-brainstorming](../engineering/product-brainstorming/SKILL.md) | O | Maintainer-authored (explicit confirmation); local PRD path and routing changes |
 | [progen](../engineering/progen/SKILL.md) | P | Historical directory: 2/2 local blobs identical to skills/progen at pinned upstream snapshot below |
-| [project-foundation](../engineering/project-foundation/SKILL.md) | U | Source unresolved; local delegation changes |
+| [project-foundation](../engineering/project-foundation/SKILL.md) | O | Maintainer-authored (explicit confirmation); local delegation changes |
 | [prototype](../engineering/prototype/SKILL.md) | T | Historical directory: 4/4 local blobs identical to skills/engineering/prototype at pinned upstream snapshot below |
 | [agent-qa-browser-regression](../spring-boot-skills/agent-qa-browser-regression/SKILL.md) | S | Historical resource matches 3/4; upstream: agent-qa-browser-regression |
 | [archunit](../spring-boot-skills/archunit/SKILL.md) | S | Historical resource matches 0/2; upstream: unresolved |
@@ -105,14 +105,13 @@ Local baseline [7c9b05d](https://github.com/zhijunio/skills/tree/7c9b05def794b4a
 | A | [24479d5](https://github.com/anthropics/claude-plugins-community/tree/24479d5a1fb7a1c4f068a6d3b74d0c0fbc1acfda) | Both plugin manifests declare MIT and name Thariq Shihipar; root Apache-2.0; confirm applicable notice text |
 | E | [d173a75](https://github.com/eze-is/web-access/tree/d173a75978ceb2c63fa0b27f7408cd2bf7fe4310) | SKILL.md declares MIT; no LICENSE/NOTICE/COPYING file found in recursive tree |
 
-The matching 18 historical directories cover 68 local files (including SKILL.md and supporting resources). The java-code-review match is counted once. No claim is made that current modified directories are identical. Source and permission for product-brainstorming and project-foundation remain unresolved; obtain maintainer confirmation or a replacement before public distribution.
+The matching 18 historical directories cover 68 local files (including SKILL.md and supporting resources). The java-code-review match is counted once. No claim is made that current modified directories are identical. The maintainer explicitly confirmed authorship of product-brainstorming and project-foundation on 2026-11-28. Both are classified as original repository skills; the source-origin blocker for these two entries is removed. The repository root MIT license remains the documented default; no separate license grant is inferred from the authorship statement.
 
 ## Release blockers
 
 - create-spec, impl-spec, prd-to-requirements: exact historical content match but no explicit license found in the upstream tree. Obtain permission or independently replace with appropriately licensed implementation.
 - eli5, html-plan: confirm plugin-specific MIT grant and applicable copyright/permission notices, reconcile root Apache-2.0 evidence.
 - web-access: confirm complete MIT notice and any additional script/resource terms.
-- product-brainstorming, project-foundation: confirm authorship and source/license.
 - Spring Boot collection: distinguish verified resource matches from local additions; confirm all remaining files' provenance.
 - Ensure source and distributed archives preserve applicable notices, including files copied by individual installation and extraction. No publication while blockers remain.
 
