@@ -10,15 +10,13 @@ Configure GitHub Actions, Renovate, and release workflows only when requested.
   tool. Read the Java version from the active build configuration or the
   repository's authoritative version file; do not silently choose a different JDK.
 - Use GitHub-hosted runners and official actions where suitable. Pin actions
-  to full commit SHAs when the repository's security policy requires
-  immutable references; otherwise use maintained major-version tags and
-  review updates regularly.
+  to reviewed full commit SHAs by default, including reusable workflows where supported. Verify the SHA belongs to the intended upstream release; major tags in the example are placeholders to resolve before adoption.
 - Grant the workflow only the `permissions` it needs. Build and test jobs
   should use read-only repository contents unless a specific operation needs
   more. Do not expose secrets to pull requests from forks or execute
-  untrusted pull-request code in a privileged `pull_request_target` workflow.
+  untrusted pull-request code in a privileged `pull_request_target` workflow. Treat workflow_run artifacts and caches from untrusted jobs as untrusted too. Do not interpolate PR titles, branch names or other untrusted contexts directly into shell scripts. Pass them via environment variables and quote values; avoid persistent privileged runners for untrusted builds.
 - Configure the dependency cache appropriate to the selected build tool. Do
-  not cache generated build output as a substitute for a reproducible build.
+  not cache generated build output as a substitute for a reproducible build. Do not cache credentials or allow untrusted builds to populate caches later used for privileged releases. Disable checkout credential persistence when subsequent Git authentication is not needed.
 - For service-backed tests, either make Compose services available to the
   runner per [Spring Boot Docker](../../spring-boot-docker/SKILL.md), or ensure Docker is available for
   Testcontainers per [Spring Boot testing](../../spring-boot-testing/SKILL.md). Keep service credentials
@@ -51,6 +49,10 @@ npx --yes --package renovate -- renovate-config-validator --strict
 ```
 
 For hosted Renovate, the Renovate GitHub App must have access to the repository.
+
+## Supply chain and promotion
+
+Separate untrusted verification from privileged publication. Prefer short-lived scoped OIDC credentials where supported, protected release environments and explicit approval. Build reviewed source once, record the artifact digest, generate an SBOM and scan the actual release artifact; promote the same verified bytes rather than rebuilding from a mutable tag. Verify provenance, intended source and signer identity before release. Do not grant id-token: write or attestation permissions to ordinary PR verification. Pin and review dependency and wrapper versions; record vulnerability triage and evidence without claiming a scan proves absence of vulnerabilities.
 
 ## Tags and releases
 
@@ -112,8 +114,10 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-java@v6
+      - uses: actions/checkout@v7 # resolve reviewed full SHA before use
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6 # resolve reviewed full SHA before use
         with:
           distribution: temurin
           java-version: JAVA_VERSION_FROM_BUILD_CONFIG
