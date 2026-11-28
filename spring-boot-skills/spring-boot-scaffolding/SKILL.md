@@ -10,6 +10,10 @@ Create only the new project the user requested. Do not add a fixed stack, busine
 features, CI, or other project files by habit. Target Boot 4; never silently switch
 major versions because a template is easier to obtain.
 
+## Responsibility and handoff
+
+This skill owns Spring Initializr generation, not technology selection or alternative generators. If project-foundation has established an approved baseline and selected Initializr, consume that contract without reopening settled choices. If the user selects Progen or another generator, do not run Initializr as well. When delegated by project-foundation, its requested build/test/startup verification remains part of the parent workflow; otherwise retain the direct-request verification boundary below.
+
 ## Establish the generation contract
 
 Confirm a new destination, project coordinates/package, Java level, Maven or Gradle, and
