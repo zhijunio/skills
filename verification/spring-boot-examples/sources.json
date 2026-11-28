@@ -97,6 +97,14 @@
     {
       "source": "spring-boot-skills/spring-boot-webmvc/templates/PageResponse.java",
       "destination": "com/example/common/api/PageResponse.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-ai/templates/DocumentReadTool.java",
+      "destination": "com/example/aisecurity/DocumentReadTool.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-ai/templates/AiServiceTemplate.java",
+      "destination": "com/example/ai/service/AiServiceTemplate.java"
     }
   ]
 }
