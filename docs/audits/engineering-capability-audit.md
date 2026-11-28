@@ -42,7 +42,7 @@ Product discovery and product requirements establish scope; use-case decompositi
 
 ## Migration policy
 
-Candidate names (prd-to-use-cases, behavior-specification, implement-use-case) are proposals only. Determine semantic contracts first, then check all callers, paths, frontmatter, invocation config, catalog, provenance and docs. Keep applicable notices. Do not delete, merge or replace third-party material without explicit review. Avoid permanent aliases unless justified by actual consumers.
+Candidate names (prd-to-use-cases, behavior-specification, implement-use-case) are proposals only. Determine semantic contracts first, then check all callers, paths, frontmatter, invocation config, catalog, provenance and docs. Keep applicable notices. The maintainer explicitly permits deletion of unsuitable skills. Remove only with a concrete rationale and dependency/coverage assessment; preserve historical provenance and applicable notices for retained material. Material merges and replacements remain subject to review. No skill is selected for immediate deletion solely by this policy. Avoid permanent aliases unless justified by actual consumers.
 
 ## Next steps
 
