@@ -42,3 +42,7 @@ Record case and fixture revision/hash, skill revision and installed inventory, h
 Set applicable criteria before running. Preserve the required correctness and authorization floor; efficiency improvements cannot justify a regression. Compare matched results and investigate failures before modifying instructions. Keep reproducible regressions and rerun impacted cases after a change. Use a separate approved manual or controlled model-evaluation workflow for paid execution; ordinary PR checks remain credential-free. Missing runtime, cost approval or evidence keeps the applicable criterion open. See [Phase 02 cases](verification/phase-02-workflow-acceptance.md) and [authoring guide](skill-authoring-guide.md).
 
 No universal pass-rate, token or latency threshold is established by this standard. The maintainer must approve relevant decision thresholds, model choices and budget before paid evaluation.
+
+## Upstream tooling
+
+Use the [skill-creator integration review](verification/skill-creator-integration.md) before using upstream evaluation results. Keep the local evidence ledger authoritative: upstream boolean trigger outcomes can hide execution errors, and missing metrics or skipped grading records must not become successful or zero-cost observations.

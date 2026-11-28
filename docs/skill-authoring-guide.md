@@ -159,7 +159,7 @@ Define expected behavior before evaluating. Use fresh sessions, equivalent input
 
 For objective outputs, use programmatic assertions where practical. For qualitative outputs, use an explicit human-review rubric. Include activation, scope adherence, approvals, artifact correctness, relevant failure handling and regressions. Record actual token usage and latency only when available; line count is not a substitute.
 
-If using Anthropic skill-creator, follow its pinned evaluation schema, baseline workflow and review tools. Do not copy the upstream runner into this repository. Iterate based on evidence, not simply stronger wording or longer instructions. Optimize descriptions using both positive and negative trigger cases. Broader model-based evaluation infrastructure remains Phase 3 work.
+If using Anthropic skill-creator, follow its pinned evaluation schema, baseline workflow and [integration limitations](verification/skill-creator-integration.md). Do not copy the upstream runner into this repository. Iterate based on evidence, not simply stronger wording or longer instructions. Optimize descriptions using both positive and negative trigger cases. Broader model-based evaluation infrastructure remains Phase 3 work.
 
 If actual agent execution is unavailable, record NOT RUN with the reason, fixtures or proposed cases and remaining risk. Do not turn static or installation checks into a behavioral pass.
 

@@ -30,7 +30,7 @@ Use the [evaluation standard](../skill-evaluation-standard.md). Keep fixtures an
 
 ## Progress
 
-Q01: evaluation standard drafted. Q02: fixture helper tests added to existing discovery path; execution evidence pending. Q03–Q11: pending. Phase 02 W01–W18 remain NOT RUN in independent agents.
+Q01: evaluation standard drafted. Q02: fixture helper tests integrated; CI 46139568079 and Skill verification 46139566960 passed at cdbd336 (metadata job 140962266042). Q03: [pinned upstream integration review](../verification/skill-creator-integration.md) documents supported use and evidence limitations; CLI smoke and actual runtime still NOT RUN. Q04–Q11: pending. Phase 02 W01–W18 remain NOT RUN in independent agents.
 
 ## Exit criteria
 
