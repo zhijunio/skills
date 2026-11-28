@@ -9,6 +9,8 @@ description: >
 
 # Spring Boot Maven
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
+
 Use this skill for Spring Boot 4 projects built with Maven. Read
 [Maven guidance](references/maven.md) before changing `pom.xml`, the wrapper, build plugins,
 coverage, or release configuration. Use the project's committed `./mvnw` and preserve its current
