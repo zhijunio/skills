@@ -96,6 +96,8 @@ The [engineering](engineering/) collection supports software development from in
 
 ## Specification-Driven Development
 
+See the [engineering workflow](docs/engineering-workflow.md) for full SDD, lightweight changes, defect diagnosis, artifact ownership, approvals and known gaps.
+
 For a new product, the following workflow illustrates how engineering skills can be combined.
 
 ```mermaid

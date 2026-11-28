@@ -169,12 +169,12 @@ Actual execution advanced distribution and deterministic checks early to remedia
 | F04 | Documented, awaiting review | [Authoring guide](../skill-authoring-guide.md); review branch |
 | F02 | Documented, maintainer confirmed | [Agent instructions](../../AGENTS.md); review branch |
 | F05 | Documented, awaiting review | [Contribution guide](../../CONTRIBUTING.md); review branch |
-| F07 | Implemented, freshness CI pending | [Generated catalog](../skill-catalog.md), 59 entries; generator and 10 helper tests passed at 59b2275; exact CI artifact committed at 99f57fa |
-| F08 | TODO | Engineering workflow |
+| F07 | Verified on review branch | [Generated catalog](../skill-catalog.md), 59 entries; generator and 10 helper tests passed at 59b2275; catalog freshness enforcement passed at [9209fae](https://github.com/zhijunio/skills/actions/runs/46120989867) |
+| F08 | Documented, awaiting review | [Engineering workflow](../engineering-workflow.md); representative behavioral cases proposed, not executed |
 | F09 | Partial verification passed | [Distribution report](../verification/distribution.md); archive, extraction and local CLI installations passed, actual agent behavior and publication remain unverified |
-| F10 | Partial verification passed | [CI workflow](../../.github/workflows/skill-verification.yml); helper tests, metadata and distribution checks passed; catalog freshness check configured; its first enforcement run, broader reference checks and remaining validation scope pending |
+| F10 | Partial verification passed | [CI workflow](../../.github/workflows/skill-verification.yml); helper tests, metadata and distribution checks passed; catalog freshness enforcement passed; broader reference checks and remaining validation scope pending |
 
-Next: verify catalog freshness enforcement, complete F08, close remaining F09/F10 scope or document explicit limitations, and review phase acceptance. Continue provenance and publication review separately. Do not merge a publication-triggering change until the applicable rights and authorization issues are addressed. Systematic model-based evaluation remains Phase 3 work.
+Next: close remaining F09/F10 scope or document explicit limitations, and review phase acceptance. Continue provenance and publication review separately. Do not merge a publication-triggering change until the applicable rights and authorization issues are addressed. Systematic model-based evaluation remains Phase 3 work.
 
 ## 7. Target deliverables
 
@@ -200,11 +200,11 @@ Add scripts and CI configuration only after tool selection. Do not create placeh
 
 ## 8. Phase acceptance checklist
 
-- [ ] Standards, compatibility, and reuse decisions documented.
-- [ ] Repository instructions, design principles, authoring and contribution guides established.
-- [ ] All discovered skills audited and findings prioritized.
-- [ ] Catalog matches the actual inventory.
-- [ ] Current engineering workflow and handoffs documented.
+- [x] Standards, compatibility, and reuse decisions documented.
+- [x] Repository instructions, design principles, authoring and contribution guides established.
+- [x] All discovered skills audited and findings prioritized.
+- [x] Catalog matches the actual inventory.
+- [x] Current engineering workflow and handoffs documented.
 - [ ] Installation and packaging verified for declared supported methods, with limitations recorded.
 - [ ] Deterministic checks integrated into CI and demonstrated.
 - [ ] Upstream sources and applicable licenses traceable, or unresolved cases explicitly recorded and restricted from redistribution as appropriate.

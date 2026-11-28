@@ -86,3 +86,11 @@ Tested PR head: 487ca8c76e0bcbfa9c174f2a4e7197d1cd8b77c9. Both [regular CI](http
 | [Metadata](https://github.com/zhijunio/skills/actions/runs/46108124101/job/140865370852) | 59 distinct names, 10 entries with known host extensions; portable metadata projection and local extension policy checks passed. |
 
 A05 packaging defect is verified fixed on the PR branch. A03 complete-installation checks and A12 local metadata checks passed within the documented scope. Actual agent invocation, individual-install dependency closure, strict hosted exports, historical license permissions and publication authorization are not established by these results. PR remains draft pending redistribution review; no publication was attempted by this verification workflow.
+
+## 8. Subsequent verification evidence
+
+- [Skill verification 46110955507](https://github.com/zhijunio/skills/actions/runs/46110955507), head 9fe7644: all three jobs passed after adding 51 skill-local upstream LICENSE files and three SOURCE.md evidence files. Package and extraction inventory matched all 59 skills; both CLI target installations matched all 59, including source resource bytes. Metadata checks passed. This demonstrates notice preservation for files present, not clearance of unresolved grants.
+- [Skill verification 46117414650](https://github.com/zhijunio/skills/actions/runs/46117414650), head 59b2275: metadata job ran 10 helper tests successfully and generated a 59-entry catalog; package and discovery jobs passed.
+- [Skill verification 46120989867](https://github.com/zhijunio/skills/actions/runs/46120989867) and [regular CI](https://github.com/zhijunio/skills/actions/runs/46120990337), head 9209fae: both passed with checked-in catalog freshness enforcement enabled. No actual agent invocation or deployment was performed.
+
+Remaining scope: representative selected-skill installation, full local reference validation, runtime invocation and strict hosted export checks, and publication authorization. Keep those limitations distinct from verified distribution behavior.
