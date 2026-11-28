@@ -10,7 +10,7 @@ JDK, and Spring Boot versions recorded.
 
 - Build and unit tests: **PASS**. The exact wrapper command exited with code 0;
   24 tests ran and the run-specific reports were reviewed.
-- Integration tests: **BLOCKED**. The disposable PostgreSQL service is
+- Integration tests: **NOT RUN** (blocked). The disposable PostgreSQL service is
   unavailable; no production service was used as a fallback.
 - Combined coverage gate: **NOT RUN**. It depends on the incomplete
   integration-test suite.

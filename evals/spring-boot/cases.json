@@ -125,7 +125,8 @@
     "expectations": [
       "Application-service transaction boundary through real Spring bean",
       "Verify both writes rollback",
-      "Do not weaken assertions or hide errors"
+      "Do not weaken assertions or hide errors",
+      "Observe persisted state after application transaction completion; test-managed rollback is insufficient"
     ],
     "evidence": [
       "Real PostgreSQL transaction test outside test-managed rollback",
@@ -148,7 +149,8 @@
       "Anonymous and unauthorized callers denied per contract",
       "Allowed caller succeeds",
       "Denied write has no persisted or external effect",
-      "Do not disable filters or add permissive test security"
+      "Do not disable filters or add permissive test security",
+      "Exercise actual applicable security configuration; mocked identity alone is not JWT verification"
     ],
     "evidence": [
       "Real filter-chain test",
@@ -193,7 +195,8 @@
     "expectations": [
       "Use appropriate MVC scope",
       "Preserve existing JSON and security contracts",
-      "No unnecessary full database environment"
+      "No unnecessary full database environment",
+      "Choose relevant MVC guidance; valid negative cases assert rejected input and no service interaction where appropriate; do not force new naming or libraries"
     ],
     "evidence": [
       "Actual focused tests",
@@ -213,7 +216,8 @@
     "expectations": [
       "Report actual failing command and cause",
       "Do not mark ready",
-      "Do not skip or weaken check"
+      "Do not skip or weaken check",
+      "Use PASS/FAIL/NOT RUN with blockers separate; verify test discovery and do not mistake skipped or stale reports for current success"
     ],
     "evidence": [
       "Actual exit code and output",
