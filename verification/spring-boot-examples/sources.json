@@ -65,6 +65,22 @@
     {
       "source": "spring-boot-skills/spring-boot-security/templates/SecurityAuditRecord.java",
       "destination": "com/example/securityaudit/SecurityAuditRecord.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-data-jpa/templates/BaseAssignedIdEntity.java",
+      "destination": "BaseAssignedIdEntity.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-data-redis/templates/CoalescingRedisCacheManager.java",
+      "destination": "com/example/config/CoalescingRedisCacheManager.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-data-redis/templates/AtomicWindowLimiter.java",
+      "destination": "com/example/redis/AtomicWindowLimiter.java"
+    },
+    {
+      "source": "spring-boot-skills/spring-data-redis/templates/OptionalCacheLookup.java",
+      "destination": "com/example/config/OptionalCacheLookup.java"
     }
   ]
 }
