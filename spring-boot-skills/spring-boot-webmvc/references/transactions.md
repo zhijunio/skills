@@ -1,7 +1,9 @@
 # Application Service Transactions
 
-These patterns apply to imperative application services. Follow the project's
-reactive transaction manager and transaction operators for reactive pipelines.
+These patterns apply to imperative application services regardless of caller (HTTP,
+message listener, scheduled job, CLI or worker). Do not introduce MVC for transaction-only
+work. For reactive pipelines use the selected reactive transaction manager and Reactor
+context; do not assume thread-local transactions cross async or reactive boundaries.
 Use [idempotency patterns](../../idempotency-patterns/SKILL.md) for duplicate
 commands and message effects.
 
@@ -30,7 +32,7 @@ public class OrderService {
 
     @Transactional // overrides readOnly for writes
     public Order createOrder(CreateOrderRequest request) {
-        inventoryService.reserve(request.items()); // participates in same TX
+        inventoryService.reserve(request.items()); // assumes same manager and transaction
         return orderRepository.save(Order.from(request));
     }
 
@@ -54,6 +56,10 @@ public class OrderService {
 Participating `REQUIRED` calls use the outer transaction's isolation, timeout and read-only
 settings. Catching an inner failure does not clear its rollback-only marker; outer commit
 may still throw `UnexpectedRollbackException`.
+
+`NESTED` is not an independent commit. Check transaction-manager and resource support;
+JDBC savepoints do not imply that JPA managed entity state is restored. Do not use nested
+propagation to simulate independent durable audit records.
 
 `REQUIRES_NEW` needs another connection while the outer transaction retains its resources.
 Account for pool capacity and lock contention. Reserve independent commits for records
@@ -146,9 +152,11 @@ public Order updateStatus(UUID id, OrderStatus newStatus) {
 
 ## Retrying Transient Failures
 
-Retry support ships in core Spring Framework (`org.springframework.resilience.annotation`) — no
-Spring Retry dependency. Enable once with `@EnableResilientMethods`, then retry transient failures
-such as optimistic-lock conflicts:
+Framework 7 provides core retry (`org.springframework.resilience.annotation`). Preserve
+an existing compatible retry mechanism and inspect the actual framework version. For a new
+Framework 7 core retry path enable `@EnableResilientMethods`. Retry only when the complete
+operation is safe to repeat; optimistic conflicts may require returning a conflict instead
+of retrying a stale user decision. The following fragment assumes retry is authorized:
 
 ```java
 @Configuration
@@ -171,8 +179,9 @@ public class OrderStatusFacade {
 
 Put `@Retryable` on a method that *calls* the `@Transactional` method on another bean — each attempt
 needs a fresh transaction. Retrying inside the failed transaction re-runs code in a TX already marked
-rollback-only. For hot write paths, `@ConcurrencyLimit(10)` (same package) caps concurrent invocations
-instead of letting contention turn into retry storms.
+rollback-only. For hot write paths, an explicitly chosen concurrency limit may reduce contention; it is
+not a distributed lock or a substitute for database constraints. Choose its capacity from
+actual resource budgets.
 
 Use the [version-specific retry guidance](../../resilience-retry/SKILL.md) for dependencies
 and annotation imports. A retrying facade must not already hold a transaction that each
@@ -223,7 +232,10 @@ public void onOrderPlaced(OrderPlaced event) {
 transaction. Delegate database writes to a separate `REQUIRES_NEW` bean. Listener failure
 cannot undo the committed business write; make delivery failures observable and recoverable.
 Without an active transaction the listener is skipped by default. `@Async` does not add
-durable delivery. See [domain events](https://github.com/rrezartprebreza/spring-boot-skills/blob/b90c3dbd9699c0d0bfb81660c857ef58262168e6/skills/spring-boot-4/domain-driven-design/SKILL.md).
+durable delivery. See [Spring Modulith](../../spring-modulith/SKILL.md) for persistent module event publication.
+For reactive transaction-bound events, supported since Framework 6.1, include the reactive
+transaction context in the event source as documented; do not copy the imperative example
+unchanged.
 
 ## Verification
 
@@ -239,12 +251,14 @@ engine for isolation and contention tests. A test-wide rollback can hide after-c
 - Agent commits success audit entries with REQUIRES_NEW - commit them with the business mutation.
 - Agent suppresses optimistic-lock rollback - retry in a fresh transaction.
 - Agent calls `@Transactional` methods on `this` — self-invocation bypasses proxy
-- Agent expects checked exceptions to rollback — must add `rollbackFor`
+- Agent assumes checked exceptions always roll back — inspect effective rollback rules and configure the intended policy
 - Agent uses `@Transactional` on `private` methods — Spring proxy can't intercept
 - Agent pulls in `spring-retry` for a new Boot 4 retry path - use core `@Retryable` and `@EnableResilientMethods`; preserve existing integrations when outside the task's scope.
 - Agent relies on unspecified retry/transaction advisor ordering - verify every attempt gets a fresh transaction; a separate retry facade makes the boundary explicit.
 
 ## Official sources
+
+- [Spring transaction-bound events](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
 
 - [Spring transaction propagation](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html)
 - [TransactionalEventListener lifecycle](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/transaction/event/TransactionalEventListener.html)

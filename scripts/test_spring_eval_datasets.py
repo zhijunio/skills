@@ -9,8 +9,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class SpringEvalDatasetTest(unittest.TestCase):
     def test_cases_and_references(self):
         rows = json.loads((ROOT / "evals/spring-boot/cases.json").read_text(encoding="utf-8"))
-        self.assertEqual({r["id"] for r in rows}, {f"SB{i:02}" for i in range(1, 18)})
-        self.assertEqual(len(rows), 17)
+        self.assertEqual({r["id"] for r in rows}, {f"SB{i:02}" for i in range(1, 19)})
+        self.assertEqual(len(rows), 18)
         for row in rows:
             with self.subTest(case=row["id"]):
                 self.assertIn(row["priority"], {"P0", "P1"})

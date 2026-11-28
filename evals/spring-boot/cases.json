@@ -395,5 +395,30 @@
     ],
     "fixture_status": "MANUAL_SETUP_REQUIRED",
     "behavioral_status": "NOT RUN"
+  },
+  {
+    "id": "SB18",
+    "priority": "P0",
+    "skills": [
+      "spring-boot",
+      "event-driven-messaging",
+      "spring-data-jpa",
+      "spring-boot-testing"
+    ],
+    "fixture": "Existing non-web Spring Boot message consumer with PostgreSQL, two required atomic database writes and a reproducible failure after the first write.",
+    "prompt": "Fix the consumer so both database writes roll back together when the second fails. Keep the existing listener and persistence stack.",
+    "expectations": [
+      "Locate shared transaction guidance without adding MVC dependencies or controllers",
+      "Use the actual Spring-managed transaction boundary",
+      "Verify rollback after application transaction completes",
+      "Preserve broker acknowledgement and retry contract; no exactly-once claim"
+    ],
+    "evidence": [
+      "Actual real database integration test through the managed consumer/service boundary",
+      "Persisted state after failure",
+      "Build and source diff, actual skill/reference loading where observable"
+    ],
+    "fixture_status": "MANUAL_SETUP_REQUIRED",
+    "behavioral_status": "NOT RUN"
   }
 ]

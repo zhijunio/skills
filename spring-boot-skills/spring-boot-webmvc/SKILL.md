@@ -23,8 +23,8 @@ version resolution.
 
 Keep request binding, validation, and HTTP response mapping in the controller.
 Use constructor injection and delegate business operations to an application
-service. Validate request bodies with `@Valid` and put business rules in the
-service. Map persistence models to DTOs. See the [controller example](examples/controller.java).
+service. Validate request bodies with `@Valid`; keep business invariants in the domain or
+application service according to the existing design. Map persistence models to DTOs. See the [controller example](examples/controller.java).
 The [entity-leaking controller](examples/controller-leaks-entities.java) shows the response
 coupling to avoid.
 
@@ -32,7 +32,9 @@ Place the transaction for a multi-step operation on the application service
 method that coordinates the use case. Controllers call the service through its
 Spring-managed bean and map its result or exception to HTTP. Read
 [application service transactions](references/transactions.md) when changing
-propagation, rollback, retries, or commit-bound events.
+propagation, rollback, retries, or commit-bound events. This reference also applies to
+message consumers, scheduled jobs and other non-HTTP application services; using it does
+not require adding MVC dependencies or controllers.
 
 ## Status codes
 

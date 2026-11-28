@@ -46,7 +46,9 @@ Backoff attributes are flat on `@Retryable`; `multiplier = 1.0` means fixed dela
 Core resilience has no `@Recover`. When attempts are exhausted, the last exception reaches the
 caller. Catch it at the orchestration boundary or use a listener. Because the implementation is
 proxy-based, self-invocation bypasses advice. Put retry outside a transactional bean when each
-attempt needs a fresh transaction.
+attempt needs a fresh transaction. See [application transactions](../spring-boot-webmvc/references/transactions.md#retrying-transient-failures)
+for retry/transaction coordination; a caller with an active outer transaction can defeat a
+fresh REQUIRED attempt.
 
 ## Failure and deadline policy
 

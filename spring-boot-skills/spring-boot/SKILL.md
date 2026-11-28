@@ -46,7 +46,8 @@ skill in the collection for a single task.
 | Framework-independent domain, ports and adapters | [Hexagonal architecture](../hexagonal-architecture/SKILL.md) |
 | Spring Modulith module APIs, dependencies or module events | [Spring Modulith](../spring-modulith/SKILL.md) |
 | Static architecture rules and enforcement tests | [ArchUnit](../archunit/SKILL.md) |
-| MVC endpoint, validation, transactions, or error response | [Web MVC](../spring-boot-webmvc/SKILL.md) for runtime HTTP behavior; add [API versioning](../spring-boot-api-versioning/SKILL.md) for version resolution or [OpenAPI](../spring-boot-openapi/SKILL.md) for the API contract and published document |
+| MVC endpoint, validation, or error response | [Web MVC](../spring-boot-webmvc/SKILL.md) for runtime HTTP behavior; add [API versioning](../spring-boot-api-versioning/SKILL.md) for version resolution or [OpenAPI](../spring-boot-openapi/SKILL.md) for the API contract and published document |
+| Application transaction, propagation, rollback, locking, or commit-bound effects (including non-HTTP callers) | [Transaction guidance](../spring-boot-webmvc/references/transactions.md); add only the relevant persistence, messaging, task execution or retry skill. No controller changes implied. |
 | Authentication, authorization, MFA, or OAuth2 | [Security](../spring-boot-security/SKILL.md) for caller identity and permissions; add [multi-tenancy](../multi-tenancy/SKILL.md) when data access must be tenant-scoped |
 | MyBatis-Plus persistence | [MyBatis-Plus](../spring-boot-mybatis-plus/SKILL.md) |
 | JPA entities, repositories, or Hibernate behavior | [Spring Data JPA](../spring-data-jpa/SKILL.md) |

@@ -30,6 +30,9 @@ See [good module verification](examples/module-verification-test.java) and
 
 ## Reliable events
 
+Use [application transactions](../spring-boot-webmvc/references/transactions.md) for local
+transaction boundaries and rollback; this skill owns module event publication and recovery.
+
 Publish immutable event payloads containing IDs and necessary facts, not managed JPA entities.
 Use ApplicationModuleListener for asynchronous transactional listeners when that timing fits.
 For delivery that must survive a process crash, configure a persistent event publication

@@ -38,7 +38,9 @@ and the Spring Pulsar compatibility line first.
 
 - Make every handler idempotent with a durable marker or naturally idempotent state transition;
   see [idempotency patterns](../idempotency-patterns/SKILL.md) for duplicate-effect guarantees.
-- Commit the state change and idempotency marker in one transaction.
+- Commit the state change and idempotency marker in one transaction. Read
+  [application transactions](../spring-boot-webmvc/references/transactions.md) for the
+  consumer's local transaction boundary; broker acknowledgement is a separate concern.
 - Retry only transient failures with bounded exponential backoff; see
   [resilience and retry](../resilience-retry/SKILL.md) for exception classification,
   attempt budgets, and deadlines.

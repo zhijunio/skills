@@ -36,7 +36,8 @@ Future cancellation/timeout is not proof that an external operation stopped.
 
 Pass immutable IDs or snapshots, not request objects, managed entities or lazy collections.
 The caller's thread-bound transaction does not move with the task. Put any worker transaction
-on a separate proxied service and load its state there. Starting async work before commit can
+on a separate proxied service and load its state there; see
+[application transactions](../../spring-boot-webmvc/references/transactions.md). Starting async work before commit can
 observe missing data; after-commit dispatch still has a crash-loss window.
 
 Tenant, MDC and security state need deliberate propagation and cleanup. Capture only required,

@@ -10,7 +10,8 @@ description: >
 
 Read [MyBatis-Plus guidance](references/mybatis-plus.md) when adding a mapper, persistence model,
 or MyBatis-Plus configuration. Keep SQL schema changes in
-[Flyway migrations](../flyway-migrations/SKILL.md), API transactions and HTTP mapping in
+[Flyway migrations](../flyway-migrations/SKILL.md), application transactions in
+[transaction guidance](../spring-boot-webmvc/references/transactions.md), HTTP mapping in
 [Spring Boot Web MVC](../spring-boot-webmvc/SKILL.md), and application tests in
 [Spring Boot testing](../spring-boot-testing/SKILL.md).
 

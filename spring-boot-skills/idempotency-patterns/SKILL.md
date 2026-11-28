@@ -31,7 +31,9 @@ waits on the uniqueness constraint; bound lock waits and return a documented ret
 on timeout. With snapshot isolation, serialization failures require retrying the whole transaction.
 Do not catch a unique-constraint violation and continue in an already-aborted transaction.
 
-A result row and business write must use the same transaction manager and database. Return
+A result row and business write must use the same transaction manager and database.
+See [application transactions](../spring-boot-webmvc/references/transactions.md) for
+propagation and rollback boundaries. Return
 the stored result rather than reconstructing it from mutable current entity state.
 Keep replay headers allowlisted; do not persist cookies, bearer tokens or hop-by-hop headers.
 
