@@ -8,6 +8,8 @@ description: >
 
 # Spring Boot Testing
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md). If that sibling reference is unavailable, inspect the project's resolved dependencies and matching official documentation; report compatibility as unverified when evidence is missing.
+
 Implement or review Spring-specific tests and collect readiness evidence. Use an existing
 risk-driven strategy; test-strategy owns cross-stack
 verification obligations where installed. If that skill is unavailable, use the approved
