@@ -8,6 +8,8 @@ description: >
 
 # Flyway Migrations
 
+For version-sensitive changes, follow [shared version resolution](../spring-boot/references/version-resolution.md); if unavailable, inspect resolved dependencies and release-matched official documentation, and report missing evidence.
+
 ## Dependencies
 
 Boot's modular starters do NOT pull Flyway in transitively — `spring-boot-starter-data-jpa`
@@ -84,17 +86,20 @@ ALTER TABLE orders
 ## Safe Migration Patterns
 
 ```sql
--- Safe: add nullable column
+-- Usually metadata-only, but ALTER TABLE still needs a lock: add nullable column
 ALTER TABLE orders ADD COLUMN notes TEXT;
 
--- Safe: add column with default
+-- Non-volatile default on supported PostgreSQL versions avoids a rewrite; still locks
 ALTER TABLE orders ADD COLUMN priority INT NOT NULL DEFAULT 0;
 
 -- Safe: rename via expand → migrate → contract, spread across deploys
 -- Step 1 (V5): add new column (nullable — old instances keep inserting without it)
 ALTER TABLE orders ADD COLUMN customer_email VARCHAR(255);
--- Step 2 (V5): backfill
-UPDATE orders SET customer_email = (SELECT email FROM users WHERE users.id = orders.user_id);
+-- Step 2 (after compatible writers are deployed): backfill in bounded batches,
+-- reconcile concurrent changes and verify completeness before enforcing constraints.
+-- Illustrative single batch predicate; use the application's stable batch cursor.
+UPDATE orders SET customer_email = (SELECT email FROM users WHERE users.id = orders.user_id)
+WHERE customer_email IS NULL AND id IN (SELECT id FROM orders WHERE customer_email IS NULL ORDER BY id LIMIT 1000);
 -- Step 3 (V7, only after EVERY writer populates customer_email): add the check as NOT VALID —
 -- instant, no table scan, but new rows are already enforced
 ALTER TABLE orders ADD CONSTRAINT orders_customer_email_nn CHECK (customer_email IS NOT NULL) NOT VALID;
@@ -105,14 +110,13 @@ ALTER TABLE orders ALTER COLUMN customer_email SET NOT NULL;
 -- Step 5 (V9, after no deployed code reads user_id): drop old column
 ALTER TABLE orders DROP COLUMN user_id;
 
--- Safe: add index CONCURRENTLY (no table lock in Postgres) — TWO rules, both required:
+-- Concurrent index build permits ordinary writes but acquires locks and can wait on transactions.
 -- 1. Put it ALONE in its own migration file. Flyway detects CONCURRENTLY as
---    non-transactional; mixed with any other statement the migration is rejected:
+--    non-transactional; mixing transactional statements is rejected by default:
 --    "Detected both transactional and non-transactional statements".
 -- 2. Set spring.flyway.postgresql.transactional-lock=false. Flyway's default
---    advisory lock holds an open transaction on a second connection, and
---    CONCURRENTLY waits for every open transaction — including Flyway's own.
---    The migration hangs forever. Session-level locks still block concurrent migrators.
+--    advisory lock can interfere with concurrent index creation. Use session-level
+--    locking for this migration path and verify the effective Flyway setting.
 -- V6__index_orders_email.sql (after V5 adds the column)
 CREATE INDEX CONCURRENTLY idx_orders_email ON orders(customer_email);
 
@@ -133,9 +137,13 @@ spring:
     baseline-on-migrate: false  # reject non-empty schemas without migration history
     validate-on-migrate: true
     out-of-order: false         # enforce sequential execution
-    postgresql:
-      transactional-lock: false # required for CREATE INDEX CONCURRENTLY (see above)
+    # For PostgreSQL concurrent-index migrations only, configure
+    # postgresql.transactional-lock: false if supported by this Boot version.
 ```
+
+## Migration execution and recovery
+
+Inspect actual PostgreSQL, Flyway and Boot versions. Use the official [Flyway PostgreSQL lock setting](https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-postgresql-namespace/flyway-postgresql-transactional-lock-setting) and verify how the selected Boot release binds it. For concurrent indexes use a dedicated nontransactional migration; do not enable mixed execution globally as a shortcut. Set bounded lock and statement budgets appropriate to the operation. Rehearse upgrades from a representative previous schema, including overlapping old/new writers. Separate constraint validation from final lock-taking DDL when needed. If a nontransactional migration fails, inspect schema history and actual artifacts (including invalid indexes), clean up only the failed operation with approval, and reconcile Flyway history using the documented recovery procedure before retrying. Never run repair or clean blindly. Validate checksums and exercise actual migrations, not only fresh schema creation.
 
 ## Onboarding an existing database
 
@@ -179,7 +187,7 @@ changes. Review the [expand-contract](examples/expand-contract-migration.sql),
 - Agent renames columns directly — use multi-step add/backfill/drop across deploys
 - Agent seeds data in Flyway migrations — use `@Profile("dev")` seeders instead
 - Agent mixes `CREATE INDEX CONCURRENTLY` with other statements in one migration — Flyway rejects it ("both transactional and non-transactional statements"); give it its own file
-- Agent ships a `CONCURRENTLY` migration without `spring.flyway.postgresql.transactional-lock=false` — the index build waits on Flyway's own advisory-lock transaction and deploys hang
+- Agent ships a `CONCURRENTLY` migration without `spring.flyway.postgresql.transactional-lock=false` — the index build can stall; verify the effective lock setting
 - Agent adds a duplicate index for a UNIQUE column or indexes every foreign key — inspect existing constraints and query plans, then add indexes for measured lookup, join, or ordering needs while accounting for write cost
 - Agent seeds a fixed administrator password — keep credentials out of source and migrations; use the normal authentication flow or isolated test credentials
 - Agent creates migration with `DROP TABLE` or `DROP COLUMN` as first step — always add new column, deploy code, then drop old in a later migration
