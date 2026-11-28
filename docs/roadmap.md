@@ -26,6 +26,7 @@ The counts describe the reviewed baseline, not a permanent inventory. Packaging 
 - Separate engineering methods from technology-specific guidance.
 - Give each skill a clear activation condition, responsibility, and completion criterion.
 - Prefer composition and focused references over large, overlapping skills.
+- Reuse mature open-source standards, skills, and tools first: adopt, adapt, or compose before building custom implementations. Evaluate licensing, maintenance, correctness, compatibility, and verification evidence; record provenance and local changes.
 - Preserve user decisions and distinguish confirmed requirements from assumptions.
 - Ground technical guidance in maintained primary sources and executable examples where practical.
 - Measure whether skills improve agent behavior compared with an equivalent task without skills.
@@ -220,19 +221,15 @@ This is a target layout, not an instruction to create empty directories or immed
 
 | Phase | Objective | Main deliverables | Exit criteria |
 | --- | --- | --- | --- |
-| 1 | Repository foundations | Agent instructions, contribution guide, design principles, authoring guide, workflow documentation, packaging audit | Conventions documented; existing skills inventoried; packaging gaps recorded |
+| 1 | [Repository foundations](plans/phase-01-repository-foundations.md) | Standards, agent instructions, authoring and contribution guides, baseline audit, catalog, workflow documentation, distribution verification, deterministic CI checks | Conventions documented; skills audited; supported distribution verified; baseline checks integrated |
 | 2 | Engineering workflow | Responsibility audit, system design, implementation planning, test strategy, artifact contracts | Overlap resolved; representative workflow documented and exercised |
-| 3 | Quality engineering | Validation scripts, catalog generation, CI checks, initial evaluations | Deterministic checks run in CI; initial behavioral baseline recorded |
+| 3 | Quality engineering | Extend deterministic checks and introduce systematic model-based evaluations and regression testing | Initial behavioral baseline recorded; evaluation and regression processes established |
 | 4 | Technical expansion | Prioritized Java, frontend, data, distributed systems, security, testing, and delivery guidance | New skills address demonstrated gaps and meet the quality standard |
 | 5 | Distribution and sustainability | Installation verification, versioning, release notes, maintenance and contribution processes | Supported distribution paths verified; maintenance responsibilities documented |
 
 ### Immediate work
 
-1. Create AGENTS.md, CONTRIBUTING.md, docs/skill-design-principles.md, docs/skill-authoring-guide.md, and docs/engineering-workflow.md.
-2. Audit existing skill responsibilities, activation metadata, references, and upstream attribution.
-3. Verify recursive discovery and Maven JAR contents against the intended skill inventory.
-4. Add deterministic validation and catalog generation to CI.
-5. Establish evaluation cases for the core engineering workflow before broad expansion.
+Follow the [Phase 01 implementation plan](plans/phase-01-repository-foundations.md), beginning with standards and reusable tool research (F01), followed by the baseline skill audit (F06). Establish repository conventions, verify distribution, and integrate deterministic checks before broad expansion. Systematic model-based evaluation remains Phase 3 work.
 
 ## 10. Success criteria
 
