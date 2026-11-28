@@ -110,8 +110,8 @@ The matching 18 historical directories cover 68 local files (including SKILL.md 
 ## Release blockers
 
 - create-spec, impl-spec, prd-to-requirements: origin confirmed by the maintainer on 2026-11-28 as Siva; exact historical content match corroborates the source. Maintainer confirmed MIT licensing on 2026-11-28. No explicit license file was found in the pinned musings tree. Record MIT as maintainer-confirmed, not independently verified; locate the author’s license declaration or permission and preserve the applicable notice before closing the publication review.
-- eli5, html-plan: confirm plugin-specific MIT grant and applicable copyright/permission notices, reconcile root Apache-2.0 evidence.
-- web-access: confirm complete MIT notice and any additional script/resource terms.
+- eli5, html-plan: plugin manifests explicitly declare MIT; individual SOURCE.md records author, pinned manifest and root Apache-2.0 evidence. Confirm complete applicable copyright/permission notices before publication.
+- web-access: pinned README, plugin manifest and SKILL.md all declare MIT; individual SOURCE.md preserves attribution and evidence. Complete MIT notice and any additional script/resource terms remain to be confirmed.
 - Spring Boot collection: distinguish verified resource matches from local additions; confirm all remaining files' provenance.
 - Ensure source and distributed archives preserve applicable notices, including files copied by individual installation and extraction. No publication while blockers remain.
 
@@ -122,3 +122,9 @@ Compared all 230 files under the 39 skill directories at local [aa2459c](https:/
 ## Notice preservation batch
 
 Copied the exact MIT LICENSE text from the pinned upstream snapshots into the individual skill directories for the nine Matt Pocock skills (diagnosing-bugs, domain-modeling, grill-with-docs, grilling, prototype, handoff, retro, teach, writing-for-agents), HumanLayer show-me, and SivaLabs progen and java-code-review. These are 12 notices with independently located upstream license text. The maintainer-confirmed MIT classification of the three musings SDD skills is recorded separately; their exact upstream notice has not yet been located, so no substitute copyright statement was fabricated. The existing Spring Boot collection notice remains in place. New individual notice files must be covered by the next package and installation verification run.
+
+### Second notice preservation batch
+
+Added individual SOURCE.md evidence files for eli5, html-plan and web-access. The pinned upstream web-access README, plugin manifest and SKILL.md each explicitly declare MIT; no standalone LICENSE was found. For eli5 and html-plan, the specific plugin manifests declare MIT while the repository root LICENSE is Apache-2.0. No substitute copyright notice was fabricated.
+
+Copied the existing, byte-identical upstream Spring Boot MIT notice into all 39 Spring Boot skill directories ([c819a31](https://github.com/zhijunio/skills/commit/c819a312f49ee88ba10e901528078a9744d52369)) so it can travel with individually copied or extracted skills. This preserves the collection's upstream attribution for any incorporated upstream material; it does not assert that Rrezart authored every local addition or that all unmatched content is cleared. Keep the collection-level notice as well. New files must pass archive, extraction and installation checks before closure. No publication authorized.
