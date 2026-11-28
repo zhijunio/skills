@@ -1,8 +1,7 @@
 ---
 name: archunit
 description: >
-  Add or review static architecture tests in a Spring Boot codebase. Use Taikai's ready-made
-  rules as the baseline and ArchUnit for project-specific package and dependency constraints.
+  Add or review static architecture tests in a Spring Boot codebase. Use existing architecture checks, ArchUnit for package and dependency constraints, or Taikai when its ready-made conventions are selected.
 ---
 
 # Architecture Rules with Taikai and ArchUnit
