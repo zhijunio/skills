@@ -35,3 +35,7 @@ The second batch changes nine existing skill entry points and adds a provenance 
 ## Phase 02 follow-up
 
 See [Phase 02 review](../reviews/phase-02-review.md) and [workflow acceptance](../verification/phase-02-workflow-acceptance.md). At 4428fdd CI and Skill verification passed for the current 63-skill inventory. A07 now includes the implemented PRD approval, stable IDs, authorized DONE reopening and evidence rules; A08–A10 routing and architecture boundaries were refined. Keep these findings IN_PROGRESS pending actual behavior. A03/A12 installation and metadata checks passed at the latest baseline; host behavior remains unverified. A04 and A13 remain publication blockers. Historical counts and commit evidence above describe their recorded revisions, not current inventory.
+
+## Phase 03 follow-up
+
+See [Phase 03 review](../reviews/phase-03-review.md). At 3c5862b both CI workflows passed; metadata logs show 63 distinct names and 36 helper tests OK. A03/A12 remain IN_PROGRESS for native host and applicable export behavior; A07–A10 remain IN_PROGRESS pending actual workflow runs; A11 static inventory measured, token and behavior comparison NOT RUN. A04/A13 remain release blockers. No audit status closed solely on dataset or synthetic checker evidence.
